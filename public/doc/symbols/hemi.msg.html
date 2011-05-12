@@ -1,1012 +1,998 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 	<head>
-		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
-		<meta name="generator" content="JsDoc Toolkit" />
-		
-		<title>JsDoc Reference - hemi.msg</title>
-		<link href="../css/default.css" type="text/css" rel="stylesheet" media="all" />
+		<meta charset="utf-8"></meta>
+		<meta name="generator" content="JsDoc Toolkit"></meta>
+		<title>hemi.msg | JsDoc Reference</title>
+
+		<meta name="viewport" content="width=device-width; initial-scale=1.0; maximum-scale=1.0;"></meta>
+		<meta name="mobileoptimized" content="0"></meta>
+	
+		<link rel="stylesheet" href="../css/all.css" media="all"></link>
+		<link rel="stylesheet" href="../css/handheld.css" media="only screen and (max-width: 660px)"></link>
+		<link rel="stylesheet" href="../css/handheld.css" media="handheld"></link>
+		<link rel="stylesheet" href="../css/screen.css" media="screen and (min-width: 661px)"></link>
+
+		<script src="../javascript/all.js"></script>
+		<!--[if lt IE 9]>
+			<script src="../javascript/html5.js"></script>
+		<![endif]-->
 	</head>
 
 	<body>
-		<div id="header">
+
+<div class="index">
+	<div class="menu">
+		<div class="indexLinks">
+			<a href="../index.html">Classes</a>
+			<a href="../files.html">Files</a>
+		</div>
+	
+		<h2 class="heading1">Classes</h2>
+		
+		<input type="text" name="classFilter" class="classFilter" id="ClassFilter" placeholder="Filter"></input>
+		
+		<nav>
+			<ul class="classList" id="ClassList">
+				
+					<li><a href="../symbols/_global_.html">_global_</a></li>
+				
+					<li><a href="../symbols/hemi.html">hemi</a></li>
+				
+					<li><a href="../symbols/hemi.animation.html">hemi<span class='break'> </span>.<span class='break'> </span>animation</a></li>
+				
+					<li><a href="../symbols/hemi.animation.Animation.html">hemi<span class='break'> </span>.<span class='break'> </span>animation<span class='break'> </span>.<span class='break'> </span>Animation</a></li>
+				
+					<li><a href="../symbols/hemi.animation.Loop.html">hemi<span class='break'> </span>.<span class='break'> </span>animation<span class='break'> </span>.<span class='break'> </span>Loop</a></li>
+				
+					<li><a href="../symbols/hemi.audio.html">hemi<span class='break'> </span>.<span class='break'> </span>audio</a></li>
+				
+					<li><a href="../symbols/hemi.audio.Audio.html">hemi<span class='break'> </span>.<span class='break'> </span>audio<span class='break'> </span>.<span class='break'> </span>Audio</a></li>
+				
+					<li><a href="../symbols/hemi.console.html">hemi<span class='break'> </span>.<span class='break'> </span>console</a></li>
+				
+					<li><a href="../symbols/hemi.core.html">hemi<span class='break'> </span>.<span class='break'> </span>core</a></li>
+				
+					<li><a href="../symbols/hemi.curve.html">hemi<span class='break'> </span>.<span class='break'> </span>curve</a></li>
+				
+					<li><a href="../symbols/hemi.curve.Curve.html">hemi<span class='break'> </span>.<span class='break'> </span>curve<span class='break'> </span>.<span class='break'> </span>Curve</a></li>
+				
+					<li><a href="../symbols/hemi.curve.Particle.html">hemi<span class='break'> </span>.<span class='break'> </span>curve<span class='break'> </span>.<span class='break'> </span>Particle</a></li>
+				
+					<li><a href="../symbols/hemi.curve.ParticleSystem.html">hemi<span class='break'> </span>.<span class='break'> </span>curve<span class='break'> </span>.<span class='break'> </span>ParticleSystem</a></li>
+				
+					<li><a href="../symbols/hemi.dispatch.html">hemi<span class='break'> </span>.<span class='break'> </span>dispatch</a></li>
+				
+					<li><a href="../symbols/hemi.dispatch.Message.html">hemi<span class='break'> </span>.<span class='break'> </span>dispatch<span class='break'> </span>.<span class='break'> </span>Message</a></li>
+				
+					<li><a href="../symbols/hemi.dispatch.MessageSpec.html">hemi<span class='break'> </span>.<span class='break'> </span>dispatch<span class='break'> </span>.<span class='break'> </span>MessageSpec</a></li>
+				
+					<li><a href="../symbols/hemi.dispatch.MessageTarget.html">hemi<span class='break'> </span>.<span class='break'> </span>dispatch<span class='break'> </span>.<span class='break'> </span>MessageTarget</a></li>
+				
+					<li><a href="../symbols/hemi.effect.html">hemi<span class='break'> </span>.<span class='break'> </span>effect</a></li>
+				
+					<li><a href="../symbols/hemi.effect.Burst.html">hemi<span class='break'> </span>.<span class='break'> </span>effect<span class='break'> </span>.<span class='break'> </span>Burst</a></li>
+				
+					<li><a href="../symbols/hemi.effect.Effect.html">hemi<span class='break'> </span>.<span class='break'> </span>effect<span class='break'> </span>.<span class='break'> </span>Effect</a></li>
+				
+					<li><a href="../symbols/hemi.effect.Emitter.html">hemi<span class='break'> </span>.<span class='break'> </span>effect<span class='break'> </span>.<span class='break'> </span>Emitter</a></li>
+				
+					<li><a href="../symbols/hemi.effect.ParticleFunction.html">hemi<span class='break'> </span>.<span class='break'> </span>effect<span class='break'> </span>.<span class='break'> </span>ParticleFunction</a></li>
+				
+					<li><a href="../symbols/hemi.effect.Trail.html">hemi<span class='break'> </span>.<span class='break'> </span>effect<span class='break'> </span>.<span class='break'> </span>Trail</a></li>
+				
+					<li><a href="../symbols/hemi.handlers.html">hemi<span class='break'> </span>.<span class='break'> </span>handlers</a></li>
+				
+					<li><a href="../symbols/hemi.handlers.ValueCheck.html">hemi<span class='break'> </span>.<span class='break'> </span>handlers<span class='break'> </span>.<span class='break'> </span>ValueCheck</a></li>
+				
+					<li><a href="../symbols/hemi.hud.html">hemi<span class='break'> </span>.<span class='break'> </span>hud</a></li>
+				
+					<li><a href="../symbols/hemi.hud.HudButton.html">hemi<span class='break'> </span>.<span class='break'> </span>hud<span class='break'> </span>.<span class='break'> </span>HudButton</a></li>
+				
+					<li><a href="../symbols/hemi.hud.HudDisplay.html">hemi<span class='break'> </span>.<span class='break'> </span>hud<span class='break'> </span>.<span class='break'> </span>HudDisplay</a></li>
+				
+					<li><a href="../symbols/hemi.hud.HudElement.html">hemi<span class='break'> </span>.<span class='break'> </span>hud<span class='break'> </span>.<span class='break'> </span>HudElement</a></li>
+				
+					<li><a href="../symbols/hemi.hud.HudImage.html">hemi<span class='break'> </span>.<span class='break'> </span>hud<span class='break'> </span>.<span class='break'> </span>HudImage</a></li>
+				
+					<li><a href="../symbols/hemi.hud.HudManager.html">hemi<span class='break'> </span>.<span class='break'> </span>hud<span class='break'> </span>.<span class='break'> </span>HudManager</a></li>
+				
+					<li><a href="../symbols/hemi.hud.HudPage.html">hemi<span class='break'> </span>.<span class='break'> </span>hud<span class='break'> </span>.<span class='break'> </span>HudPage</a></li>
+				
+					<li><a href="../symbols/hemi.hud.HudText.html">hemi<span class='break'> </span>.<span class='break'> </span>hud<span class='break'> </span>.<span class='break'> </span>HudText</a></li>
+				
+					<li><a href="../symbols/hemi.hud.HudVideo.html">hemi<span class='break'> </span>.<span class='break'> </span>hud<span class='break'> </span>.<span class='break'> </span>HudVideo</a></li>
+				
+					<li><a href="../symbols/hemi.hud.Theme.html">hemi<span class='break'> </span>.<span class='break'> </span>hud<span class='break'> </span>.<span class='break'> </span>Theme</a></li>
+				
+					<li><a href="../symbols/hemi.input.html">hemi<span class='break'> </span>.<span class='break'> </span>input</a></li>
+				
+					<li><a href="../symbols/hemi.loader.html">hemi<span class='break'> </span>.<span class='break'> </span>loader</a></li>
+				
+					<li><a href="../symbols/hemi.manip.html">hemi<span class='break'> </span>.<span class='break'> </span>manip</a></li>
+				
+					<li><a href="../symbols/hemi.manip.Draggable.html">hemi<span class='break'> </span>.<span class='break'> </span>manip<span class='break'> </span>.<span class='break'> </span>Draggable</a></li>
+				
+					<li><a href="../symbols/hemi.manip.Turnable.html">hemi<span class='break'> </span>.<span class='break'> </span>manip<span class='break'> </span>.<span class='break'> </span>Turnable</a></li>
+				
+					<li><a href="../symbols/hemi.model.html">hemi<span class='break'> </span>.<span class='break'> </span>model</a></li>
+				
+					<li><a href="../symbols/hemi.model.Model.html">hemi<span class='break'> </span>.<span class='break'> </span>model<span class='break'> </span>.<span class='break'> </span>Model</a></li>
+				
+					<li><a href="../symbols/hemi.model.ModelConfig.html">hemi<span class='break'> </span>.<span class='break'> </span>model<span class='break'> </span>.<span class='break'> </span>ModelConfig</a></li>
+				
+					<li><a href="../symbols/hemi.model.TransformUpdate.html">hemi<span class='break'> </span>.<span class='break'> </span>model<span class='break'> </span>.<span class='break'> </span>TransformUpdate</a></li>
+				
+					<li><a href="../symbols/hemi.motion.html">hemi<span class='break'> </span>.<span class='break'> </span>motion</a></li>
+				
+					<li><a href="../symbols/hemi.motion.Rotator.html">hemi<span class='break'> </span>.<span class='break'> </span>motion<span class='break'> </span>.<span class='break'> </span>Rotator</a></li>
+				
+					<li><a href="../symbols/hemi.motion.Translator.html">hemi<span class='break'> </span>.<span class='break'> </span>motion<span class='break'> </span>.<span class='break'> </span>Translator</a></li>
+				
+					<li><a href="../symbols/hemi.msg.html">hemi<span class='break'> </span>.<span class='break'> </span>msg</a></li>
+				
+					<li><a href="../symbols/hemi.octane.html">hemi<span class='break'> </span>.<span class='break'> </span>octane</a></li>
+				
+					<li><a href="../symbols/hemi.picking.html">hemi<span class='break'> </span>.<span class='break'> </span>picking</a></li>
+				
+					<li><a href="../symbols/hemi.picking.HemiTransformInfo.html">hemi<span class='break'> </span>.<span class='break'> </span>picking<span class='break'> </span>.<span class='break'> </span>HemiTransformInfo</a></li>
+				
+					<li><a href="../symbols/hemi.scene.html">hemi<span class='break'> </span>.<span class='break'> </span>scene</a></li>
+				
+					<li><a href="../symbols/hemi.scene.Scene.html">hemi<span class='break'> </span>.<span class='break'> </span>scene<span class='break'> </span>.<span class='break'> </span>Scene</a></li>
+				
+					<li><a href="../symbols/hemi.shape.html">hemi<span class='break'> </span>.<span class='break'> </span>shape</a></li>
+				
+					<li><a href="../symbols/hemi.shape.Shape.html">hemi<span class='break'> </span>.<span class='break'> </span>shape<span class='break'> </span>.<span class='break'> </span>Shape</a></li>
+				
+					<li><a href="../symbols/hemi.shape.TransformUpdate.html">hemi<span class='break'> </span>.<span class='break'> </span>shape<span class='break'> </span>.<span class='break'> </span>TransformUpdate</a></li>
+				
+					<li><a href="../symbols/hemi.sprite.html">hemi<span class='break'> </span>.<span class='break'> </span>sprite</a></li>
+				
+					<li><a href="../symbols/hemi.sprite.Sprite.html">hemi<span class='break'> </span>.<span class='break'> </span>sprite<span class='break'> </span>.<span class='break'> </span>Sprite</a></li>
+				
+					<li><a href="../symbols/hemi.texture.html">hemi<span class='break'> </span>.<span class='break'> </span>texture</a></li>
+				
+					<li><a href="../symbols/hemi.texture.TextureSampler.html">hemi<span class='break'> </span>.<span class='break'> </span>texture<span class='break'> </span>.<span class='break'> </span>TextureSampler</a></li>
+				
+					<li><a href="../symbols/hemi.texture.TextureSet.html">hemi<span class='break'> </span>.<span class='break'> </span>texture<span class='break'> </span>.<span class='break'> </span>TextureSet</a></li>
+				
+					<li><a href="../symbols/hemi.utils.html">hemi<span class='break'> </span>.<span class='break'> </span>utils</a></li>
+				
+					<li><a href="../symbols/hemi.utils.Hashtable.html">hemi<span class='break'> </span>.<span class='break'> </span>utils<span class='break'> </span>.<span class='break'> </span>Hashtable</a></li>
+				
+					<li><a href="../symbols/hemi.view.html">hemi<span class='break'> </span>.<span class='break'> </span>view</a></li>
+				
+					<li><a href="../symbols/hemi.view.Camera.html">hemi<span class='break'> </span>.<span class='break'> </span>view<span class='break'> </span>.<span class='break'> </span>Camera</a></li>
+				
+					<li><a href="../symbols/hemi.view.ClientSize.html">hemi<span class='break'> </span>.<span class='break'> </span>view<span class='break'> </span>.<span class='break'> </span>ClientSize</a></li>
+				
+					<li><a href="../symbols/hemi.view.Viewpoint.html">hemi<span class='break'> </span>.<span class='break'> </span>view<span class='break'> </span>.<span class='break'> </span>Viewpoint</a></li>
+				
+					<li><a href="../symbols/hemi.world.html">hemi<span class='break'> </span>.<span class='break'> </span>world</a></li>
+				
+					<li><a href="../symbols/hemi.world.Citizen.html">hemi<span class='break'> </span>.<span class='break'> </span>world<span class='break'> </span>.<span class='break'> </span>Citizen</a></li>
+				
+					<li><a href="../symbols/hemi.world.TransformOwner.html">hemi<span class='break'> </span>.<span class='break'> </span>world<span class='break'> </span>.<span class='break'> </span>TransformOwner</a></li>
+				
+					<li><a href="../symbols/hemi.world.TransformRegistry.html">hemi<span class='break'> </span>.<span class='break'> </span>world<span class='break'> </span>.<span class='break'> </span>TransformRegistry</a></li>
+				
+					<li><a href="../symbols/hext.html">hext</a></li>
+				
+					<li><a href="../symbols/hext.engines.html">hext<span class='break'> </span>.<span class='break'> </span>engines</a></li>
+				
+					<li><a href="../symbols/hext.engines.Location.html">hext<span class='break'> </span>.<span class='break'> </span>engines<span class='break'> </span>.<span class='break'> </span>Location</a></li>
+				
+					<li><a href="../symbols/hext.engines.Portal.html">hext<span class='break'> </span>.<span class='break'> </span>engines<span class='break'> </span>.<span class='break'> </span>Portal</a></li>
+				
+					<li><a href="../symbols/hext.engines.PressureEngine.html">hext<span class='break'> </span>.<span class='break'> </span>engines<span class='break'> </span>.<span class='break'> </span>PressureEngine</a></li>
+				
+					<li><a href="../symbols/hext.house.html">hext<span class='break'> </span>.<span class='break'> </span>house</a></li>
+				
+					<li><a href="../symbols/hext.house.Door.html">hext<span class='break'> </span>.<span class='break'> </span>house<span class='break'> </span>.<span class='break'> </span>Door</a></li>
+				
+					<li><a href="../symbols/hext.house.Window.html">hext<span class='break'> </span>.<span class='break'> </span>house<span class='break'> </span>.<span class='break'> </span>Window</a></li>
+				
+					<li><a href="../symbols/hext.html.html">hext<span class='break'> </span>.<span class='break'> </span>html</a></li>
+				
+					<li><a href="../symbols/hext.html.console.html">hext<span class='break'> </span>.<span class='break'> </span>html<span class='break'> </span>.<span class='break'> </span>console</a></li>
+				
+					<li><a href="../symbols/hext.html.hint.html">hext<span class='break'> </span>.<span class='break'> </span>html<span class='break'> </span>.<span class='break'> </span>hint</a></li>
+				
+					<li><a href="../symbols/hext.html.reset.html">hext<span class='break'> </span>.<span class='break'> </span>html<span class='break'> </span>.<span class='break'> </span>reset</a></li>
+				
+					<li><a href="../symbols/hext.html.toolbar.html">hext<span class='break'> </span>.<span class='break'> </span>html<span class='break'> </span>.<span class='break'> </span>toolbar</a></li>
+				
+					<li><a href="../symbols/hext.html.toolViews.html">hext<span class='break'> </span>.<span class='break'> </span>html<span class='break'> </span>.<span class='break'> </span>toolViews</a></li>
+				
+					<li><a href="../symbols/hext.hud.html">hext<span class='break'> </span>.<span class='break'> </span>hud</a></li>
+				
+					<li><a href="../symbols/hext.hud.PagingInfo.html">hext<span class='break'> </span>.<span class='break'> </span>hud<span class='break'> </span>.<span class='break'> </span>PagingInfo</a></li>
+				
+					<li><a href="../symbols/hext.msg.html">hext<span class='break'> </span>.<span class='break'> </span>msg</a></li>
+				
+					<li><a href="../symbols/hext.tools.html">hext<span class='break'> </span>.<span class='break'> </span>tools</a></li>
+				
+					<li><a href="../symbols/hext.tools.BaseController.html">hext<span class='break'> </span>.<span class='break'> </span>tools<span class='break'> </span>.<span class='break'> </span>BaseController</a></li>
+				
+					<li><a href="../symbols/hext.tools.BaseTool.html">hext<span class='break'> </span>.<span class='break'> </span>tools<span class='break'> </span>.<span class='break'> </span>BaseTool</a></li>
+				
+					<li><a href="../symbols/hext.tools.BlowerDoor.html">hext<span class='break'> </span>.<span class='break'> </span>tools<span class='break'> </span>.<span class='break'> </span>BlowerDoor</a></li>
+				
+					<li><a href="../symbols/hext.tools.BlowerDoorController.html">hext<span class='break'> </span>.<span class='break'> </span>tools<span class='break'> </span>.<span class='break'> </span>BlowerDoorController</a></li>
+				
+					<li><a href="../symbols/hext.tools.BlowerDoorToolbarView.html">hext<span class='break'> </span>.<span class='break'> </span>tools<span class='break'> </span>.<span class='break'> </span>BlowerDoorToolbarView</a></li>
+				
+					<li><a href="../symbols/hext.tools.BlowerDoorToolbarViewConfig.html">hext<span class='break'> </span>.<span class='break'> </span>tools<span class='break'> </span>.<span class='break'> </span>BlowerDoorToolbarViewConfig</a></li>
+				
+					<li><a href="../symbols/hext.tools.BlowerDoorView.html">hext<span class='break'> </span>.<span class='break'> </span>tools<span class='break'> </span>.<span class='break'> </span>BlowerDoorView</a></li>
+				
+					<li><a href="../symbols/hext.tools.BlowerDoorViewConfig.html">hext<span class='break'> </span>.<span class='break'> </span>tools<span class='break'> </span>.<span class='break'> </span>BlowerDoorViewConfig</a></li>
+				
+					<li><a href="../symbols/hext.tools.HtmlView.html">hext<span class='break'> </span>.<span class='break'> </span>tools<span class='break'> </span>.<span class='break'> </span>HtmlView</a></li>
+				
+					<li><a href="../symbols/hext.tools.HtmlViewConfig.html">hext<span class='break'> </span>.<span class='break'> </span>tools<span class='break'> </span>.<span class='break'> </span>HtmlViewConfig</a></li>
+				
+					<li><a href="../symbols/hext.tools.Manometer.html">hext<span class='break'> </span>.<span class='break'> </span>tools<span class='break'> </span>.<span class='break'> </span>Manometer</a></li>
+				
+					<li><a href="../symbols/hext.tools.ManometerController.html">hext<span class='break'> </span>.<span class='break'> </span>tools<span class='break'> </span>.<span class='break'> </span>ManometerController</a></li>
+				
+					<li><a href="../symbols/hext.tools.ManometerToolbarView.html">hext<span class='break'> </span>.<span class='break'> </span>tools<span class='break'> </span>.<span class='break'> </span>ManometerToolbarView</a></li>
+				
+					<li><a href="../symbols/hext.tools.ManometerToolbarViewConfig.html">hext<span class='break'> </span>.<span class='break'> </span>tools<span class='break'> </span>.<span class='break'> </span>ManometerToolbarViewConfig</a></li>
+				
+					<li><a href="../symbols/hext.tools.ManometerTube.html">hext<span class='break'> </span>.<span class='break'> </span>tools<span class='break'> </span>.<span class='break'> </span>ManometerTube</a></li>
+				
+					<li><a href="../symbols/hext.tools.ManometerTubeManager.html">hext<span class='break'> </span>.<span class='break'> </span>tools<span class='break'> </span>.<span class='break'> </span>ManometerTubeManager</a></li>
+				
+					<li><a href="../symbols/hext.tools.ManometerView.html">hext<span class='break'> </span>.<span class='break'> </span>tools<span class='break'> </span>.<span class='break'> </span>ManometerView</a></li>
+				
+					<li><a href="../symbols/hext.tools.ManometerViewConfig.html">hext<span class='break'> </span>.<span class='break'> </span>tools<span class='break'> </span>.<span class='break'> </span>ManometerViewConfig</a></li>
+				
+					<li><a href="../symbols/hext.tools.Navigation.html">hext<span class='break'> </span>.<span class='break'> </span>tools<span class='break'> </span>.<span class='break'> </span>Navigation</a></li>
+				
+					<li><a href="../symbols/hext.tools.NavigationController.html">hext<span class='break'> </span>.<span class='break'> </span>tools<span class='break'> </span>.<span class='break'> </span>NavigationController</a></li>
+				
+					<li><a href="../symbols/hext.tools.NavigationToolbarView.html">hext<span class='break'> </span>.<span class='break'> </span>tools<span class='break'> </span>.<span class='break'> </span>NavigationToolbarView</a></li>
+				
+					<li><a href="../symbols/hext.tools.NavigationToolbarViewConfig.html">hext<span class='break'> </span>.<span class='break'> </span>tools<span class='break'> </span>.<span class='break'> </span>NavigationToolbarViewConfig</a></li>
+				
+					<li><a href="../symbols/hext.tools.ShapeView.html">hext<span class='break'> </span>.<span class='break'> </span>tools<span class='break'> </span>.<span class='break'> </span>ShapeView</a></li>
+				
+					<li><a href="../symbols/hext.tools.SmokePuffConfig.html">hext<span class='break'> </span>.<span class='break'> </span>tools<span class='break'> </span>.<span class='break'> </span>SmokePuffConfig</a></li>
+				
+					<li><a href="../symbols/hext.tools.SmokePuffer.html">hext<span class='break'> </span>.<span class='break'> </span>tools<span class='break'> </span>.<span class='break'> </span>SmokePuffer</a></li>
+				
+					<li><a href="../symbols/hext.tools.SmokePufferController.html">hext<span class='break'> </span>.<span class='break'> </span>tools<span class='break'> </span>.<span class='break'> </span>SmokePufferController</a></li>
+				
+					<li><a href="../symbols/hext.tools.SmokePufferToolbarView.html">hext<span class='break'> </span>.<span class='break'> </span>tools<span class='break'> </span>.<span class='break'> </span>SmokePufferToolbarView</a></li>
+				
+					<li><a href="../symbols/hext.tools.SmokePufferToolbarViewConfig.html">hext<span class='break'> </span>.<span class='break'> </span>tools<span class='break'> </span>.<span class='break'> </span>SmokePufferToolbarViewConfig</a></li>
+				
+					<li><a href="../symbols/hext.tools.ToolbarView.html">hext<span class='break'> </span>.<span class='break'> </span>tools<span class='break'> </span>.<span class='break'> </span>ToolbarView</a></li>
+				
+					<li><a href="../symbols/hext.tools.ToolbarViewConfig.html">hext<span class='break'> </span>.<span class='break'> </span>tools<span class='break'> </span>.<span class='break'> </span>ToolbarViewConfig</a></li>
+				
+					<li><a href="../symbols/hext.utils.debug.html">hext<span class='break'> </span>.<span class='break'> </span>utils<span class='break'> </span>.<span class='break'> </span>debug</a></li>
+				
+			</ul>
+		</nav>
+	</div>
+	<div class="fineprint" style="clear:both">
+		
+		Documentation generator: <a href="http://code.google.com/p/jsdoc-toolkit/" target="_blank">JsDoc Toolkit</a> 2.4.0<br />
+		Template: <a href="http://www.thebrightlines.com/2010/05/06/new-template-for-jsdoctoolkit-codeview/" target="_blank">Codeview</a> 1.2<br />
+		Generated on: 2011-4-11 18:06
+	</div>
 </div>
 
-		<div class="index">
-			<div class="menu">
-				<!-- begin publish.classesIndex -->
-				<div align="center"><a href="../index.html">Class Index</a> | <a href="../files.html">File Index</a></div>
+<div class="index indexStatic"></div>
 
-<h2 class="heading1">Classes</h2>
-
-<ul class="classList">
-	
-		<li><a href="../symbols/_global_.html">_global_</a></li>
-	
-		<li><a href="../symbols/hemi.html">hemi</a></li>
-	
-		<li><a href="../symbols/hemi.animation.html">hemi.animation</a></li>
-	
-		<li><a href="../symbols/hemi.animation.Animation.html">hemi.animation.Animation</a></li>
-	
-		<li><a href="../symbols/hemi.animation.Loop.html">hemi.animation.Loop</a></li>
-	
-		<li><a href="../symbols/hemi.audio.html">hemi.audio</a></li>
-	
-		<li><a href="../symbols/hemi.audio.Audio.html">hemi.audio.Audio</a></li>
-	
-		<li><a href="../symbols/hemi.console.html">hemi.console</a></li>
-	
-		<li><a href="../symbols/hemi.core.html">hemi.core</a></li>
-	
-		<li><a href="../symbols/hemi.curve.html">hemi.curve</a></li>
-	
-		<li><a href="../symbols/hemi.curve.Curve.html">hemi.curve.Curve</a></li>
-	
-		<li><a href="../symbols/hemi.curve.Particle.html">hemi.curve.Particle</a></li>
-	
-		<li><a href="../symbols/hemi.curve.ParticleSystem.html">hemi.curve.ParticleSystem</a></li>
-	
-		<li><a href="../symbols/hemi.dispatch.html">hemi.dispatch</a></li>
-	
-		<li><a href="../symbols/hemi.dispatch.Message.html">hemi.dispatch.Message</a></li>
-	
-		<li><a href="../symbols/hemi.dispatch.MessageSpec.html">hemi.dispatch.MessageSpec</a></li>
-	
-		<li><a href="../symbols/hemi.dispatch.MessageTarget.html">hemi.dispatch.MessageTarget</a></li>
-	
-		<li><a href="../symbols/hemi.effect.html">hemi.effect</a></li>
-	
-		<li><a href="../symbols/hemi.effect.Burst.html">hemi.effect.Burst</a></li>
-	
-		<li><a href="../symbols/hemi.effect.Effect.html">hemi.effect.Effect</a></li>
-	
-		<li><a href="../symbols/hemi.effect.Emitter.html">hemi.effect.Emitter</a></li>
-	
-		<li><a href="../symbols/hemi.effect.ParticleFunction.html">hemi.effect.ParticleFunction</a></li>
-	
-		<li><a href="../symbols/hemi.effect.Trail.html">hemi.effect.Trail</a></li>
-	
-		<li><a href="../symbols/hemi.handlers.html">hemi.handlers</a></li>
-	
-		<li><a href="../symbols/hemi.handlers.ValueCheck.html">hemi.handlers.ValueCheck</a></li>
-	
-		<li><a href="../symbols/hemi.hud.html">hemi.hud</a></li>
-	
-		<li><a href="../symbols/hemi.hud.HudButton.html">hemi.hud.HudButton</a></li>
-	
-		<li><a href="../symbols/hemi.hud.HudDisplay.html">hemi.hud.HudDisplay</a></li>
-	
-		<li><a href="../symbols/hemi.hud.HudElement.html">hemi.hud.HudElement</a></li>
-	
-		<li><a href="../symbols/hemi.hud.HudImage.html">hemi.hud.HudImage</a></li>
-	
-		<li><a href="../symbols/hemi.hud.HudManager.html">hemi.hud.HudManager</a></li>
-	
-		<li><a href="../symbols/hemi.hud.HudPage.html">hemi.hud.HudPage</a></li>
-	
-		<li><a href="../symbols/hemi.hud.HudText.html">hemi.hud.HudText</a></li>
-	
-		<li><a href="../symbols/hemi.hud.HudVideo.html">hemi.hud.HudVideo</a></li>
-	
-		<li><a href="../symbols/hemi.hud.Theme.html">hemi.hud.Theme</a></li>
-	
-		<li><a href="../symbols/hemi.input.html">hemi.input</a></li>
-	
-		<li><a href="../symbols/hemi.loader.html">hemi.loader</a></li>
-	
-		<li><a href="../symbols/hemi.manip.html">hemi.manip</a></li>
-	
-		<li><a href="../symbols/hemi.manip.Draggable.html">hemi.manip.Draggable</a></li>
-	
-		<li><a href="../symbols/hemi.manip.Turnable.html">hemi.manip.Turnable</a></li>
-	
-		<li><a href="../symbols/hemi.model.html">hemi.model</a></li>
-	
-		<li><a href="../symbols/hemi.model.Model.html">hemi.model.Model</a></li>
-	
-		<li><a href="../symbols/hemi.model.ModelConfig.html">hemi.model.ModelConfig</a></li>
-	
-		<li><a href="../symbols/hemi.model.TransformUpdate.html">hemi.model.TransformUpdate</a></li>
-	
-		<li><a href="../symbols/hemi.motion.html">hemi.motion</a></li>
-	
-		<li><a href="../symbols/hemi.motion.Rotator.html">hemi.motion.Rotator</a></li>
-	
-		<li><a href="../symbols/hemi.motion.Translator.html">hemi.motion.Translator</a></li>
-	
-		<li><a href="../symbols/hemi.msg.html">hemi.msg</a></li>
-	
-		<li><a href="../symbols/hemi.octane.html">hemi.octane</a></li>
-	
-		<li><a href="../symbols/hemi.picking.html">hemi.picking</a></li>
-	
-		<li><a href="../symbols/hemi.picking.HemiTransformInfo.html">hemi.picking.HemiTransformInfo</a></li>
-	
-		<li><a href="../symbols/hemi.scene.html">hemi.scene</a></li>
-	
-		<li><a href="../symbols/hemi.scene.Scene.html">hemi.scene.Scene</a></li>
-	
-		<li><a href="../symbols/hemi.shape.html">hemi.shape</a></li>
-	
-		<li><a href="../symbols/hemi.shape.Shape.html">hemi.shape.Shape</a></li>
-	
-		<li><a href="../symbols/hemi.shape.TransformUpdate.html">hemi.shape.TransformUpdate</a></li>
-	
-		<li><a href="../symbols/hemi.sprite.html">hemi.sprite</a></li>
-	
-		<li><a href="../symbols/hemi.sprite.Sprite.html">hemi.sprite.Sprite</a></li>
-	
-		<li><a href="../symbols/hemi.texture.html">hemi.texture</a></li>
-	
-		<li><a href="../symbols/hemi.texture.TextureSampler.html">hemi.texture.TextureSampler</a></li>
-	
-		<li><a href="../symbols/hemi.texture.TextureSet.html">hemi.texture.TextureSet</a></li>
-	
-		<li><a href="../symbols/hemi.utils.html">hemi.utils</a></li>
-	
-		<li><a href="../symbols/hemi.utils.Hashtable.html">hemi.utils.Hashtable</a></li>
-	
-		<li><a href="../symbols/hemi.view.html">hemi.view</a></li>
-	
-		<li><a href="../symbols/hemi.view.Camera.html">hemi.view.Camera</a></li>
-	
-		<li><a href="../symbols/hemi.view.ClientSize.html">hemi.view.ClientSize</a></li>
-	
-		<li><a href="../symbols/hemi.view.Viewpoint.html">hemi.view.Viewpoint</a></li>
-	
-		<li><a href="../symbols/hemi.world.html">hemi.world</a></li>
-	
-		<li><a href="../symbols/hemi.world.Citizen.html">hemi.world.Citizen</a></li>
-	
-		<li><a href="../symbols/hemi.world.TransformOwner.html">hemi.world.TransformOwner</a></li>
-	
-		<li><a href="../symbols/hemi.world.TransformRegistry.html">hemi.world.TransformRegistry</a></li>
-	
-		<li><a href="../symbols/hext.html">hext</a></li>
-	
-		<li><a href="../symbols/hext.engines.html">hext.engines</a></li>
-	
-		<li><a href="../symbols/hext.engines.Location.html">hext.engines.Location</a></li>
-	
-		<li><a href="../symbols/hext.engines.Portal.html">hext.engines.Portal</a></li>
-	
-		<li><a href="../symbols/hext.engines.PressureEngine.html">hext.engines.PressureEngine</a></li>
-	
-		<li><a href="../symbols/hext.house.html">hext.house</a></li>
-	
-		<li><a href="../symbols/hext.house.Door.html">hext.house.Door</a></li>
-	
-		<li><a href="../symbols/hext.house.Window.html">hext.house.Window</a></li>
-	
-		<li><a href="../symbols/hext.html.html">hext.html</a></li>
-	
-		<li><a href="../symbols/hext.html.console.html">hext.html.console</a></li>
-	
-		<li><a href="../symbols/hext.html.hint.html">hext.html.hint</a></li>
-	
-		<li><a href="../symbols/hext.html.reset.html">hext.html.reset</a></li>
-	
-		<li><a href="../symbols/hext.html.toolbar.html">hext.html.toolbar</a></li>
-	
-		<li><a href="../symbols/hext.html.toolViews.html">hext.html.toolViews</a></li>
-	
-		<li><a href="../symbols/hext.hud.html">hext.hud</a></li>
-	
-		<li><a href="../symbols/hext.hud.PagingInfo.html">hext.hud.PagingInfo</a></li>
-	
-		<li><a href="../symbols/hext.msg.html">hext.msg</a></li>
-	
-		<li><a href="../symbols/hext.tools.html">hext.tools</a></li>
-	
-		<li><a href="../symbols/hext.tools.BaseController.html">hext.tools.BaseController</a></li>
-	
-		<li><a href="../symbols/hext.tools.BaseTool.html">hext.tools.BaseTool</a></li>
-	
-		<li><a href="../symbols/hext.tools.BlowerDoor.html">hext.tools.BlowerDoor</a></li>
-	
-		<li><a href="../symbols/hext.tools.BlowerDoorController.html">hext.tools.BlowerDoorController</a></li>
-	
-		<li><a href="../symbols/hext.tools.BlowerDoorToolbarView.html">hext.tools.BlowerDoorToolbarView</a></li>
-	
-		<li><a href="../symbols/hext.tools.BlowerDoorToolbarViewConfig.html">hext.tools.BlowerDoorToolbarViewConfig</a></li>
-	
-		<li><a href="../symbols/hext.tools.BlowerDoorView.html">hext.tools.BlowerDoorView</a></li>
-	
-		<li><a href="../symbols/hext.tools.BlowerDoorViewConfig.html">hext.tools.BlowerDoorViewConfig</a></li>
-	
-		<li><a href="../symbols/hext.tools.HtmlView.html">hext.tools.HtmlView</a></li>
-	
-		<li><a href="../symbols/hext.tools.HtmlViewConfig.html">hext.tools.HtmlViewConfig</a></li>
-	
-		<li><a href="../symbols/hext.tools.Manometer.html">hext.tools.Manometer</a></li>
-	
-		<li><a href="../symbols/hext.tools.ManometerController.html">hext.tools.ManometerController</a></li>
-	
-		<li><a href="../symbols/hext.tools.ManometerToolbarView.html">hext.tools.ManometerToolbarView</a></li>
-	
-		<li><a href="../symbols/hext.tools.ManometerToolbarViewConfig.html">hext.tools.ManometerToolbarViewConfig</a></li>
-	
-		<li><a href="../symbols/hext.tools.ManometerTube.html">hext.tools.ManometerTube</a></li>
-	
-		<li><a href="../symbols/hext.tools.ManometerTubeManager.html">hext.tools.ManometerTubeManager</a></li>
-	
-		<li><a href="../symbols/hext.tools.ManometerView.html">hext.tools.ManometerView</a></li>
-	
-		<li><a href="../symbols/hext.tools.ManometerViewConfig.html">hext.tools.ManometerViewConfig</a></li>
-	
-		<li><a href="../symbols/hext.tools.Navigation.html">hext.tools.Navigation</a></li>
-	
-		<li><a href="../symbols/hext.tools.NavigationController.html">hext.tools.NavigationController</a></li>
-	
-		<li><a href="../symbols/hext.tools.NavigationToolbarView.html">hext.tools.NavigationToolbarView</a></li>
-	
-		<li><a href="../symbols/hext.tools.NavigationToolbarViewConfig.html">hext.tools.NavigationToolbarViewConfig</a></li>
-	
-		<li><a href="../symbols/hext.tools.ShapeView.html">hext.tools.ShapeView</a></li>
-	
-		<li><a href="../symbols/hext.tools.SmokePuffConfig.html">hext.tools.SmokePuffConfig</a></li>
-	
-		<li><a href="../symbols/hext.tools.SmokePuffer.html">hext.tools.SmokePuffer</a></li>
-	
-		<li><a href="../symbols/hext.tools.SmokePufferController.html">hext.tools.SmokePufferController</a></li>
-	
-		<li><a href="../symbols/hext.tools.SmokePufferToolbarView.html">hext.tools.SmokePufferToolbarView</a></li>
-	
-		<li><a href="../symbols/hext.tools.SmokePufferToolbarViewConfig.html">hext.tools.SmokePufferToolbarViewConfig</a></li>
-	
-		<li><a href="../symbols/hext.tools.ToolbarView.html">hext.tools.ToolbarView</a></li>
-	
-		<li><a href="../symbols/hext.tools.ToolbarViewConfig.html">hext.tools.ToolbarViewConfig</a></li>
-	
-</ul>
-
-				<!-- end publish.classesIndex -->
-			</div>
+<div class="content">
+	<div class="innerContent">
+		<h1 class="classTitle">
 			
-			<div class="fineprint" style="clear:both">
+			Namespace <span>hemi.msg</span>
+		</h1>
+		
+		<div class="intro">
+			<p class="description summary">
+				A module for managing the string literals for Message types.
+			</p>
 				
-				Generated by <a href="http://code.google.com/p/jsdoc-toolkit/" target="_blank">JsDoc Toolkit</a> 2.3.2 on Mon Apr 11 2011 16:58:53 GMT-0700 (PDT)<br />
-				HTML template: <a href="http://www.thebrightlines.com/2010/05/06/new-template-for-jsdoctoolkit-codeview/" target="_blank">Codeview</a>
-			</div>
+			
+				<ul class="summary">
+					
+					
+					
+						<li>Defined in: &lt;js/hemi/msg.js&gt;</li>
+					
+						
+				</ul>
+			
 		</div>
 		
-		<div class="content">
-			<div class="innerContent">
-				<h1 class="classTitle">
-					
-					Namespace <span>hemi.msg</span>
-				</h1>
-
-				<p class="description summary">
-					
-					
-					
-				
-					A module for managing the string literals for Message types.
-					
-					
-						<br /><em>Defined in: </em> &lt;public/js/hemi/\msg.js&gt;.
-					
-				</p>
-
-				
-					<div class="props">
-						<table class="summaryTable" cellspacing="0" summary="A summary of the constructor documented in the class hemi.msg.">
-							<caption>Namespace Summary</caption>
-							<thead>
+		
+			<div class="props">
+				<table class="summaryTable" cellspacing="0" summary="A summary of the constructor documented in the class hemi.msg.">
+					<caption class="sectionTitle">Namespace Summary</caption>
+					<thead>
+						<tr>
+							<th scope="col">Constructor Attributes</th>
+							<th scope="col">Constructor Name and Description</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td class="attributes">&nbsp;</td>
+							<td class="nameDescription" >
+								<div class="fixedFont">
+									<b><a href="../symbols/hemi.msg.html#constructor">hemi.msg</a></b>
+								</div>
+								<div class="description"></div>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		
+		
+		
+			
+			
+				<div class="props">
+					<table class="summaryTable" cellspacing="0" summary="A summary of the fields documented in the class hemi.msg.">
+						<caption class="sectionTitle">Field Summary</caption>
+						
+						<thead>
+							<tr>
+								<th scope="col">Field Attributes</th>
+								<th scope="col">Field Name and Description</th>
+							</tr>
+						</thead>
+						
+						<tbody>
+							
 								<tr>
-									<th scope="col">Constructor Attributes</th>
-									<th scope="col">Constructor Name and Description</th>
-								</tr>
-							</thead>
-							<tbody>
-								<tr>
-									<td class="attributes">&nbsp;</td>
-									<td class="nameDescription" >
+									<td class="attributes">&lt;static&gt; &lt;constant&gt; &nbsp;</td>
+									<td class="nameDescription">
 										<div class="fixedFont">
-											<b><a href="../symbols/hemi.msg.html#constructor">hemi.msg</a></b>
+										hemi.msg.<b><a href="../symbols/hemi.msg.html#.animate">animate</a></b>
 										</div>
-										<div class="description"></div>
+										<div class="description">The Message sent when a Model's animation time changes.</div>
 									</td>
 								</tr>
-							</tbody>
-						</table>
+							
+								<tr>
+									<td class="attributes">&lt;static&gt; &lt;constant&gt; &nbsp;</td>
+									<td class="nameDescription">
+										<div class="fixedFont">
+										hemi.msg.<b><a href="../symbols/hemi.msg.html#.burst">burst</a></b>
+										</div>
+										<div class="description">The Message sent when a Burst effect is triggered.</div>
+									</td>
+								</tr>
+							
+								<tr>
+									<td class="attributes">&lt;static&gt; &lt;constant&gt; &nbsp;</td>
+									<td class="nameDescription">
+										<div class="fixedFont">
+										hemi.msg.<b><a href="../symbols/hemi.msg.html#.cleanup">cleanup</a></b>
+										</div>
+										<div class="description">The Message sent when a Citizen is cleaning up its resources.</div>
+									</td>
+								</tr>
+							
+								<tr>
+									<td class="attributes">&lt;static&gt; &lt;constant&gt; &nbsp;</td>
+									<td class="nameDescription">
+										<div class="fixedFont">
+										hemi.msg.<b><a href="../symbols/hemi.msg.html#.drag">drag</a></b>
+										</div>
+										<div class="description">The Message sent when a Draggable has been dragged.</div>
+									</td>
+								</tr>
+							
+								<tr>
+									<td class="attributes">&lt;static&gt; &lt;constant&gt; &nbsp;</td>
+									<td class="nameDescription">
+										<div class="fixedFont">
+										hemi.msg.<b><a href="../symbols/hemi.msg.html#.enable">enable</a></b>
+										</div>
+										<div class="description">The Message sent when a tool is enabled or disabled.</div>
+									</td>
+								</tr>
+							
+								<tr>
+									<td class="attributes">&lt;static&gt; &lt;constant&gt; &nbsp;</td>
+									<td class="nameDescription">
+										<div class="fixedFont">
+										hemi.msg.<b><a href="../symbols/hemi.msg.html#.load">load</a></b>
+										</div>
+										<div class="description">The Message sent when something is loaded.</div>
+									</td>
+								</tr>
+							
+								<tr>
+									<td class="attributes">&lt;static&gt; &lt;constant&gt; &nbsp;</td>
+									<td class="nameDescription">
+										<div class="fixedFont">
+										hemi.msg.<b><a href="../symbols/hemi.msg.html#.pick">pick</a></b>
+										</div>
+										<div class="description">The Message sent when a shape is picked by a mouse down.</div>
+									</td>
+								</tr>
+							
+								<tr>
+									<td class="attributes">&lt;static&gt; &lt;constant&gt; &nbsp;</td>
+									<td class="nameDescription">
+										<div class="fixedFont">
+										hemi.msg.<b><a href="../symbols/hemi.msg.html#.progress">progress</a></b>
+										</div>
+										<div class="description">The Message sent when a task's progress data has been updated.</div>
+									</td>
+								</tr>
+							
+								<tr>
+									<td class="attributes">&lt;static&gt; &lt;constant&gt; &nbsp;</td>
+									<td class="nameDescription">
+										<div class="fixedFont">
+										hemi.msg.<b><a href="../symbols/hemi.msg.html#.ready">ready</a></b>
+										</div>
+										<div class="description">The Message sent when the World's ready function is called.</div>
+									</td>
+								</tr>
+							
+								<tr>
+									<td class="attributes">&lt;static&gt; &lt;constant&gt; &nbsp;</td>
+									<td class="nameDescription">
+										<div class="fixedFont">
+										hemi.msg.<b><a href="../symbols/hemi.msg.html#.start">start</a></b>
+										</div>
+										<div class="description">The Message sent when a process starts.</div>
+									</td>
+								</tr>
+							
+								<tr>
+									<td class="attributes">&lt;static&gt; &lt;constant&gt; &nbsp;</td>
+									<td class="nameDescription">
+										<div class="fixedFont">
+										hemi.msg.<b><a href="../symbols/hemi.msg.html#.stop">stop</a></b>
+										</div>
+										<div class="description">The Message sent when a process stops.</div>
+									</td>
+								</tr>
+							
+								<tr>
+									<td class="attributes">&lt;static&gt; &lt;constant&gt; &nbsp;</td>
+									<td class="nameDescription">
+										<div class="fixedFont">
+										hemi.msg.<b><a href="../symbols/hemi.msg.html#.unload">unload</a></b>
+										</div>
+										<div class="description">The Message sent when something is unloaded.</div>
+									</td>
+								</tr>
+							
+								<tr>
+									<td class="attributes">&lt;static&gt; &lt;constant&gt; &nbsp;</td>
+									<td class="nameDescription">
+										<div class="fixedFont">
+										hemi.msg.<b><a href="../symbols/hemi.msg.html#.visible">visible</a></b>
+										</div>
+										<div class="description">The Message sent when something is displayed or hidden.</div>
+									</td>
+								</tr>
+							
+						</tbody>
+					</table>
+				</div>
+			
+			
+			
+		
+<!--
+#### METHODS SUMMARY
+-->
+		
+			
+			
+			<div class="props">
+				<h2 class="sectionTitle">Method Summary</h2>
+				
+				
+					<table class="summaryTable" id="MethodsList" cellspacing="0" summary="A summary of the methods documented in the class hemi.msg.">
+						<thead>
+							<tr>
+								<th scope="col">Method Attributes</th>
+								<th scope="col">Method Name and Description</th>
+							</tr>
+						</thead>
+						
+						<tbody>
+							
+							
+								<tr
+									 class='item0'
+								>
+									<td class="attributes">&lt;static&gt; &nbsp;</td>
+									<td class="nameDescription">
+										<div class="fixedFont">hemi.msg.<b><a href="../symbols/hemi.msg.html#.subscribe">subscribe</a></b>(type, handler, opt_func, opt_args)
+										</div>
+										<div class="description">Register the given handler to receive Messages of the specified typefrom any source.</div>
+									</td>
+								</tr>
+							
+								<tr
+									 class='item1'
+								>
+									<td class="attributes">&lt;static&gt; &nbsp;</td>
+									<td class="nameDescription">
+										<div class="fixedFont">hemi.msg.<b><a href="../symbols/hemi.msg.html#.unsubscribe">unsubscribe</a></b>(target, opt_type)
+										</div>
+										<div class="description">Remove the given MessageTarget for the specified Message type.</div>
+									</td>
+								</tr>
+							
+						</tbody>
+					</table>
+				
+			
+				
+			</div>
+		
+		
+<!--
+#### EVENTS SUMMARY
+-->
+		
+<!--
+#### CONSTRUCTOR DETAILS
+-->
+		
+			<div class="details props">
+				<div class="innerProps">
+					<h2 class="sectionTitle" id="constructor">
+						Namespace Detail
+					</h2>
+					
+					<div class="fixedFont">
+						<b>hemi.msg</b>
 					</div>
-				
-
+					
+					<div class="description">
+						
+						
+					</div>
+					
+					
+						
+							<pre class="code">The documentation for each Message type has an example of a typicalMessage body for that type (the 'data' property of a Message).</pre>
+						
+					
 				
 					
 					
-						<div class="props">
-							<table class="summaryTable" cellspacing="0" summary="A summary of the fields documented in the class hemi.msg.">
-								<caption>Field Summary</caption>
-								
-								<thead>
-									<tr>
-										<th scope="col">Field Attributes</th>
-										<th scope="col">Field Name and Description</th>
-									</tr>
-								</thead>
-								
-								<tbody>
-									
-										<tr>
-											<td class="attributes">&lt;static&gt; &lt;constant&gt; &nbsp;</td>
-											<td class="nameDescription">
-												<div class="fixedFont">
-												hemi.msg.<b><a href="../symbols/hemi.msg.html#.animate">animate</a></b>
-												</div>
-												<div class="description">The Message sent when a Model's animation time changes.</div>
-											</td>
-										</tr>
-									
-										<tr>
-											<td class="attributes">&lt;static&gt; &lt;constant&gt; &nbsp;</td>
-											<td class="nameDescription">
-												<div class="fixedFont">
-												hemi.msg.<b><a href="../symbols/hemi.msg.html#.burst">burst</a></b>
-												</div>
-												<div class="description">The Message sent when a Burst effect is triggered.</div>
-											</td>
-										</tr>
-									
-										<tr>
-											<td class="attributes">&lt;static&gt; &lt;constant&gt; &nbsp;</td>
-											<td class="nameDescription">
-												<div class="fixedFont">
-												hemi.msg.<b><a href="../symbols/hemi.msg.html#.cleanup">cleanup</a></b>
-												</div>
-												<div class="description">The Message sent when a Citizen is cleaning up its resources.</div>
-											</td>
-										</tr>
-									
-										<tr>
-											<td class="attributes">&lt;static&gt; &lt;constant&gt; &nbsp;</td>
-											<td class="nameDescription">
-												<div class="fixedFont">
-												hemi.msg.<b><a href="../symbols/hemi.msg.html#.drag">drag</a></b>
-												</div>
-												<div class="description">The Message sent when a Draggable has been dragged.</div>
-											</td>
-										</tr>
-									
-										<tr>
-											<td class="attributes">&lt;static&gt; &lt;constant&gt; &nbsp;</td>
-											<td class="nameDescription">
-												<div class="fixedFont">
-												hemi.msg.<b><a href="../symbols/hemi.msg.html#.enable">enable</a></b>
-												</div>
-												<div class="description">The Message sent when a tool is enabled or disabled.</div>
-											</td>
-										</tr>
-									
-										<tr>
-											<td class="attributes">&lt;static&gt; &lt;constant&gt; &nbsp;</td>
-											<td class="nameDescription">
-												<div class="fixedFont">
-												hemi.msg.<b><a href="../symbols/hemi.msg.html#.load">load</a></b>
-												</div>
-												<div class="description">The Message sent when something is loaded.</div>
-											</td>
-										</tr>
-									
-										<tr>
-											<td class="attributes">&lt;static&gt; &lt;constant&gt; &nbsp;</td>
-											<td class="nameDescription">
-												<div class="fixedFont">
-												hemi.msg.<b><a href="../symbols/hemi.msg.html#.pick">pick</a></b>
-												</div>
-												<div class="description">The Message sent when a shape is picked by a mouse down.</div>
-											</td>
-										</tr>
-									
-										<tr>
-											<td class="attributes">&lt;static&gt; &lt;constant&gt; &nbsp;</td>
-											<td class="nameDescription">
-												<div class="fixedFont">
-												hemi.msg.<b><a href="../symbols/hemi.msg.html#.progress">progress</a></b>
-												</div>
-												<div class="description">The Message sent when progress data has been updated.</div>
-											</td>
-										</tr>
-									
-										<tr>
-											<td class="attributes">&lt;static&gt; &lt;constant&gt; &nbsp;</td>
-											<td class="nameDescription">
-												<div class="fixedFont">
-												hemi.msg.<b><a href="../symbols/hemi.msg.html#.ready">ready</a></b>
-												</div>
-												<div class="description">The Message sent when the World's ready function is called.</div>
-											</td>
-										</tr>
-									
-										<tr>
-											<td class="attributes">&lt;static&gt; &lt;constant&gt; &nbsp;</td>
-											<td class="nameDescription">
-												<div class="fixedFont">
-												hemi.msg.<b><a href="../symbols/hemi.msg.html#.start">start</a></b>
-												</div>
-												<div class="description">The Message sent when a process starts.</div>
-											</td>
-										</tr>
-									
-										<tr>
-											<td class="attributes">&lt;static&gt; &lt;constant&gt; &nbsp;</td>
-											<td class="nameDescription">
-												<div class="fixedFont">
-												hemi.msg.<b><a href="../symbols/hemi.msg.html#.stop">stop</a></b>
-												</div>
-												<div class="description">The Message sent when a process stops.</div>
-											</td>
-										</tr>
-									
-										<tr>
-											<td class="attributes">&lt;static&gt; &lt;constant&gt; &nbsp;</td>
-											<td class="nameDescription">
-												<div class="fixedFont">
-												hemi.msg.<b><a href="../symbols/hemi.msg.html#.unload">unload</a></b>
-												</div>
-												<div class="description">The Message sent when something is unloaded.</div>
-											</td>
-										</tr>
-									
-										<tr>
-											<td class="attributes">&lt;static&gt; &lt;constant&gt; &nbsp;</td>
-											<td class="nameDescription">
-												<div class="fixedFont">
-												hemi.msg.<b><a href="../symbols/hemi.msg.html#.visible">visible</a></b>
-												</div>
-												<div class="description">The Message sent when something is displayed or hidden.</div>
-											</td>
-										</tr>
-									
-								</tbody>
-							</table>
+					
+				</div>
+			</div>
+		
+<!--
+#### FIELD DETAILS
+-->
+		
+			<div class="details props">
+				<div class="innerProps">
+					<h2 class="sectionTitle">
+						Field Detail
+					</h2>
+					
+					
+						<div class="fixedFont heading" id=".animate">
+							<span class='lighter'>
+							&lt;static&gt; &lt;constant&gt; 
+							</span>
+							
+							<span class="light">{string}</span>
+							
+							<span class="light">hemi.msg.</span><b>animate</b>							
 						</div>
-					
-					
-					
-				
-
-	<!--
-	#### METHODS SUMMARY
-	-->
-				
-					
-					
-						<div class="props">
-							<table class="summaryTable" cellspacing="0" summary="A summary of the methods documented in the class hemi.msg.">
-								<caption>Method Summary</caption>
-								
-								<thead>
-									<tr>
-										<th scope="col">Method Attributes</th>
-										<th scope="col">Method Name and Description</th>
-									</tr>
-								</thead>
-								
-								<tbody>
-									
-										<tr>
-											<td class="attributes">&lt;static&gt; &nbsp;</td>
-											<td class="nameDescription">
-												<div class="fixedFont">hemi.msg.<b><a href="../symbols/hemi.msg.html#.subscribe">subscribe</a></b>(type, handler, opt_func, opt_args)
-												</div>
-												<div class="description">Register the given handler to receive Messages of the specified typefrom any source.</div>
-											</td>
-										</tr>
-									
-										<tr>
-											<td class="attributes">&lt;static&gt; &nbsp;</td>
-											<td class="nameDescription">
-												<div class="fixedFont">hemi.msg.<b><a href="../symbols/hemi.msg.html#.unsubscribe">unsubscribe</a></b>(target, opt_type)
-												</div>
-												<div class="description">Remove the given MessageTarget for the specified Message type.</div>
-											</td>
-										</tr>
-									
-								</tbody>
-							</table>
+						
+						<div class="description">
+							The Message sent when a Model's animation time changes.
+							
+							
+							
 						</div>
-					
-					
-					
-				
-				
-	<!--
-	#### EVENTS SUMMARY
-	-->
-				
-
-	<!--
-	#### CONSTRUCTOR DETAILS
-	-->
-				
-					<div class="details props">
-						<div class="innerProps">
-							<a name="constructor"></a>
+						
+						
 							
-							<div class="sectionTitle">
-								Namespace Detail
-							</div>
-							
-							<div class="fixedFont">
-								<b>hemi.msg</b>
-							</div>
-							
-							<div class="description">
-								
-								
-							</div>
-							
-							
-								
-									<pre class="code">The documentation for each Message type has an example of a typicalMessage body for that type (the 'data' property of a Message).</pre>
-								
+								<pre class="code">Sent by hemi.model.Model, data ={    time: (the new animation time for the Model)}</pre>
 							
 						
 							
+						
+						<div class="hr"></div>
+					
+						<div class="fixedFont heading" id=".burst">
+							<span class='lighter'>
+							&lt;static&gt; &lt;constant&gt; 
+							</span>
+							
+							<span class="light">{string}</span>
+							
+							<span class="light">hemi.msg.</span><b>burst</b>							
+						</div>
+						
+						<div class="description">
+							The Message sent when a Burst effect is triggered.
+							
 							
 							
 						</div>
-					</div>
-				
-
-	<!--
-	#### FIELD DETAILS
-	-->
-				
-					<div class="details props">
-						<div class="innerProps">
-
-							<div class="sectionTitle">
-								Field Detail
-							</div>
+						
+						
+							
+								<pre class="code">Sent by hemi.effect.Burst, data ={    position: (the XYZ position the Burst was triggered at)}</pre>
+							
+						
+							
+						
+						<div class="hr"></div>
+					
+						<div class="fixedFont heading" id=".cleanup">
+							<span class='lighter'>
+							&lt;static&gt; &lt;constant&gt; 
+							</span>
+							
+							<span class="light">{string}</span>
+							
+							<span class="light">hemi.msg.</span><b>cleanup</b>							
+						</div>
+						
+						<div class="description">
+							The Message sent when a Citizen is cleaning up its resources.
 							
 							
-								<a name=".animate"></a>
-								
-								<div class="fixedFont heading">
-									<span class='lighter'>
-									&lt;static&gt; &lt;constant&gt; 
-									</span>
-									
-									<span class="light">{string}</span>
-									
-									<span class="light">hemi.msg.</span><b>animate</b>							
-								</div>
-								
-								<div class="description">
-									The Message sent when a Model's animation time changes.
-									
-									
-									
-								</div>
-								
-								
-									
-										<pre class="code">Sent by hemi.model.Model, data ={    time: (the new animation time for the Model)}</pre>
-									
-								
-
-								
-								
-								<div class="hr"></div>
 							
-								<a name=".burst"></a>
-								
-								<div class="fixedFont heading">
-									<span class='lighter'>
-									&lt;static&gt; &lt;constant&gt; 
-									</span>
-									
-									<span class="light">{string}</span>
-									
-									<span class="light">hemi.msg.</span><b>burst</b>							
-								</div>
-								
-								<div class="description">
-									The Message sent when a Burst effect is triggered.
-									
-									
-									
-								</div>
-								
-								
-									
-										<pre class="code">Sent by hemi.effect.Burst, data ={    position: (the XYZ position the Burst was triggered at)}</pre>
-									
-								
-
-								
-								
-								<div class="hr"></div>
+						</div>
+						
+						
 							
-								<a name=".cleanup"></a>
-								
-								<div class="fixedFont heading">
-									<span class='lighter'>
-									&lt;static&gt; &lt;constant&gt; 
-									</span>
-									
-									<span class="light">{string}</span>
-									
-									<span class="light">hemi.msg.</span><b>cleanup</b>							
-								</div>
-								
-								<div class="description">
-									The Message sent when a Citizen is cleaning up its resources.
-									
-									
-									
-								</div>
-								
-								
-									
-										<pre class="code">Sent by hemi.world.Citizen, data ={ }</pre>
-									
-								
-
-								
-								
-								<div class="hr"></div>
+								<pre class="code">Sent by hemi.world.Citizen, data ={ }</pre>
 							
-								<a name=".drag"></a>
-								
-								<div class="fixedFont heading">
-									<span class='lighter'>
-									&lt;static&gt; &lt;constant&gt; 
-									</span>
-									
-									<span class="light">{string}</span>
-									
-									<span class="light">hemi.msg.</span><b>drag</b>							
-								</div>
-								
-								<div class="description">
-									The Message sent when a Draggable has been dragged.
-									
-									
-									
-								</div>
-								
-								
-									
-										<pre class="code">Sent by hemi.manip.Draggable, data ={    drag: (the change in XYZ position caused by the drag)}</pre>
-									
-								
-
-								
-								
-								<div class="hr"></div>
+						
 							
-								<a name=".enable"></a>
-								
-								<div class="fixedFont heading">
-									<span class='lighter'>
-									&lt;static&gt; &lt;constant&gt; 
-									</span>
-									
-									<span class="light">{string}</span>
-									
-									<span class="light">hemi.msg.</span><b>enable</b>							
-								</div>
-								
-								<div class="description">
-									The Message sent when a tool is enabled or disabled.
-									
-									
-									
-								</div>
-								
-								
-									
-										<pre class="code">Sent by hext.tools.BaseTool, data ={    enabled: (flag indicating if the tool is enabled)}</pre>
-									
-								
-
-								
-								
-								<div class="hr"></div>
+						
+						<div class="hr"></div>
+					
+						<div class="fixedFont heading" id=".drag">
+							<span class='lighter'>
+							&lt;static&gt; &lt;constant&gt; 
+							</span>
 							
-								<a name=".load"></a>
-								
-								<div class="fixedFont heading">
-									<span class='lighter'>
-									&lt;static&gt; &lt;constant&gt; 
-									</span>
-									
-									<span class="light">{string}</span>
-									
-									<span class="light">hemi.msg.</span><b>load</b>							
-								</div>
-								
-								<div class="description">
-									The Message sent when something is loaded.
-									
-									
-									
-								</div>
-								
-								
-									
-										<pre class="code">Sent by hemi.audio.Audio, data =
+							<span class="light">{string}</span>
+							
+							<span class="light">hemi.msg.</span><b>drag</b>							
+						</div>
+						
+						<div class="description">
+							The Message sent when a Draggable has been dragged.
+							
+							
+							
+						</div>
+						
+						
+							
+								<pre class="code">Sent by hemi.manip.Draggable, data ={    drag: (the change in XYZ position caused by the drag)}</pre>
+							
+						
+							
+						
+						<div class="hr"></div>
+					
+						<div class="fixedFont heading" id=".enable">
+							<span class='lighter'>
+							&lt;static&gt; &lt;constant&gt; 
+							</span>
+							
+							<span class="light">{string}</span>
+							
+							<span class="light">hemi.msg.</span><b>enable</b>							
+						</div>
+						
+						<div class="description">
+							The Message sent when a tool is enabled or disabled.
+							
+							
+							
+						</div>
+						
+						
+							
+								<pre class="code">Sent by hext.tools.BaseTool, data ={    enabled: (flag indicating if the tool is enabled)}</pre>
+							
+						
+							
+						
+						<div class="hr"></div>
+					
+						<div class="fixedFont heading" id=".load">
+							<span class='lighter'>
+							&lt;static&gt; &lt;constant&gt; 
+							</span>
+							
+							<span class="light">{string}</span>
+							
+							<span class="light">hemi.msg.</span><b>load</b>							
+						</div>
+						
+						<div class="description">
+							The Message sent when something is loaded.
+							
+							
+							
+						</div>
+						
+						
+							
+								<pre class="code">Sent by hemi.audio.Audio, data =
 {
     src: (the URL of the audio file loaded)
 }</pre>
-									
-										<pre class="code">Sent by hemi.hud.HudImage, data ={ }</pre>
-									
-										<pre class="code">Sent by hemi.model.Model, data ={ }</pre>
-									
-										<pre class="code">Sent by hemi.scene.Scene, data ={ }</pre>
-									
-								
-
-								
-								
-								<div class="hr"></div>
 							
-								<a name=".pick"></a>
-								
-								<div class="fixedFont heading">
-									<span class='lighter'>
-									&lt;static&gt; &lt;constant&gt; 
-									</span>
-									
-									<span class="light">{string}</span>
-									
-									<span class="light">hemi.msg.</span><b>pick</b>							
-								</div>
-								
-								<div class="description">
-									The Message sent when a shape is picked by a mouse down.
-									
-									
-									
-								</div>
-								
-								
-									
-										<pre class="code">Sent by hemi.world, data ={    mouseEvent: (the o3d.Event generated by the mousedown)    pickInfo: (the o3djs.picking.PickInfo generated by the pick)}</pre>
-									
-								
-
-								
-								
-								<div class="hr"></div>
+								<pre class="code">Sent by hemi.hud.HudImage, data ={ }</pre>
 							
-								<a name=".progress"></a>
-								
-								<div class="fixedFont heading">
-									<span class='lighter'>
-									&lt;static&gt; &lt;constant&gt; 
-									</span>
-									
-									<span class="light">{string}</span>
-									
-									<span class="light">hemi.msg.</span><b>progress</b>							
-								</div>
-								
-								<div class="description">
-									The Message sent when progress data has been updated.
-									
-									
-									
-								</div>
-								
-								
-									
-										<pre class="code">Sent by hemi.world, data = number indicating the percentage complete
-Sent by hemi.world, data = 
-{
-		url: load info url,
-		percent: number indicating the percentage complete
-}</pre>
-									
-								
-
-								
-								
-								<div class="hr"></div>
+								<pre class="code">Sent by hemi.model.Model, data ={ }</pre>
 							
-								<a name=".ready"></a>
-								
-								<div class="fixedFont heading">
-									<span class='lighter'>
-									&lt;static&gt; &lt;constant&gt; 
-									</span>
-									
-									<span class="light">{string}</span>
-									
-									<span class="light">hemi.msg.</span><b>ready</b>							
-								</div>
-								
-								<div class="description">
-									The Message sent when the World's ready function is called.
-									
-									
-									
-								</div>
-								
-								
-									
-										<pre class="code">Sent by hemi.world, data ={ }</pre>
-									
-								
-
-								
-								
-								<div class="hr"></div>
+								<pre class="code">Sent by hemi.scene.Scene, data ={ }</pre>
 							
-								<a name=".start"></a>
-								
-								<div class="fixedFont heading">
-									<span class='lighter'>
-									&lt;static&gt; &lt;constant&gt; 
-									</span>
-									
-									<span class="light">{string}</span>
-									
-									<span class="light">hemi.msg.</span><b>start</b>							
-								</div>
-								
-								<div class="description">
-									The Message sent when a process starts.
-									
-									
-									
-								</div>
-								
-								
-									
-										<pre class="code">Sent by hemi.animation.Animation, data ={ }</pre>
-									
-										<pre class="code">Sent by hemi.audio.Audio, data =
-{ }</pre>
-									
-										<pre class="code">Sent by hemi.effect.Trail, data ={ }</pre>
-									
-										<pre class="code">Sent by hemi.motion.Rotator, data ={ }</pre>
-									
-										<pre class="code">Sent by hemi.motion.Translator, data ={ }</pre>
-									
-										<pre class="code">Sent by hemi.view.Camera, data ={    viewpoint: (Viewpoint the Camera is moving to)}</pre>
-									
-								
-
-								
-								
-								<div class="hr"></div>
+						
 							
-								<a name=".stop"></a>
-								
-								<div class="fixedFont heading">
-									<span class='lighter'>
-									&lt;static&gt; &lt;constant&gt; 
-									</span>
-									
-									<span class="light">{string}</span>
-									
-									<span class="light">hemi.msg.</span><b>stop</b>							
-								</div>
-								
-								<div class="description">
-									The Message sent when a process stops.
-									
-									
-									
-								</div>
-								
-								
-									
-										<pre class="code">Sent by hemi.animation.Animation, data ={ }</pre>
-									
-										<pre class="code">Sent by hemi.audio.Audio, data =
-{ }</pre>
-									
-										<pre class="code">Sent by hemi.effect.Trail, data ={ }</pre>
-									
-										<pre class="code">Sent by hemi.motion.Rotator, data ={ }</pre>
-									
-										<pre class="code">Sent by hemi.motion.Translator, data ={ }</pre>
-									
-										<pre class="code">Sent by hemi.view.Camera, data ={    viewpoint: (Viewpoint the Camera moved to)}</pre>
-									
-								
-
-								
-								
-								<div class="hr"></div>
+						
+						<div class="hr"></div>
+					
+						<div class="fixedFont heading" id=".pick">
+							<span class='lighter'>
+							&lt;static&gt; &lt;constant&gt; 
+							</span>
 							
-								<a name=".unload"></a>
-								
-								<div class="fixedFont heading">
-									<span class='lighter'>
-									&lt;static&gt; &lt;constant&gt; 
-									</span>
-									
-									<span class="light">{string}</span>
-									
-									<span class="light">hemi.msg.</span><b>unload</b>							
-								</div>
-								
-								<div class="description">
-									The Message sent when something is unloaded.
-									
-									
-									
-								</div>
-								
-								
-									
-										<pre class="code">Sent by hemi.audio.Audio, data =
-{ }</pre>
-									
-										<pre class="code">Sent by hemi.model.Model, data =
-{ }</pre>
-									
-										<pre class="code">Sent by hemi.scene.Scene, data =
-{ }</pre>
-									
-								
-
-								
-								
-								<div class="hr"></div>
+							<span class="light">{string}</span>
 							
-								<a name=".visible"></a>
-								
-								<div class="fixedFont heading">
-									<span class='lighter'>
-									&lt;static&gt; &lt;constant&gt; 
-									</span>
-									
-									<span class="light">{string}</span>
-									
-									<span class="light">hemi.msg.</span><b>visible</b>							
-								</div>
-								
-								<div class="description">
-									The Message sent when something is displayed or hidden.
-									
-									
-									
-								</div>
-								
-								
-									
-										<pre class="code">Sent by hemi.effect.Emitter, data ={    visible: (flag indicating if the Emitter is visible)}</pre>
-									
-										<pre class="code">Sent by hemi.hud.HudDisplay, data ={    page: (the page number currently shown or 0 if the HudDisplay is hidden)}</pre>
-									
-										<pre class="code">Sent by hext.tools.BaseTool, data ={    visible: (flag indicating if the tool is visible)}</pre>
-									
-								
-
-								
-								
-								
+							<span class="light">hemi.msg.</span><b>pick</b>							
+						</div>
+						
+						<div class="description">
+							The Message sent when a shape is picked by a mouse down.
+							
+							
 							
 						</div>
-					</div>
-				
-
-	<!--
-	#### METHOD DETAILS
-	-->		
-				
-					<div class="details props">
-						<div class="innerProps">
-							<div class="sectionTitle">
-								Method Detail
-							</div>
+						
+						
+							
+								<pre class="code">Sent by hemi.world, data ={    mouseEvent: (the o3d.Event generated by the mousedown)    pickInfo: (the o3djs.picking.PickInfo generated by the pick)}</pre>
+							
+						
+							
+						
+						<div class="hr"></div>
+					
+						<div class="fixedFont heading" id=".progress">
+							<span class='lighter'>
+							&lt;static&gt; &lt;constant&gt; 
+							</span>
+							
+							<span class="light">{string}</span>
+							
+							<span class="light">hemi.msg.</span><b>progress</b>							
+						</div>
+						
+						<div class="description">
+							The Message sent when a task's progress data has been updated.
 							
 							
-								<a name=".subscribe"></a>
-								
-								<div class="fixedFont heading">
+							
+						</div>
+						
+						
+							
+								<pre class="code">Sent by hemi.world, data = 
+{
+    isTotal: (flag indicating if percent is for all current tasks)
+    percent: (number indicating the percentage complete, 0-100)
+    task: (id for the task, typically url of the file being loaded)
+}</pre>
+							
+						
+							
+						
+						<div class="hr"></div>
+					
+						<div class="fixedFont heading" id=".ready">
+							<span class='lighter'>
+							&lt;static&gt; &lt;constant&gt; 
+							</span>
+							
+							<span class="light">{string}</span>
+							
+							<span class="light">hemi.msg.</span><b>ready</b>							
+						</div>
+						
+						<div class="description">
+							The Message sent when the World's ready function is called.
+							
+							
+							
+						</div>
+						
+						
+							
+								<pre class="code">Sent by hemi.world, data ={ }</pre>
+							
+						
+							
+						
+						<div class="hr"></div>
+					
+						<div class="fixedFont heading" id=".start">
+							<span class='lighter'>
+							&lt;static&gt; &lt;constant&gt; 
+							</span>
+							
+							<span class="light">{string}</span>
+							
+							<span class="light">hemi.msg.</span><b>start</b>							
+						</div>
+						
+						<div class="description">
+							The Message sent when a process starts.
+							
+							
+							
+						</div>
+						
+						
+							
+								<pre class="code">Sent by hemi.animation.Animation, data ={ }</pre>
+							
+								<pre class="code">Sent by hemi.audio.Audio, data =
+{ }</pre>
+							
+								<pre class="code">Sent by hemi.effect.Trail, data ={ }</pre>
+							
+								<pre class="code">Sent by hemi.motion.Rotator, data ={ }</pre>
+							
+								<pre class="code">Sent by hemi.motion.Translator, data ={ }</pre>
+							
+								<pre class="code">Sent by hemi.view.Camera, data ={    viewpoint: (Viewpoint the Camera is moving to)}</pre>
+							
+						
+							
+						
+						<div class="hr"></div>
+					
+						<div class="fixedFont heading" id=".stop">
+							<span class='lighter'>
+							&lt;static&gt; &lt;constant&gt; 
+							</span>
+							
+							<span class="light">{string}</span>
+							
+							<span class="light">hemi.msg.</span><b>stop</b>							
+						</div>
+						
+						<div class="description">
+							The Message sent when a process stops.
+							
+							
+							
+						</div>
+						
+						
+							
+								<pre class="code">Sent by hemi.animation.Animation, data ={ }</pre>
+							
+								<pre class="code">Sent by hemi.audio.Audio, data =
+{ }</pre>
+							
+								<pre class="code">Sent by hemi.effect.Trail, data ={ }</pre>
+							
+								<pre class="code">Sent by hemi.motion.Rotator, data ={ }</pre>
+							
+								<pre class="code">Sent by hemi.motion.Translator, data ={ }</pre>
+							
+								<pre class="code">Sent by hemi.view.Camera, data ={    viewpoint: (Viewpoint the Camera moved to)}</pre>
+							
+						
+							
+						
+						<div class="hr"></div>
+					
+						<div class="fixedFont heading" id=".unload">
+							<span class='lighter'>
+							&lt;static&gt; &lt;constant&gt; 
+							</span>
+							
+							<span class="light">{string}</span>
+							
+							<span class="light">hemi.msg.</span><b>unload</b>							
+						</div>
+						
+						<div class="description">
+							The Message sent when something is unloaded.
+							
+							
+							
+						</div>
+						
+						
+							
+								<pre class="code">Sent by hemi.audio.Audio, data =
+{ }</pre>
+							
+								<pre class="code">Sent by hemi.model.Model, data =
+{ }</pre>
+							
+								<pre class="code">Sent by hemi.scene.Scene, data =
+{ }</pre>
+							
+						
+							
+						
+						<div class="hr"></div>
+					
+						<div class="fixedFont heading" id=".visible">
+							<span class='lighter'>
+							&lt;static&gt; &lt;constant&gt; 
+							</span>
+							
+							<span class="light">{string}</span>
+							
+							<span class="light">hemi.msg.</span><b>visible</b>							
+						</div>
+						
+						<div class="description">
+							The Message sent when something is displayed or hidden.
+							
+							
+							
+						</div>
+						
+						
+							
+								<pre class="code">Sent by hemi.effect.Emitter, data ={    visible: (flag indicating if the Emitter is visible)}</pre>
+							
+								<pre class="code">Sent by hemi.hud.HudDisplay, data ={    page: (the page number currently shown or 0 if the HudDisplay is hidden)}</pre>
+							
+								<pre class="code">Sent by hext.tools.BaseTool, data ={    visible: (flag indicating if the tool is visible)}</pre>
+							
+						
+							
+						
+						
+					
+				</div>
+			</div>
+		
+<!--
+#### METHOD DETAILS
+-->		
+		
+			<div class="details props">
+				<div class="innerProps">
+					<h2 class="sectionTitle">
+						Method Detail
+					</h2>
+					
+					<ul class="methodDetail" id="MethodDetail">
+						
+						
+							<li 
+								 class='item0'
+							>
+								<div class="fixedFont heading" id=".subscribe">
 									<span class='lighter'>
 									&lt;static&gt; 
 									</span>
@@ -1079,12 +1065,13 @@ Sent by hemi.world, data =
 									
 									</dl>
 								
-
 								<div class="hr"></div>
-							
-								<a name=".unsubscribe"></a>
-								
-								<div class="fixedFont heading">
+							</li>
+						
+							<li 
+								 class='item1'
+							>
+								<div class="fixedFont heading" id=".unsubscribe">
 									<span class='lighter'>
 									&lt;static&gt; 
 									</span>
@@ -1145,18 +1132,24 @@ Sent by hemi.world, data =
 									
 									</dl>
 								
-
 								
-							
-						</div>
-					</div>
-				
-				
-	<!--
-	#### EVENT DETAILS
-	-->		
-				
+							</li>
+						
+					</ul>
+				</div>
 			</div>
-		</div>
+		
+		
+<!--
+#### EVENT DETAILS
+-->		
+		
+	</div>
+</div>
+		<script type="text/javascript">
+			wbos.CssTools.MediaQueryFallBack.LoadCss('../css/screen.css', '../css/handheld.css', 660)
+			codeview.classFilter.Init()
+		</script>
 	</body>
 </html>
+
