@@ -1,596 +1,623 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 	<head>
-		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
-		<meta name="generator" content="JsDoc Toolkit" />
-		
-		<title>JsDoc Reference - hemi.texture.TextureSet</title>
-		<link href="../css/default.css" type="text/css" rel="stylesheet" media="all" />
+		<meta charset="utf-8"></meta>
+		<meta name="generator" content="JsDoc Toolkit"></meta>
+		<title>hemi.texture.TextureSet | JsDoc Reference</title>
+
+		<meta name="viewport" content="width=device-width; initial-scale=1.0; maximum-scale=1.0;"></meta>
+		<meta name="mobileoptimized" content="0"></meta>
+	
+		<link rel="stylesheet" href="../css/all.css" media="all"></link>
+		<link rel="stylesheet" href="../css/handheld.css" media="only screen and (max-width: 660px)"></link>
+		<link rel="stylesheet" href="../css/handheld.css" media="handheld"></link>
+		<link rel="stylesheet" href="../css/screen.css" media="screen and (min-width: 661px)"></link>
+
+		<script src="../javascript/all.js"></script>
+		<!--[if lt IE 9]>
+			<script src="../javascript/html5.js"></script>
+		<![endif]-->
 	</head>
 
 	<body>
-		<div id="header">
+
+<div class="index">
+	<div class="menu">
+		<div class="indexLinks">
+			<a href="../index.html">Classes</a>
+			<a href="../files.html">Files</a>
+		</div>
+	
+		<h2 class="heading1">Classes</h2>
+		
+		<input type="text" name="classFilter" class="classFilter" id="ClassFilter" placeholder="Filter"></input>
+		
+		<nav>
+			<ul class="classList" id="ClassList">
+				
+					<li><a href="../symbols/_global_.html">_global_</a></li>
+				
+					<li><a href="../symbols/hemi.html">hemi</a></li>
+				
+					<li><a href="../symbols/hemi.animation.html">hemi<span class='break'> </span>.<span class='break'> </span>animation</a></li>
+				
+					<li><a href="../symbols/hemi.animation.Animation.html">hemi<span class='break'> </span>.<span class='break'> </span>animation<span class='break'> </span>.<span class='break'> </span>Animation</a></li>
+				
+					<li><a href="../symbols/hemi.animation.Loop.html">hemi<span class='break'> </span>.<span class='break'> </span>animation<span class='break'> </span>.<span class='break'> </span>Loop</a></li>
+				
+					<li><a href="../symbols/hemi.audio.html">hemi<span class='break'> </span>.<span class='break'> </span>audio</a></li>
+				
+					<li><a href="../symbols/hemi.audio.Audio.html">hemi<span class='break'> </span>.<span class='break'> </span>audio<span class='break'> </span>.<span class='break'> </span>Audio</a></li>
+				
+					<li><a href="../symbols/hemi.console.html">hemi<span class='break'> </span>.<span class='break'> </span>console</a></li>
+				
+					<li><a href="../symbols/hemi.core.html">hemi<span class='break'> </span>.<span class='break'> </span>core</a></li>
+				
+					<li><a href="../symbols/hemi.curve.html">hemi<span class='break'> </span>.<span class='break'> </span>curve</a></li>
+				
+					<li><a href="../symbols/hemi.curve.Curve.html">hemi<span class='break'> </span>.<span class='break'> </span>curve<span class='break'> </span>.<span class='break'> </span>Curve</a></li>
+				
+					<li><a href="../symbols/hemi.curve.Particle.html">hemi<span class='break'> </span>.<span class='break'> </span>curve<span class='break'> </span>.<span class='break'> </span>Particle</a></li>
+				
+					<li><a href="../symbols/hemi.curve.ParticleSystem.html">hemi<span class='break'> </span>.<span class='break'> </span>curve<span class='break'> </span>.<span class='break'> </span>ParticleSystem</a></li>
+				
+					<li><a href="../symbols/hemi.dispatch.html">hemi<span class='break'> </span>.<span class='break'> </span>dispatch</a></li>
+				
+					<li><a href="../symbols/hemi.dispatch.Message.html">hemi<span class='break'> </span>.<span class='break'> </span>dispatch<span class='break'> </span>.<span class='break'> </span>Message</a></li>
+				
+					<li><a href="../symbols/hemi.dispatch.MessageSpec.html">hemi<span class='break'> </span>.<span class='break'> </span>dispatch<span class='break'> </span>.<span class='break'> </span>MessageSpec</a></li>
+				
+					<li><a href="../symbols/hemi.dispatch.MessageTarget.html">hemi<span class='break'> </span>.<span class='break'> </span>dispatch<span class='break'> </span>.<span class='break'> </span>MessageTarget</a></li>
+				
+					<li><a href="../symbols/hemi.effect.html">hemi<span class='break'> </span>.<span class='break'> </span>effect</a></li>
+				
+					<li><a href="../symbols/hemi.effect.Burst.html">hemi<span class='break'> </span>.<span class='break'> </span>effect<span class='break'> </span>.<span class='break'> </span>Burst</a></li>
+				
+					<li><a href="../symbols/hemi.effect.Effect.html">hemi<span class='break'> </span>.<span class='break'> </span>effect<span class='break'> </span>.<span class='break'> </span>Effect</a></li>
+				
+					<li><a href="../symbols/hemi.effect.Emitter.html">hemi<span class='break'> </span>.<span class='break'> </span>effect<span class='break'> </span>.<span class='break'> </span>Emitter</a></li>
+				
+					<li><a href="../symbols/hemi.effect.ParticleFunction.html">hemi<span class='break'> </span>.<span class='break'> </span>effect<span class='break'> </span>.<span class='break'> </span>ParticleFunction</a></li>
+				
+					<li><a href="../symbols/hemi.effect.Trail.html">hemi<span class='break'> </span>.<span class='break'> </span>effect<span class='break'> </span>.<span class='break'> </span>Trail</a></li>
+				
+					<li><a href="../symbols/hemi.handlers.html">hemi<span class='break'> </span>.<span class='break'> </span>handlers</a></li>
+				
+					<li><a href="../symbols/hemi.handlers.ValueCheck.html">hemi<span class='break'> </span>.<span class='break'> </span>handlers<span class='break'> </span>.<span class='break'> </span>ValueCheck</a></li>
+				
+					<li><a href="../symbols/hemi.hud.html">hemi<span class='break'> </span>.<span class='break'> </span>hud</a></li>
+				
+					<li><a href="../symbols/hemi.hud.HudButton.html">hemi<span class='break'> </span>.<span class='break'> </span>hud<span class='break'> </span>.<span class='break'> </span>HudButton</a></li>
+				
+					<li><a href="../symbols/hemi.hud.HudDisplay.html">hemi<span class='break'> </span>.<span class='break'> </span>hud<span class='break'> </span>.<span class='break'> </span>HudDisplay</a></li>
+				
+					<li><a href="../symbols/hemi.hud.HudElement.html">hemi<span class='break'> </span>.<span class='break'> </span>hud<span class='break'> </span>.<span class='break'> </span>HudElement</a></li>
+				
+					<li><a href="../symbols/hemi.hud.HudImage.html">hemi<span class='break'> </span>.<span class='break'> </span>hud<span class='break'> </span>.<span class='break'> </span>HudImage</a></li>
+				
+					<li><a href="../symbols/hemi.hud.HudManager.html">hemi<span class='break'> </span>.<span class='break'> </span>hud<span class='break'> </span>.<span class='break'> </span>HudManager</a></li>
+				
+					<li><a href="../symbols/hemi.hud.HudPage.html">hemi<span class='break'> </span>.<span class='break'> </span>hud<span class='break'> </span>.<span class='break'> </span>HudPage</a></li>
+				
+					<li><a href="../symbols/hemi.hud.HudText.html">hemi<span class='break'> </span>.<span class='break'> </span>hud<span class='break'> </span>.<span class='break'> </span>HudText</a></li>
+				
+					<li><a href="../symbols/hemi.hud.HudVideo.html">hemi<span class='break'> </span>.<span class='break'> </span>hud<span class='break'> </span>.<span class='break'> </span>HudVideo</a></li>
+				
+					<li><a href="../symbols/hemi.hud.Theme.html">hemi<span class='break'> </span>.<span class='break'> </span>hud<span class='break'> </span>.<span class='break'> </span>Theme</a></li>
+				
+					<li><a href="../symbols/hemi.input.html">hemi<span class='break'> </span>.<span class='break'> </span>input</a></li>
+				
+					<li><a href="../symbols/hemi.loader.html">hemi<span class='break'> </span>.<span class='break'> </span>loader</a></li>
+				
+					<li><a href="../symbols/hemi.manip.html">hemi<span class='break'> </span>.<span class='break'> </span>manip</a></li>
+				
+					<li><a href="../symbols/hemi.manip.Draggable.html">hemi<span class='break'> </span>.<span class='break'> </span>manip<span class='break'> </span>.<span class='break'> </span>Draggable</a></li>
+				
+					<li><a href="../symbols/hemi.manip.Turnable.html">hemi<span class='break'> </span>.<span class='break'> </span>manip<span class='break'> </span>.<span class='break'> </span>Turnable</a></li>
+				
+					<li><a href="../symbols/hemi.model.html">hemi<span class='break'> </span>.<span class='break'> </span>model</a></li>
+				
+					<li><a href="../symbols/hemi.model.Model.html">hemi<span class='break'> </span>.<span class='break'> </span>model<span class='break'> </span>.<span class='break'> </span>Model</a></li>
+				
+					<li><a href="../symbols/hemi.model.ModelConfig.html">hemi<span class='break'> </span>.<span class='break'> </span>model<span class='break'> </span>.<span class='break'> </span>ModelConfig</a></li>
+				
+					<li><a href="../symbols/hemi.model.TransformUpdate.html">hemi<span class='break'> </span>.<span class='break'> </span>model<span class='break'> </span>.<span class='break'> </span>TransformUpdate</a></li>
+				
+					<li><a href="../symbols/hemi.motion.html">hemi<span class='break'> </span>.<span class='break'> </span>motion</a></li>
+				
+					<li><a href="../symbols/hemi.motion.Rotator.html">hemi<span class='break'> </span>.<span class='break'> </span>motion<span class='break'> </span>.<span class='break'> </span>Rotator</a></li>
+				
+					<li><a href="../symbols/hemi.motion.Translator.html">hemi<span class='break'> </span>.<span class='break'> </span>motion<span class='break'> </span>.<span class='break'> </span>Translator</a></li>
+				
+					<li><a href="../symbols/hemi.msg.html">hemi<span class='break'> </span>.<span class='break'> </span>msg</a></li>
+				
+					<li><a href="../symbols/hemi.octane.html">hemi<span class='break'> </span>.<span class='break'> </span>octane</a></li>
+				
+					<li><a href="../symbols/hemi.picking.html">hemi<span class='break'> </span>.<span class='break'> </span>picking</a></li>
+				
+					<li><a href="../symbols/hemi.picking.HemiTransformInfo.html">hemi<span class='break'> </span>.<span class='break'> </span>picking<span class='break'> </span>.<span class='break'> </span>HemiTransformInfo</a></li>
+				
+					<li><a href="../symbols/hemi.scene.html">hemi<span class='break'> </span>.<span class='break'> </span>scene</a></li>
+				
+					<li><a href="../symbols/hemi.scene.Scene.html">hemi<span class='break'> </span>.<span class='break'> </span>scene<span class='break'> </span>.<span class='break'> </span>Scene</a></li>
+				
+					<li><a href="../symbols/hemi.shape.html">hemi<span class='break'> </span>.<span class='break'> </span>shape</a></li>
+				
+					<li><a href="../symbols/hemi.shape.Shape.html">hemi<span class='break'> </span>.<span class='break'> </span>shape<span class='break'> </span>.<span class='break'> </span>Shape</a></li>
+				
+					<li><a href="../symbols/hemi.shape.TransformUpdate.html">hemi<span class='break'> </span>.<span class='break'> </span>shape<span class='break'> </span>.<span class='break'> </span>TransformUpdate</a></li>
+				
+					<li><a href="../symbols/hemi.sprite.html">hemi<span class='break'> </span>.<span class='break'> </span>sprite</a></li>
+				
+					<li><a href="../symbols/hemi.sprite.Sprite.html">hemi<span class='break'> </span>.<span class='break'> </span>sprite<span class='break'> </span>.<span class='break'> </span>Sprite</a></li>
+				
+					<li><a href="../symbols/hemi.texture.html">hemi<span class='break'> </span>.<span class='break'> </span>texture</a></li>
+				
+					<li><a href="../symbols/hemi.texture.TextureSampler.html">hemi<span class='break'> </span>.<span class='break'> </span>texture<span class='break'> </span>.<span class='break'> </span>TextureSampler</a></li>
+				
+					<li><a href="../symbols/hemi.texture.TextureSet.html">hemi<span class='break'> </span>.<span class='break'> </span>texture<span class='break'> </span>.<span class='break'> </span>TextureSet</a></li>
+				
+					<li><a href="../symbols/hemi.utils.html">hemi<span class='break'> </span>.<span class='break'> </span>utils</a></li>
+				
+					<li><a href="../symbols/hemi.utils.Hashtable.html">hemi<span class='break'> </span>.<span class='break'> </span>utils<span class='break'> </span>.<span class='break'> </span>Hashtable</a></li>
+				
+					<li><a href="../symbols/hemi.view.html">hemi<span class='break'> </span>.<span class='break'> </span>view</a></li>
+				
+					<li><a href="../symbols/hemi.view.Camera.html">hemi<span class='break'> </span>.<span class='break'> </span>view<span class='break'> </span>.<span class='break'> </span>Camera</a></li>
+				
+					<li><a href="../symbols/hemi.view.ClientSize.html">hemi<span class='break'> </span>.<span class='break'> </span>view<span class='break'> </span>.<span class='break'> </span>ClientSize</a></li>
+				
+					<li><a href="../symbols/hemi.view.Viewpoint.html">hemi<span class='break'> </span>.<span class='break'> </span>view<span class='break'> </span>.<span class='break'> </span>Viewpoint</a></li>
+				
+					<li><a href="../symbols/hemi.world.html">hemi<span class='break'> </span>.<span class='break'> </span>world</a></li>
+				
+					<li><a href="../symbols/hemi.world.Citizen.html">hemi<span class='break'> </span>.<span class='break'> </span>world<span class='break'> </span>.<span class='break'> </span>Citizen</a></li>
+				
+					<li><a href="../symbols/hemi.world.TransformOwner.html">hemi<span class='break'> </span>.<span class='break'> </span>world<span class='break'> </span>.<span class='break'> </span>TransformOwner</a></li>
+				
+					<li><a href="../symbols/hemi.world.TransformRegistry.html">hemi<span class='break'> </span>.<span class='break'> </span>world<span class='break'> </span>.<span class='break'> </span>TransformRegistry</a></li>
+				
+					<li><a href="../symbols/hext.html">hext</a></li>
+				
+					<li><a href="../symbols/hext.engines.html">hext<span class='break'> </span>.<span class='break'> </span>engines</a></li>
+				
+					<li><a href="../symbols/hext.engines.Location.html">hext<span class='break'> </span>.<span class='break'> </span>engines<span class='break'> </span>.<span class='break'> </span>Location</a></li>
+				
+					<li><a href="../symbols/hext.engines.Portal.html">hext<span class='break'> </span>.<span class='break'> </span>engines<span class='break'> </span>.<span class='break'> </span>Portal</a></li>
+				
+					<li><a href="../symbols/hext.engines.PressureEngine.html">hext<span class='break'> </span>.<span class='break'> </span>engines<span class='break'> </span>.<span class='break'> </span>PressureEngine</a></li>
+				
+					<li><a href="../symbols/hext.house.html">hext<span class='break'> </span>.<span class='break'> </span>house</a></li>
+				
+					<li><a href="../symbols/hext.house.Door.html">hext<span class='break'> </span>.<span class='break'> </span>house<span class='break'> </span>.<span class='break'> </span>Door</a></li>
+				
+					<li><a href="../symbols/hext.house.Window.html">hext<span class='break'> </span>.<span class='break'> </span>house<span class='break'> </span>.<span class='break'> </span>Window</a></li>
+				
+					<li><a href="../symbols/hext.html.html">hext<span class='break'> </span>.<span class='break'> </span>html</a></li>
+				
+					<li><a href="../symbols/hext.html.console.html">hext<span class='break'> </span>.<span class='break'> </span>html<span class='break'> </span>.<span class='break'> </span>console</a></li>
+				
+					<li><a href="../symbols/hext.html.hint.html">hext<span class='break'> </span>.<span class='break'> </span>html<span class='break'> </span>.<span class='break'> </span>hint</a></li>
+				
+					<li><a href="../symbols/hext.html.reset.html">hext<span class='break'> </span>.<span class='break'> </span>html<span class='break'> </span>.<span class='break'> </span>reset</a></li>
+				
+					<li><a href="../symbols/hext.html.toolbar.html">hext<span class='break'> </span>.<span class='break'> </span>html<span class='break'> </span>.<span class='break'> </span>toolbar</a></li>
+				
+					<li><a href="../symbols/hext.html.toolViews.html">hext<span class='break'> </span>.<span class='break'> </span>html<span class='break'> </span>.<span class='break'> </span>toolViews</a></li>
+				
+					<li><a href="../symbols/hext.hud.html">hext<span class='break'> </span>.<span class='break'> </span>hud</a></li>
+				
+					<li><a href="../symbols/hext.hud.PagingInfo.html">hext<span class='break'> </span>.<span class='break'> </span>hud<span class='break'> </span>.<span class='break'> </span>PagingInfo</a></li>
+				
+					<li><a href="../symbols/hext.msg.html">hext<span class='break'> </span>.<span class='break'> </span>msg</a></li>
+				
+					<li><a href="../symbols/hext.tools.html">hext<span class='break'> </span>.<span class='break'> </span>tools</a></li>
+				
+					<li><a href="../symbols/hext.tools.BaseController.html">hext<span class='break'> </span>.<span class='break'> </span>tools<span class='break'> </span>.<span class='break'> </span>BaseController</a></li>
+				
+					<li><a href="../symbols/hext.tools.BaseTool.html">hext<span class='break'> </span>.<span class='break'> </span>tools<span class='break'> </span>.<span class='break'> </span>BaseTool</a></li>
+				
+					<li><a href="../symbols/hext.tools.BlowerDoor.html">hext<span class='break'> </span>.<span class='break'> </span>tools<span class='break'> </span>.<span class='break'> </span>BlowerDoor</a></li>
+				
+					<li><a href="../symbols/hext.tools.BlowerDoorController.html">hext<span class='break'> </span>.<span class='break'> </span>tools<span class='break'> </span>.<span class='break'> </span>BlowerDoorController</a></li>
+				
+					<li><a href="../symbols/hext.tools.BlowerDoorToolbarView.html">hext<span class='break'> </span>.<span class='break'> </span>tools<span class='break'> </span>.<span class='break'> </span>BlowerDoorToolbarView</a></li>
+				
+					<li><a href="../symbols/hext.tools.BlowerDoorToolbarViewConfig.html">hext<span class='break'> </span>.<span class='break'> </span>tools<span class='break'> </span>.<span class='break'> </span>BlowerDoorToolbarViewConfig</a></li>
+				
+					<li><a href="../symbols/hext.tools.BlowerDoorView.html">hext<span class='break'> </span>.<span class='break'> </span>tools<span class='break'> </span>.<span class='break'> </span>BlowerDoorView</a></li>
+				
+					<li><a href="../symbols/hext.tools.BlowerDoorViewConfig.html">hext<span class='break'> </span>.<span class='break'> </span>tools<span class='break'> </span>.<span class='break'> </span>BlowerDoorViewConfig</a></li>
+				
+					<li><a href="../symbols/hext.tools.HtmlView.html">hext<span class='break'> </span>.<span class='break'> </span>tools<span class='break'> </span>.<span class='break'> </span>HtmlView</a></li>
+				
+					<li><a href="../symbols/hext.tools.HtmlViewConfig.html">hext<span class='break'> </span>.<span class='break'> </span>tools<span class='break'> </span>.<span class='break'> </span>HtmlViewConfig</a></li>
+				
+					<li><a href="../symbols/hext.tools.Manometer.html">hext<span class='break'> </span>.<span class='break'> </span>tools<span class='break'> </span>.<span class='break'> </span>Manometer</a></li>
+				
+					<li><a href="../symbols/hext.tools.ManometerController.html">hext<span class='break'> </span>.<span class='break'> </span>tools<span class='break'> </span>.<span class='break'> </span>ManometerController</a></li>
+				
+					<li><a href="../symbols/hext.tools.ManometerToolbarView.html">hext<span class='break'> </span>.<span class='break'> </span>tools<span class='break'> </span>.<span class='break'> </span>ManometerToolbarView</a></li>
+				
+					<li><a href="../symbols/hext.tools.ManometerToolbarViewConfig.html">hext<span class='break'> </span>.<span class='break'> </span>tools<span class='break'> </span>.<span class='break'> </span>ManometerToolbarViewConfig</a></li>
+				
+					<li><a href="../symbols/hext.tools.ManometerTube.html">hext<span class='break'> </span>.<span class='break'> </span>tools<span class='break'> </span>.<span class='break'> </span>ManometerTube</a></li>
+				
+					<li><a href="../symbols/hext.tools.ManometerTubeManager.html">hext<span class='break'> </span>.<span class='break'> </span>tools<span class='break'> </span>.<span class='break'> </span>ManometerTubeManager</a></li>
+				
+					<li><a href="../symbols/hext.tools.ManometerView.html">hext<span class='break'> </span>.<span class='break'> </span>tools<span class='break'> </span>.<span class='break'> </span>ManometerView</a></li>
+				
+					<li><a href="../symbols/hext.tools.ManometerViewConfig.html">hext<span class='break'> </span>.<span class='break'> </span>tools<span class='break'> </span>.<span class='break'> </span>ManometerViewConfig</a></li>
+				
+					<li><a href="../symbols/hext.tools.Navigation.html">hext<span class='break'> </span>.<span class='break'> </span>tools<span class='break'> </span>.<span class='break'> </span>Navigation</a></li>
+				
+					<li><a href="../symbols/hext.tools.NavigationController.html">hext<span class='break'> </span>.<span class='break'> </span>tools<span class='break'> </span>.<span class='break'> </span>NavigationController</a></li>
+				
+					<li><a href="../symbols/hext.tools.NavigationToolbarView.html">hext<span class='break'> </span>.<span class='break'> </span>tools<span class='break'> </span>.<span class='break'> </span>NavigationToolbarView</a></li>
+				
+					<li><a href="../symbols/hext.tools.NavigationToolbarViewConfig.html">hext<span class='break'> </span>.<span class='break'> </span>tools<span class='break'> </span>.<span class='break'> </span>NavigationToolbarViewConfig</a></li>
+				
+					<li><a href="../symbols/hext.tools.ShapeView.html">hext<span class='break'> </span>.<span class='break'> </span>tools<span class='break'> </span>.<span class='break'> </span>ShapeView</a></li>
+				
+					<li><a href="../symbols/hext.tools.SmokePuffConfig.html">hext<span class='break'> </span>.<span class='break'> </span>tools<span class='break'> </span>.<span class='break'> </span>SmokePuffConfig</a></li>
+				
+					<li><a href="../symbols/hext.tools.SmokePuffer.html">hext<span class='break'> </span>.<span class='break'> </span>tools<span class='break'> </span>.<span class='break'> </span>SmokePuffer</a></li>
+				
+					<li><a href="../symbols/hext.tools.SmokePufferController.html">hext<span class='break'> </span>.<span class='break'> </span>tools<span class='break'> </span>.<span class='break'> </span>SmokePufferController</a></li>
+				
+					<li><a href="../symbols/hext.tools.SmokePufferToolbarView.html">hext<span class='break'> </span>.<span class='break'> </span>tools<span class='break'> </span>.<span class='break'> </span>SmokePufferToolbarView</a></li>
+				
+					<li><a href="../symbols/hext.tools.SmokePufferToolbarViewConfig.html">hext<span class='break'> </span>.<span class='break'> </span>tools<span class='break'> </span>.<span class='break'> </span>SmokePufferToolbarViewConfig</a></li>
+				
+					<li><a href="../symbols/hext.tools.ToolbarView.html">hext<span class='break'> </span>.<span class='break'> </span>tools<span class='break'> </span>.<span class='break'> </span>ToolbarView</a></li>
+				
+					<li><a href="../symbols/hext.tools.ToolbarViewConfig.html">hext<span class='break'> </span>.<span class='break'> </span>tools<span class='break'> </span>.<span class='break'> </span>ToolbarViewConfig</a></li>
+				
+					<li><a href="../symbols/hext.utils.debug.html">hext<span class='break'> </span>.<span class='break'> </span>utils<span class='break'> </span>.<span class='break'> </span>debug</a></li>
+				
+			</ul>
+		</nav>
+	</div>
+	<div class="fineprint" style="clear:both">
+		
+		Documentation generator: <a href="http://code.google.com/p/jsdoc-toolkit/" target="_blank">JsDoc Toolkit</a> 2.4.0<br />
+		Template: <a href="http://www.thebrightlines.com/2010/05/06/new-template-for-jsdoctoolkit-codeview/" target="_blank">Codeview</a> 1.2<br />
+		Generated on: 2011-4-11 18:06
+	</div>
 </div>
 
-		<div class="index">
-			<div class="menu">
-				<!-- begin publish.classesIndex -->
-				<div align="center"><a href="../index.html">Class Index</a> | <a href="../files.html">File Index</a></div>
+<div class="index indexStatic"></div>
 
-<h2 class="heading1">Classes</h2>
-
-<ul class="classList">
-	
-		<li><a href="../symbols/_global_.html">_global_</a></li>
-	
-		<li><a href="../symbols/hemi.html">hemi</a></li>
-	
-		<li><a href="../symbols/hemi.animation.html">hemi.animation</a></li>
-	
-		<li><a href="../symbols/hemi.animation.Animation.html">hemi.animation.Animation</a></li>
-	
-		<li><a href="../symbols/hemi.animation.Loop.html">hemi.animation.Loop</a></li>
-	
-		<li><a href="../symbols/hemi.audio.html">hemi.audio</a></li>
-	
-		<li><a href="../symbols/hemi.audio.Audio.html">hemi.audio.Audio</a></li>
-	
-		<li><a href="../symbols/hemi.console.html">hemi.console</a></li>
-	
-		<li><a href="../symbols/hemi.core.html">hemi.core</a></li>
-	
-		<li><a href="../symbols/hemi.curve.html">hemi.curve</a></li>
-	
-		<li><a href="../symbols/hemi.curve.Curve.html">hemi.curve.Curve</a></li>
-	
-		<li><a href="../symbols/hemi.curve.Particle.html">hemi.curve.Particle</a></li>
-	
-		<li><a href="../symbols/hemi.curve.ParticleSystem.html">hemi.curve.ParticleSystem</a></li>
-	
-		<li><a href="../symbols/hemi.dispatch.html">hemi.dispatch</a></li>
-	
-		<li><a href="../symbols/hemi.dispatch.Message.html">hemi.dispatch.Message</a></li>
-	
-		<li><a href="../symbols/hemi.dispatch.MessageSpec.html">hemi.dispatch.MessageSpec</a></li>
-	
-		<li><a href="../symbols/hemi.dispatch.MessageTarget.html">hemi.dispatch.MessageTarget</a></li>
-	
-		<li><a href="../symbols/hemi.effect.html">hemi.effect</a></li>
-	
-		<li><a href="../symbols/hemi.effect.Burst.html">hemi.effect.Burst</a></li>
-	
-		<li><a href="../symbols/hemi.effect.Effect.html">hemi.effect.Effect</a></li>
-	
-		<li><a href="../symbols/hemi.effect.Emitter.html">hemi.effect.Emitter</a></li>
-	
-		<li><a href="../symbols/hemi.effect.ParticleFunction.html">hemi.effect.ParticleFunction</a></li>
-	
-		<li><a href="../symbols/hemi.effect.Trail.html">hemi.effect.Trail</a></li>
-	
-		<li><a href="../symbols/hemi.handlers.html">hemi.handlers</a></li>
-	
-		<li><a href="../symbols/hemi.handlers.ValueCheck.html">hemi.handlers.ValueCheck</a></li>
-	
-		<li><a href="../symbols/hemi.hud.html">hemi.hud</a></li>
-	
-		<li><a href="../symbols/hemi.hud.HudButton.html">hemi.hud.HudButton</a></li>
-	
-		<li><a href="../symbols/hemi.hud.HudDisplay.html">hemi.hud.HudDisplay</a></li>
-	
-		<li><a href="../symbols/hemi.hud.HudElement.html">hemi.hud.HudElement</a></li>
-	
-		<li><a href="../symbols/hemi.hud.HudImage.html">hemi.hud.HudImage</a></li>
-	
-		<li><a href="../symbols/hemi.hud.HudManager.html">hemi.hud.HudManager</a></li>
-	
-		<li><a href="../symbols/hemi.hud.HudPage.html">hemi.hud.HudPage</a></li>
-	
-		<li><a href="../symbols/hemi.hud.HudText.html">hemi.hud.HudText</a></li>
-	
-		<li><a href="../symbols/hemi.hud.HudVideo.html">hemi.hud.HudVideo</a></li>
-	
-		<li><a href="../symbols/hemi.hud.Theme.html">hemi.hud.Theme</a></li>
-	
-		<li><a href="../symbols/hemi.input.html">hemi.input</a></li>
-	
-		<li><a href="../symbols/hemi.loader.html">hemi.loader</a></li>
-	
-		<li><a href="../symbols/hemi.manip.html">hemi.manip</a></li>
-	
-		<li><a href="../symbols/hemi.manip.Draggable.html">hemi.manip.Draggable</a></li>
-	
-		<li><a href="../symbols/hemi.manip.Turnable.html">hemi.manip.Turnable</a></li>
-	
-		<li><a href="../symbols/hemi.model.html">hemi.model</a></li>
-	
-		<li><a href="../symbols/hemi.model.Model.html">hemi.model.Model</a></li>
-	
-		<li><a href="../symbols/hemi.model.ModelConfig.html">hemi.model.ModelConfig</a></li>
-	
-		<li><a href="../symbols/hemi.model.TransformUpdate.html">hemi.model.TransformUpdate</a></li>
-	
-		<li><a href="../symbols/hemi.motion.html">hemi.motion</a></li>
-	
-		<li><a href="../symbols/hemi.motion.Rotator.html">hemi.motion.Rotator</a></li>
-	
-		<li><a href="../symbols/hemi.motion.Translator.html">hemi.motion.Translator</a></li>
-	
-		<li><a href="../symbols/hemi.msg.html">hemi.msg</a></li>
-	
-		<li><a href="../symbols/hemi.octane.html">hemi.octane</a></li>
-	
-		<li><a href="../symbols/hemi.picking.html">hemi.picking</a></li>
-	
-		<li><a href="../symbols/hemi.picking.HemiTransformInfo.html">hemi.picking.HemiTransformInfo</a></li>
-	
-		<li><a href="../symbols/hemi.scene.html">hemi.scene</a></li>
-	
-		<li><a href="../symbols/hemi.scene.Scene.html">hemi.scene.Scene</a></li>
-	
-		<li><a href="../symbols/hemi.shape.html">hemi.shape</a></li>
-	
-		<li><a href="../symbols/hemi.shape.Shape.html">hemi.shape.Shape</a></li>
-	
-		<li><a href="../symbols/hemi.shape.TransformUpdate.html">hemi.shape.TransformUpdate</a></li>
-	
-		<li><a href="../symbols/hemi.sprite.html">hemi.sprite</a></li>
-	
-		<li><a href="../symbols/hemi.sprite.Sprite.html">hemi.sprite.Sprite</a></li>
-	
-		<li><a href="../symbols/hemi.texture.html">hemi.texture</a></li>
-	
-		<li><a href="../symbols/hemi.texture.TextureSampler.html">hemi.texture.TextureSampler</a></li>
-	
-		<li><a href="../symbols/hemi.texture.TextureSet.html">hemi.texture.TextureSet</a></li>
-	
-		<li><a href="../symbols/hemi.utils.html">hemi.utils</a></li>
-	
-		<li><a href="../symbols/hemi.utils.Hashtable.html">hemi.utils.Hashtable</a></li>
-	
-		<li><a href="../symbols/hemi.view.html">hemi.view</a></li>
-	
-		<li><a href="../symbols/hemi.view.Camera.html">hemi.view.Camera</a></li>
-	
-		<li><a href="../symbols/hemi.view.ClientSize.html">hemi.view.ClientSize</a></li>
-	
-		<li><a href="../symbols/hemi.view.Viewpoint.html">hemi.view.Viewpoint</a></li>
-	
-		<li><a href="../symbols/hemi.world.html">hemi.world</a></li>
-	
-		<li><a href="../symbols/hemi.world.Citizen.html">hemi.world.Citizen</a></li>
-	
-		<li><a href="../symbols/hemi.world.TransformOwner.html">hemi.world.TransformOwner</a></li>
-	
-		<li><a href="../symbols/hemi.world.TransformRegistry.html">hemi.world.TransformRegistry</a></li>
-	
-		<li><a href="../symbols/hext.html">hext</a></li>
-	
-		<li><a href="../symbols/hext.engines.html">hext.engines</a></li>
-	
-		<li><a href="../symbols/hext.engines.Location.html">hext.engines.Location</a></li>
-	
-		<li><a href="../symbols/hext.engines.Portal.html">hext.engines.Portal</a></li>
-	
-		<li><a href="../symbols/hext.engines.PressureEngine.html">hext.engines.PressureEngine</a></li>
-	
-		<li><a href="../symbols/hext.house.html">hext.house</a></li>
-	
-		<li><a href="../symbols/hext.house.Door.html">hext.house.Door</a></li>
-	
-		<li><a href="../symbols/hext.house.Window.html">hext.house.Window</a></li>
-	
-		<li><a href="../symbols/hext.html.html">hext.html</a></li>
-	
-		<li><a href="../symbols/hext.html.console.html">hext.html.console</a></li>
-	
-		<li><a href="../symbols/hext.html.hint.html">hext.html.hint</a></li>
-	
-		<li><a href="../symbols/hext.html.reset.html">hext.html.reset</a></li>
-	
-		<li><a href="../symbols/hext.html.toolbar.html">hext.html.toolbar</a></li>
-	
-		<li><a href="../symbols/hext.html.toolViews.html">hext.html.toolViews</a></li>
-	
-		<li><a href="../symbols/hext.hud.html">hext.hud</a></li>
-	
-		<li><a href="../symbols/hext.hud.PagingInfo.html">hext.hud.PagingInfo</a></li>
-	
-		<li><a href="../symbols/hext.msg.html">hext.msg</a></li>
-	
-		<li><a href="../symbols/hext.tools.html">hext.tools</a></li>
-	
-		<li><a href="../symbols/hext.tools.BaseController.html">hext.tools.BaseController</a></li>
-	
-		<li><a href="../symbols/hext.tools.BaseTool.html">hext.tools.BaseTool</a></li>
-	
-		<li><a href="../symbols/hext.tools.BlowerDoor.html">hext.tools.BlowerDoor</a></li>
-	
-		<li><a href="../symbols/hext.tools.BlowerDoorController.html">hext.tools.BlowerDoorController</a></li>
-	
-		<li><a href="../symbols/hext.tools.BlowerDoorToolbarView.html">hext.tools.BlowerDoorToolbarView</a></li>
-	
-		<li><a href="../symbols/hext.tools.BlowerDoorToolbarViewConfig.html">hext.tools.BlowerDoorToolbarViewConfig</a></li>
-	
-		<li><a href="../symbols/hext.tools.BlowerDoorView.html">hext.tools.BlowerDoorView</a></li>
-	
-		<li><a href="../symbols/hext.tools.BlowerDoorViewConfig.html">hext.tools.BlowerDoorViewConfig</a></li>
-	
-		<li><a href="../symbols/hext.tools.HtmlView.html">hext.tools.HtmlView</a></li>
-	
-		<li><a href="../symbols/hext.tools.HtmlViewConfig.html">hext.tools.HtmlViewConfig</a></li>
-	
-		<li><a href="../symbols/hext.tools.Manometer.html">hext.tools.Manometer</a></li>
-	
-		<li><a href="../symbols/hext.tools.ManometerController.html">hext.tools.ManometerController</a></li>
-	
-		<li><a href="../symbols/hext.tools.ManometerToolbarView.html">hext.tools.ManometerToolbarView</a></li>
-	
-		<li><a href="../symbols/hext.tools.ManometerToolbarViewConfig.html">hext.tools.ManometerToolbarViewConfig</a></li>
-	
-		<li><a href="../symbols/hext.tools.ManometerTube.html">hext.tools.ManometerTube</a></li>
-	
-		<li><a href="../symbols/hext.tools.ManometerTubeManager.html">hext.tools.ManometerTubeManager</a></li>
-	
-		<li><a href="../symbols/hext.tools.ManometerView.html">hext.tools.ManometerView</a></li>
-	
-		<li><a href="../symbols/hext.tools.ManometerViewConfig.html">hext.tools.ManometerViewConfig</a></li>
-	
-		<li><a href="../symbols/hext.tools.Navigation.html">hext.tools.Navigation</a></li>
-	
-		<li><a href="../symbols/hext.tools.NavigationController.html">hext.tools.NavigationController</a></li>
-	
-		<li><a href="../symbols/hext.tools.NavigationToolbarView.html">hext.tools.NavigationToolbarView</a></li>
-	
-		<li><a href="../symbols/hext.tools.NavigationToolbarViewConfig.html">hext.tools.NavigationToolbarViewConfig</a></li>
-	
-		<li><a href="../symbols/hext.tools.ShapeView.html">hext.tools.ShapeView</a></li>
-	
-		<li><a href="../symbols/hext.tools.SmokePuffConfig.html">hext.tools.SmokePuffConfig</a></li>
-	
-		<li><a href="../symbols/hext.tools.SmokePuffer.html">hext.tools.SmokePuffer</a></li>
-	
-		<li><a href="../symbols/hext.tools.SmokePufferController.html">hext.tools.SmokePufferController</a></li>
-	
-		<li><a href="../symbols/hext.tools.SmokePufferToolbarView.html">hext.tools.SmokePufferToolbarView</a></li>
-	
-		<li><a href="../symbols/hext.tools.SmokePufferToolbarViewConfig.html">hext.tools.SmokePufferToolbarViewConfig</a></li>
-	
-		<li><a href="../symbols/hext.tools.ToolbarView.html">hext.tools.ToolbarView</a></li>
-	
-		<li><a href="../symbols/hext.tools.ToolbarViewConfig.html">hext.tools.ToolbarViewConfig</a></li>
-	
-</ul>
-
-				<!-- end publish.classesIndex -->
-			</div>
+<div class="content">
+	<div class="innerContent">
+		<h1 class="classTitle">
 			
-			<div class="fineprint" style="clear:both">
-				
-				Generated by <a href="http://code.google.com/p/jsdoc-toolkit/" target="_blank">JsDoc Toolkit</a> 2.3.2 on Mon Apr 11 2011 16:58:54 GMT-0700 (PDT)<br />
-				HTML template: <a href="http://www.thebrightlines.com/2010/05/06/new-template-for-jsdoctoolkit-codeview/" target="_blank">Codeview</a>
-			</div>
-		</div>
+			Class <span>hemi.texture.TextureSet</span>
+		</h1>
 		
-		<div class="content">
-			<div class="innerContent">
-				<h1 class="classTitle">
-					
-					Class <span>hemi.texture.TextureSet</span>
-				</h1>
-
-				<p class="description summary">
-					
-					
-					
-				
-					A TextureSet can manage hemi.texture.TextureSampler's that are
+		<div class="intro">
+			<p class="description summary">
+				A TextureSet can manage hemi.texture.TextureSampler's that are
 part of a set as defined by the author.  It will handle loading them and
 notify the author upon completion.
-					
-					
-						<br /><em>Defined in: </em> &lt;public/js/hemi/\texture.js&gt;.
-					
-				</p>
-
+			</p>
 				
-					<div class="props">
-						<table class="summaryTable" cellspacing="0" summary="A summary of the constructor documented in the class hemi.texture.TextureSet.">
-							<caption>Class Summary</caption>
-							<thead>
-								<tr>
-									<th scope="col">Constructor Attributes</th>
-									<th scope="col">Constructor Name and Description</th>
-								</tr>
-							</thead>
-							<tbody>
+			
+				<ul class="summary">
+					
+					
+					
+						<li>Defined in: &lt;js/hemi/texture.js&gt;</li>
+					
+						
+				</ul>
+			
+		</div>
+		
+		
+			<div class="props">
+				<table class="summaryTable" cellspacing="0" summary="A summary of the constructor documented in the class hemi.texture.TextureSet.">
+					<caption class="sectionTitle">Class Summary</caption>
+					<thead>
+						<tr>
+							<th scope="col">Constructor Attributes</th>
+							<th scope="col">Constructor Name and Description</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td class="attributes">&nbsp;</td>
+							<td class="nameDescription" >
+								<div class="fixedFont">
+									<b><a href="../symbols/hemi.texture.TextureSet.html#constructor">hemi.texture.TextureSet</a></b>(count, opt_callback)
+								</div>
+								<div class="description"></div>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		
+		
+		
+			
+			
+				<div class="props">
+					<table class="summaryTable" cellspacing="0" summary="A summary of the fields documented in the class hemi.texture.TextureSet.">
+						<caption class="sectionTitle">Field Summary</caption>
+						
+						<thead>
+							<tr>
+								<th scope="col">Field Attributes</th>
+								<th scope="col">Field Name and Description</th>
+							</tr>
+						</thead>
+						
+						<tbody>
+							
 								<tr>
 									<td class="attributes">&nbsp;</td>
-									<td class="nameDescription" >
+									<td class="nameDescription">
 										<div class="fixedFont">
-											<b><a href="../symbols/hemi.texture.TextureSet.html#constructor">hemi.texture.TextureSet</a></b>(count, opt_callback)
+										<b><a href="../symbols/hemi.texture.TextureSet.html#count">count</a></b>
 										</div>
-										<div class="description"></div>
+										<div class="description">The total number of hemi.texture.TextureSampler's in this set.</div>
 									</td>
 								</tr>
-							</tbody>
-						</table>
-					</div>
-				
-
-				
-					
-					
-						<div class="props">
-							<table class="summaryTable" cellspacing="0" summary="A summary of the fields documented in the class hemi.texture.TextureSet.">
-								<caption>Field Summary</caption>
-								
-								<thead>
-									<tr>
-										<th scope="col">Field Attributes</th>
-										<th scope="col">Field Name and Description</th>
-									</tr>
-								</thead>
-								
-								<tbody>
-									
-										<tr>
-											<td class="attributes">&nbsp;</td>
-											<td class="nameDescription">
-												<div class="fixedFont">
-												<b><a href="../symbols/hemi.texture.TextureSet.html#count">count</a></b>
-												</div>
-												<div class="description">The total number of hemi.texture.TextureSampler's in this set.</div>
-											</td>
-										</tr>
-									
-										<tr>
-											<td class="attributes">&nbsp;</td>
-											<td class="nameDescription">
-												<div class="fixedFont">
-												<b><a href="../symbols/hemi.texture.TextureSet.html#samplers">samplers</a></b>
-												</div>
-												<div class="description">An object literal that maps a given name for the
+							
+								<tr>
+									<td class="attributes">&nbsp;</td>
+									<td class="nameDescription">
+										<div class="fixedFont">
+										<b><a href="../symbols/hemi.texture.TextureSet.html#samplers">samplers</a></b>
+										</div>
+										<div class="description">An object literal that maps a given name for the
 hemi.texture.TextureSampler to its instance for easy access.</div>
-											</td>
-										</tr>
-									
-								</tbody>
-							</table>
-						</div>
-					
-					
-					
+									</td>
+								</tr>
+							
+						</tbody>
+					</table>
+				</div>
+			
+			
+			
+		
+<!--
+#### METHODS SUMMARY
+-->
+		
+			
+			
+			<div class="props">
+				<h2 class="sectionTitle">Method Summary</h2>
 				
-
-	<!--
-	#### METHODS SUMMARY
-	-->
 				
-					
-					
-						<div class="props">
-							<table class="summaryTable" cellspacing="0" summary="A summary of the methods documented in the class hemi.texture.TextureSet.">
-								<caption>Method Summary</caption>
-								
-								<thead>
-									<tr>
-										<th scope="col">Method Attributes</th>
-										<th scope="col">Method Name and Description</th>
-									</tr>
-								</thead>
-								
-								<tbody>
-									
-										<tr>
-											<td class="attributes">&nbsp;</td>
-											<td class="nameDescription">
-												<div class="fixedFont"><b><a href="../symbols/hemi.texture.TextureSet.html#addTexture">addTexture</a></b>(name, url)
-												</div>
-												<div class="description">Add a named texture file at the given url to this set.</div>
-											</td>
-										</tr>
-									
-										<tr>
-											<td class="attributes">&nbsp;</td>
-											<td class="nameDescription">
-												<div class="fixedFont"><b><a href="../symbols/hemi.texture.TextureSet.html#addTextureSampler">addTextureSampler</a></b>(name, texSampler)
-												</div>
-												<div class="description">Add a hemi.texture.TextureSampler to this set</div>
-											</td>
-										</tr>
-									
-										<tr>
-											<td class="attributes">&nbsp;</td>
-											<td class="nameDescription">
-												<div class="fixedFont"><b><a href="../symbols/hemi.texture.TextureSet.html#getSamplerValue">getSamplerValue</a></b>(name)
-												</div>
-												<div class="description">Get the o3d.Sampler from the named hemi.texture.TextureSampler</div>
-											</td>
-										</tr>
-									
-										<tr>
-											<td class="attributes">&nbsp;</td>
-											<td class="nameDescription">
-												<div class="fixedFont"><b><a href="../symbols/hemi.texture.TextureSet.html#getTextureSampler">getTextureSampler</a></b>(name)
-												</div>
-												<div class="description">Get the hemi.texture.TextureSampler with the name in this set.</div>
-											</td>
-										</tr>
-									
-										<tr>
-											<td class="attributes">&nbsp;</td>
-											<td class="nameDescription">
-												<div class="fixedFont"><b><a href="../symbols/hemi.texture.TextureSet.html#loadTexture">loadTexture</a></b>(name, url)
-												</div>
-												<div class="description">Load a texture from the given url and associate it in this set with
+					<table class="summaryTable" id="MethodsList" cellspacing="0" summary="A summary of the methods documented in the class hemi.texture.TextureSet.">
+						<thead>
+							<tr>
+								<th scope="col">Method Attributes</th>
+								<th scope="col">Method Name and Description</th>
+							</tr>
+						</thead>
+						
+						<tbody>
+							
+							
+								<tr
+									 class='item0'
+								>
+									<td class="attributes">&nbsp;</td>
+									<td class="nameDescription">
+										<div class="fixedFont"><b><a href="../symbols/hemi.texture.TextureSet.html#addTexture">addTexture</a></b>(name, url)
+										</div>
+										<div class="description">Add a named texture file at the given url to this set.</div>
+									</td>
+								</tr>
+							
+								<tr
+									 class='item1'
+								>
+									<td class="attributes">&nbsp;</td>
+									<td class="nameDescription">
+										<div class="fixedFont"><b><a href="../symbols/hemi.texture.TextureSet.html#addTextureSampler">addTextureSampler</a></b>(name, texSampler)
+										</div>
+										<div class="description">Add a hemi.texture.TextureSampler to this set</div>
+									</td>
+								</tr>
+							
+								<tr
+									 class='item2'
+								>
+									<td class="attributes">&nbsp;</td>
+									<td class="nameDescription">
+										<div class="fixedFont"><b><a href="../symbols/hemi.texture.TextureSet.html#getSamplerValue">getSamplerValue</a></b>(name)
+										</div>
+										<div class="description">Get the o3d.Sampler from the named hemi.texture.TextureSampler</div>
+									</td>
+								</tr>
+							
+								<tr
+									 class='item3'
+								>
+									<td class="attributes">&nbsp;</td>
+									<td class="nameDescription">
+										<div class="fixedFont"><b><a href="../symbols/hemi.texture.TextureSet.html#getTextureSampler">getTextureSampler</a></b>(name)
+										</div>
+										<div class="description">Get the hemi.texture.TextureSampler with the name in this set.</div>
+									</td>
+								</tr>
+							
+								<tr
+									 class='item4'
+								>
+									<td class="attributes">&nbsp;</td>
+									<td class="nameDescription">
+										<div class="fixedFont"><b><a href="../symbols/hemi.texture.TextureSet.html#loadTexture">loadTexture</a></b>(name, url)
+										</div>
+										<div class="description">Load a texture from the given url and associate it in this set with
 the given name.</div>
-											</td>
-										</tr>
-									
-										<tr>
-											<td class="attributes">&nbsp;</td>
-											<td class="nameDescription">
-												<div class="fixedFont"><b><a href="../symbols/hemi.texture.TextureSet.html#loadTextureSampler">loadTextureSampler</a></b>(texSampler)
-												</div>
-												<div class="description">Load a hemi.texture.TextureSampler's texture image file and set the
+									</td>
+								</tr>
+							
+								<tr
+									 class='item5'
+								>
+									<td class="attributes">&nbsp;</td>
+									<td class="nameDescription">
+										<div class="fixedFont"><b><a href="../symbols/hemi.texture.TextureSet.html#loadTextureSampler">loadTextureSampler</a></b>(texSampler)
+										</div>
+										<div class="description">Load a hemi.texture.TextureSampler's texture image file and set the
 texture on the value, which is an o3d.Sampler, once loaded.</div>
-											</td>
-										</tr>
+									</td>
+								</tr>
+							
+						</tbody>
+					</table>
+				
+			
+				
+			</div>
+		
+		
+<!--
+#### EVENTS SUMMARY
+-->
+		
+<!--
+#### CONSTRUCTOR DETAILS
+-->
+		
+			<div class="details props">
+				<div class="innerProps">
+					<h2 class="sectionTitle" id="constructor">
+						Class Detail
+					</h2>
+					
+					<div class="fixedFont">
+						<b>hemi.texture.TextureSet</b>(count, opt_callback)
+					</div>
+					
+					<div class="description">
+						
+						
+					</div>
+					
+					
+				
+					
+						<dl class="detailList params">
+							<dt class="heading">Parameters:</dt>
+							
+								<dt>
+									<span class="light fixedFont">{number}</span>  <b>count</b>
 									
-								</tbody>
-							</table>
+								</dt>
+								<dd></dd>
+							
+								<dt>
+									<span class="light fixedFont">{function(hemi.texture.TextureSet.samplers):void}</span>  <b>opt_callback</b>
+									
+								</dt>
+								<dd></dd>
+							
+						</dl>
+					
+					
+					
+				</div>
+			</div>
+		
+<!--
+#### FIELD DETAILS
+-->
+		
+			<div class="details props">
+				<div class="innerProps">
+					<h2 class="sectionTitle">
+						Field Detail
+					</h2>
+					
+					
+						<div class="fixedFont heading" id="count">
+							<span class='lighter'>
+							
+							</span>
+							
+							<span class="light">{number}</span>
+							
+							<b>count</b>							
 						</div>
-					
-					
-					
-				
-				
-	<!--
-	#### EVENTS SUMMARY
-	-->
-				
-
-	<!--
-	#### CONSTRUCTOR DETAILS
-	-->
-				
-					<div class="details props">
-						<div class="innerProps">
-							<a name="constructor"></a>
-							
-							<div class="sectionTitle">
-								Class Detail
-							</div>
-							
-							<div class="fixedFont">
-								<b>hemi.texture.TextureSet</b>(count, opt_callback)
-							</div>
-							
-							<div class="description">
-								
-								
-							</div>
+						
+						<div class="description">
+							The total number of hemi.texture.TextureSampler's in this set.
 							
 							
+							
+						</div>
+						
 						
 							
-								<dl class="detailList params">
-									<dt class="heading">Parameters:</dt>
-									
-										<dt>
-											<span class="light fixedFont">{number}</span>  <b>count</b>
-											
-										</dt>
-										<dd></dd>
-									
-										<dt>
-											<span class="light fixedFont">{function(hemi.texture.TextureSet.samplers):void}</span>  <b>opt_callback</b>
-											
-										</dt>
-										<dd></dd>
-									
-								</dl>
+							<dl class="detailList nomargin">
 							
+								
+								
+								
+								
+									<dt class="heading">Default Value:</dt>
+									<dd>
+										0
+									</dd>
+								
+							</dl>
+						
+						
+						<div class="hr"></div>
+					
+						<div class="fixedFont heading" id="samplers">
+							<span class='lighter'>
 							
+							</span>
 							
+							<span class="light">{Object}</span>
+							
+							<b>samplers</b>							
 						</div>
-					</div>
-				
-
-	<!--
-	#### FIELD DETAILS
-	-->
-				
-					<div class="details props">
-						<div class="innerProps">
-
-							<div class="sectionTitle">
-								Field Detail
-							</div>
-							
-							
-								<a name="count"></a>
-								
-								<div class="fixedFont heading">
-									<span class='lighter'>
-									
-									</span>
-									
-									<span class="light">{number}</span>
-									
-									<b>count</b>							
-								</div>
-								
-								<div class="description">
-									The total number of hemi.texture.TextureSampler's in this set.
-									
-									
-									
-								</div>
-								
-								
-
-								
-									<dl class="detailList nomargin">
-									
-										
-										
-										
-										
-											<dt class="heading">Default Value:</dt>
-											<dd>
-												0
-											</dd>
-										
-									</dl>
-								
-								
-								<div class="hr"></div>
-							
-								<a name="samplers"></a>
-								
-								<div class="fixedFont heading">
-									<span class='lighter'>
-									
-									</span>
-									
-									<span class="light">{Object}</span>
-									
-									<b>samplers</b>							
-								</div>
-								
-								<div class="description">
-									An object literal that maps a given name for the
+						
+						<div class="description">
+							An object literal that maps a given name for the
 hemi.texture.TextureSampler to its instance for easy access.
-									
-									
-									
-								</div>
-								
-								
-
-								
-								
-								
+							
+							
 							
 						</div>
-					</div>
-				
-
-	<!--
-	#### METHOD DETAILS
-	-->		
-				
-					<div class="details props">
-						<div class="innerProps">
-							<div class="sectionTitle">
-								Method Detail
-							</div>
+						
+						
 							
-							
-								<a name="addTexture"></a>
-								
-								<div class="fixedFont heading">
+						
+						
+					
+				</div>
+			</div>
+		
+<!--
+#### METHOD DETAILS
+-->		
+		
+			<div class="details props">
+				<div class="innerProps">
+					<h2 class="sectionTitle">
+						Method Detail
+					</h2>
+					
+					<ul class="methodDetail" id="MethodDetail">
+						
+						
+							<li 
+								 class='item0'
+							>
+								<div class="fixedFont heading" id="addTexture">
 									<span class='lighter'>
 									
 									</span>
@@ -631,12 +658,13 @@ hemi.texture.TextureSet.samplers object for lookup.</dd>
 								
 								
 								
-
 								<div class="hr"></div>
-							
-								<a name="addTextureSampler"></a>
-								
-								<div class="fixedFont heading">
+							</li>
+						
+							<li 
+								 class='item1'
+							>
+								<div class="fixedFont heading" id="addTextureSampler">
 									<span class='lighter'>
 									
 									</span>
@@ -677,12 +705,13 @@ hemi.texture.TextureSampler object</dd>
 								
 								
 								
-
 								<div class="hr"></div>
-							
-								<a name="getSamplerValue"></a>
-								
-								<div class="fixedFont heading">
+							</li>
+						
+							<li 
+								 class='item2'
+							>
+								<div class="fixedFont heading" id="getSamplerValue">
 									<span class='lighter'>
 									
 									</span>
@@ -737,12 +766,13 @@ hemi.texture.TextureSampler object</dd>
 									
 									</dl>
 								
-
 								<div class="hr"></div>
-							
-								<a name="getTextureSampler"></a>
-								
-								<div class="fixedFont heading">
+							</li>
+						
+							<li 
+								 class='item3'
+							>
+								<div class="fixedFont heading" id="getTextureSampler">
 									<span class='lighter'>
 									
 									</span>
@@ -797,12 +827,13 @@ hemi.texture.TextureSampler object</dd>
 									
 									</dl>
 								
-
 								<div class="hr"></div>
-							
-								<a name="loadTexture"></a>
-								
-								<div class="fixedFont heading">
+							</li>
+						
+							<li 
+								 class='item4'
+							>
+								<div class="fixedFont heading" id="loadTexture">
 									<span class='lighter'>
 									
 									</span>
@@ -843,12 +874,13 @@ the given name.
 								
 								
 								
-
 								<div class="hr"></div>
-							
-								<a name="loadTextureSampler"></a>
-								
-								<div class="fixedFont heading">
+							</li>
+						
+							<li 
+								 class='item5'
+							>
+								<div class="fixedFont heading" id="loadTextureSampler">
 									<span class='lighter'>
 									
 									</span>
@@ -884,18 +916,24 @@ hemi.texture.TextureSampler to load and set the texture on</dd>
 								
 								
 								
-
 								
-							
-						</div>
-					</div>
-				
-				
-	<!--
-	#### EVENT DETAILS
-	-->		
-				
+							</li>
+						
+					</ul>
+				</div>
 			</div>
-		</div>
+		
+		
+<!--
+#### EVENT DETAILS
+-->		
+		
+	</div>
+</div>
+		<script type="text/javascript">
+			wbos.CssTools.MediaQueryFallBack.LoadCss('../css/screen.css', '../css/handheld.css', 660)
+			codeview.classFilter.Init()
+		</script>
 	</body>
 </html>
+
