@@ -274,7 +274,7 @@ var hemi = (function(hemi) {
 		 * @return {[number]} XYZ coordinates of the eye
 		 */
 		getEye : function() {
-			return this.transforms.cam.worldMatrix[3].slice(0,3);
+			return this.transforms.cam.getUpdatedWorldMatrix()[3].slice(0,3);
 		},
 
 		/**
@@ -284,9 +284,9 @@ var hemi = (function(hemi) {
 		 */
 		getTarget : function() {
 			if (this.mode.fixed) {
-				return this.transforms.target.worldMatrix[3].slice(0,3);
+				return this.transforms.target.getUpdatedWorldMatrix()[3].slice(0,3);
 			} else {
-				return this.transforms.pan.worldMatrix[3].slice(0,3);
+				return this.transforms.pan.getUpdatedWorldMatrix()[3].slice(0,3);
 			}
 		},
 		
@@ -473,14 +473,17 @@ var hemi = (function(hemi) {
 		 *
 		 * @param {o3d.event} renderEvent Message desribing render loop
 		 */
-		onRender : function(renderEvent) {	
-			if (this.state.xy.current[0] != this.state.xy.last[0] || 
-				this.state.xy.current[1] != this.state.xy.last[1] ||
-				this.state.moving ||
-				this.state.update) {
+		onRender : function(renderEvent) {
+			var state = this.state,
+				xy = state.xy;	
+			
+			if ((state.mouse && (xy.current[0] !== xy.last[0] ||
+				                 xy.current[1] !== xy.last[1])) ||
+				state.moving ||
+				state.update) {
 				this.update(renderEvent.elapsedTime);
 			}
-			this.state.update = false;
+			state.update = false;
 		},
 		
 		/**
@@ -682,24 +685,21 @@ var hemi = (function(hemi) {
 	     * @return {Object} the Octane structure representing this Camera
 		 */
 		toOctane: function() {
-			var octane = hemi.world.Citizen.prototype.toOctane.call(this);
+			var octane = hemi.world.Citizen.prototype.toOctane.call(this),
+				curView = hemi.view.createViewData(this);
 			
 			octane.props.push({
 				name: this.mode.control ? 'enableControl' : 'disableControl',
 				arg: []
 			});
-			
-			var valNames = ['pan', 'tilt', 'fov', 'camPan', 'camTilt',
-				'distance', 'up', 'mode', 'clip'];
-			
-			for (var ndx = 0, len = valNames.length; ndx < len; ndx++) {
-				var name = valNames[ndx];
-				
-				octane.props.push({
-					name: name,
-					val: this[name]
-				});
-			};
+			octane.props.push({
+				name: 'mode',
+				val: this.mode
+			});
+			octane.props.push({
+				name: 'moveToView',
+				arg: [curView, 0]
+			});
 
 			return octane;
 		},
@@ -713,8 +713,11 @@ var hemi = (function(hemi) {
 
 		interpolateView : function(current,end) {
 			var eye = [], target = [],
-				last = this.vd.last, cur = this.vd.current;
-			if(this.state.curve) {
+				last = this.vd.last,
+				cur = this.vd.current,
+				upProj = false;
+			
+			if (this.state.curve) {
 				var t = this.easeFunc[0](current,0,1,end);
 				eye = this.state.curve.eye.interpolate(t);
 				target = this.state.curve.target.interpolate(t);
@@ -724,9 +727,22 @@ var hemi = (function(hemi) {
 					target[i] = this.easeFunc[i](current,last.target[i],cur.target[i]-last.target[i],end);
 				}
 			}
-			this.fov.current = this.easeFunc[0](current,last.fov,cur.fov-last.fov,end);
-			this.clip.near = this.easeFunc[0](current,last.np,cur.np-last.np,end);
-			this.clip.far = this.easeFunc[0](current,last.fp,cur.fp-last.fp,end);
+			if (cur.fov !== last.fov) {
+				this.fov.current = this.easeFunc[0](current,last.fov,cur.fov-last.fov,end);
+				upProj = true;
+			}
+			if (cur.np !== last.np) {
+				this.clip.near = this.easeFunc[0](current,last.np,cur.np-last.np,end);
+				upProj = true;
+			}
+			if (cur.fp !== last.fp) {
+				this.clip.far = this.easeFunc[0](current,last.fp,cur.fp-last.fp,end);
+				upProj = true;
+			}	
+			if (upProj) {
+				this.updateProjection();
+			}
+			
 			this.setEyeTarget(eye,target);
 		},
 		
