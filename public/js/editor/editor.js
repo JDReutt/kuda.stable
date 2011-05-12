@@ -39,6 +39,25 @@
 				nearPlane: 0.5
 			};
 			
+			editor.enableMenuBar = function(enable) {
+				app.menu.setEnabled(enable);
+			};
+			
+			editor.enableToolBar = function(enable) {
+				app.toolbar.setEnabled(enable);
+			};
+			
+			editor.getActiveTool = function() {
+				return app.toolbar.getActiveTool();
+			};
+			
+			editor.getProjectOctane = function() {
+				app.msgMdl.dispatchProxy.swap();
+				var data = hemi.world.toOctane();
+				app.msgMdl.dispatchProxy.unswap();
+				return data;
+			};
+			
 			o3djs.webgl.makeClients(function(clientElements) {
 				app.initViewerStep2(clientElements);
 			}, options.join(','));
@@ -57,7 +76,7 @@
 			
 			this.extent = 2000;		// Grid will reach 2000 meters in each direction
 			this.fidelity = 1;		// Grid squares = 1 square meter
-						
+			
             this.layoutDialogs();
 			this.layoutGrid();
 			this.layoutToolbar();
@@ -140,7 +159,7 @@
 				
 				// enable the tools now that all the ui is loaded
 				for (var ndx = 0, len = views.length; ndx < len; ndx++) {
-					views[ndx].getUI().removeAttr('disabled');
+					views[ndx].setEnabled(true);
 				}
 			});
 		},
@@ -176,7 +195,7 @@
 			var vd = hemi.view.createViewData(hemi.world.camera);
 			vd.eye = [0, 10, 40];
 			vd.target = [0, 0, 0];
-            hemi.world.camera.moveToView(vd);			
+            hemi.world.camera.moveToView(vd);
 		},
 		
 		layoutGrid: function() {
@@ -190,10 +209,30 @@
 			hemi.loader.loadPath = '';
 			hemi.loader.loadTexture(url, function(texture) {
 		    	var mat = hemi.core.material.createConstantMaterial(
-					hemi.core.mainPack, hemi.view.viewInfo, texture, true);	
+						hemi.core.mainPack, hemi.view.viewInfo, texture, true),
+					extent = 2*that.extent;	
 					
-				that.gridShape = hemi.shape.createBox(0, 2*that.extent, 
-					2*that.extent, mat);
+				// create a custom draw list that this grid goes on
+				var drawPassInfo = hemi.view.viewInfo.createDrawPass(
+			        o3djs.base.o3d.DrawList.BY_Z_ORDER);  
+					
+				var state = drawPassInfo.state;				
+
+				state.getStateParam('AlphaBlendEnable').value = true;
+				state.getStateParam('SourceBlendFunction').value =
+					o3djs.base.o3d.State.BLENDFUNC_SOURCE_ALPHA;
+				state.getStateParam('DestinationBlendFunction').value =
+					o3djs.base.o3d.State.BLENDFUNC_INVERSE_SOURCE_ALPHA;
+				state.getStateParam('AlphaTestEnable').value = true;
+				state.getStateParam('AlphaComparisonFunction').value =
+					o3djs.base.o3d.State.CMP_GREATER;
+					
+				mat.drawList = drawPassInfo.drawList;
+				
+				// create the actual shape
+				that.gridShape = hemi.core.mainPack.createObject('Transform');
+				that.gridShape.addShape(hemi.core.primitives.createPlane(
+					hemi.core.mainPack, mat, extent, extent, 1, 1));
 			
 				that.gridShape.parent = hemi.core.client.root;
 				that.resetGrid(that.extent, that.fidelity);
@@ -307,13 +346,6 @@
 				});
 			})
 			.find('p#loadPrjMsg').hide();
-			
-			this.previewDlg = jQuery('<div title="Preview" id="previewDlg"></div>');
-			this.previewDlg.dialog({
-				autoOpen: false,
-				modal: true,
-				resizable: false
-			});
 		},
 		
 		layoutMenu: function() {
@@ -357,37 +389,8 @@
 			});
 			var preview = new editor.ui.MenuItem({
 				title: 'Preview',
-				action: function(evt){				
-					// close other dialogs
-					that.mdlLdrView.hideDialog();
-				
-					var win = jQuery(window),
-						windowWidth = window.innerWidth ? window.innerWidth 
-							: document.documentElement.offsetWidth,
-						windowHeight = win.height(),
-						inset = 20,
-						iframe = jQuery('<iframe src="preview.html"></iframe>');
-						
-					// Hide the currently rendered tree
-					var children = hemi.core.client.root.children;
-					
-					for (var ndx = 0; ndx < children.length; ndx++) {
-						children[ndx].parent = null;
-					}
-					
-					that.previewDlg.append(iframe).dialog('option', {
-						width: windowWidth - inset * 2,
-						height: windowHeight - inset * 2
-					}).dialog('open').bind('dialogclose', function(evt, ui){
-						// Restore the render tree
-						for (var ndx = 0; ndx < children.length; ndx++) {
-							children[ndx].parent = hemi.core.client.root;
-						}
-						
-						iframe.remove();
-					});
-					
-					iframe.height(that.previewDlg.height() - 4);
+				action: function(evt){
+					that.pvwMdl.startPreview();
 				}
 			});
 			var separator = new editor.ui.Separator();
@@ -401,8 +404,7 @@
             this.fileMenu.addMenuItem(newProject);
 			this.fileMenu.addMenuItem(openProject);
             this.fileMenu.addMenuItem(saveProject);
-			// disabled for now
-            // this.fileMenu.addMenuItem(preview);
+            this.fileMenu.addMenuItem(preview);
             this.fileMenu.addMenuItem(separator);
             this.fileMenu.addMenuItem(loadModel);
 			
@@ -539,6 +541,11 @@
 				pteCtr = new tools.ParticleFxMgrController();
 			this.pteMdl = new tools.ParticleFxMgrModel();
 			
+			// preview tool
+			var pvwView = new tools.PreviewView(),
+				pvwCtr = new tools.PreviewController();
+			this.pvwMdl = new tools.PreviewModel();
+			
 			// scenes
 			var scnView = new tools.SceneMgrView(),
 				scnCtr = new tools.SceneMgrController();
@@ -567,6 +574,7 @@
             this.toolbar.addTool(vptView);
             this.toolbar.addTool(msgView);
 			this.toolbar.addTool(pteView);
+			this.toolbar.addTool(pvwView);
 			this.toolbar.addTool(scnView);
 			this.toolbar.addTool(shpView);
 			this.toolbar.addTool(hudView);
@@ -599,6 +607,9 @@
 			pteCtr.setView(pteView);
 			pteCtr.setModel(this.pteMdl);
 			
+			pvwCtr.setView(pvwView);
+			pvwCtr.setModel(this.pvwMdl);
+			
 			scnCtr.setView(scnView);
 			scnCtr.setModel(this.scnMdl);
 			scnCtr.setMessagingModel(this.msgMdl);
@@ -623,7 +634,7 @@
 					widgets = view.sidebarWidgets;				
 				
 				// disable the tool to prevent selection before it's ready
-				view.getUI().attr('disabled', 'disabled');
+				view.setEnabled(false);
 				view.setSidebar(this.sidebar);
 				
 				for (var ndx2 = 0, len2 = widgets.length; ndx2 < len2; ndx2++) {
@@ -698,7 +709,6 @@
 		},
 		
 		saveProject: function(name, oldOctane) {
-			this.msgMdl.dispatchProxy.swap();
 			var data = null;
 			
 			if (oldOctane) {					
@@ -711,14 +721,12 @@
 			else {
 				data = {
 					name: name,
-					octane: JSON.stringify(hemi.world.toOctane()),
+					octane: JSON.stringify(editor.getProjectOctane()),
 					replace: false
 				};
 			}
 			
 			var that = this;
-				
-			this.msgMdl.dispatchProxy.unswap();
 			
 			jQuery.ajax({
 				url: '/saveProject',
@@ -825,7 +833,7 @@
 			return results[1];
 	}
 	
-	var app = new Application();
+	app = new Application();
 	
 	window.onload = function() {		
 		app.sizeViewerPane();

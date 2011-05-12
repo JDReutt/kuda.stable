@@ -14,16 +14,14 @@
  * if not, write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, 
  * Boston, MA 02110-1301 USA.
  */
+	
+o3djs.require('hext.progressUI.progressBar');
 
 /**
  * This is a demo to show how to use the Kuda particle system, built on 
  *		top of the hello world demo.
  */
 (function() {
-	o3djs.require('o3djs.util');
-	o3djs.require('hemi.motion');
-	o3djs.require('hemi.curve');
-	
 	function init(clientElements) {
 		hemi.core.init(clientElements[0]);
 		hemi.view.setBGColor([1, 1, 0.7, 1]);
@@ -31,7 +29,9 @@
 		createWorld();
 	};
 	
-	function createWorld() {		
+	function createWorld() {
+		// instantiate the progress bar
+		var pBar = new hext.progressUI.bar();
 		var house = new hemi.model.Model();				// Create a new Model
 		house.setFileName('assets/house_v12/scene.json'); // Set the model file
 		
@@ -52,60 +52,46 @@
 		
 		hemi.world.camera.enableControl();	// Enable camera mouse control
 		
-		/* The bounding boxes which the arrows will flow through:
-		 * Spawn from a small one to the lower left, flow through a 
-		 * large box in the upper left, go through a small bottleneck
-		 * directly above the house, spread out through another larfe
-		 * box in the upper right, then converge on a small box in the
-		 * bottom right.
+		/*
+		 * The bounding boxes which the arrows will flow through:
 		 */
 		var box1 = [[-510,-110,-10],[-490,-90,10]];
 		var box2 = [[-600,400,-200],[-400,600,0]];
 		var box3 = [[-10,790,180],[10,810,200]];
 		var box4 = [[400,450,-300],[600,650,-100]];
-		var box5 = [[490,-110,-10],[510,-90,10]];
+		var box5 = [[490,-110,-110],[510,-90,-90]];
+		var box6 = [[-30,140,-560],[30,260,-440]];
+		var box7 = [[-310,490,-10],[110,510,10]];
+		var box8 = [[90,190,590],[110,210,610]];
+		var box9 = [[-250,-250,270],[-150,-150,330]];
 		
-		/* The colors these arrows will be as they move through:
-		 * Start out yellow and transparent, then turn red and opaque,
-		 * quickly turn to blue, then fade to black and transparent.
+		/*
+		 * The colors these arrows will be as they move along the curve:
 		 */
-		var colorKey1 = {key: 0, value: [1,1,0,0.2]};
-		var colorKey2 = {key: 0.45, value: [1,0,0,1]};
-		var colorKey3 = {key: 0.55, value: [0,0,1,1]};
-		var colorKey4 = {key: 1, value: [0,0,0,0.2]};
-		
-		/* The scale of the arrows as they move through:
-		 * Start out infinitesimal, then grow to a decent size,
-		 * kind of stretched out, then shrink away again.
-		 */
-		var scaleKey1 = {key: 0, value: [10,10,10]};
-		var scaleKey2 = {key: 0.5, value: [50,80,50]};
-		var scaleKey3 = {key: 1, value: [10,10,10]};
+		var blue = [0, 0, 1, 0.7];
+		var green = [0, 1, 0, 0.7];
+		var red = [1, 0, 0, 0.7];
 		
 		/* Create a particle system configuration with the above parameters,
 		 * plus a rate of 20 particles per second, and a lifetime of
 		 * 5 seconds. Specify the shapes are arrows.
 		 */
-		var particleSystemConfig = {
-			aim : true,
-			particles : 100,
-			life : 5,
-			boxes : [box1, box2, box3, box4, box5],
-			shape : hemi.curve.shapeType.ARROW,
-			colorKeys : [colorKey1, colorKey2, colorKey3, colorKey4],
-			scaleKeys : [scaleKey1, scaleKey2, scaleKey3]
+		var systemConfig = {
+			fast: true,
+			aim: true,
+			trail: true,
+			particles: 500,
+			life: 12,
+			boxes: [box1,box2,box3,box4,box5,box6,box7,box8,box9,box1],
+			shape: hemi.curve.shapeType.ARROW,
+			colors: [blue,green,red,blue],
+			size: 10
 		};
 		
 		/* Create the particle system with the above config, 
 		 * and make the root transform its parent.
 		 */
-		var particleSystem = new hemi.curve.ParticleSystem(
-			hemi.core.client.root, 
-			particleSystemConfig);
-		
-		/* Start the particle system off with no particles generating */
-		particleSystem.setRate(0);
-	
+		var particleSystem = hemi.curve.createSystem(systemConfig);
 		var showBoxes = false;		// If boxes are being shown
 		
 		/* Register a keyDown listener:
@@ -117,12 +103,6 @@
 		hemi.input.addKeyDownListener({
 			onKeyDown : function(event) {
 				switch (event.keyCode) {
-					case (65):
-						particleSystem.changeRate(1);
-						break;
-					case (90):
-						particleSystem.changeRate(-1);
-						break;
 					case (32):
 						if (showBoxes) {
 							hemi.curve.hideBoxes();
@@ -130,6 +110,34 @@
 						} else {
 							hemi.curve.showBoxes(particleSystem);
 							showBoxes = true;
+						}
+						break;
+					case (65):
+						var newLife = particleSystem.life - 1;
+						
+						if (newLife > 0) {
+							particleSystem.setLife(newLife);
+						}
+						break;
+					case (80):
+						if (particleSystem.active) {
+							particleSystem.pause();
+						} else {
+							particleSystem.play();
+						}
+						break;
+					case (83):
+						if (particleSystem.active) {
+							particleSystem.stop();
+						} else {
+							particleSystem.start();
+						}
+						break;
+					case (90):
+						var newLife = particleSystem.life + 1;
+						
+						if (newLife < 30) {
+							particleSystem.setLife(newLife);
 						}
 						break;
 					default:

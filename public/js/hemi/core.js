@@ -29,6 +29,7 @@ o3djs.require('o3djs.rendergraph');
 o3djs.require('o3djs.canvas');
 o3djs.require('hemi.utils.jsUtils');
 o3djs.require('hemi.utils.hashtable');
+o3djs.require('hemi.utils.shaderUtils');
 o3djs.require('hemi.utils.transformUtils');
 o3djs.require('hemi.msg');
 o3djs.require('hemi.console');
@@ -51,15 +52,15 @@ o3djs.require('hemi.texture');
 
 /**
  * @namespace The core Hemi library used by Kuda.
- * @version 1.3.0
+ * @version 1.3.1
  */
 var hemi = (function(hemi) {
 	
 	/**
-	 * The version of Hemi released: 4/11/11
+	 * The version of Hemi released: 5/11/11
 	 * @constant
 	 */
-	hemi.version = '1.3.0';
+	hemi.version = '1.3.1';
 	
 	/**
 	 * @namespace A module for handling low level functionality and wrapping
@@ -145,6 +146,7 @@ var hemi = (function(hemi) {
 		hemi.picking.init();
 		hemi.input.init();
 		hemi.view.init();
+		hemi.curve.init();
 		hemi.model.init();
 		hemi.effect.init();
 		hemi.hud.init();
