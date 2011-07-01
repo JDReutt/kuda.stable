@@ -158,6 +158,10 @@
 				
 					<li><a href="../symbols/hemi.texture.TextureSet.html">hemi<span class='break'> </span>.<span class='break'> </span>texture<span class='break'> </span>.<span class='break'> </span>TextureSet</a></li>
 				
+					<li><a href="../symbols/hemi.time.html">hemi<span class='break'> </span>.<span class='break'> </span>time</a></li>
+				
+					<li><a href="../symbols/hemi.time.Timer.html">hemi<span class='break'> </span>.<span class='break'> </span>time<span class='break'> </span>.<span class='break'> </span>Timer</a></li>
+				
 					<li><a href="../symbols/hemi.utils.html">hemi<span class='break'> </span>.<span class='break'> </span>utils</a></li>
 				
 					<li><a href="../symbols/hemi.utils.Hashtable.html">hemi<span class='break'> </span>.<span class='break'> </span>utils<span class='break'> </span>.<span class='break'> </span>Hashtable</a></li>
@@ -165,6 +169,8 @@
 					<li><a href="../symbols/hemi.view.html">hemi<span class='break'> </span>.<span class='break'> </span>view</a></li>
 				
 					<li><a href="../symbols/hemi.view.Camera.html">hemi<span class='break'> </span>.<span class='break'> </span>view<span class='break'> </span>.<span class='break'> </span>Camera</a></li>
+				
+					<li><a href="../symbols/hemi.view.CameraCurve.html">hemi<span class='break'> </span>.<span class='break'> </span>view<span class='break'> </span>.<span class='break'> </span>CameraCurve</a></li>
 				
 					<li><a href="../symbols/hemi.view.ClientSize.html">hemi<span class='break'> </span>.<span class='break'> </span>view<span class='break'> </span>.<span class='break'> </span>ClientSize</a></li>
 				
@@ -283,7 +289,7 @@
 		
 		Documentation generator: <a href="http://code.google.com/p/jsdoc-toolkit/" target="_blank">JsDoc Toolkit</a> 2.4.0<br />
 		Template: <a href="http://www.thebrightlines.com/2010/05/06/new-template-for-jsdoctoolkit-codeview/" target="_blank">Codeview</a> 1.2<br />
-		Generated on: 2011-4-13 21:57
+		Generated on: 2011-6-1 14:11
 	</div>
 </div>
 
@@ -535,7 +541,7 @@
 								>
 									<td class="attributes">&nbsp;</td>
 									<td class="nameDescription">
-										<div class="fixedFont"><b><a href="../symbols/hemi.view.Camera.html#moveOnCurve">moveOnCurve</a></b>(eyeCurve, targetCurve, opt_frames)
+										<div class="fixedFont"><b><a href="../symbols/hemi.view.Camera.html#moveOnCurve">moveOnCurve</a></b>(curve, opt_span)
 										</div>
 										<div class="description">Move the camera along a curve.</div>
 									</td>
@@ -1264,7 +1270,7 @@
 									
 									
 									
-									<b>moveOnCurve</b>(eyeCurve, targetCurve, opt_frames)
+									<b>moveOnCurve</b>(curve, opt_span)
 								</div>
 								
 								<div class="description">
@@ -1282,22 +1288,17 @@
 										<dt class="heading">Parameters:</dt>
 										
 											<dt>
-												<span class="light fixedFont">{<a href="../symbols/hemi.curve.Curve.html">hemi.curve.Curve</a>}</span> <b>eyeCurve</b>
+												<span class="light fixedFont">{<a href="../symbols/hemi.view.CameraCurve.html">hemi.view.CameraCurve</a>}</span> <b>curve</b>
 												
 											</dt>
-											<dd>Curve for camera eye to follow</dd>
+											<dd>curve for camera eye and target to follow</dd>
 										
 											<dt>
-												<span class="light fixedFont">{<a href="../symbols/hemi.curve.Curve.html">hemi.curve.Curve</a>}</span> <b>targetCurve</b>
+												<span class="light fixedFont">{number}</span> <b>opt_span</b>
 												
 											</dt>
-											<dd>Curve for camera target to follow</dd>
-										
-											<dt>
-												<span class="light fixedFont">{number}</span> <b>opt_frames</b>
-												
-											</dt>
-											<dd>Number of frames to take for this movement</dd>
+											<dd>the number of frames or seconds to take for
+    the movement along the curve (0 is instant)</dd>
 										
 									</dl>
 								
