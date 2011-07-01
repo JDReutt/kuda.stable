@@ -158,6 +158,10 @@
 				
 					<li><a href="symbols/hemi.texture.TextureSet.html">hemi<span class='break'> </span>.<span class='break'> </span>texture<span class='break'> </span>.<span class='break'> </span>TextureSet</a></li>
 				
+					<li><a href="symbols/hemi.time.html">hemi<span class='break'> </span>.<span class='break'> </span>time</a></li>
+				
+					<li><a href="symbols/hemi.time.Timer.html">hemi<span class='break'> </span>.<span class='break'> </span>time<span class='break'> </span>.<span class='break'> </span>Timer</a></li>
+				
 					<li><a href="symbols/hemi.utils.html">hemi<span class='break'> </span>.<span class='break'> </span>utils</a></li>
 				
 					<li><a href="symbols/hemi.utils.Hashtable.html">hemi<span class='break'> </span>.<span class='break'> </span>utils<span class='break'> </span>.<span class='break'> </span>Hashtable</a></li>
@@ -165,6 +169,8 @@
 					<li><a href="symbols/hemi.view.html">hemi<span class='break'> </span>.<span class='break'> </span>view</a></li>
 				
 					<li><a href="symbols/hemi.view.Camera.html">hemi<span class='break'> </span>.<span class='break'> </span>view<span class='break'> </span>.<span class='break'> </span>Camera</a></li>
+				
+					<li><a href="symbols/hemi.view.CameraCurve.html">hemi<span class='break'> </span>.<span class='break'> </span>view<span class='break'> </span>.<span class='break'> </span>CameraCurve</a></li>
 				
 					<li><a href="symbols/hemi.view.ClientSize.html">hemi<span class='break'> </span>.<span class='break'> </span>view<span class='break'> </span>.<span class='break'> </span>ClientSize</a></li>
 				
@@ -283,7 +289,7 @@
 		
 		Documentation generator: <a href="http://code.google.com/p/jsdoc-toolkit/" target="_blank">JsDoc Toolkit</a> 2.4.0<br />
 		Template: <a href="http://www.thebrightlines.com/2010/05/06/new-template-for-jsdoctoolkit-codeview/" target="_blank">Codeview</a> 1.2<br />
-		Generated on: 2011-4-13 21:58
+		Generated on: 2011-6-1 14:11
 	</div>
 </div>
 
@@ -307,12 +313,12 @@
 			
 				<li>
 					<h2 class="classname"><a href="symbols/hemi.animation.html">hemi.animation</a></h2>
-					<p>A module for animating <a href="symbols/hemi.model.Model.html">hemi.model.Model</a>s.</p>
+					<p>A module for animating Models.</p>
 				</li>
 			
 				<li>
 					<h2 class="classname"><a href="symbols/hemi.animation.Animation.html">hemi.animation.Animation</a></h2>
-					<p>An Animation contains a target to animate, a begin time, an endtime, and <a href="symbols/hemi.animation.Loop.html">hemi.animation.Loop</a>s for repeating sections of theAnimation.</p>
+					<p>An Animation contains a target to animate, a begin time, an endtime, and Loops for repeating sections of the Animation.</p>
 				</li>
 			
 				<li>
@@ -338,7 +344,8 @@ etc.</p>
 			
 				<li>
 					<h2 class="classname"><a href="symbols/hemi.core.html">hemi.core</a></h2>
-					<p>A module for handling low level functionality and wrappingcalls to the underlying O3D library.</p>
+					<p>A module for handling low level functionality and wrapping
+calls to the underlying O3D library.</p>
 				</li>
 			
 				<li>
@@ -348,17 +355,20 @@ etc.</p>
 			
 				<li>
 					<h2 class="classname"><a href="symbols/hemi.curve.Curve.html">hemi.curve.Curve</a></h2>
-					<p>A Curve is used to represent and calculate different curvesincluding: linear, bezier, cardinal, and cubic hermite.</p>
+					<p>A Curve is used to represent and calculate different curves
+including: linear, bezier, cardinal, and cubic hermite.</p>
 				</li>
 			
 				<li>
 					<h2 class="classname"><a href="symbols/hemi.curve.Particle.html">hemi.curve.Particle</a></h2>
-					<p>A Particle allows for the movement of a transform along a set ofpoints.</p>
+					<p>A Particle allows for the movement of a transform along a set of
+points.</p>
 				</li>
 			
 				<li>
 					<h2 class="classname"><a href="symbols/hemi.curve.ParticleSystem.html">hemi.curve.ParticleSystem</a></h2>
-					<p>A ParticleSystem manages a set of Particle objects, and firesthem at the appropriate intervals.</p>
+					<p>A ParticleSystem manages a set of Particle objects, and fires
+them at the appropriate intervals.</p>
 				</li>
 			
 				<li>
@@ -607,6 +617,18 @@ part of a set as defined by the author.</p>
 				</li>
 			
 				<li>
+					<h2 class="classname"><a href="symbols/hemi.time.html">hemi.time</a></h2>
+					<p>A module for creating timers that can be used for scripting
+and behavior.</p>
+				</li>
+			
+				<li>
+					<h2 class="classname"><a href="symbols/hemi.time.Timer.html">hemi.time.Timer</a></h2>
+					<p>A Timer is a simple countdown timer that can be used to script
+behavior and sequence events.</p>
+				</li>
+			
+				<li>
 					<h2 class="classname"><a href="symbols/hemi.utils.html">hemi.utils</a></h2>
 					<p>A module to provide various utilities for Hemi.</p>
 				</li>
@@ -624,6 +646,12 @@ part of a set as defined by the author.</p>
 				<li>
 					<h2 class="classname"><a href="symbols/hemi.view.Camera.html">hemi.view.Camera</a></h2>
 					<p>A Camera contains all of the properties and functionality forviewing a 3D scene.</p>
+				</li>
+			
+				<li>
+					<h2 class="classname"><a href="symbols/hemi.view.CameraCurve.html">hemi.view.CameraCurve</a></h2>
+					<p>A CameraCurve contains an "eye" Curve and a "target" Curve that
+allow a Camera to follow a smooth path through several waypoints.</p>
 				</li>
 			
 				<li>
@@ -683,7 +711,8 @@ part of a set as defined by the author.</p>
 			
 				<li>
 					<h2 class="classname"><a href="symbols/hext.house.html">hext.house</a></h2>
-					<p>A module for pre-defined household objects, with standard		behaviors attached.</p>
+					<p>A module for pre-defined household objects, with standard
+		behaviors attached.</p>
 				</li>
 			
 				<li>

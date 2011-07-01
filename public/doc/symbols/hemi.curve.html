@@ -158,6 +158,10 @@
 				
 					<li><a href="../symbols/hemi.texture.TextureSet.html">hemi<span class='break'> </span>.<span class='break'> </span>texture<span class='break'> </span>.<span class='break'> </span>TextureSet</a></li>
 				
+					<li><a href="../symbols/hemi.time.html">hemi<span class='break'> </span>.<span class='break'> </span>time</a></li>
+				
+					<li><a href="../symbols/hemi.time.Timer.html">hemi<span class='break'> </span>.<span class='break'> </span>time<span class='break'> </span>.<span class='break'> </span>Timer</a></li>
+				
 					<li><a href="../symbols/hemi.utils.html">hemi<span class='break'> </span>.<span class='break'> </span>utils</a></li>
 				
 					<li><a href="../symbols/hemi.utils.Hashtable.html">hemi<span class='break'> </span>.<span class='break'> </span>utils<span class='break'> </span>.<span class='break'> </span>Hashtable</a></li>
@@ -165,6 +169,8 @@
 					<li><a href="../symbols/hemi.view.html">hemi<span class='break'> </span>.<span class='break'> </span>view</a></li>
 				
 					<li><a href="../symbols/hemi.view.Camera.html">hemi<span class='break'> </span>.<span class='break'> </span>view<span class='break'> </span>.<span class='break'> </span>Camera</a></li>
+				
+					<li><a href="../symbols/hemi.view.CameraCurve.html">hemi<span class='break'> </span>.<span class='break'> </span>view<span class='break'> </span>.<span class='break'> </span>CameraCurve</a></li>
 				
 					<li><a href="../symbols/hemi.view.ClientSize.html">hemi<span class='break'> </span>.<span class='break'> </span>view<span class='break'> </span>.<span class='break'> </span>ClientSize</a></li>
 				
@@ -283,7 +289,7 @@
 		
 		Documentation generator: <a href="http://code.google.com/p/jsdoc-toolkit/" target="_blank">JsDoc Toolkit</a> 2.4.0<br />
 		Template: <a href="http://www.thebrightlines.com/2010/05/06/new-template-for-jsdoctoolkit-codeview/" target="_blank">Codeview</a> 1.2<br />
-		Generated on: 2011-4-13 21:57
+		Generated on: 2011-6-1 14:10
 	</div>
 </div>
 
@@ -368,7 +374,7 @@
 									<td class="attributes">&lt;static&gt; &nbsp;</td>
 									<td class="nameDescription">
 										<div class="fixedFont">
-										hemi.curve.<b><a href="../symbols/hemi.curve.html#.shapeType">shapeType</a></b>
+										hemi.curve.<b><a href="../symbols/hemi.curve.html#.ShapeType">ShapeType</a></b>
 										</div>
 										<div class="description">Predefined values for common shapes.</div>
 									</td>
@@ -429,7 +435,7 @@
 								>
 									<td class="attributes">&lt;static&gt; &nbsp;</td>
 									<td class="nameDescription">
-										<div class="fixedFont">hemi.curve.<b><a href="../symbols/hemi.curve.html#.drawLine">drawLine</a></b>(p0, p1, opt_size, opt_color, opt_color)
+										<div class="fixedFont">hemi.curve.<b><a href="../symbols/hemi.curve.html#.drawLine">drawLine</a></b>(p0, p1, opt_size, opt_color)
 										</div>
 										<div class="description">Draw a line connecting two points.</div>
 									</td>
@@ -440,7 +446,7 @@
 								>
 									<td class="attributes">&lt;static&gt; &nbsp;</td>
 									<td class="nameDescription">
-										<div class="fixedFont">hemi.curve.<b><a href="../symbols/hemi.curve.html#.GpuParticleSystem">GpuParticleSystem</a></b>(cfg)
+										<div class="fixedFont">hemi.curve.<b><a href="../symbols/hemi.curve.html#.GpuParticleSystem">GpuParticleSystem</a></b>(opt_cfg)
 										</div>
 										<div class="description">A particle system that is GPU driven.</div>
 									</td>
@@ -451,7 +457,7 @@
 								>
 									<td class="attributes">&lt;static&gt; &nbsp;</td>
 									<td class="nameDescription">
-										<div class="fixedFont">hemi.curve.<b><a href="../symbols/hemi.curve.html#.GpuParticleTrail">GpuParticleTrail</a></b>(cfg)
+										<div class="fixedFont">hemi.curve.<b><a href="../symbols/hemi.curve.html#.GpuParticleTrail">GpuParticleTrail</a></b>(opt_cfg)
 										</div>
 										<div class="description">A GPU driven particle system that has trailing starts and stops.</div>
 									</td>
@@ -462,7 +468,7 @@
 								>
 									<td class="attributes">&lt;static&gt; &nbsp;</td>
 									<td class="nameDescription">
-										<div class="fixedFont">hemi.curve.<b><a href="../symbols/hemi.curve.html#.hideBoxes">hideBoxes</a></b>()
+										<div class="fixedFont">hemi.curve.<b><a href="../symbols/hemi.curve.html#.hideBoxes">hideBoxes</a></b>(opt_trans)
 										</div>
 										<div class="description">Remove the bounding boxes from view.</div>
 									</td>
@@ -473,9 +479,9 @@
 								>
 									<td class="attributes">&lt;static&gt; &nbsp;</td>
 									<td class="nameDescription">
-										<div class="fixedFont">hemi.curve.<b><a href="../symbols/hemi.curve.html#.randomPoint">randomPoint</a></b>(min, max)
+										<div class="fixedFont">hemi.curve.<b><a href="../symbols/hemi.curve.html#.hideCurves">hideCurves</a></b>(opt_trans)
 										</div>
-										<div class="description">Generate a random point within a bounding box</div>
+										<div class="description">Remove the given curve line Transform, its shapes, and its children.</div>
 									</td>
 								</tr>
 							
@@ -484,10 +490,21 @@
 								>
 									<td class="attributes">&lt;static&gt; &nbsp;</td>
 									<td class="nameDescription">
-										<div class="fixedFont">hemi.curve.<b><a href="../symbols/hemi.curve.html#.showBoxes">showBoxes</a></b>(system)
+										<div class="fixedFont">hemi.curve.<b><a href="../symbols/hemi.curve.html#.randomPoint">randomPoint</a></b>(min, max)
+										</div>
+										<div class="description">Generate a random point within a bounding box</div>
+									</td>
+								</tr>
+							
+								<tr
+									 class='item8'
+								>
+									<td class="attributes">&lt;static&gt; &nbsp;</td>
+									<td class="nameDescription">
+										<div class="fixedFont">hemi.curve.<b><a href="../symbols/hemi.curve.html#.showBoxes">showBoxes</a></b>(boxes, opt_trans)
 										</div>
 										<div class="description">Render the bounding boxes which the curves run through, mostly for
-		debugging purposes.</div>
+debugging purposes.</div>
 									</td>
 								</tr>
 							
@@ -552,7 +569,15 @@
 						</div>
 						
 						<div class="description">
-							Enum for different curve types, described below.<ul><pre><li>hemi.curve.curveType.Linear<li>hemi.curve.curveType.Bezier<li>hemi.curve.curveType.CubicHermite<li>hemi.curve.curveType.LinearNorm<li>hemi.curve.curveType.Cardinal<li>hemi.curve.curveType.Custom</ul></pre>
+							Enum for different curve types, described below.
+<ul><pre>
+<li>hemi.curve.curveType.Linear
+<li>hemi.curve.curveType.Bezier
+<li>hemi.curve.curveType.CubicHermite
+<li>hemi.curve.curveType.LinearNorm
+<li>hemi.curve.curveType.Cardinal
+<li>hemi.curve.curveType.Custom
+</ul></pre>
 							
 							
 							
@@ -563,18 +588,23 @@
 						
 						<div class="hr"></div>
 					
-						<div class="fixedFont heading" id=".shapeType">
+						<div class="fixedFont heading" id=".ShapeType">
 							<span class='lighter'>
 							&lt;static&gt; 
 							</span>
 							
 							
 							
-							<span class="light">hemi.curve.</span><b>shapeType</b>							
+							<span class="light">hemi.curve.</span><b>ShapeType</b>							
 						</div>
 						
 						<div class="description">
-							Predefined values for common shapes.<ul><pre><li>hemi.curve.shapeType.CUBE<li>hemi.curve.shapeType.SPHERE<li>hemi.curve.shapeType.ARROW</ul></pre>
+							Predefined values for common shapes.
+<ul><pre>
+<li>hemi.curve.ShapeType.CUBE
+<li>hemi.curve.ShapeType.SPHERE
+<li>hemi.curve.ShapeType.ARROW
+</ul></pre>
 							
 							
 							
@@ -635,17 +665,19 @@
 											<dd>configuration options:
     aim: flag to indicate particles should orient with curve
     boxes: array of bounding boxes for particle curves to pass through
+    colors: array of values for particle color ramp (use this or colorKeys)
+    colorKeys: array of time keys and values for particle color ramp
     fast: flag to indicate GPU-driven particle system should be used
     life: lifetime of particle system (in seconds)
-    particles: number of particles to allocate for system
-    shape: enumerator for type of shape to use for particles
-    // JS particle system only
-    colorKeys: array of time keys and values for particle color ramp
+    particleCount: number of particles to allocate for system
+    particleShape: enumerator for type of shape to use for particles
+    particleSize: size of the particles
+    scales: array of values for particle scale ramp (use this or scaleKeys)
     scaleKeys: array of time keys and values for particle size ramp
-    // GPU particle system only
-    colors: color ramp for particles
-    size: size of the particles
     tension: tension parameter for the curve (typically from -1 to 1)
+    // JS particle system only
+    parent: transform to parent the particle system under
+    // GPU particle system only
     trail: flag to indicate system should have trailing start and stop</dd>
 										
 									</dl>
@@ -710,7 +742,7 @@
 											<dd>Array of points (not waypoints)</dd>
 										
 											<dt>
-												<span class="light fixedFont">{hemi.config}</span> <b>config</b>
+												<span class="light fixedFont">{Object}</span> <b>config</b>
 												
 											</dt>
 											<dd>Configuration describing how the curve should look</dd>
@@ -730,9 +762,9 @@
 									&lt;static&gt; 
 									</span>
 									
+									<span class="light">{o3d.Transform}</span>
 									
-									
-									<span class="light">hemi.curve.</span><b>drawLine</b>(p0, p1, opt_size, opt_color, opt_color)
+									<span class="light">hemi.curve.</span><b>drawLine</b>(p0, p1, opt_size, opt_color)
 								</div>
 								
 								<div class="description">
@@ -773,15 +805,30 @@
 											</dt>
 											<dd>Color of the line</dd>
 										
-											<dt>
-												<b>opt_color</b>
-												
-											</dt>
-											<dd></dd>
-										
 									</dl>
 								
 								
+								
+									<dl class="detailList nomargin">
+									
+										
+										
+										
+										
+										
+										
+										
+											<dt class="heading">Returns:</dt>
+											
+												<dd><span class="light fixedFont">{o3d.Transform}</span> the Transform containing the line shape</dd>
+											
+										
+										
+										
+										
+										
+									
+									</dl>
 								
 								<div class="hr"></div>
 							</li>
@@ -796,7 +843,7 @@
 									
 									
 									
-									<span class="light">hemi.curve.</span><b>GpuParticleSystem</b>(cfg)
+									<span class="light">hemi.curve.</span><b>GpuParticleSystem</b>(opt_cfg)
 								</div>
 								
 								<div class="description">
@@ -814,10 +861,10 @@
 										<dt class="heading">Parameters:</dt>
 										
 											<dt>
-												<span class="light fixedFont">{Object}</span> <b>cfg</b>
+												<span class="light fixedFont">{Object}</span> <b>opt_cfg</b>
 												
 											</dt>
-											<dd>the configuration object for the system</dd>
+											<dd>optional configuration object for the system</dd>
 										
 									</dl>
 								
@@ -836,7 +883,7 @@
 									
 									
 									
-									<span class="light">hemi.curve.</span><b>GpuParticleTrail</b>(cfg)
+									<span class="light">hemi.curve.</span><b>GpuParticleTrail</b>(opt_cfg)
 								</div>
 								
 								<div class="description">
@@ -854,7 +901,7 @@
 										<dt class="heading">Parameters:</dt>
 										
 											<dt>
-												<span class="light fixedFont">{Object}</span> <b>cfg</b>
+												<span class="light fixedFont">{Object}</span> <b>opt_cfg</b>
 												
 											</dt>
 											<dd>the configuration object for the system</dd>
@@ -876,11 +923,13 @@
 									
 									
 									
-									<span class="light">hemi.curve.</span><b>hideBoxes</b>()
+									<span class="light">hemi.curve.</span><b>hideBoxes</b>(opt_trans)
 								</div>
 								
 								<div class="description">
-									Remove the bounding boxes from view.
+									Remove the bounding boxes from view. If a parent transform is given, only
+the bounding boxes under it will be removed. Otherwise all boxes will be
+removed.
 									
 									
 									
@@ -889,6 +938,17 @@
 								
 								
 								
+								
+									<dl class="detailList params">
+										<dt class="heading">Parameters:</dt>
+										
+											<dt>
+												<span class="light fixedFont">{o3d.Transform}</span> <b>opt_trans</b>
+												
+											</dt>
+											<dd>optional parent transform for the boxes</dd>
+										
+									</dl>
 								
 								
 								
@@ -897,6 +957,46 @@
 						
 							<li 
 								 class='item6'
+							>
+								<div class="fixedFont heading" id=".hideCurves">
+									<span class='lighter'>
+									&lt;static&gt; 
+									</span>
+									
+									
+									
+									<span class="light">hemi.curve.</span><b>hideCurves</b>(opt_trans)
+								</div>
+								
+								<div class="description">
+									Remove the given curve line Transform, its shapes, and its children.
+									
+									
+									
+									
+								</div>
+								
+								
+								
+								
+									<dl class="detailList params">
+										<dt class="heading">Parameters:</dt>
+										
+											<dt>
+												<span class="light fixedFont">{o3d.Transform}</span> <b>opt_trans</b>
+												
+											</dt>
+											<dd>optional Transform to clean up</dd>
+										
+									</dl>
+								
+								
+								
+								<div class="hr"></div>
+							</li>
+						
+							<li 
+								 class='item7'
 							>
 								<div class="fixedFont heading" id=".randomPoint">
 									<span class='lighter'>
@@ -963,7 +1063,7 @@
 							</li>
 						
 							<li 
-								 class='item7'
+								 class='item8'
 							>
 								<div class="fixedFont heading" id=".showBoxes">
 									<span class='lighter'>
@@ -972,12 +1072,12 @@
 									
 									
 									
-									<span class="light">hemi.curve.</span><b>showBoxes</b>(system)
+									<span class="light">hemi.curve.</span><b>showBoxes</b>(boxes, opt_trans)
 								</div>
 								
 								<div class="description">
 									Render the bounding boxes which the curves run through, mostly for
-		debugging purposes.
+debugging purposes.
 									
 									
 									
@@ -991,10 +1091,17 @@
 										<dt class="heading">Parameters:</dt>
 										
 											<dt>
-												<b>system</b>
+												<span class="light fixedFont">{number[3][2][]}</span> <b>boxes</b>
 												
 											</dt>
-											<dd></dd>
+											<dd>array of pairs of XYZ coordinates, the
+    first as minimum values and the second as maximum</dd>
+										
+											<dt>
+												<span class="light fixedFont">{o3d.Transform}</span> <b>opt_trans</b>
+												
+											</dt>
+											<dd>optional parent transform for the boxes</dd>
 										
 									</dl>
 								
