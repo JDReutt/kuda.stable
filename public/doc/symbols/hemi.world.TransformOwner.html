@@ -56,11 +56,21 @@
 				
 					<li><a href="../symbols/hemi.curve.html">hemi<span class='break'> </span>.<span class='break'> </span>curve</a></li>
 				
+					<li><a href="../symbols/hemi.curve.Box.html">hemi<span class='break'> </span>.<span class='break'> </span>curve<span class='break'> </span>.<span class='break'> </span>Box</a></li>
+				
+					<li><a href="../symbols/hemi.curve.ColorKey.html">hemi<span class='break'> </span>.<span class='break'> </span>curve<span class='break'> </span>.<span class='break'> </span>ColorKey</a></li>
+				
 					<li><a href="../symbols/hemi.curve.Curve.html">hemi<span class='break'> </span>.<span class='break'> </span>curve<span class='break'> </span>.<span class='break'> </span>Curve</a></li>
+				
+					<li><a href="../symbols/hemi.curve.GpuParticleSystem.html">hemi<span class='break'> </span>.<span class='break'> </span>curve<span class='break'> </span>.<span class='break'> </span>GpuParticleSystem</a></li>
+				
+					<li><a href="../symbols/hemi.curve.GpuParticleTrail.html">hemi<span class='break'> </span>.<span class='break'> </span>curve<span class='break'> </span>.<span class='break'> </span>GpuParticleTrail</a></li>
 				
 					<li><a href="../symbols/hemi.curve.Particle.html">hemi<span class='break'> </span>.<span class='break'> </span>curve<span class='break'> </span>.<span class='break'> </span>Particle</a></li>
 				
 					<li><a href="../symbols/hemi.curve.ParticleSystem.html">hemi<span class='break'> </span>.<span class='break'> </span>curve<span class='break'> </span>.<span class='break'> </span>ParticleSystem</a></li>
+				
+					<li><a href="../symbols/hemi.curve.ScaleKey.html">hemi<span class='break'> </span>.<span class='break'> </span>curve<span class='break'> </span>.<span class='break'> </span>ScaleKey</a></li>
 				
 					<li><a href="../symbols/hemi.dispatch.html">hemi<span class='break'> </span>.<span class='break'> </span>dispatch</a></li>
 				
@@ -289,7 +299,7 @@
 		
 		Documentation generator: <a href="http://code.google.com/p/jsdoc-toolkit/" target="_blank">JsDoc Toolkit</a> 2.4.0<br />
 		Template: <a href="http://www.thebrightlines.com/2010/05/06/new-template-for-jsdoctoolkit-codeview/" target="_blank">Codeview</a> 1.2<br />
-		Generated on: 2011-6-1 14:11
+		Generated on: 2011-7-9 15:09
 	</div>
 </div>
 
@@ -304,7 +314,7 @@
 		
 		<div class="intro">
 			<p class="description summary">
-				A TransformOwner contains a Citizen that owns at least onetransform and entries of other Citizens that need to be given any ofthose transforms as they become available during Octane loading.
+				A TransformOwner contains a Citizen that owns at least oneTransform and entries of other Citizens that need to be given any ofthose Transforms as they become available during Octane loading.
 			</p>
 				
 			
@@ -373,7 +383,7 @@
 									<td class="nameDescription">
 										<div class="fixedFont"><b><a href="../symbols/hemi.world.TransformOwner.html#distribute">distribute</a></b>()
 										</div>
-										<div class="description">Distribute the transforms of the owning Citizen to any other Citizensthat have registered interest in those transforms.</div>
+										<div class="description">Distribute the Transforms of the owning Citizen to any other Citizensthat have registered interest in those Transforms.</div>
 									</td>
 								</tr>
 							
@@ -384,7 +394,7 @@
 									<td class="nameDescription">
 										<div class="fixedFont"><b><a href="../symbols/hemi.world.TransformOwner.html#getEntry">getEntry</a></b>(transform)
 										</div>
-										<div class="description">Get the entry for the given transform or create one if it does notalready exist.</div>
+										<div class="description">Get the entry for the given Transform or create one if it does notalready exist.</div>
 									</td>
 								</tr>
 							
@@ -406,7 +416,7 @@
 									<td class="nameDescription">
 										<div class="fixedFont"><b><a href="../symbols/hemi.world.TransformOwner.html#register">register</a></b>(transform, target)
 										</div>
-										<div class="description">Register the given Citizen to receive the given transform when itbecomes available during Octane loading.</div>
+										<div class="description">Register the given Citizen to receive the given Transform when itbecomes available during Octane loading.</div>
 									</td>
 								</tr>
 							
@@ -428,7 +438,7 @@
 									<td class="nameDescription">
 										<div class="fixedFont"><b><a href="../symbols/hemi.world.TransformOwner.html#unregister">unregister</a></b>(transform, target)
 										</div>
-										<div class="description">Remove the entry for the given Citizen and transform.</div>
+										<div class="description">Remove the entry for the given Citizen and Transform.</div>
 									</td>
 								</tr>
 							
@@ -502,7 +512,7 @@
 								</div>
 								
 								<div class="description">
-									Distribute the transforms of the owning Citizen to any other Citizensthat have registered interest in those transforms.
+									Distribute the Transforms of the owning Citizen to any other Citizensthat have registered interest in those Transforms.
 									
 									
 									
@@ -531,7 +541,7 @@
 								</div>
 								
 								<div class="description">
-									Get the entry for the given transform or create one if it does notalready exist.
+									Get the entry for the given Transform or create one if it does notalready exist.
 									
 									
 									
@@ -548,7 +558,7 @@
 												<span class="light fixedFont">{o3d.Transform}</span> <b>transform</b>
 												
 											</dt>
-											<dd>the transform to get the entry for</dd>
+											<dd>the Transform to get the entry for</dd>
 										
 									</dl>
 								
@@ -621,7 +631,7 @@
 								</div>
 								
 								<div class="description">
-									Register the given Citizen to receive the given transform when itbecomes available during Octane loading.
+									Register the given Citizen to receive the given Transform when itbecomes available during Octane loading.
 									
 									
 									
@@ -638,7 +648,7 @@
 												<span class="light fixedFont">{o3d.Transform}</span> <b>transform</b>
 												
 											</dt>
-											<dd>the transform to give</dd>
+											<dd>the Transform to give</dd>
 										
 											<dt>
 												<span class="light fixedFont">{<a href="../symbols/hemi.world.Citizen.html">hemi.world.Citizen</a>}</span> <b>target</b>
@@ -717,7 +727,7 @@
 								</div>
 								
 								<div class="description">
-									Remove the entry for the given Citizen and transform.
+									Remove the entry for the given Citizen and Transform.
 									
 									
 									
@@ -734,7 +744,7 @@
 												<span class="light fixedFont">{o3d.Transform}</span> <b>transform</b>
 												
 											</dt>
-											<dd>the transform in the entry</dd>
+											<dd>the Transform in the entry</dd>
 										
 											<dt>
 												<span class="light fixedFont">{<a href="../symbols/hemi.world.Citizen.html">hemi.world.Citizen</a>}</span> <b>target</b>

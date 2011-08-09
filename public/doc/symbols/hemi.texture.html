@@ -56,11 +56,21 @@
 				
 					<li><a href="../symbols/hemi.curve.html">hemi<span class='break'> </span>.<span class='break'> </span>curve</a></li>
 				
+					<li><a href="../symbols/hemi.curve.Box.html">hemi<span class='break'> </span>.<span class='break'> </span>curve<span class='break'> </span>.<span class='break'> </span>Box</a></li>
+				
+					<li><a href="../symbols/hemi.curve.ColorKey.html">hemi<span class='break'> </span>.<span class='break'> </span>curve<span class='break'> </span>.<span class='break'> </span>ColorKey</a></li>
+				
 					<li><a href="../symbols/hemi.curve.Curve.html">hemi<span class='break'> </span>.<span class='break'> </span>curve<span class='break'> </span>.<span class='break'> </span>Curve</a></li>
+				
+					<li><a href="../symbols/hemi.curve.GpuParticleSystem.html">hemi<span class='break'> </span>.<span class='break'> </span>curve<span class='break'> </span>.<span class='break'> </span>GpuParticleSystem</a></li>
+				
+					<li><a href="../symbols/hemi.curve.GpuParticleTrail.html">hemi<span class='break'> </span>.<span class='break'> </span>curve<span class='break'> </span>.<span class='break'> </span>GpuParticleTrail</a></li>
 				
 					<li><a href="../symbols/hemi.curve.Particle.html">hemi<span class='break'> </span>.<span class='break'> </span>curve<span class='break'> </span>.<span class='break'> </span>Particle</a></li>
 				
 					<li><a href="../symbols/hemi.curve.ParticleSystem.html">hemi<span class='break'> </span>.<span class='break'> </span>curve<span class='break'> </span>.<span class='break'> </span>ParticleSystem</a></li>
+				
+					<li><a href="../symbols/hemi.curve.ScaleKey.html">hemi<span class='break'> </span>.<span class='break'> </span>curve<span class='break'> </span>.<span class='break'> </span>ScaleKey</a></li>
 				
 					<li><a href="../symbols/hemi.dispatch.html">hemi<span class='break'> </span>.<span class='break'> </span>dispatch</a></li>
 				
@@ -289,7 +299,7 @@
 		
 		Documentation generator: <a href="http://code.google.com/p/jsdoc-toolkit/" target="_blank">JsDoc Toolkit</a> 2.4.0<br />
 		Template: <a href="http://www.thebrightlines.com/2010/05/06/new-template-for-jsdoctoolkit-codeview/" target="_blank">Codeview</a> 1.2<br />
-		Generated on: 2011-6-1 14:11
+		Generated on: 2011-7-9 15:09
 	</div>
 </div>
 
@@ -377,8 +387,8 @@ easy to swap textures dynamically on Models.  See the lighting sample.
 									<td class="nameDescription">
 										<div class="fixedFont">hemi.texture.<b><a href="../symbols/hemi.texture.html#.createTextureSet">createTextureSet</a></b>(urls, callback)
 										</div>
-										<div class="description">Use this function to create multiple texture sets using a simple object literal that
-maps distinct meaningful names to the urls of the images.</div>
+										<div class="description">Create multiple texture sets using a simple object literal that maps
+distinct meaningful names to the urls of the images.</div>
 									</td>
 								</tr>
 							
@@ -389,7 +399,7 @@ maps distinct meaningful names to the urls of the images.</div>
 									<td class="nameDescription">
 										<div class="fixedFont">hemi.texture.<b><a href="../symbols/hemi.texture.html#.getUV">getUV</a></b>(element)
 										</div>
-										<div class="description">Get the texture uv coordinates of an element.</div>
+										<div class="description">Get the texture uv coordinates of the given element.</div>
 									</td>
 								</tr>
 							
@@ -400,7 +410,7 @@ maps distinct meaningful names to the urls of the images.</div>
 									<td class="nameDescription">
 										<div class="fixedFont">hemi.texture.<b><a href="../symbols/hemi.texture.html#.rotate">rotate</a></b>(element, theta)
 										</div>
-										<div class="description">Rotate the texture uv coordinates of an element</div>
+										<div class="description">Rotate the texture uv coordinates of the given element.</div>
 									</td>
 								</tr>
 							
@@ -411,7 +421,7 @@ maps distinct meaningful names to the urls of the images.</div>
 									<td class="nameDescription">
 										<div class="fixedFont">hemi.texture.<b><a href="../symbols/hemi.texture.html#.scale">scale</a></b>(element, x, y)
 										</div>
-										<div class="description">Scale the texture uv coordinates of an element</div>
+										<div class="description">Scale the texture uv coordinates of the given element.</div>
 									</td>
 								</tr>
 							
@@ -422,7 +432,7 @@ maps distinct meaningful names to the urls of the images.</div>
 									<td class="nameDescription">
 										<div class="fixedFont">hemi.texture.<b><a href="../symbols/hemi.texture.html#.translate">translate</a></b>(element, x, y)
 										</div>
-										<div class="description">Translate the texture uv coordinates of an element</div>
+										<div class="description">Translate the texture uv coordinates of the given element.</div>
 									</td>
 								</tr>
 							
@@ -496,8 +506,8 @@ maps distinct meaningful names to the urls of the images.</div>
 								</div>
 								
 								<div class="description">
-									Use this function to create multiple texture sets using a simple object literal that
-maps distinct meaningful names to the urls of the images.
+									Create multiple texture sets using a simple object literal that maps
+distinct meaningful names to the urls of the images.
 									
 									
 									
@@ -514,14 +524,15 @@ maps distinct meaningful names to the urls of the images.
 												<span class="light fixedFont">{Object}</span> <b>urls</b>
 												
 											</dt>
-											<dd>An object literal with properties of urls to load into the set</dd>
+											<dd>An object literal with properties of urls to load
+    into the set</dd>
 										
 											<dt>
-												<span class="light fixedFont">{function(hemi.texture.TextureSet.samplers):void}</span> <b>callback</b>
+												<span class="light fixedFont">{function(Object):void}</span> <b>callback</b>
 												
 											</dt>
-											<dd>a
-function to call and pass the samplers</dd>
+											<dd>a function to call and pass the
+    samplers</dd>
 										
 									</dl>
 								
@@ -538,7 +549,7 @@ function to call and pass the samplers</dd>
 										
 											<dt class="heading">Returns:</dt>
 											
-												<dd><span class="light fixedFont">{<a href="../symbols/hemi.texture.TextureSet.html">hemi.texture.TextureSet</a>}</span> the hemi.texture.TextureSet object</dd>
+												<dd><span class="light fixedFont">{<a href="../symbols/hemi.texture.TextureSet.html">hemi.texture.TextureSet</a>}</span> the TextureSet</dd>
 											
 										
 										
@@ -565,7 +576,7 @@ function to call and pass the samplers</dd>
 								</div>
 								
 								<div class="description">
-									Get the texture uv coordinates of an element.
+									Get the texture uv coordinates of the given element.
 									
 									
 									
@@ -582,7 +593,8 @@ function to call and pass the samplers</dd>
 												<span class="light fixedFont">{o3d.Element}</span> <b>element</b>
 												
 											</dt>
-											<dd>The element from which to extract uv coordinates</dd>
+											<dd>The element from which to extract uv
+    coordinates</dd>
 										
 									</dl>
 								
@@ -627,7 +639,7 @@ function to call and pass the samplers</dd>
 								</div>
 								
 								<div class="description">
-									Rotate the texture uv coordinates of an element
+									Rotate the texture uv coordinates of the given element.
 									
 									
 									
@@ -647,7 +659,7 @@ function to call and pass the samplers</dd>
 											<dd>The element to rotate the texture on</dd>
 										
 											<dt>
-												<span class="light fixedFont">{float}</span> <b>theta</b>
+												<span class="light fixedFont">{number}</span> <b>theta</b>
 												
 											</dt>
 											<dd>Radians to rotate texture, counter-clockwise</dd>
@@ -673,7 +685,7 @@ function to call and pass the samplers</dd>
 								</div>
 								
 								<div class="description">
-									Scale the texture uv coordinates of an element
+									Scale the texture uv coordinates of the given element.
 									
 									
 									
@@ -693,13 +705,13 @@ function to call and pass the samplers</dd>
 											<dd>The element to scale the texture on</dd>
 										
 											<dt>
-												<span class="light fixedFont">{float}</span> <b>x</b>
+												<span class="light fixedFont">{number}</span> <b>x</b>
 												
 											</dt>
 											<dd>Amount to scale by along x-axis</dd>
 										
 											<dt>
-												<span class="light fixedFont">{float}</span> <b>y</b>
+												<span class="light fixedFont">{number}</span> <b>y</b>
 												
 											</dt>
 											<dd>Amoung to scale by along y-axis</dd>
@@ -725,7 +737,7 @@ function to call and pass the samplers</dd>
 								</div>
 								
 								<div class="description">
-									Translate the texture uv coordinates of an element
+									Translate the texture uv coordinates of the given element.
 									
 									
 									
@@ -745,13 +757,13 @@ function to call and pass the samplers</dd>
 											<dd>The element to translate the texture on</dd>
 										
 											<dt>
-												<span class="light fixedFont">{float}</span> <b>x</b>
+												<span class="light fixedFont">{number}</span> <b>x</b>
 												
 											</dt>
 											<dd>Distance to translate along x-axis</dd>
 										
 											<dt>
-												<span class="light fixedFont">{float}</span> <b>y</b>
+												<span class="light fixedFont">{number}</span> <b>y</b>
 												
 											</dt>
 											<dd>Distance to translate along y-axis</dd>

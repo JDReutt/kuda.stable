@@ -56,11 +56,21 @@
 				
 					<li><a href="../symbols/hemi.curve.html">hemi<span class='break'> </span>.<span class='break'> </span>curve</a></li>
 				
+					<li><a href="../symbols/hemi.curve.Box.html">hemi<span class='break'> </span>.<span class='break'> </span>curve<span class='break'> </span>.<span class='break'> </span>Box</a></li>
+				
+					<li><a href="../symbols/hemi.curve.ColorKey.html">hemi<span class='break'> </span>.<span class='break'> </span>curve<span class='break'> </span>.<span class='break'> </span>ColorKey</a></li>
+				
 					<li><a href="../symbols/hemi.curve.Curve.html">hemi<span class='break'> </span>.<span class='break'> </span>curve<span class='break'> </span>.<span class='break'> </span>Curve</a></li>
+				
+					<li><a href="../symbols/hemi.curve.GpuParticleSystem.html">hemi<span class='break'> </span>.<span class='break'> </span>curve<span class='break'> </span>.<span class='break'> </span>GpuParticleSystem</a></li>
+				
+					<li><a href="../symbols/hemi.curve.GpuParticleTrail.html">hemi<span class='break'> </span>.<span class='break'> </span>curve<span class='break'> </span>.<span class='break'> </span>GpuParticleTrail</a></li>
 				
 					<li><a href="../symbols/hemi.curve.Particle.html">hemi<span class='break'> </span>.<span class='break'> </span>curve<span class='break'> </span>.<span class='break'> </span>Particle</a></li>
 				
 					<li><a href="../symbols/hemi.curve.ParticleSystem.html">hemi<span class='break'> </span>.<span class='break'> </span>curve<span class='break'> </span>.<span class='break'> </span>ParticleSystem</a></li>
+				
+					<li><a href="../symbols/hemi.curve.ScaleKey.html">hemi<span class='break'> </span>.<span class='break'> </span>curve<span class='break'> </span>.<span class='break'> </span>ScaleKey</a></li>
 				
 					<li><a href="../symbols/hemi.dispatch.html">hemi<span class='break'> </span>.<span class='break'> </span>dispatch</a></li>
 				
@@ -289,7 +299,7 @@
 		
 		Documentation generator: <a href="http://code.google.com/p/jsdoc-toolkit/" target="_blank">JsDoc Toolkit</a> 2.4.0<br />
 		Template: <a href="http://www.thebrightlines.com/2010/05/06/new-template-for-jsdoctoolkit-codeview/" target="_blank">Codeview</a> 1.2<br />
-		Generated on: 2011-6-1 14:11
+		Generated on: 2011-7-9 15:09
 	</div>
 </div>
 
@@ -411,7 +421,7 @@
 									<td class="nameDescription">
 										<div class="fixedFont"><b><a href="../symbols/hemi.motion.Translator.html#addTransform">addTransform</a></b>(transform)
 										</div>
-										<div class="description">Add a transform to the list of transforms that will be moving.</div>
+										<div class="description">Add the Transform to the list of Transforms that will be moving.</div>
 									</td>
 								</tr>
 							
@@ -444,7 +454,7 @@
 									<td class="nameDescription">
 										<div class="fixedFont"><b><a href="../symbols/hemi.motion.Translator.html#clearTransforms">clearTransforms</a></b>()
 										</div>
-										<div class="description">Clear the list of translating transforms.</div>
+										<div class="description">Clear the list of translating Transforms.</div>
 									</td>
 								</tr>
 							
@@ -477,7 +487,7 @@
 									<td class="nameDescription">
 										<div class="fixedFont"><b><a href="../symbols/hemi.motion.Translator.html#getTransforms">getTransforms</a></b>()
 										</div>
-										<div class="description">Get the transforms that the Translator currently contains.</div>
+										<div class="description">Get the Transforms that the Translator currently contains.</div>
 									</td>
 								</tr>
 							
@@ -486,9 +496,10 @@
 								>
 									<td class="attributes">&nbsp;</td>
 									<td class="nameDescription">
-										<div class="fixedFont"><b><a href="../symbols/hemi.motion.Translator.html#onRender">onRender</a></b>(event)
+										<div class="fixedFont"><b><a href="../symbols/hemi.motion.Translator.html#move">move</a></b>(delta, time, opt_mustComplete)
 										</div>
-										<div class="description">Render event listener - calculate the position of this translator,		based on the acceleration, where velocity = t*acceleration, 		and position = t*velocity.</div>
+										<div class="description">Make the Translator translate the specified amount in the specified
+amount of time.</div>
 									</td>
 								</tr>
 							
@@ -497,14 +508,25 @@
 								>
 									<td class="attributes">&nbsp;</td>
 									<td class="nameDescription">
-										<div class="fixedFont"><b><a href="../symbols/hemi.motion.Translator.html#receiveTransform">receiveTransform</a></b>(transform)
+										<div class="fixedFont"><b><a href="../symbols/hemi.motion.Translator.html#onRender">onRender</a></b>(event)
 										</div>
-										<div class="description">Receive the given transform from the TransformRegistry.</div>
+										<div class="description">Render event listener - calculate the position of the Translator,based on the acceleration and velocity.</div>
 									</td>
 								</tr>
 							
 								<tr
 									 class='item9'
+								>
+									<td class="attributes">&nbsp;</td>
+									<td class="nameDescription">
+										<div class="fixedFont"><b><a href="../symbols/hemi.motion.Translator.html#receiveTransform">receiveTransform</a></b>(transform)
+										</div>
+										<div class="description">Receive the given Transform from the TransformRegistry.</div>
+									</td>
+								</tr>
+							
+								<tr
+									 class='item10'
 								>
 									<td class="attributes">&nbsp;</td>
 									<td class="nameDescription">
@@ -515,7 +537,7 @@
 								</tr>
 							
 								<tr
-									 class='item10'
+									 class='item11'
 								>
 									<td class="attributes">&nbsp;</td>
 									<td class="nameDescription">
@@ -526,7 +548,7 @@
 								</tr>
 							
 								<tr
-									 class='item11'
+									 class='item12'
 								>
 									<td class="attributes">&nbsp;</td>
 									<td class="nameDescription">
@@ -537,7 +559,7 @@
 								</tr>
 							
 								<tr
-									 class='item12'
+									 class='item13'
 								>
 									<td class="attributes">&nbsp;</td>
 									<td class="nameDescription">
@@ -592,13 +614,13 @@
 									<span class="light fixedFont">{o3d.Transform}</span>  <b>opt_tran</b>
 									
 								</dt>
-								<dd>Optional transform that will be moving</dd>
+								<dd>optional Transform that will be moving</dd>
 							
 								<dt>
 									<span class="light fixedFont">{Object}</span>  <b>opt_config</b>
 									
 								</dt>
-								<dd>Optional configuration for thie Translator</dd>
+								<dd>optional configuration for the Translator</dd>
 							
 						</dl>
 					
@@ -670,7 +692,7 @@
 								</div>
 								
 								<div class="description">
-									Add a transform to the list of transforms that will be moving.
+									Add the Transform to the list of Transforms that will be moving.
 									
 									
 									
@@ -684,10 +706,10 @@
 										<dt class="heading">Parameters:</dt>
 										
 											<dt>
-												<span class="light fixedFont">{o3d.transform}</span> <b>transform</b>
+												<span class="light fixedFont">{o3d.Transform}</span> <b>transform</b>
 												
 											</dt>
-											<dd>the transform to add</dd>
+											<dd>the Transform to add</dd>
 										
 									</dl>
 								
@@ -768,7 +790,7 @@
 								</div>
 								
 								<div class="description">
-									Clear the list of translating transforms.
+									Clear the list of translating Transforms.
 									
 									
 									
@@ -855,7 +877,7 @@
 								</div>
 								
 								<div class="description">
-									Get the transforms that the Translator currently contains.
+									Get the Transforms that the Translator currently contains.
 									
 									
 									
@@ -878,7 +900,7 @@
 										
 											<dt class="heading">Returns:</dt>
 											
-												<dd><span class="light fixedFont">{o3d.Transform[]}</span> array of transforms</dd>
+												<dd><span class="light fixedFont">{o3d.Transform[]}</span> array of Transforms</dd>
 											
 										
 										
@@ -894,18 +916,19 @@
 							<li 
 								 class='item7'
 							>
-								<div class="fixedFont heading" id="onRender">
+								<div class="fixedFont heading" id="move">
 									<span class='lighter'>
 									
 									</span>
 									
 									
 									
-									<b>onRender</b>(event)
+									<b>move</b>(delta, time, opt_mustComplete)
 								</div>
 								
 								<div class="description">
-									Render event listener - calculate the position of this translator,		based on the acceleration, where velocity = t*acceleration, 		and position = t*velocity.
+									Make the Translator translate the specified amount in the specified
+amount of time.
 									
 									
 									
@@ -919,10 +942,23 @@
 										<dt class="heading">Parameters:</dt>
 										
 											<dt>
-												<span class="light fixedFont">{o3d.event}</span> <b>event</b>
+												<span class="light fixedFont">{number[3]}</span> <b>delta</b>
 												
 											</dt>
-											<dd>Message describing render event</dd>
+											<dd>XYZ amount to translate</dd>
+										
+											<dt>
+												<span class="light fixedFont">{number}</span> <b>time</b>
+												
+											</dt>
+											<dd>number of seconds for the translation to take</dd>
+										
+											<dt>
+												<span class="light fixedFont">{boolean}</span> <b>opt_mustComplete</b>
+												
+											</dt>
+											<dd>optional flag indicating that no
+    other translations can be started until this one finishes</dd>
 										
 									</dl>
 								
@@ -933,6 +969,46 @@
 						
 							<li 
 								 class='item8'
+							>
+								<div class="fixedFont heading" id="onRender">
+									<span class='lighter'>
+									
+									</span>
+									
+									
+									
+									<b>onRender</b>(event)
+								</div>
+								
+								<div class="description">
+									Render event listener - calculate the position of the Translator,based on the acceleration and velocity.
+									
+									
+									
+									
+								</div>
+								
+								
+								
+								
+									<dl class="detailList params">
+										<dt class="heading">Parameters:</dt>
+										
+											<dt>
+												<span class="light fixedFont">{o3d.Event}</span> <b>event</b>
+												
+											</dt>
+											<dd>message describing render event</dd>
+										
+									</dl>
+								
+								
+								
+								<div class="hr"></div>
+							</li>
+						
+							<li 
+								 class='item9'
 							>
 								<div class="fixedFont heading" id="receiveTransform">
 									<span class='lighter'>
@@ -945,7 +1021,7 @@
 								</div>
 								
 								<div class="description">
-									Receive the given transform from the TransformRegistry.
+									Receive the given Transform from the TransformRegistry.
 									
 									
 									
@@ -962,7 +1038,7 @@
 												<span class="light fixedFont">{o3d.Transform}</span> <b>transform</b>
 												
 											</dt>
-											<dd>the transform</dd>
+											<dd>the Transform</dd>
 										
 									</dl>
 								
@@ -972,7 +1048,7 @@
 							</li>
 						
 							<li 
-								 class='item9'
+								 class='item10'
 							>
 								<div class="fixedFont heading" id="setAccel">
 									<span class='lighter'>
@@ -999,10 +1075,10 @@
 										<dt class="heading">Parameters:</dt>
 										
 											<dt>
-												<span class="light fixedFont">{number[]}</span> <b>a</b>
+												<span class="light fixedFont">{number[3]}</span> <b>a</b>
 												
 											</dt>
-											<dd>New acceleration vector</dd>
+											<dd>XYZ acceleration vector</dd>
 										
 									</dl>
 								
@@ -1012,7 +1088,7 @@
 							</li>
 						
 							<li 
-								 class='item10'
+								 class='item11'
 							>
 								<div class="fixedFont heading" id="setPos">
 									<span class='lighter'>
@@ -1039,10 +1115,10 @@
 										<dt class="heading">Parameters:</dt>
 										
 											<dt>
-												<span class="light fixedFont">{number[]}</span> <b>x</b>
+												<span class="light fixedFont">{number[3]}</span> <b>x</b>
 												
 											</dt>
-											<dd>New position, as xyz coordinate</dd>
+											<dd>XYZ position</dd>
 										
 									</dl>
 								
@@ -1052,7 +1128,7 @@
 							</li>
 						
 							<li 
-								 class='item11'
+								 class='item12'
 							>
 								<div class="fixedFont heading" id="setVel">
 									<span class='lighter'>
@@ -1079,10 +1155,10 @@
 										<dt class="heading">Parameters:</dt>
 										
 											<dt>
-												<span class="light fixedFont">{number[]}</span> <b>v</b>
+												<span class="light fixedFont">{number[3]}</span> <b>v</b>
 												
 											</dt>
-											<dd>New velocity vector</dd>
+											<dd>XYZ velocity vector</dd>
 										
 									</dl>
 								
@@ -1092,7 +1168,7 @@
 							</li>
 						
 							<li 
-								 class='item12'
+								 class='item13'
 							>
 								<div class="fixedFont heading" id="toOctane">
 									<span class='lighter'>

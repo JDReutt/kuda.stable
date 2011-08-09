@@ -56,11 +56,21 @@
 				
 					<li><a href="../symbols/hemi.curve.html">hemi<span class='break'> </span>.<span class='break'> </span>curve</a></li>
 				
+					<li><a href="../symbols/hemi.curve.Box.html">hemi<span class='break'> </span>.<span class='break'> </span>curve<span class='break'> </span>.<span class='break'> </span>Box</a></li>
+				
+					<li><a href="../symbols/hemi.curve.ColorKey.html">hemi<span class='break'> </span>.<span class='break'> </span>curve<span class='break'> </span>.<span class='break'> </span>ColorKey</a></li>
+				
 					<li><a href="../symbols/hemi.curve.Curve.html">hemi<span class='break'> </span>.<span class='break'> </span>curve<span class='break'> </span>.<span class='break'> </span>Curve</a></li>
+				
+					<li><a href="../symbols/hemi.curve.GpuParticleSystem.html">hemi<span class='break'> </span>.<span class='break'> </span>curve<span class='break'> </span>.<span class='break'> </span>GpuParticleSystem</a></li>
+				
+					<li><a href="../symbols/hemi.curve.GpuParticleTrail.html">hemi<span class='break'> </span>.<span class='break'> </span>curve<span class='break'> </span>.<span class='break'> </span>GpuParticleTrail</a></li>
 				
 					<li><a href="../symbols/hemi.curve.Particle.html">hemi<span class='break'> </span>.<span class='break'> </span>curve<span class='break'> </span>.<span class='break'> </span>Particle</a></li>
 				
 					<li><a href="../symbols/hemi.curve.ParticleSystem.html">hemi<span class='break'> </span>.<span class='break'> </span>curve<span class='break'> </span>.<span class='break'> </span>ParticleSystem</a></li>
+				
+					<li><a href="../symbols/hemi.curve.ScaleKey.html">hemi<span class='break'> </span>.<span class='break'> </span>curve<span class='break'> </span>.<span class='break'> </span>ScaleKey</a></li>
 				
 					<li><a href="../symbols/hemi.dispatch.html">hemi<span class='break'> </span>.<span class='break'> </span>dispatch</a></li>
 				
@@ -289,7 +299,7 @@
 		
 		Documentation generator: <a href="http://code.google.com/p/jsdoc-toolkit/" target="_blank">JsDoc Toolkit</a> 2.4.0<br />
 		Template: <a href="http://www.thebrightlines.com/2010/05/06/new-template-for-jsdoctoolkit-codeview/" target="_blank">Codeview</a> 1.2<br />
-		Generated on: 2011-6-1 14:10
+		Generated on: 2011-7-9 15:09
 	</div>
 </div>
 
@@ -374,7 +384,7 @@ them at the appropriate intervals.
 									<td class="nameDescription">
 										<div class="fixedFont"><b><a href="../symbols/hemi.curve.ParticleSystem.html#addShape">addShape</a></b>(shape)
 										</div>
-										<div class="description">Add a shape which will be added to the transform of every particle.</div>
+										<div class="description">Add a shape which will be added to the Transform of every particle.</div>
 									</td>
 								</tr>
 							
@@ -418,7 +428,8 @@ them at the appropriate intervals.
 									<td class="nameDescription">
 										<div class="fixedFont"><b><a href="../symbols/hemi.curve.ParticleSystem.html#onRender">onRender</a></b>(event)
 										</div>
-										<div class="description">Function performed on each render.</div>
+										<div class="description">Update all existing particles on each render and emit new ones if
+needed.</div>
 									</td>
 								</tr>
 							
@@ -549,10 +560,10 @@ through (helpful for debugging).</div>
 							<dt class="heading">Parameters:</dt>
 							
 								<dt>
-									<span class="light fixedFont">{hemi.config}</span>  <b>config</b>
+									<span class="light fixedFont">{Object}</span>  <b>config</b>
 									
 								</dt>
-								<dd>Configuration object describing this system</dd>
+								<dd>configuration object describing this system</dd>
 							
 						</dl>
 					
@@ -592,7 +603,7 @@ through (helpful for debugging).</div>
 								</div>
 								
 								<div class="description">
-									Add a shape which will be added to the transform of every particle.
+									Add a shape which will be added to the Transform of every particle.
 									
 									
 									
@@ -606,11 +617,11 @@ through (helpful for debugging).</div>
 										<dt class="heading">Parameters:</dt>
 										
 											<dt>
-												<span class="light fixedFont">{number|o3d.shape}</span> <b>shape</b>
+												<span class="light fixedFont">{number|o3d.Shape}</span> <b>shape</b>
 												
 											</dt>
-											<dd>Either an enum for standard shapes, or a custom
-		predefined shape to add</dd>
+											<dd>either an enum for standard shapes,
+    or a custom	predefined shape to add</dd>
 										
 									</dl>
 								
@@ -650,7 +661,7 @@ through (helpful for debugging).</div>
 												<span class="light fixedFont">{number}</span> <b>delta</b>
 												
 											</dt>
-											<dd>The delta by which to change the rate</dd>
+											<dd>the delta by which to change the rate</dd>
 										
 									</dl>
 								
@@ -667,7 +678,7 @@ through (helpful for debugging).</div>
 										
 											<dt class="heading">Returns:</dt>
 											
-												<dd><span class="light fixedFont">{number}</span> The new rate</dd>
+												<dd><span class="light fixedFont">{number}</span> the new rate</dd>
 											
 										
 										
@@ -740,7 +751,7 @@ through (helpful for debugging).</div>
 												<span class="light fixedFont">{number}</span> <b>tension</b>
 												
 											</dt>
-											<dd>tension parameter for the curve</dd>
+											<dd>tension parameter for the Curve</dd>
 										
 									</dl>
 								
@@ -757,7 +768,7 @@ through (helpful for debugging).</div>
 										
 											<dt class="heading">Returns:</dt>
 											
-												<dd><span class="light fixedFont">{<a href="../symbols/hemi.curve.Curve.html">hemi.curve.Curve</a>}</span> The randomly generated Curve object.</dd>
+												<dd><span class="light fixedFont">{<a href="../symbols/hemi.curve.Curve.html">hemi.curve.Curve</a>}</span> the randomly generated Curve</dd>
 											
 										
 										
@@ -784,8 +795,8 @@ through (helpful for debugging).</div>
 								</div>
 								
 								<div class="description">
-									Function performed on each render. Update all existing particles, and emit
-		new ones if needed.
+									Update all existing particles on each render and emit new ones if
+needed.
 									
 									
 									
@@ -802,7 +813,8 @@ through (helpful for debugging).</div>
 												<span class="light fixedFont">{o3d.RenderEvent}</span> <b>event</b>
 												
 											</dt>
-											<dd>Event object describing details of the render loop</dd>
+											<dd>event object describing details of the
+    render loop</dd>
 										
 									</dl>
 								
@@ -868,10 +880,10 @@ through (helpful for debugging).</div>
 										<dt class="heading">Parameters:</dt>
 										
 											<dt>
-												<span class="light fixedFont">{key[]}</span> <b>colorKeys</b>
+												<span class="light fixedFont">{<a href="../symbols/hemi.curve.ColorKey.html">hemi.curve.ColorKey</a>[]}</span> <b>colorKeys</b>
 												
 											</dt>
-											<dd>Array of color key pairs</dd>
+											<dd>array of color key pairs</dd>
 										
 									</dl>
 								
@@ -888,7 +900,7 @@ through (helpful for debugging).</div>
 										
 											<dt class="heading">Returns:</dt>
 											
-												<dd><span class="light fixedFont">{<a href="../symbols/hemi.curve.ParticleSystem.html">hemi.curve.ParticleSystem</a>}</span> This system, for chaining</dd>
+												<dd><span class="light fixedFont">{<a href="../symbols/hemi.curve.ParticleSystem.html">hemi.curve.ParticleSystem</a>}</span> this system, for chaining</dd>
 											
 										
 										
@@ -932,7 +944,7 @@ through (helpful for debugging).</div>
 												<span class="light fixedFont">{number}</span> <b>rate</b>
 												
 											</dt>
-											<dd>The rate at which to emit particles</dd>
+											<dd>the rate at which to emit particles</dd>
 										
 									</dl>
 								
@@ -949,7 +961,7 @@ through (helpful for debugging).</div>
 										
 											<dt class="heading">Returns:</dt>
 											
-												<dd><span class="light fixedFont">{number}</span> The new rate - may be different because of bounds</dd>
+												<dd><span class="light fixedFont">{number}</span> the new rate - may be different because of bounds</dd>
 											
 										
 										
@@ -990,10 +1002,10 @@ through (helpful for debugging).</div>
 										<dt class="heading">Parameters:</dt>
 										
 											<dt>
-												<span class="light fixedFont">{key[]}</span> <b>scaleKeys</b>
+												<span class="light fixedFont">{<a href="../symbols/hemi.curve.ScaleKey.html">hemi.curve.ScaleKey</a>[]}</span> <b>scaleKeys</b>
 												
 											</dt>
-											<dd>Array of scale key pairs</dd>
+											<dd>array of scale key pairs</dd>
 										
 									</dl>
 								
@@ -1010,7 +1022,7 @@ through (helpful for debugging).</div>
 										
 											<dt class="heading">Returns:</dt>
 											
-												<dd><span class="light fixedFont">{<a href="../symbols/hemi.curve.ParticleSystem.html">hemi.curve.ParticleSystem</a>}</span> This system, for chaining</dd>
+												<dd><span class="light fixedFont">{<a href="../symbols/hemi.curve.ParticleSystem.html">hemi.curve.ParticleSystem</a>}</span> this system, for chaining</dd>
 											
 										
 										
@@ -1113,8 +1125,8 @@ through (helpful for debugging).
 												<span class="light fixedFont">{boolean}</span> <b>opt_hard</b>
 												
 											</dt>
-											<dd>If true, remove all particles immediately. Otherwise,
-		stop emitting but let existing particles finish.</dd>
+											<dd>If true, remove all particles immediately.
+    Otherwise, stop emitting but let existing particles finish.</dd>
 										
 									</dl>
 								

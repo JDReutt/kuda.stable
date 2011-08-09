@@ -56,11 +56,21 @@
 				
 					<li><a href="../symbols/hemi.curve.html">hemi<span class='break'> </span>.<span class='break'> </span>curve</a></li>
 				
+					<li><a href="../symbols/hemi.curve.Box.html">hemi<span class='break'> </span>.<span class='break'> </span>curve<span class='break'> </span>.<span class='break'> </span>Box</a></li>
+				
+					<li><a href="../symbols/hemi.curve.ColorKey.html">hemi<span class='break'> </span>.<span class='break'> </span>curve<span class='break'> </span>.<span class='break'> </span>ColorKey</a></li>
+				
 					<li><a href="../symbols/hemi.curve.Curve.html">hemi<span class='break'> </span>.<span class='break'> </span>curve<span class='break'> </span>.<span class='break'> </span>Curve</a></li>
+				
+					<li><a href="../symbols/hemi.curve.GpuParticleSystem.html">hemi<span class='break'> </span>.<span class='break'> </span>curve<span class='break'> </span>.<span class='break'> </span>GpuParticleSystem</a></li>
+				
+					<li><a href="../symbols/hemi.curve.GpuParticleTrail.html">hemi<span class='break'> </span>.<span class='break'> </span>curve<span class='break'> </span>.<span class='break'> </span>GpuParticleTrail</a></li>
 				
 					<li><a href="../symbols/hemi.curve.Particle.html">hemi<span class='break'> </span>.<span class='break'> </span>curve<span class='break'> </span>.<span class='break'> </span>Particle</a></li>
 				
 					<li><a href="../symbols/hemi.curve.ParticleSystem.html">hemi<span class='break'> </span>.<span class='break'> </span>curve<span class='break'> </span>.<span class='break'> </span>ParticleSystem</a></li>
+				
+					<li><a href="../symbols/hemi.curve.ScaleKey.html">hemi<span class='break'> </span>.<span class='break'> </span>curve<span class='break'> </span>.<span class='break'> </span>ScaleKey</a></li>
 				
 					<li><a href="../symbols/hemi.dispatch.html">hemi<span class='break'> </span>.<span class='break'> </span>dispatch</a></li>
 				
@@ -289,7 +299,7 @@
 		
 		Documentation generator: <a href="http://code.google.com/p/jsdoc-toolkit/" target="_blank">JsDoc Toolkit</a> 2.4.0<br />
 		Template: <a href="http://www.thebrightlines.com/2010/05/06/new-template-for-jsdoctoolkit-codeview/" target="_blank">Codeview</a> 1.2<br />
-		Generated on: 2011-6-1 14:11
+		Generated on: 2011-7-9 15:09
 	</div>
 </div>
 
@@ -304,7 +314,7 @@
 		
 		<div class="intro">
 			<p class="description summary">
-				A Camera contains all of the properties and functionality forviewing a 3D scene.
+				A Camera controls the point of view and perspective when viewing a3D scene.
 			</p>
 				
 			
@@ -411,7 +421,7 @@
 									<td class="nameDescription">
 										<div class="fixedFont"><b><a href="../symbols/hemi.view.Camera.html#clampPanTilt">clampPanTilt</a></b>()
 										</div>
-										<div class="description">Clamp the pan and tilt angles to this camera's limits.</div>
+										<div class="description">Clamp the pan and tilt angles to the Camera's limits.</div>
 									</td>
 								</tr>
 							
@@ -433,7 +443,7 @@
 									<td class="nameDescription">
 										<div class="fixedFont"><b><a href="../symbols/hemi.view.Camera.html#disableControl">disableControl</a></b>()
 										</div>
-										<div class="description">Disable free camera control.</div>
+										<div class="description">Disable control of the Camera through the mouse and keyboard.</div>
 									</td>
 								</tr>
 							
@@ -466,7 +476,7 @@
 									<td class="nameDescription">
 										<div class="fixedFont"><b><a href="../symbols/hemi.view.Camera.html#enableControl">enableControl</a></b>()
 										</div>
-										<div class="description">Enable free camera control.</div>
+										<div class="description">Enable control of the Camera through the mouse and keyboard.</div>
 									</td>
 								</tr>
 							
@@ -521,7 +531,7 @@
 									<td class="nameDescription">
 										<div class="fixedFont"><b><a href="../symbols/hemi.view.Camera.html#getEye">getEye</a></b>()
 										</div>
-										<div class="description">Get the current position of the camera eye.</div>
+										<div class="description">Get the current position of the Camera eye.</div>
 									</td>
 								</tr>
 							
@@ -532,7 +542,7 @@
 									<td class="nameDescription">
 										<div class="fixedFont"><b><a href="../symbols/hemi.view.Camera.html#getTarget">getTarget</a></b>()
 										</div>
-										<div class="description">Get the current position of the camera target.</div>
+										<div class="description">Get the current position of the Camera target.</div>
 									</td>
 								</tr>
 							
@@ -541,9 +551,9 @@
 								>
 									<td class="attributes">&nbsp;</td>
 									<td class="nameDescription">
-										<div class="fixedFont"><b><a href="../symbols/hemi.view.Camera.html#moveOnCurve">moveOnCurve</a></b>(curve, opt_span)
+										<div class="fixedFont"><b><a href="../symbols/hemi.view.Camera.html#interpolateView">interpolateView</a></b>(current, end)
 										</div>
-										<div class="description">Move the camera along a curve.</div>
+										<div class="description">Set up the Camera to interpolate between the two given time values.</div>
 									</td>
 								</tr>
 							
@@ -552,9 +562,9 @@
 								>
 									<td class="attributes">&nbsp;</td>
 									<td class="nameDescription">
-										<div class="fixedFont"><b><a href="../symbols/hemi.view.Camera.html#moveOrthographic">moveOrthographic</a></b>(xMovement, yMovement)
+										<div class="fixedFont"><b><a href="../symbols/hemi.view.Camera.html#lightAtPosition">lightAtPosition</a></b>(position)
 										</div>
-										<div class="description">Move the camera when the camera is in orthographic viewing mode.</div>
+										<div class="description">Set the light source to be at the given position.</div>
 									</td>
 								</tr>
 							
@@ -563,9 +573,9 @@
 								>
 									<td class="attributes">&nbsp;</td>
 									<td class="nameDescription">
-										<div class="fixedFont"><b><a href="../symbols/hemi.view.Camera.html#movePerspective">movePerspective</a></b>(xMovement, yMovement)
+										<div class="fixedFont"><b><a href="../symbols/hemi.view.Camera.html#lightOnCam">lightOnCam</a></b>()
 										</div>
-										<div class="description">Move the camera when the camera is in perspective viewing mode.</div>
+										<div class="description">Attach the light source to the Camera.</div>
 									</td>
 								</tr>
 							
@@ -574,14 +584,69 @@
 								>
 									<td class="attributes">&nbsp;</td>
 									<td class="nameDescription">
-										<div class="fixedFont"><b><a href="../symbols/hemi.view.Camera.html#moveToView">moveToView</a></b>(view, opt_span)
+										<div class="fixedFont"><b><a href="../symbols/hemi.view.Camera.html#moveInFrames">moveInFrames</a></b>()
 										</div>
-										<div class="description">Move the camera to a Viewpoint or ViewData.</div>
+										<div class="description">Set the Camera's movement to be measured in frames.</div>
 									</td>
 								</tr>
 							
 								<tr
 									 class='item16'
+								>
+									<td class="attributes">&nbsp;</td>
+									<td class="nameDescription">
+										<div class="fixedFont"><b><a href="../symbols/hemi.view.Camera.html#moveInSeconds">moveInSeconds</a></b>()
+										</div>
+										<div class="description">Set the Camera's movement to be measured in seconds.</div>
+									</td>
+								</tr>
+							
+								<tr
+									 class='item17'
+								>
+									<td class="attributes">&nbsp;</td>
+									<td class="nameDescription">
+										<div class="fixedFont"><b><a href="../symbols/hemi.view.Camera.html#moveOnCurve">moveOnCurve</a></b>(curve, opt_time)
+										</div>
+										<div class="description">Move the Camera along the specified curve.</div>
+									</td>
+								</tr>
+							
+								<tr
+									 class='item18'
+								>
+									<td class="attributes">&nbsp;</td>
+									<td class="nameDescription">
+										<div class="fixedFont"><b><a href="../symbols/hemi.view.Camera.html#moveOrthographic">moveOrthographic</a></b>(xMovement, yMovement)
+										</div>
+										<div class="description">Move the Camera when the Camera is in orthographic viewing mode.</div>
+									</td>
+								</tr>
+							
+								<tr
+									 class='item19'
+								>
+									<td class="attributes">&nbsp;</td>
+									<td class="nameDescription">
+										<div class="fixedFont"><b><a href="../symbols/hemi.view.Camera.html#movePerspective">movePerspective</a></b>(xMovement, yMovement)
+										</div>
+										<div class="description">Move the Camera when the Camera is in perspective viewing mode.</div>
+									</td>
+								</tr>
+							
+								<tr
+									 class='item20'
+								>
+									<td class="attributes">&nbsp;</td>
+									<td class="nameDescription">
+										<div class="fixedFont"><b><a href="../symbols/hemi.view.Camera.html#moveToView">moveToView</a></b>(view, opt_time)
+										</div>
+										<div class="description">Move the Camera to the given Viewpoint.</div>
+									</td>
+								</tr>
+							
+								<tr
+									 class='item21'
 								>
 									<td class="attributes">&nbsp;</td>
 									<td class="nameDescription">
@@ -592,7 +657,7 @@
 								</tr>
 							
 								<tr
-									 class='item17'
+									 class='item22'
 								>
 									<td class="attributes">&nbsp;</td>
 									<td class="nameDescription">
@@ -603,7 +668,7 @@
 								</tr>
 							
 								<tr
-									 class='item18'
+									 class='item23'
 								>
 									<td class="attributes">&nbsp;</td>
 									<td class="nameDescription">
@@ -614,7 +679,7 @@
 								</tr>
 							
 								<tr
-									 class='item19'
+									 class='item24'
 								>
 									<td class="attributes">&nbsp;</td>
 									<td class="nameDescription">
@@ -625,7 +690,7 @@
 								</tr>
 							
 								<tr
-									 class='item20'
+									 class='item25'
 								>
 									<td class="attributes">&nbsp;</td>
 									<td class="nameDescription">
@@ -636,18 +701,18 @@
 								</tr>
 							
 								<tr
-									 class='item21'
+									 class='item26'
 								>
 									<td class="attributes">&nbsp;</td>
 									<td class="nameDescription">
 										<div class="fixedFont"><b><a href="../symbols/hemi.view.Camera.html#onRender">onRender</a></b>(renderEvent)
 										</div>
-										<div class="description">Render listener - check mouse and camera parameters and decide if the		camera needs to be updated.</div>
+										<div class="description">Render listener - check mouse and camera parameters and decide if theCamera needs to be updated.</div>
 									</td>
 								</tr>
 							
 								<tr
-									 class='item22'
+									 class='item27'
 								>
 									<td class="attributes">&nbsp;</td>
 									<td class="nameDescription">
@@ -658,68 +723,13 @@
 								</tr>
 							
 								<tr
-									 class='item23'
+									 class='item28'
 								>
 									<td class="attributes">&nbsp;</td>
 									<td class="nameDescription">
 										<div class="fixedFont"><b><a href="../symbols/hemi.view.Camera.html#orbit">orbit</a></b>(pan, tilt)
 										</div>
-										<div class="description">Orbit the camera about a fixed point.</div>
-									</td>
-								</tr>
-							
-								<tr
-									 class='item24'
-								>
-									<td class="attributes">&nbsp;</td>
-									<td class="nameDescription">
-										<div class="fixedFont"><b><a href="../symbols/hemi.view.Camera.html#rotate">rotate</a></b>(pan, tilt)
-										</div>
-										<div class="description">Rotate the camera in place.</div>
-									</td>
-								</tr>
-							
-								<tr
-									 class='item25'
-								>
-									<td class="attributes">&nbsp;</td>
-									<td class="nameDescription">
-										<div class="fixedFont"><b><a href="../symbols/hemi.view.Camera.html#setEasing">setEasing</a></b>(easeFunc)
-										</div>
-										<div class="description">Set the function used to ease the camera in and out of moves.</div>
-									</td>
-								</tr>
-							
-								<tr
-									 class='item26'
-								>
-									<td class="attributes">&nbsp;</td>
-									<td class="nameDescription">
-										<div class="fixedFont"><b><a href="../symbols/hemi.view.Camera.html#setEyeTarget">setEyeTarget</a></b>(eye, target)
-										</div>
-										<div class="description">Set the eye and target of the camera.</div>
-									</td>
-								</tr>
-							
-								<tr
-									 class='item27'
-								>
-									<td class="attributes">&nbsp;</td>
-									<td class="nameDescription">
-										<div class="fixedFont"><b><a href="../symbols/hemi.view.Camera.html#setLookAroundLimits">setLookAroundLimits</a></b>(panMin, panMax, tiltMin, tiltMax)
-										</div>
-										<div class="description">Set the limits on the camera pan and tilt in fixed eye mode in radians</div>
-									</td>
-								</tr>
-							
-								<tr
-									 class='item28'
-								>
-									<td class="attributes">&nbsp;</td>
-									<td class="nameDescription">
-										<div class="fixedFont"><b><a href="../symbols/hemi.view.Camera.html#setOrthographic">setOrthographic</a></b>(axis)
-										</div>
-										<div class="description">Set the camera view to render with an orthographic projection.</div>
+										<div class="description">Orbit the Camera about the target point it is currently looking at.</div>
 									</td>
 								</tr>
 							
@@ -728,14 +738,80 @@
 								>
 									<td class="attributes">&nbsp;</td>
 									<td class="nameDescription">
-										<div class="fixedFont"><b><a href="../symbols/hemi.view.Camera.html#setPerspective">setPerspective</a></b>()
+										<div class="fixedFont"><b><a href="../symbols/hemi.view.Camera.html#rotate">rotate</a></b>(pan, tilt)
 										</div>
-										<div class="description">Set the camera view to render with a perespective projection.</div>
+										<div class="description">Rotate the Camera in place so that it looks in a new direction.</div>
 									</td>
 								</tr>
 							
 								<tr
 									 class='item30'
+								>
+									<td class="attributes">&nbsp;</td>
+									<td class="nameDescription">
+										<div class="fixedFont"><b><a href="../symbols/hemi.view.Camera.html#setEasing">setEasing</a></b>(easeFunc)
+										</div>
+										<div class="description">Set the function used to ease the Camera in and out of moves.</div>
+									</td>
+								</tr>
+							
+								<tr
+									 class='item31'
+								>
+									<td class="attributes">&nbsp;</td>
+									<td class="nameDescription">
+										<div class="fixedFont"><b><a href="../symbols/hemi.view.Camera.html#setEyeTarget">setEyeTarget</a></b>(eye, target)
+										</div>
+										<div class="description">Set the eye and target of the Camera.</div>
+									</td>
+								</tr>
+							
+								<tr
+									 class='item32'
+								>
+									<td class="attributes">&nbsp;</td>
+									<td class="nameDescription">
+										<div class="fixedFont"><b><a href="../symbols/hemi.view.Camera.html#setLight">setLight</a></b>(rgb)
+										</div>
+										<div class="description">Set the color of the Camera's light source.</div>
+									</td>
+								</tr>
+							
+								<tr
+									 class='item33'
+								>
+									<td class="attributes">&nbsp;</td>
+									<td class="nameDescription">
+										<div class="fixedFont"><b><a href="../symbols/hemi.view.Camera.html#setLookAroundLimits">setLookAroundLimits</a></b>(panMin, panMax, tiltMin, tiltMax)
+										</div>
+										<div class="description">Set the limits on the Camera pan and tilt in fixed eye mode.</div>
+									</td>
+								</tr>
+							
+								<tr
+									 class='item34'
+								>
+									<td class="attributes">&nbsp;</td>
+									<td class="nameDescription">
+										<div class="fixedFont"><b><a href="../symbols/hemi.view.Camera.html#setOrthographic">setOrthographic</a></b>(axis)
+										</div>
+										<div class="description">Set the Camera view to render with an orthographic projection.</div>
+									</td>
+								</tr>
+							
+								<tr
+									 class='item35'
+								>
+									<td class="attributes">&nbsp;</td>
+									<td class="nameDescription">
+										<div class="fixedFont"><b><a href="../symbols/hemi.view.Camera.html#setPerspective">setPerspective</a></b>()
+										</div>
+										<div class="description">Set the Camera view to render with a perspective projection.</div>
+									</td>
+								</tr>
+							
+								<tr
+									 class='item36'
 								>
 									<td class="attributes">&nbsp;</td>
 									<td class="nameDescription">
@@ -746,7 +822,7 @@
 								</tr>
 							
 								<tr
-									 class='item31'
+									 class='item37'
 								>
 									<td class="attributes">&nbsp;</td>
 									<td class="nameDescription">
@@ -757,24 +833,36 @@
 								</tr>
 							
 								<tr
-									 class='item32'
+									 class='item38'
+								>
+									<td class="attributes">&nbsp;</td>
+									<td class="nameDescription">
+										<div class="fixedFont"><b><a href="../symbols/hemi.view.Camera.html#truck">truck</a></b>(distance)
+										</div>
+										<div class="description">Move the Camera towards or away from its current target point by the
+given distance.</div>
+									</td>
+								</tr>
+							
+								<tr
+									 class='item39'
 								>
 									<td class="attributes">&nbsp;</td>
 									<td class="nameDescription">
 										<div class="fixedFont"><b><a href="../symbols/hemi.view.Camera.html#update">update</a></b>(delta)
 										</div>
-										<div class="description">Update the camera.</div>
+										<div class="description">Update the Camera.</div>
 									</td>
 								</tr>
 							
 								<tr
-									 class='item33'
+									 class='item40'
 								>
 									<td class="attributes">&nbsp;</td>
 									<td class="nameDescription">
 										<div class="fixedFont"><b><a href="../symbols/hemi.view.Camera.html#updateProjection">updateProjection</a></b>()
 										</div>
-										<div class="description">Update the camera view projection.</div>
+										<div class="description">Update the Camera view projection.</div>
 									</td>
 								</tr>
 							
@@ -884,7 +972,7 @@
 								</div>
 								
 								<div class="description">
-									Clamp the pan and tilt angles to this camera's limits.
+									Clamp the pan and tilt angles to the Camera's limits.
 									
 									
 									
@@ -942,7 +1030,7 @@
 								</div>
 								
 								<div class="description">
-									Disable free camera control.
+									Disable control of the Camera through the mouse and keyboard.
 									
 									
 									
@@ -1029,7 +1117,7 @@
 								</div>
 								
 								<div class="description">
-									Enable free camera control.
+									Enable control of the Camera through the mouse and keyboard.
 									
 									
 									
@@ -1168,13 +1256,13 @@
 									
 									</span>
 									
-									<span class="light">{[number]}</span>
+									<span class="light">{number[3]}</span>
 									
 									<b>getEye</b>()
 								</div>
 								
 								<div class="description">
-									Get the current position of the camera eye.
+									Get the current position of the Camera eye.
 									
 									
 									
@@ -1197,7 +1285,7 @@
 										
 											<dt class="heading">Returns:</dt>
 											
-												<dd><span class="light fixedFont">{[number]}</span> XYZ coordinates of the eye</dd>
+												<dd><span class="light fixedFont">{number[3]}</span> XYZ coordinates of the eye</dd>
 											
 										
 										
@@ -1218,13 +1306,13 @@
 									
 									</span>
 									
-									<span class="light">{[number]}</span>
+									<span class="light">{number[3]}</span>
 									
 									<b>getTarget</b>()
 								</div>
 								
 								<div class="description">
-									Get the current position of the camera target.
+									Get the current position of the Camera target.
 									
 									
 									
@@ -1247,7 +1335,7 @@
 										
 											<dt class="heading">Returns:</dt>
 											
-												<dd><span class="light fixedFont">{[number]}</span> XYZ coordinates of the target</dd>
+												<dd><span class="light fixedFont">{number[3]}</span> XYZ coordinates of the target</dd>
 											
 										
 										
@@ -1263,6 +1351,179 @@
 							<li 
 								 class='item12'
 							>
+								<div class="fixedFont heading" id="interpolateView">
+									<span class='lighter'>
+									
+									</span>
+									
+									
+									
+									<b>interpolateView</b>(current, end)
+								</div>
+								
+								<div class="description">
+									Set up the Camera to interpolate between the two given time values.
+									
+									
+									
+									
+								</div>
+								
+								
+								
+								
+									<dl class="detailList params">
+										<dt class="heading">Parameters:</dt>
+										
+											<dt>
+												<span class="light fixedFont">{number}</span> <b>current</b>
+												
+											</dt>
+											<dd>current time</dd>
+										
+											<dt>
+												<span class="light fixedFont">{number}</span> <b>end</b>
+												
+											</dt>
+											<dd>end time</dd>
+										
+									</dl>
+								
+								
+								
+								<div class="hr"></div>
+							</li>
+						
+							<li 
+								 class='item13'
+							>
+								<div class="fixedFont heading" id="lightAtPosition">
+									<span class='lighter'>
+									
+									</span>
+									
+									
+									
+									<b>lightAtPosition</b>(position)
+								</div>
+								
+								<div class="description">
+									Set the light source to be at the given position.
+									
+									
+									
+									
+								</div>
+								
+								
+								
+								
+									<dl class="detailList params">
+										<dt class="heading">Parameters:</dt>
+										
+											<dt>
+												<span class="light fixedFont">{number[3]}</span> <b>position</b>
+												
+											</dt>
+											<dd>XYZ position of the light source</dd>
+										
+									</dl>
+								
+								
+								
+								<div class="hr"></div>
+							</li>
+						
+							<li 
+								 class='item14'
+							>
+								<div class="fixedFont heading" id="lightOnCam">
+									<span class='lighter'>
+									
+									</span>
+									
+									
+									
+									<b>lightOnCam</b>()
+								</div>
+								
+								<div class="description">
+									Attach the light source to the Camera.
+									
+									
+									
+									
+								</div>
+								
+								
+								
+								
+								
+								
+								<div class="hr"></div>
+							</li>
+						
+							<li 
+								 class='item15'
+							>
+								<div class="fixedFont heading" id="moveInFrames">
+									<span class='lighter'>
+									
+									</span>
+									
+									
+									
+									<b>moveInFrames</b>()
+								</div>
+								
+								<div class="description">
+									Set the Camera's movement to be measured in frames.
+									
+									
+									
+									
+								</div>
+								
+								
+								
+								
+								
+								
+								<div class="hr"></div>
+							</li>
+						
+							<li 
+								 class='item16'
+							>
+								<div class="fixedFont heading" id="moveInSeconds">
+									<span class='lighter'>
+									
+									</span>
+									
+									
+									
+									<b>moveInSeconds</b>()
+								</div>
+								
+								<div class="description">
+									Set the Camera's movement to be measured in seconds.
+									
+									
+									
+									
+								</div>
+								
+								
+								
+								
+								
+								
+								<div class="hr"></div>
+							</li>
+						
+							<li 
+								 class='item17'
+							>
 								<div class="fixedFont heading" id="moveOnCurve">
 									<span class='lighter'>
 									
@@ -1270,11 +1531,11 @@
 									
 									
 									
-									<b>moveOnCurve</b>(curve, opt_span)
+									<b>moveOnCurve</b>(curve, opt_time)
 								</div>
 								
 								<div class="description">
-									Move the camera along a curve.
+									Move the Camera along the specified curve.
 									
 									
 									
@@ -1291,14 +1552,15 @@
 												<span class="light fixedFont">{<a href="../symbols/hemi.view.CameraCurve.html">hemi.view.CameraCurve</a>}</span> <b>curve</b>
 												
 											</dt>
-											<dd>curve for camera eye and target to follow</dd>
+											<dd>curve for the Camera eye and
+    target to follow</dd>
 										
 											<dt>
-												<span class="light fixedFont">{number}</span> <b>opt_span</b>
+												<span class="light fixedFont">{number}</span> <b>opt_time</b>
 												
 											</dt>
-											<dd>the number of frames or seconds to take for
-    the movement along the curve (0 is instant)</dd>
+											<dd>the number of seconds for the Camera to take
+    to move along the curve (0 is instant)</dd>
 										
 									</dl>
 								
@@ -1308,7 +1570,7 @@
 							</li>
 						
 							<li 
-								 class='item13'
+								 class='item18'
 							>
 								<div class="fixedFont heading" id="moveOrthographic">
 									<span class='lighter'>
@@ -1321,7 +1583,7 @@
 								</div>
 								
 								<div class="description">
-									Move the camera when the camera is in orthographic viewing mode.
+									Move the Camera when the Camera is in orthographic viewing mode.
 									
 									
 									
@@ -1354,7 +1616,7 @@
 							</li>
 						
 							<li 
-								 class='item14'
+								 class='item19'
 							>
 								<div class="fixedFont heading" id="movePerspective">
 									<span class='lighter'>
@@ -1367,7 +1629,7 @@
 								</div>
 								
 								<div class="description">
-									Move the camera when the camera is in perspective viewing mode.
+									Move the Camera when the Camera is in perspective viewing mode.
 									
 									
 									
@@ -1400,7 +1662,7 @@
 							</li>
 						
 							<li 
-								 class='item15'
+								 class='item20'
 							>
 								<div class="fixedFont heading" id="moveToView">
 									<span class='lighter'>
@@ -1409,11 +1671,11 @@
 									
 									
 									
-									<b>moveToView</b>(view, opt_span)
+									<b>moveToView</b>(view, opt_time)
 								</div>
 								
 								<div class="description">
-									Move the camera to a Viewpoint or ViewData.
+									Move the Camera to the given Viewpoint.
 									
 									
 									
@@ -1427,16 +1689,17 @@
 										<dt class="heading">Parameters:</dt>
 										
 											<dt>
-												<span class="light fixedFont">{<a href="../symbols/hemi.view.Viewpoint.html">hemi.view.Viewpoint</a> || hemi.view.ViewData}</span> <b>view</b>
+												<span class="light fixedFont">{<a href="../symbols/hemi.view.Viewpoint.html">hemi.view.Viewpoint</a>}</span> <b>view</b>
 												
 											</dt>
-											<dd>The Viewpoint    or ViewData to move to</dd>
+											<dd>Viewpoint to move to</dd>
 										
 											<dt>
-												<span class="light fixedFont">{number}</span> <b>opt_span</b>
+												<span class="light fixedFont">{number}</span> <b>opt_time</b>
 												
 											</dt>
-											<dd>The number of frames or seconds to take    getting there (0 is instant)</dd>
+											<dd>the number of seconds for the Camera to take
+    to move to the Viewpoint (0 is instant)</dd>
 										
 									</dl>
 								
@@ -1446,7 +1709,7 @@
 							</li>
 						
 							<li 
-								 class='item16'
+								 class='item21'
 							>
 								<div class="fixedFont heading" id="onKeyDown">
 									<span class='lighter'>
@@ -1473,7 +1736,7 @@
 										<dt class="heading">Parameters:</dt>
 										
 											<dt>
-												<span class="light fixedFont">{o3d.event}</span> <b>keyEvent</b>
+												<span class="light fixedFont">{o3d.Event}</span> <b>keyEvent</b>
 												
 											</dt>
 											<dd>Message describing key down</dd>
@@ -1486,7 +1749,7 @@
 							</li>
 						
 							<li 
-								 class='item17'
+								 class='item22'
 							>
 								<div class="fixedFont heading" id="onKeyUp">
 									<span class='lighter'>
@@ -1513,7 +1776,7 @@
 										<dt class="heading">Parameters:</dt>
 										
 											<dt>
-												<span class="light fixedFont">{o3d.event}</span> <b>keyEvent</b>
+												<span class="light fixedFont">{o3d.Event}</span> <b>keyEvent</b>
 												
 											</dt>
 											<dd>Message describing key up</dd>
@@ -1526,7 +1789,7 @@
 							</li>
 						
 							<li 
-								 class='item18'
+								 class='item23'
 							>
 								<div class="fixedFont heading" id="onMouseDown">
 									<span class='lighter'>
@@ -1553,7 +1816,7 @@
 										<dt class="heading">Parameters:</dt>
 										
 											<dt>
-												<span class="light fixedFont">{o3d.event}</span> <b>mouseEvent</b>
+												<span class="light fixedFont">{o3d.Event}</span> <b>mouseEvent</b>
 												
 											</dt>
 											<dd>Message describing mouse down</dd>
@@ -1566,7 +1829,7 @@
 							</li>
 						
 							<li 
-								 class='item19'
+								 class='item24'
 							>
 								<div class="fixedFont heading" id="onMouseMove">
 									<span class='lighter'>
@@ -1593,7 +1856,7 @@
 										<dt class="heading">Parameters:</dt>
 										
 											<dt>
-												<span class="light fixedFont">{o3d.event}</span> <b>mouseEvent</b>
+												<span class="light fixedFont">{o3d.Event}</span> <b>mouseEvent</b>
 												
 											</dt>
 											<dd>Message describing mouse move</dd>
@@ -1606,7 +1869,7 @@
 							</li>
 						
 							<li 
-								 class='item20'
+								 class='item25'
 							>
 								<div class="fixedFont heading" id="onMouseUp">
 									<span class='lighter'>
@@ -1633,7 +1896,7 @@
 										<dt class="heading">Parameters:</dt>
 										
 											<dt>
-												<span class="light fixedFont">{o3d.event}</span> <b>mouseEvent</b>
+												<span class="light fixedFont">{o3d.Event}</span> <b>mouseEvent</b>
 												
 											</dt>
 											<dd>Message describing mouse up</dd>
@@ -1646,7 +1909,7 @@
 							</li>
 						
 							<li 
-								 class='item21'
+								 class='item26'
 							>
 								<div class="fixedFont heading" id="onRender">
 									<span class='lighter'>
@@ -1659,7 +1922,7 @@
 								</div>
 								
 								<div class="description">
-									Render listener - check mouse and camera parameters and decide if the		camera needs to be updated.
+									Render listener - check mouse and camera parameters and decide if theCamera needs to be updated.
 									
 									
 									
@@ -1673,7 +1936,7 @@
 										<dt class="heading">Parameters:</dt>
 										
 											<dt>
-												<span class="light fixedFont">{o3d.event}</span> <b>renderEvent</b>
+												<span class="light fixedFont">{o3d.Event}</span> <b>renderEvent</b>
 												
 											</dt>
 											<dd>Message desribing render loop</dd>
@@ -1686,7 +1949,7 @@
 							</li>
 						
 							<li 
-								 class='item22'
+								 class='item27'
 							>
 								<div class="fixedFont heading" id="onScroll">
 									<span class='lighter'>
@@ -1713,7 +1976,7 @@
 										<dt class="heading">Parameters:</dt>
 										
 											<dt>
-												<span class="light fixedFont">{o3d.event}</span> <b>mouseEvent</b>
+												<span class="light fixedFont">{o3d.Event}</span> <b>mouseEvent</b>
 												
 											</dt>
 											<dd>Message describing mouse behavior</dd>
@@ -1726,7 +1989,7 @@
 							</li>
 						
 							<li 
-								 class='item23'
+								 class='item28'
 							>
 								<div class="fixedFont heading" id="orbit">
 									<span class='lighter'>
@@ -1739,7 +2002,7 @@
 								</div>
 								
 								<div class="description">
-									Orbit the camera about a fixed point.
+									Orbit the Camera about the target point it is currently looking at.
 									
 									
 									
@@ -1753,16 +2016,16 @@
 										<dt class="heading">Parameters:</dt>
 										
 											<dt>
-												<span class="light fixedFont">{float}</span> <b>pan</b>
+												<span class="light fixedFont">{number}</span> <b>pan</b>
 												
 											</dt>
-											<dd>The radians to pan around by.</dd>
+											<dd>amount to pan around by (in radians)</dd>
 										
 											<dt>
-												<span class="light fixedFont">{float}</span> <b>tilt</b>
+												<span class="light fixedFont">{number}</span> <b>tilt</b>
 												
 											</dt>
-											<dd>The radians to tilt around by</dd>
+											<dd>amount to tilt up and down by (in radians)</dd>
 										
 									</dl>
 								
@@ -1772,7 +2035,7 @@
 							</li>
 						
 							<li 
-								 class='item24'
+								 class='item29'
 							>
 								<div class="fixedFont heading" id="rotate">
 									<span class='lighter'>
@@ -1785,7 +2048,8 @@
 								</div>
 								
 								<div class="description">
-									Rotate the camera in place. Has no effect if the camera is not infixed-eye mode.
+									Rotate the Camera in place so that it looks in a new direction. Note
+that this has no effect if the Camera is not in fixed-eye mode.
 									
 									
 									
@@ -1799,16 +2063,16 @@
 										<dt class="heading">Parameters:</dt>
 										
 											<dt>
-												<span class="light fixedFont">{float}</span> <b>pan</b>
+												<span class="light fixedFont">{number}</span> <b>pan</b>
 												
 											</dt>
-											<dd>Radians by which to pan.</dd>
+											<dd>amount to pan (in radians)</dd>
 										
 											<dt>
-												<span class="light fixedFont">{float}</span> <b>tilt</b>
+												<span class="light fixedFont">{number}</span> <b>tilt</b>
 												
 											</dt>
-											<dd>Radians by which to tilt.</dd>
+											<dd>amount to tilt (in radians)</dd>
 										
 									</dl>
 								
@@ -1818,7 +2082,7 @@
 							</li>
 						
 							<li 
-								 class='item25'
+								 class='item30'
 							>
 								<div class="fixedFont heading" id="setEasing">
 									<span class='lighter'>
@@ -1831,7 +2095,7 @@
 								</div>
 								
 								<div class="description">
-									Set the function used to ease the camera in and out of moves.
+									Set the function used to ease the Camera in and out of moves.
 									
 									
 									
@@ -1845,10 +2109,10 @@
 										<dt class="heading">Parameters:</dt>
 										
 											<dt>
-												<span class="light fixedFont">{function|object}</span> <b>easeFunc</b>
+												<span class="light fixedFont">{function|Object}</span> <b>easeFunc</b>
 												
 											</dt>
-											<dd>Either the function which will be used		for easing on all 3 axes, or a simple object containing x, y, or z		fields specifying a different function for each axis.</dd>
+											<dd>Either the function which will be    used for easing on all 3 axes, or a simple object containing x,    y, or z fields specifying a different function for each axis.</dd>
 										
 									</dl>
 								
@@ -1865,7 +2129,7 @@
 										
 											<dt class="heading">Returns:</dt>
 											
-												<dd><span class="light fixedFont">{<a href="../symbols/hemi.view.Camera.html">hemi.view.Camera</a>}</span> This camera, for chaining</dd>
+												<dd><span class="light fixedFont">{<a href="../symbols/hemi.view.Camera.html">hemi.view.Camera</a>}</span> This Camera, for chaining</dd>
 											
 										
 										
@@ -1879,7 +2143,7 @@
 							</li>
 						
 							<li 
-								 class='item26'
+								 class='item31'
 							>
 								<div class="fixedFont heading" id="setEyeTarget">
 									<span class='lighter'>
@@ -1892,7 +2156,7 @@
 								</div>
 								
 								<div class="description">
-									Set the eye and target of the camera.
+									Set the eye and target of the Camera.
 									
 									
 									
@@ -1906,13 +2170,13 @@
 										<dt class="heading">Parameters:</dt>
 										
 											<dt>
-												<span class="light fixedFont">{[number]}</span> <b>eye</b>
+												<span class="light fixedFont">{number[3]}</span> <b>eye</b>
 												
 											</dt>
 											<dd>XYZ position of camera eye</dd>
 										
 											<dt>
-												<span class="light fixedFont">{[number]}</span> <b>target</b>
+												<span class="light fixedFont">{number[3]}</span> <b>target</b>
 												
 											</dt>
 											<dd>XYZ position of camera target</dd>
@@ -1925,7 +2189,47 @@
 							</li>
 						
 							<li 
-								 class='item27'
+								 class='item32'
+							>
+								<div class="fixedFont heading" id="setLight">
+									<span class='lighter'>
+									
+									</span>
+									
+									
+									
+									<b>setLight</b>(rgb)
+								</div>
+								
+								<div class="description">
+									Set the color of the Camera's light source.
+									
+									
+									
+									
+								</div>
+								
+								
+								
+								
+									<dl class="detailList params">
+										<dt class="heading">Parameters:</dt>
+										
+											<dt>
+												<span class="light fixedFont">{number[3]}</span> <b>rgb</b>
+												
+											</dt>
+											<dd>rgb value of the color</dd>
+										
+									</dl>
+								
+								
+								
+								<div class="hr"></div>
+							</li>
+						
+							<li 
+								 class='item33'
 							>
 								<div class="fixedFont heading" id="setLookAroundLimits">
 									<span class='lighter'>
@@ -1938,7 +2242,7 @@
 								</div>
 								
 								<div class="description">
-									Set the limits on the camera pan and tilt in fixed eye mode in radians
+									Set the limits on the Camera pan and tilt in fixed eye mode.
 									
 									
 									
@@ -1955,25 +2259,25 @@
 												<span class="light fixedFont">{number}</span> <b>panMin</b>
 												
 											</dt>
-											<dd>Minimum pan angle</dd>
+											<dd>minimum pan angle (in radians)</dd>
 										
 											<dt>
 												<span class="light fixedFont">{number}</span> <b>panMax</b>
 												
 											</dt>
-											<dd>Maximum pan angle</dd>
+											<dd>maximum pan angle (in radians)</dd>
 										
 											<dt>
 												<span class="light fixedFont">{number}</span> <b>tiltMin</b>
 												
 											</dt>
-											<dd>Minimum tilt angle</dd>
+											<dd>minimum tilt angle (in radians)</dd>
 										
 											<dt>
 												<span class="light fixedFont">{number}</span> <b>tiltMax</b>
 												
 											</dt>
-											<dd>Maximum tilt angle</dd>
+											<dd>maximum tilt angle (in radians)</dd>
 										
 									</dl>
 								
@@ -1983,7 +2287,7 @@
 							</li>
 						
 							<li 
-								 class='item28'
+								 class='item34'
 							>
 								<div class="fixedFont heading" id="setOrthographic">
 									<span class='lighter'>
@@ -1996,7 +2300,7 @@
 								</div>
 								
 								<div class="description">
-									Set the camera view to render with an orthographic projection.
+									Set the Camera view to render with an orthographic projection.
 									
 									
 									
@@ -2023,7 +2327,7 @@
 							</li>
 						
 							<li 
-								 class='item29'
+								 class='item35'
 							>
 								<div class="fixedFont heading" id="setPerspective">
 									<span class='lighter'>
@@ -2036,7 +2340,7 @@
 								</div>
 								
 								<div class="description">
-									Set the camera view to render with a perespective projection.
+									Set the Camera view to render with a perspective projection.
 									
 									
 									
@@ -2052,7 +2356,7 @@
 							</li>
 						
 							<li 
-								 class='item30'
+								 class='item36'
 							>
 								<div class="fixedFont heading" id="setZoomLimits">
 									<span class='lighter'>
@@ -2082,13 +2386,13 @@
 												<span class="light fixedFont">{number}</span> <b>min</b>
 												
 											</dt>
-											<dd>Zoom-in limit, in radians</dd>
+											<dd>zoom-in limit (in radians)</dd>
 										
 											<dt>
 												<span class="light fixedFont">{number}</span> <b>max</b>
 												
 											</dt>
-											<dd>Zoom-out limit, in radians</dd>
+											<dd>zoom-out limit (in radians)</dd>
 										
 									</dl>
 								
@@ -2098,7 +2402,7 @@
 							</li>
 						
 							<li 
-								 class='item31'
+								 class='item37'
 							>
 								<div class="fixedFont heading" id="toOctane">
 									<span class='lighter'>
@@ -2148,7 +2452,48 @@
 							</li>
 						
 							<li 
-								 class='item32'
+								 class='item38'
+							>
+								<div class="fixedFont heading" id="truck">
+									<span class='lighter'>
+									
+									</span>
+									
+									
+									
+									<b>truck</b>(distance)
+								</div>
+								
+								<div class="description">
+									Move the Camera towards or away from its current target point by the
+given distance.
+									
+									
+									
+									
+								</div>
+								
+								
+								
+								
+									<dl class="detailList params">
+										<dt class="heading">Parameters:</dt>
+										
+											<dt>
+												<span class="light fixedFont">{number}</span> <b>distance</b>
+												
+											</dt>
+											<dd>the distance to move the Camera</dd>
+										
+									</dl>
+								
+								
+								
+								<div class="hr"></div>
+							</li>
+						
+							<li 
+								 class='item39'
 							>
 								<div class="fixedFont heading" id="update">
 									<span class='lighter'>
@@ -2161,7 +2506,7 @@
 								</div>
 								
 								<div class="description">
-									Update the camera.
+									Update the Camera.
 									
 									
 									
@@ -2188,7 +2533,7 @@
 							</li>
 						
 							<li 
-								 class='item33'
+								 class='item40'
 							>
 								<div class="fixedFont heading" id="updateProjection">
 									<span class='lighter'>
@@ -2201,7 +2546,7 @@
 								</div>
 								
 								<div class="description">
-									Update the camera view projection.
+									Update the Camera view projection.
 									
 									
 									

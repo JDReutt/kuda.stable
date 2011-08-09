@@ -56,11 +56,21 @@
 				
 					<li><a href="../symbols/hemi.curve.html">hemi<span class='break'> </span>.<span class='break'> </span>curve</a></li>
 				
+					<li><a href="../symbols/hemi.curve.Box.html">hemi<span class='break'> </span>.<span class='break'> </span>curve<span class='break'> </span>.<span class='break'> </span>Box</a></li>
+				
+					<li><a href="../symbols/hemi.curve.ColorKey.html">hemi<span class='break'> </span>.<span class='break'> </span>curve<span class='break'> </span>.<span class='break'> </span>ColorKey</a></li>
+				
 					<li><a href="../symbols/hemi.curve.Curve.html">hemi<span class='break'> </span>.<span class='break'> </span>curve<span class='break'> </span>.<span class='break'> </span>Curve</a></li>
+				
+					<li><a href="../symbols/hemi.curve.GpuParticleSystem.html">hemi<span class='break'> </span>.<span class='break'> </span>curve<span class='break'> </span>.<span class='break'> </span>GpuParticleSystem</a></li>
+				
+					<li><a href="../symbols/hemi.curve.GpuParticleTrail.html">hemi<span class='break'> </span>.<span class='break'> </span>curve<span class='break'> </span>.<span class='break'> </span>GpuParticleTrail</a></li>
 				
 					<li><a href="../symbols/hemi.curve.Particle.html">hemi<span class='break'> </span>.<span class='break'> </span>curve<span class='break'> </span>.<span class='break'> </span>Particle</a></li>
 				
 					<li><a href="../symbols/hemi.curve.ParticleSystem.html">hemi<span class='break'> </span>.<span class='break'> </span>curve<span class='break'> </span>.<span class='break'> </span>ParticleSystem</a></li>
+				
+					<li><a href="../symbols/hemi.curve.ScaleKey.html">hemi<span class='break'> </span>.<span class='break'> </span>curve<span class='break'> </span>.<span class='break'> </span>ScaleKey</a></li>
 				
 					<li><a href="../symbols/hemi.dispatch.html">hemi<span class='break'> </span>.<span class='break'> </span>dispatch</a></li>
 				
@@ -289,7 +299,7 @@
 		
 		Documentation generator: <a href="http://code.google.com/p/jsdoc-toolkit/" target="_blank">JsDoc Toolkit</a> 2.4.0<br />
 		Template: <a href="http://www.thebrightlines.com/2010/05/06/new-template-for-jsdoctoolkit-codeview/" target="_blank">Codeview</a> 1.2<br />
-		Generated on: 2011-6-1 14:10
+		Generated on: 2011-7-9 15:09
 	</div>
 </div>
 
@@ -374,8 +384,8 @@ including: linear, bezier, cardinal, and cubic hermite.
 									<td class="nameDescription">
 										<div class="fixedFont"><b><a href="../symbols/hemi.curve.Curve.html#bezier">bezier</a></b>(t)
 										</div>
-										<div class="description">The bezier interpolation starts at the first waypoint, and ends at the
-		last waypoint, and 'bends' toward the intermediate points.</div>
+										<div class="description">The bezier interpolation starts at the first waypoint, and ends at
+the last waypoint, and 'bends' toward the intermediate points.</div>
 									</td>
 								</tr>
 							
@@ -386,13 +396,47 @@ including: linear, bezier, cardinal, and cubic hermite.
 									<td class="nameDescription">
 										<div class="fixedFont"><b><a href="../symbols/hemi.curve.Curve.html#cubicHermite">cubicHermite</a></b>(t)
 										</div>
-										<div class="description">The cubic hermite function interpolates along a line that runs through the Curve
-		object's waypoints, at a predefined tangent slope through each one.</div>
+										<div class="description">The cubic hermite function interpolates along a line that runs
+through the Curve's waypoints at a predefined tangent slope through
+each one.</div>
 									</td>
 								</tr>
 							
 								<tr
 									 class='item2'
+								>
+									<td class="attributes">&nbsp;</td>
+									<td class="nameDescription">
+										<div class="fixedFont"><b><a href="../symbols/hemi.curve.Curve.html#draw">draw</a></b>(samples, config)
+										</div>
+										<div class="description">Draw the Curve using primitive shapes.</div>
+									</td>
+								</tr>
+							
+								<tr
+									 class='item3'
+								>
+									<td class="attributes">&nbsp;</td>
+									<td class="nameDescription">
+										<div class="fixedFont"><b><a href="../symbols/hemi.curve.Curve.html#getEnd">getEnd</a></b>()
+										</div>
+										<div class="description">Get the XYZ position of the last waypoint of the Curve.</div>
+									</td>
+								</tr>
+							
+								<tr
+									 class='item4'
+								>
+									<td class="attributes">&nbsp;</td>
+									<td class="nameDescription">
+										<div class="fixedFont"><b><a href="../symbols/hemi.curve.Curve.html#getStart">getStart</a></b>()
+										</div>
+										<div class="description">Get the XYZ position of the first waypoint of the Curve.</div>
+									</td>
+								</tr>
+							
+								<tr
+									 class='item5'
 								>
 									<td class="attributes">&nbsp;</td>
 									<td class="nameDescription">
@@ -403,7 +447,7 @@ including: linear, bezier, cardinal, and cubic hermite.
 								</tr>
 							
 								<tr
-									 class='item3'
+									 class='item6'
 								>
 									<td class="attributes">&nbsp;</td>
 									<td class="nameDescription">
@@ -414,26 +458,59 @@ including: linear, bezier, cardinal, and cubic hermite.
 								</tr>
 							
 								<tr
-									 class='item4'
+									 class='item7'
 								>
 									<td class="attributes">&nbsp;</td>
 									<td class="nameDescription">
 										<div class="fixedFont"><b><a href="../symbols/hemi.curve.Curve.html#linearNorm">linearNorm</a></b>(t)
 										</div>
-										<div class="description">The normalized linear interpolation moves on a straight line between waypoints,
-		at a constant velocity.</div>
+										<div class="description">The normalized linear interpolation moves on a straight line between
+waypoints at a constant velocity.</div>
 									</td>
 								</tr>
 							
 								<tr
-									 class='item5'
+									 class='item8'
+								>
+									<td class="attributes">&nbsp;</td>
+									<td class="nameDescription">
+										<div class="fixedFont"><b><a href="../symbols/hemi.curve.Curve.html#loadConfig">loadConfig</a></b>(cfg)
+										</div>
+										<div class="description">Load the given configuration options into the Curve.</div>
+									</td>
+								</tr>
+							
+								<tr
+									 class='item9'
 								>
 									<td class="attributes">&nbsp;</td>
 									<td class="nameDescription">
 										<div class="fixedFont"><b><a href="../symbols/hemi.curve.Curve.html#setTangents">setTangents</a></b>()
 										</div>
-										<div class="description">Calculate the tangents for a cardinal curve, which is a cubic hermite curve
-		where the tangents are defined by a single 'tension' factor.</div>
+										<div class="description">Calculate the tangents for a cardinal curve, which is a cubic hermite
+curve where the tangents are defined by a single 'tension' factor.</div>
+									</td>
+								</tr>
+							
+								<tr
+									 class='item10'
+								>
+									<td class="attributes">&nbsp;</td>
+									<td class="nameDescription">
+										<div class="fixedFont"><b><a href="../symbols/hemi.curve.Curve.html#setType">setType</a></b>(type)
+										</div>
+										<div class="description">Set the type of interpolation for the Curve.</div>
+									</td>
+								</tr>
+							
+								<tr
+									 class='item11'
+								>
+									<td class="attributes">&nbsp;</td>
+									<td class="nameDescription">
+										<div class="fixedFont"><b><a href="../symbols/hemi.curve.Curve.html#toOctane">toOctane</a></b>()
+										</div>
+										<div class="description">Get the Octane structure for the Curve.</div>
 									</td>
 								</tr>
 							
@@ -475,19 +552,19 @@ including: linear, bezier, cardinal, and cubic hermite.
 							<dt class="heading">Parameters:</dt>
 							
 								<dt>
-									<span class="light fixedFont">{number[][]}</span>  <b>points</b>
+									<span class="light fixedFont">{number[3][]}</span>  <b>points</b>
 									
 								</dt>
 								<dd>List of xyz waypoints</dd>
 							
 								<dt>
-									<span class="light fixedFont">{number}</span>  <b>opt_type</b>
+									<span class="light fixedFont">{<a href="../symbols/hemi.curve.html#.CurveType">hemi.curve.CurveType</a>}</span>  <b>opt_type</b>
 									
 								</dt>
 								<dd>Curve type</dd>
 							
 								<dt>
-									<span class="light fixedFont">{hemi.config}</span>  <b>opt_config</b>
+									<span class="light fixedFont">{Object}</span>  <b>opt_config</b>
 									
 								</dt>
 								<dd>Configuration object specific to this curve</dd>
@@ -524,15 +601,15 @@ including: linear, bezier, cardinal, and cubic hermite.
 									
 									</span>
 									
-									<span class="light">{number[]}</span>
+									<span class="light">{number[3]}</span>
 									
 									<b>bezier</b>(t)
 								</div>
 								
 								<div class="description">
-									The bezier interpolation starts at the first waypoint, and ends at the
-		last waypoint, and 'bends' toward the intermediate points. These
-		points can be weighted for more bending.
+									The bezier interpolation starts at the first waypoint, and ends at
+the last waypoint, and 'bends' toward the intermediate points. These
+points can be weighted for more bending.
 									
 									
 									
@@ -549,7 +626,7 @@ including: linear, bezier, cardinal, and cubic hermite.
 												<span class="light fixedFont">{number}</span> <b>t</b>
 												
 											</dt>
-											<dd>Time, usually between 0 and 1</dd>
+											<dd>time, usually between 0 and 1</dd>
 										
 									</dl>
 								
@@ -566,8 +643,8 @@ including: linear, bezier, cardinal, and cubic hermite.
 										
 											<dt class="heading">Returns:</dt>
 											
-												<dd><span class="light fixedFont">{number[]}</span> The position interpolated from the time input by a
-		a bezier function.</dd>
+												<dd><span class="light fixedFont">{number[3]}</span> the position interpolated from the time input by
+    a bezier function.</dd>
 											
 										
 										
@@ -588,14 +665,15 @@ including: linear, bezier, cardinal, and cubic hermite.
 									
 									</span>
 									
-									<span class="light">{number[]}</span>
+									<span class="light">{number[3]}</span>
 									
 									<b>cubicHermite</b>(t)
 								</div>
 								
 								<div class="description">
-									The cubic hermite function interpolates along a line that runs through the Curve
-		object's waypoints, at a predefined tangent slope through each one.
+									The cubic hermite function interpolates along a line that runs
+through the Curve's waypoints at a predefined tangent slope through
+each one.
 									
 									
 									
@@ -612,7 +690,7 @@ including: linear, bezier, cardinal, and cubic hermite.
 												<span class="light fixedFont">{number}</span> <b>t</b>
 												
 											</dt>
-											<dd>Time, usually between 0 and 1</dd>
+											<dd>time, usually between 0 and 1</dd>
 										
 									</dl>
 								
@@ -629,8 +707,8 @@ including: linear, bezier, cardinal, and cubic hermite.
 										
 											<dt class="heading">Returns:</dt>
 											
-												<dd><span class="light fixedFont">{number[]}</span> The position interpolated from the time input by the cubic 
-		hermite function.</dd>
+												<dd><span class="light fixedFont">{number[3]}</span> the position interpolated from the time input by
+    the cubic hermite function.</dd>
 											
 										
 										
@@ -646,12 +724,158 @@ including: linear, bezier, cardinal, and cubic hermite.
 							<li 
 								 class='item2'
 							>
+								<div class="fixedFont heading" id="draw">
+									<span class='lighter'>
+									
+									</span>
+									
+									
+									
+									<b>draw</b>(samples, config)
+								</div>
+								
+								<div class="description">
+									Draw the Curve using primitive shapes.
+									
+									
+									
+									
+								</div>
+								
+								
+								
+								
+									<dl class="detailList params">
+										<dt class="heading">Parameters:</dt>
+										
+											<dt>
+												<span class="light fixedFont">{number}</span> <b>samples</b>
+												
+											</dt>
+											<dd>the number of samples to use to draw</dd>
+										
+											<dt>
+												<span class="light fixedFont">{Object}</span> <b>config</b>
+												
+											</dt>
+											<dd>configuration for how the Curve should look</dd>
+										
+									</dl>
+								
+								
+								
+								<div class="hr"></div>
+							</li>
+						
+							<li 
+								 class='item3'
+							>
+								<div class="fixedFont heading" id="getEnd">
+									<span class='lighter'>
+									
+									</span>
+									
+									<span class="light">{number[3]}</span>
+									
+									<b>getEnd</b>()
+								</div>
+								
+								<div class="description">
+									Get the XYZ position of the last waypoint of the Curve.
+									
+									
+									
+									
+								</div>
+								
+								
+								
+								
+								
+								
+									<dl class="detailList nomargin">
+									
+										
+										
+										
+										
+										
+										
+										
+											<dt class="heading">Returns:</dt>
+											
+												<dd><span class="light fixedFont">{number[3]}</span> the position of the last waypoint</dd>
+											
+										
+										
+										
+										
+										
+									
+									</dl>
+								
+								<div class="hr"></div>
+							</li>
+						
+							<li 
+								 class='item4'
+							>
+								<div class="fixedFont heading" id="getStart">
+									<span class='lighter'>
+									
+									</span>
+									
+									<span class="light">{number[3]}</span>
+									
+									<b>getStart</b>()
+								</div>
+								
+								<div class="description">
+									Get the XYZ position of the first waypoint of the Curve.
+									
+									
+									
+									
+								</div>
+								
+								
+								
+								
+								
+								
+									<dl class="detailList nomargin">
+									
+										
+										
+										
+										
+										
+										
+										
+											<dt class="heading">Returns:</dt>
+											
+												<dd><span class="light fixedFont">{number[3]}</span> the position of the first waypoint</dd>
+											
+										
+										
+										
+										
+										
+									
+									</dl>
+								
+								<div class="hr"></div>
+							</li>
+						
+							<li 
+								 class='item5'
+							>
 								<div class="fixedFont heading" id="interpolate">
 									<span class='lighter'>
 									
 									</span>
 									
-									<span class="light">{number[]}</span>
+									<span class="light">{number[3]}</span>
 									
 									<b>interpolate</b>(t)
 								</div>
@@ -674,7 +898,7 @@ including: linear, bezier, cardinal, and cubic hermite.
 												<span class="light fixedFont">{number}</span> <b>t</b>
 												
 											</dt>
-											<dd>Time, usually between 0 and 1</dd>
+											<dd>time, usually between 0 and 1</dd>
 										
 									</dl>
 								
@@ -691,7 +915,7 @@ including: linear, bezier, cardinal, and cubic hermite.
 										
 											<dt class="heading">Returns:</dt>
 											
-												<dd><span class="light fixedFont">{number[]}</span> The position interpolated from the time input</dd>
+												<dd><span class="light fixedFont">{number[3]}</span> the position interpolated from the time input</dd>
 											
 										
 										
@@ -705,14 +929,14 @@ including: linear, bezier, cardinal, and cubic hermite.
 							</li>
 						
 							<li 
-								 class='item3'
+								 class='item6'
 							>
 								<div class="fixedFont heading" id="linear">
 									<span class='lighter'>
 									
 									</span>
 									
-									<span class="light">{number[]}</span>
+									<span class="light">{number[3]}</span>
 									
 									<b>linear</b>(t)
 								</div>
@@ -735,7 +959,7 @@ including: linear, bezier, cardinal, and cubic hermite.
 												<span class="light fixedFont">{number}</span> <b>t</b>
 												
 											</dt>
-											<dd>Time, usually between 0 and 1</dd>
+											<dd>time, usually between 0 and 1</dd>
 										
 									</dl>
 								
@@ -752,7 +976,8 @@ including: linear, bezier, cardinal, and cubic hermite.
 										
 											<dt class="heading">Returns:</dt>
 											
-												<dd><span class="light fixedFont">{number[]}</span> The position linearly interpolated from the time input</dd>
+												<dd><span class="light fixedFont">{number[3]}</span> the position linearly interpolated from the time
+    input</dd>
 											
 										
 										
@@ -766,21 +991,21 @@ including: linear, bezier, cardinal, and cubic hermite.
 							</li>
 						
 							<li 
-								 class='item4'
+								 class='item7'
 							>
 								<div class="fixedFont heading" id="linearNorm">
 									<span class='lighter'>
 									
 									</span>
 									
-									<span class="light">{number[]}</span>
+									<span class="light">{number[3]}</span>
 									
 									<b>linearNorm</b>(t)
 								</div>
 								
 								<div class="description">
-									The normalized linear interpolation moves on a straight line between waypoints,
-		at a constant velocity.
+									The normalized linear interpolation moves on a straight line between
+waypoints at a constant velocity.
 									
 									
 									
@@ -797,7 +1022,7 @@ including: linear, bezier, cardinal, and cubic hermite.
 												<span class="light fixedFont">{number}</span> <b>t</b>
 												
 											</dt>
-											<dd>Time, usually between 0 and 1</dd>
+											<dd>time, usually between 0 and 1</dd>
 										
 									</dl>
 								
@@ -814,8 +1039,8 @@ including: linear, bezier, cardinal, and cubic hermite.
 										
 											<dt class="heading">Returns:</dt>
 											
-												<dd><span class="light fixedFont">{number[]}</span> The position linearly interpolated from the time input, normalized
-		to keep the velocity constant</dd>
+												<dd><span class="light fixedFont">{number[3]}</span> the position linearly interpolated from the time
+    input, normalized to keep the velocity constant</dd>
 											
 										
 										
@@ -829,7 +1054,47 @@ including: linear, bezier, cardinal, and cubic hermite.
 							</li>
 						
 							<li 
-								 class='item5'
+								 class='item8'
+							>
+								<div class="fixedFont heading" id="loadConfig">
+									<span class='lighter'>
+									
+									</span>
+									
+									
+									
+									<b>loadConfig</b>(cfg)
+								</div>
+								
+								<div class="description">
+									Load the given configuration options into the Curve.
+									
+									
+									
+									
+								</div>
+								
+								
+								
+								
+									<dl class="detailList params">
+										<dt class="heading">Parameters:</dt>
+										
+											<dt>
+												<span class="light fixedFont">{Object}</span> <b>cfg</b>
+												
+											</dt>
+											<dd>configuration options for the Curve</dd>
+										
+									</dl>
+								
+								
+								
+								<div class="hr"></div>
+							</li>
+						
+							<li 
+								 class='item9'
 							>
 								<div class="fixedFont heading" id="setTangents">
 									<span class='lighter'>
@@ -842,8 +1107,8 @@ including: linear, bezier, cardinal, and cubic hermite.
 								</div>
 								
 								<div class="description">
-									Calculate the tangents for a cardinal curve, which is a cubic hermite curve
-		where the tangents are defined by a single 'tension' factor.
+									Calculate the tangents for a cardinal curve, which is a cubic hermite
+curve where the tangents are defined by a single 'tension' factor.
 									
 									
 									
@@ -854,6 +1119,96 @@ including: linear, bezier, cardinal, and cubic hermite.
 								
 								
 								
+								
+								<div class="hr"></div>
+							</li>
+						
+							<li 
+								 class='item10'
+							>
+								<div class="fixedFont heading" id="setType">
+									<span class='lighter'>
+									
+									</span>
+									
+									
+									
+									<b>setType</b>(type)
+								</div>
+								
+								<div class="description">
+									Set the type of interpolation for the Curve.
+									
+									
+									
+									
+								</div>
+								
+								
+								
+								
+									<dl class="detailList params">
+										<dt class="heading">Parameters:</dt>
+										
+											<dt>
+												<span class="light fixedFont">{<a href="../symbols/hemi.curve.html#.CurveType">hemi.curve.CurveType</a>}</span> <b>type</b>
+												
+											</dt>
+											<dd>interpolation type</dd>
+										
+									</dl>
+								
+								
+								
+								<div class="hr"></div>
+							</li>
+						
+							<li 
+								 class='item11'
+							>
+								<div class="fixedFont heading" id="toOctane">
+									<span class='lighter'>
+									
+									</span>
+									
+									<span class="light">{Object}</span>
+									
+									<b>toOctane</b>()
+								</div>
+								
+								<div class="description">
+									Get the Octane structure for the Curve.
+									
+									
+									
+									
+								</div>
+								
+								
+								
+								
+								
+								
+									<dl class="detailList nomargin">
+									
+										
+										
+										
+										
+										
+										
+										
+											<dt class="heading">Returns:</dt>
+											
+												<dd><span class="light fixedFont">{Object}</span> the Octane structure representing the Curve</dd>
+											
+										
+										
+										
+										
+										
+									
+									</dl>
 								
 								
 							</li>

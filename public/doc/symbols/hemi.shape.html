@@ -56,11 +56,21 @@
 				
 					<li><a href="../symbols/hemi.curve.html">hemi<span class='break'> </span>.<span class='break'> </span>curve</a></li>
 				
+					<li><a href="../symbols/hemi.curve.Box.html">hemi<span class='break'> </span>.<span class='break'> </span>curve<span class='break'> </span>.<span class='break'> </span>Box</a></li>
+				
+					<li><a href="../symbols/hemi.curve.ColorKey.html">hemi<span class='break'> </span>.<span class='break'> </span>curve<span class='break'> </span>.<span class='break'> </span>ColorKey</a></li>
+				
 					<li><a href="../symbols/hemi.curve.Curve.html">hemi<span class='break'> </span>.<span class='break'> </span>curve<span class='break'> </span>.<span class='break'> </span>Curve</a></li>
+				
+					<li><a href="../symbols/hemi.curve.GpuParticleSystem.html">hemi<span class='break'> </span>.<span class='break'> </span>curve<span class='break'> </span>.<span class='break'> </span>GpuParticleSystem</a></li>
+				
+					<li><a href="../symbols/hemi.curve.GpuParticleTrail.html">hemi<span class='break'> </span>.<span class='break'> </span>curve<span class='break'> </span>.<span class='break'> </span>GpuParticleTrail</a></li>
 				
 					<li><a href="../symbols/hemi.curve.Particle.html">hemi<span class='break'> </span>.<span class='break'> </span>curve<span class='break'> </span>.<span class='break'> </span>Particle</a></li>
 				
 					<li><a href="../symbols/hemi.curve.ParticleSystem.html">hemi<span class='break'> </span>.<span class='break'> </span>curve<span class='break'> </span>.<span class='break'> </span>ParticleSystem</a></li>
+				
+					<li><a href="../symbols/hemi.curve.ScaleKey.html">hemi<span class='break'> </span>.<span class='break'> </span>curve<span class='break'> </span>.<span class='break'> </span>ScaleKey</a></li>
 				
 					<li><a href="../symbols/hemi.dispatch.html">hemi<span class='break'> </span>.<span class='break'> </span>dispatch</a></li>
 				
@@ -289,7 +299,7 @@
 		
 		Documentation generator: <a href="http://code.google.com/p/jsdoc-toolkit/" target="_blank">JsDoc Toolkit</a> 2.4.0<br />
 		Template: <a href="http://www.thebrightlines.com/2010/05/06/new-template-for-jsdoctoolkit-codeview/" target="_blank">Codeview</a> 1.2<br />
-		Generated on: 2011-6-1 14:11
+		Generated on: 2011-7-9 15:09
 	</div>
 </div>
 
@@ -643,13 +653,13 @@
 										<dt class="heading">Parameters:</dt>
 										
 											<dt>
-												<span class="light fixedFont">{float}</span> <b>size</b>
+												<span class="light fixedFont">{number}</span> <b>size</b>
 												
 											</dt>
 											<dd>the scale of the arrow head on each axis</dd>
 										
 											<dt>
-												<span class="light fixedFont">{float}</span> <b>tail</b>
+												<span class="light fixedFont">{number}</span> <b>tail</b>
 												
 											</dt>
 											<dd>the length of the arrow tail</dd>
@@ -716,19 +726,19 @@
 										<dt class="heading">Parameters:</dt>
 										
 											<dt>
-												<span class="light fixedFont">{float}</span> <b>h</b>
+												<span class="light fixedFont">{number}</span> <b>h</b>
 												
 											</dt>
 											<dd>height of box (along y-axis)</dd>
 										
 											<dt>
-												<span class="light fixedFont">{float}</span> <b>w</b>
+												<span class="light fixedFont">{number}</span> <b>w</b>
 												
 											</dt>
 											<dd>width of box (along x-axis)</dd>
 										
 											<dt>
-												<span class="light fixedFont">{float}</span> <b>d</b>
+												<span class="light fixedFont">{number}</span> <b>d</b>
 												
 											</dt>
 											<dd>depth of box (along z-axis)</dd>
@@ -795,13 +805,13 @@
 										<dt class="heading">Parameters:</dt>
 										
 											<dt>
-												<span class="light fixedFont">{float}</span> <b>r</b>
+												<span class="light fixedFont">{number}</span> <b>r</b>
 												
 											</dt>
 											<dd>radius of the base</dd>
 										
 											<dt>
-												<span class="light fixedFont">{float}</span> <b>h</b>
+												<span class="light fixedFont">{number}</span> <b>h</b>
 												
 											</dt>
 											<dd>height (along y-axis)</dd>
@@ -868,7 +878,7 @@
 										<dt class="heading">Parameters:</dt>
 										
 											<dt>
-												<span class="light fixedFont">{float}</span> <b>size</b>
+												<span class="light fixedFont">{number}</span> <b>size</b>
 												
 											</dt>
 											<dd>dimensions of cube</dd>
@@ -935,7 +945,7 @@
 										<dt class="heading">Parameters:</dt>
 										
 											<dt>
-												<span class="light fixedFont">{float[][][]}</span> <b>verts</b>
+												<span class="light fixedFont">{number[3][3][]}</span> <b>verts</b>
 												
 											</dt>
 											<dd>list of triples of xyz coordinates. Each    triple represents a polygon, with the normal determined by right-hand    rule (i.e. polygon will be visible from side from which vertices are    listed in counter-clockwise order).</dd>
@@ -1002,19 +1012,19 @@
 										<dt class="heading">Parameters:</dt>
 										
 											<dt>
-												<span class="light fixedFont">{float}</span> <b>r1</b>
+												<span class="light fixedFont">{number}</span> <b>r1</b>
 												
 											</dt>
 											<dd>Radius at bottom</dd>
 										
 											<dt>
-												<span class="light fixedFont">{float}</span> <b>r2</b>
+												<span class="light fixedFont">{number}</span> <b>r2</b>
 												
 											</dt>
 											<dd>Radius at top</dd>
 										
 											<dt>
-												<span class="light fixedFont">{float}</span> <b>h</b>
+												<span class="light fixedFont">{number}</span> <b>h</b>
 												
 											</dt>
 											<dd>height (along y-axis)</dd>
@@ -1081,7 +1091,7 @@
 										<dt class="heading">Parameters:</dt>
 										
 											<dt>
-												<span class="light fixedFont">{float}</span> <b>size</b>
+												<span class="light fixedFont">{number}</span> <b>size</b>
 												
 											</dt>
 											<dd>size of cube on which octahedron will be inscribed</dd>
@@ -1148,19 +1158,19 @@
 										<dt class="heading">Parameters:</dt>
 										
 											<dt>
-												<span class="light fixedFont">{float}</span> <b>h</b>
+												<span class="light fixedFont">{number}</span> <b>h</b>
 												
 											</dt>
 											<dd>height of pyramid (along z-axis)</dd>
 										
 											<dt>
-												<span class="light fixedFont">{float}</span> <b>w</b>
+												<span class="light fixedFont">{number}</span> <b>w</b>
 												
 											</dt>
 											<dd>width of pyramid (along x-axis)</dd>
 										
 											<dt>
-												<span class="light fixedFont">{float}</span> <b>d</b>
+												<span class="light fixedFont">{number}</span> <b>d</b>
 												
 											</dt>
 											<dd>depth of pyramid (along y-axis)</dd>
@@ -1227,7 +1237,7 @@
 										<dt class="heading">Parameters:</dt>
 										
 											<dt>
-												<span class="light fixedFont">{float}</span> <b>r</b>
+												<span class="light fixedFont">{number}</span> <b>r</b>
 												
 											</dt>
 											<dd>radius of sphere</dd>
@@ -1294,7 +1304,7 @@
 										<dt class="heading">Parameters:</dt>
 										
 											<dt>
-												<span class="light fixedFont">{float}</span> <b>size</b>
+												<span class="light fixedFont">{number}</span> <b>size</b>
 												
 											</dt>
 											<dd>size of cube in which tetrahedron will be inscribed</dd>

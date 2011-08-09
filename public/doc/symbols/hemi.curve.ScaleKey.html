@@ -4,7 +4,7 @@
 	<head>
 		<meta charset="utf-8"></meta>
 		<meta name="generator" content="JsDoc Toolkit"></meta>
-		<title>hemi.motion.Rotator | JsDoc Reference</title>
+		<title>hemi.curve.ScaleKey | JsDoc Reference</title>
 
 		<meta name="viewport" content="width=device-width; initial-scale=1.0; maximum-scale=1.0;"></meta>
 		<meta name="mobileoptimized" content="0"></meta>
@@ -309,12 +309,12 @@
 	<div class="innerContent">
 		<h1 class="classTitle">
 			
-			Class <span>hemi.motion.Rotator</span>
+			Class <span>hemi.curve.ScaleKey</span>
 		</h1>
 		
 		<div class="intro">
 			<p class="description summary">
-				A Rotator makes automated rotation easier by allowing simplecalls such as setVel to begin the automated spinning of a Transform.
+				A ScaleKey contains a time key and a scale value.
 			</p>
 				
 			
@@ -322,18 +322,16 @@
 					
 					
 					
-						<li>Defined in: &lt;js/hemi/motion.js&gt;</li>
+						<li>Defined in: &lt;js/hemi/curve.js&gt;</li>
 					
-						<li>Extends <span class="fixedFont">
-						<a href="../symbols/hemi.world.Citizen.html">hemi.world.Citizen</a></span></li>
-					
+						
 				</ul>
 			
 		</div>
 		
 		
 			<div class="props">
-				<table class="summaryTable" cellspacing="0" summary="A summary of the constructor documented in the class hemi.motion.Rotator.">
+				<table class="summaryTable" cellspacing="0" summary="A summary of the constructor documented in the class hemi.curve.ScaleKey.">
 					<caption class="sectionTitle">Class Summary</caption>
 					<thead>
 						<tr>
@@ -346,7 +344,7 @@
 							<td class="attributes">&nbsp;</td>
 							<td class="nameDescription" >
 								<div class="fixedFont">
-									<b><a href="../symbols/hemi.motion.Rotator.html#constructor">hemi.motion.Rotator</a></b>(opt_tran, opt_config)
+									<b><a href="../symbols/hemi.curve.ScaleKey.html#constructor">hemi.curve.ScaleKey</a></b>(key, scale)
 								</div>
 								<div class="description"></div>
 							</td>
@@ -360,7 +358,7 @@
 			
 			
 				<div class="props">
-					<table class="summaryTable" cellspacing="0" summary="A summary of the fields documented in the class hemi.motion.Rotator.">
+					<table class="summaryTable" cellspacing="0" summary="A summary of the fields documented in the class hemi.curve.ScaleKey.">
 						<caption class="sectionTitle">Field Summary</caption>
 						
 						<thead>
@@ -376,9 +374,19 @@
 									<td class="attributes">&nbsp;</td>
 									<td class="nameDescription">
 										<div class="fixedFont">
-										<b><a href="../symbols/hemi.motion.Rotator.html#citizenType">citizenType</a></b>
+										<b><a href="../symbols/hemi.curve.ScaleKey.html#key">key</a></b>
 										</div>
-										<div class="description">Overwrites hemi.world.Citizen.citizenType</div>
+										<div class="description">The time when the ScaleKey is 100% of the Curve's scale value.</div>
+									</td>
+								</tr>
+							
+								<tr>
+									<td class="attributes">&nbsp;</td>
+									<td class="nameDescription">
+										<div class="fixedFont">
+										<b><a href="../symbols/hemi.curve.ScaleKey.html#value">value</a></b>
+										</div>
+										<div class="description">The scale value for Curve particles.</div>
 									</td>
 								</tr>
 							
@@ -388,208 +396,10 @@
 			
 			
 			
-				<dl class="inheritsList">
-				<dt>Fields borrowed from class <a href="../symbols/hemi.world.Citizen.html">hemi.world.Citizen</a>: </dt><dd><a href="../symbols/hemi.world.Citizen.html#msgSent">msgSent</a>, <a href="../symbols/hemi.world.Citizen.html#name">name</a></dd>
-				</dl>
-			
 		
 <!--
 #### METHODS SUMMARY
 -->
-		
-			
-			
-			<div class="props">
-				<h2 class="sectionTitle">Method Summary</h2>
-				
-				
-					<table class="summaryTable" id="MethodsList" cellspacing="0" summary="A summary of the methods documented in the class hemi.motion.Rotator.">
-						<thead>
-							<tr>
-								<th scope="col">Method Attributes</th>
-								<th scope="col">Method Name and Description</th>
-							</tr>
-						</thead>
-						
-						<tbody>
-							
-							
-								<tr
-									 class='item0'
-								>
-									<td class="attributes">&nbsp;</td>
-									<td class="nameDescription">
-										<div class="fixedFont"><b><a href="../symbols/hemi.motion.Rotator.html#addTransform">addTransform</a></b>(transform)
-										</div>
-										<div class="description">Add a Transform to the list of Transforms that will be spinning.</div>
-									</td>
-								</tr>
-							
-								<tr
-									 class='item1'
-								>
-									<td class="attributes">&nbsp;</td>
-									<td class="nameDescription">
-										<div class="fixedFont"><b><a href="../symbols/hemi.motion.Rotator.html#cleanup">cleanup</a></b>()
-										</div>
-										<div class="description">Send a cleanup Message and remove all references in the Rotator.</div>
-									</td>
-								</tr>
-							
-								<tr
-									 class='item2'
-								>
-									<td class="attributes">&nbsp;</td>
-									<td class="nameDescription">
-										<div class="fixedFont"><b><a href="../symbols/hemi.motion.Rotator.html#clear">clear</a></b>()
-										</div>
-										<div class="description">Clear properties like acceleration, velocity, etc.</div>
-									</td>
-								</tr>
-							
-								<tr
-									 class='item3'
-								>
-									<td class="attributes">&nbsp;</td>
-									<td class="nameDescription">
-										<div class="fixedFont"><b><a href="../symbols/hemi.motion.Rotator.html#clearTransforms">clearTransforms</a></b>()
-										</div>
-										<div class="description">Clear the list of spinning Transforms.</div>
-									</td>
-								</tr>
-							
-								<tr
-									 class='item4'
-								>
-									<td class="attributes">&nbsp;</td>
-									<td class="nameDescription">
-										<div class="fixedFont"><b><a href="../symbols/hemi.motion.Rotator.html#disable">disable</a></b>()
-										</div>
-										<div class="description">Disable mouse interaction for the Rotator.</div>
-									</td>
-								</tr>
-							
-								<tr
-									 class='item5'
-								>
-									<td class="attributes">&nbsp;</td>
-									<td class="nameDescription">
-										<div class="fixedFont"><b><a href="../symbols/hemi.motion.Rotator.html#enable">enable</a></b>()
-										</div>
-										<div class="description">Enable mouse interaction for the Rotator.</div>
-									</td>
-								</tr>
-							
-								<tr
-									 class='item6'
-								>
-									<td class="attributes">&nbsp;</td>
-									<td class="nameDescription">
-										<div class="fixedFont"><b><a href="../symbols/hemi.motion.Rotator.html#getTransforms">getTransforms</a></b>()
-										</div>
-										<div class="description">Get the Transforms that the Rotator currently contains.</div>
-									</td>
-								</tr>
-							
-								<tr
-									 class='item7'
-								>
-									<td class="attributes">&nbsp;</td>
-									<td class="nameDescription">
-										<div class="fixedFont"><b><a href="../symbols/hemi.motion.Rotator.html#onRender">onRender</a></b>(event)
-										</div>
-										<div class="description">Render event listener - Perform Newtonian calculations on the rotating object, starting with the angular velocity.</div>
-									</td>
-								</tr>
-							
-								<tr
-									 class='item8'
-								>
-									<td class="attributes">&nbsp;</td>
-									<td class="nameDescription">
-										<div class="fixedFont"><b><a href="../symbols/hemi.motion.Rotator.html#receiveTransform">receiveTransform</a></b>(transform)
-										</div>
-										<div class="description">Receive the given Transform from the TransformRegistry.</div>
-									</td>
-								</tr>
-							
-								<tr
-									 class='item9'
-								>
-									<td class="attributes">&nbsp;</td>
-									<td class="nameDescription">
-										<div class="fixedFont"><b><a href="../symbols/hemi.motion.Rotator.html#rotate">rotate</a></b>(theta, time, opt_mustComplete)
-										</div>
-										<div class="description">Make the Rotator rotate the specified amount in the specified amount
-of time.</div>
-									</td>
-								</tr>
-							
-								<tr
-									 class='item10'
-								>
-									<td class="attributes">&nbsp;</td>
-									<td class="nameDescription">
-										<div class="fixedFont"><b><a href="../symbols/hemi.motion.Rotator.html#setAccel">setAccel</a></b>(accel)
-										</div>
-										<div class="description">Set the angular acceleration.</div>
-									</td>
-								</tr>
-							
-								<tr
-									 class='item11'
-								>
-									<td class="attributes">&nbsp;</td>
-									<td class="nameDescription">
-										<div class="fixedFont"><b><a href="../symbols/hemi.motion.Rotator.html#setAngle">setAngle</a></b>(theta)
-										</div>
-										<div class="description">Set the current rotation angle.</div>
-									</td>
-								</tr>
-							
-								<tr
-									 class='item12'
-								>
-									<td class="attributes">&nbsp;</td>
-									<td class="nameDescription">
-										<div class="fixedFont"><b><a href="../symbols/hemi.motion.Rotator.html#setOrigin">setOrigin</a></b>(origin)
-										</div>
-										<div class="description">Set the origin of the Rotator Transform.</div>
-									</td>
-								</tr>
-							
-								<tr
-									 class='item13'
-								>
-									<td class="attributes">&nbsp;</td>
-									<td class="nameDescription">
-										<div class="fixedFont"><b><a href="../symbols/hemi.motion.Rotator.html#setVel">setVel</a></b>(vel)
-										</div>
-										<div class="description">Set the angular velocity.</div>
-									</td>
-								</tr>
-							
-								<tr
-									 class='item14'
-								>
-									<td class="attributes">&nbsp;</td>
-									<td class="nameDescription">
-										<div class="fixedFont"><b><a href="../symbols/hemi.motion.Rotator.html#toOctane">toOctane</a></b>()
-										</div>
-										<div class="description">Get the Octane structure for the Rotator.</div>
-									</td>
-								</tr>
-							
-						</tbody>
-					</table>
-				
-			
-				
-					<dl class="inheritsList" id="MethodsListInherited">
-					<dt>Methods borrowed from class <span class='fixedFont'><a href="../symbols/hemi.world.Citizen.html">hemi.world.Citizen</a></span>: </dt><dd><span class='fixedFont'><a href="../symbols/hemi.world.Citizen.html#getCitizenType">getCitizenType</a></span></dd> <dd><span class='fixedFont'><a href="../symbols/hemi.world.Citizen.html#getId">getId</a></span></dd> <dd><span class='fixedFont'><a href="../symbols/hemi.world.Citizen.html#send">send</a></span></dd> <dd><span class='fixedFont'><a href="../symbols/hemi.world.Citizen.html#setCitizenType">setCitizenType</a></span></dd> <dd><span class='fixedFont'><a href="../symbols/hemi.world.Citizen.html#setId">setId</a></span></dd> <dd><span class='fixedFont'><a href="../symbols/hemi.world.Citizen.html#subscribe">subscribe</a></span></dd> <dd><span class='fixedFont'><a href="../symbols/hemi.world.Citizen.html#subscribeAll">subscribeAll</a></span></dd> <dd><span class='fixedFont'><a href="../symbols/hemi.world.Citizen.html#unsubscribe">unsubscribe</a></span></dd>
-					</dl>
-				
-			</div>
 		
 		
 <!--
@@ -607,7 +417,7 @@ of time.</div>
 					</h2>
 					
 					<div class="fixedFont">
-						<b>hemi.motion.Rotator</b>(opt_tran, opt_config)
+						<b>hemi.curve.ScaleKey</b>(key, scale)
 					</div>
 					
 					<div class="description">
@@ -622,16 +432,16 @@ of time.</div>
 							<dt class="heading">Parameters:</dt>
 							
 								<dt>
-									<span class="light fixedFont">{o3d.Transform}</span>  <b>opt_tran</b>
+									<span class="light fixedFont">{number}</span>  <b>key</b>
 									
 								</dt>
-								<dd>optional transform that will be spinning</dd>
+								<dd>time value between 0 and 1</dd>
 							
 								<dt>
-									<span class="light fixedFont">{Object}</span>  <b>opt_config</b>
+									<span class="light fixedFont">{number[3]}</span>  <b>scale</b>
 									
 								</dt>
-								<dd>optional configuration for the Rotator</dd>
+								<dd>XYZ scale value</dd>
 							
 						</dl>
 					
@@ -651,18 +461,40 @@ of time.</div>
 					</h2>
 					
 					
-						<div class="fixedFont heading" id="citizenType">
+						<div class="fixedFont heading" id="key">
 							<span class='lighter'>
 							
 							</span>
 							
+							<span class="light">{number}</span>
 							
-							
-							<b>citizenType</b>							
+							<b>key</b>							
 						</div>
 						
 						<div class="description">
-							Overwrites hemi.world.Citizen.citizenType
+							The time when the ScaleKey is 100% of the Curve's scale value.
+							
+							
+							
+						</div>
+						
+						
+							
+						
+						<div class="hr"></div>
+					
+						<div class="fixedFont heading" id="value">
+							<span class='lighter'>
+							
+							</span>
+							
+							<span class="light">{number[3]}</span>
+							
+							<b>value</b>							
+						</div>
+						
+						<div class="description">
+							The scale value for Curve particles.
 							
 							
 							
@@ -679,598 +511,6 @@ of time.</div>
 <!--
 #### METHOD DETAILS
 -->		
-		
-			<div class="details props">
-				<div class="innerProps">
-					<h2 class="sectionTitle">
-						Method Detail
-					</h2>
-					
-					<ul class="methodDetail" id="MethodDetail">
-						
-						
-							<li 
-								 class='item0'
-							>
-								<div class="fixedFont heading" id="addTransform">
-									<span class='lighter'>
-									
-									</span>
-									
-									
-									
-									<b>addTransform</b>(transform)
-								</div>
-								
-								<div class="description">
-									Add a Transform to the list of Transforms that will be spinning. Achild Transform is created to allow the Rotator to spin about anarbitray axis.
-									
-									
-									
-									
-								</div>
-								
-								
-								
-								
-									<dl class="detailList params">
-										<dt class="heading">Parameters:</dt>
-										
-											<dt>
-												<span class="light fixedFont">{o3d.Transform}</span> <b>transform</b>
-												
-											</dt>
-											<dd>the Transform to add</dd>
-										
-									</dl>
-								
-								
-								
-								<div class="hr"></div>
-							</li>
-						
-							<li 
-								 class='item1'
-							>
-								<div class="fixedFont heading" id="cleanup">
-									<span class='lighter'>
-									
-									</span>
-									
-									
-									
-									<b>cleanup</b>()
-								</div>
-								
-								<div class="description">
-									Send a cleanup Message and remove all references in the Rotator.
-									
-									
-									
-									
-								</div>
-								
-								
-								
-								
-								
-								
-								<div class="hr"></div>
-							</li>
-						
-							<li 
-								 class='item2'
-							>
-								<div class="fixedFont heading" id="clear">
-									<span class='lighter'>
-									
-									</span>
-									
-									
-									
-									<b>clear</b>()
-								</div>
-								
-								<div class="description">
-									Clear properties like acceleration, velocity, etc.
-									
-									
-									
-									
-								</div>
-								
-								
-								
-								
-								
-								
-								<div class="hr"></div>
-							</li>
-						
-							<li 
-								 class='item3'
-							>
-								<div class="fixedFont heading" id="clearTransforms">
-									<span class='lighter'>
-									
-									</span>
-									
-									
-									
-									<b>clearTransforms</b>()
-								</div>
-								
-								<div class="description">
-									Clear the list of spinning Transforms.
-									
-									
-									
-									
-								</div>
-								
-								
-								
-								
-								
-								
-								<div class="hr"></div>
-							</li>
-						
-							<li 
-								 class='item4'
-							>
-								<div class="fixedFont heading" id="disable">
-									<span class='lighter'>
-									
-									</span>
-									
-									
-									
-									<b>disable</b>()
-								</div>
-								
-								<div class="description">
-									Disable mouse interaction for the Rotator.
-									
-									
-									
-									
-								</div>
-								
-								
-								
-								
-								
-								
-								<div class="hr"></div>
-							</li>
-						
-							<li 
-								 class='item5'
-							>
-								<div class="fixedFont heading" id="enable">
-									<span class='lighter'>
-									
-									</span>
-									
-									
-									
-									<b>enable</b>()
-								</div>
-								
-								<div class="description">
-									Enable mouse interaction for the Rotator.
-									
-									
-									
-									
-								</div>
-								
-								
-								
-								
-								
-								
-								<div class="hr"></div>
-							</li>
-						
-							<li 
-								 class='item6'
-							>
-								<div class="fixedFont heading" id="getTransforms">
-									<span class='lighter'>
-									
-									</span>
-									
-									<span class="light">{o3d.Transform[]}</span>
-									
-									<b>getTransforms</b>()
-								</div>
-								
-								<div class="description">
-									Get the Transforms that the Rotator currently contains.
-									
-									
-									
-									
-								</div>
-								
-								
-								
-								
-								
-								
-									<dl class="detailList nomargin">
-									
-										
-										
-										
-										
-										
-										
-										
-											<dt class="heading">Returns:</dt>
-											
-												<dd><span class="light fixedFont">{o3d.Transform[]}</span> array of Transforms</dd>
-											
-										
-										
-										
-										
-										
-									
-									</dl>
-								
-								<div class="hr"></div>
-							</li>
-						
-							<li 
-								 class='item7'
-							>
-								<div class="fixedFont heading" id="onRender">
-									<span class='lighter'>
-									
-									</span>
-									
-									
-									
-									<b>onRender</b>(event)
-								</div>
-								
-								<div class="description">
-									Render event listener - Perform Newtonian calculations on the rotating object, starting with the angular velocity.
-									
-									
-									
-									
-								</div>
-								
-								
-								
-								
-									<dl class="detailList params">
-										<dt class="heading">Parameters:</dt>
-										
-											<dt>
-												<span class="light fixedFont">{o3d.Event}</span> <b>event</b>
-												
-											</dt>
-											<dd>message describing the render event</dd>
-										
-									</dl>
-								
-								
-								
-								<div class="hr"></div>
-							</li>
-						
-							<li 
-								 class='item8'
-							>
-								<div class="fixedFont heading" id="receiveTransform">
-									<span class='lighter'>
-									
-									</span>
-									
-									
-									
-									<b>receiveTransform</b>(transform)
-								</div>
-								
-								<div class="description">
-									Receive the given Transform from the TransformRegistry.
-									
-									
-									
-									
-								</div>
-								
-								
-								
-								
-									<dl class="detailList params">
-										<dt class="heading">Parameters:</dt>
-										
-											<dt>
-												<span class="light fixedFont">{o3d.Transform}</span> <b>transform</b>
-												
-											</dt>
-											<dd>the Transform</dd>
-										
-									</dl>
-								
-								
-								
-								<div class="hr"></div>
-							</li>
-						
-							<li 
-								 class='item9'
-							>
-								<div class="fixedFont heading" id="rotate">
-									<span class='lighter'>
-									
-									</span>
-									
-									
-									
-									<b>rotate</b>(theta, time, opt_mustComplete)
-								</div>
-								
-								<div class="description">
-									Make the Rotator rotate the specified amount in the specified amount
-of time.
-									
-									
-									
-									
-								</div>
-								
-								
-								
-								
-									<dl class="detailList params">
-										<dt class="heading">Parameters:</dt>
-										
-											<dt>
-												<span class="light fixedFont">{number[3]}</span> <b>theta</b>
-												
-											</dt>
-											<dd>XYZ amounts to rotate (in radians)</dd>
-										
-											<dt>
-												<span class="light fixedFont">{number}</span> <b>time</b>
-												
-											</dt>
-											<dd>number of seconds for the rotation to take</dd>
-										
-											<dt>
-												<span class="light fixedFont">{boolean}</span> <b>opt_mustComplete</b>
-												
-											</dt>
-											<dd>optional flag indicating that no
-    other rotations can be started until this one finishes</dd>
-										
-									</dl>
-								
-								
-								
-								<div class="hr"></div>
-							</li>
-						
-							<li 
-								 class='item10'
-							>
-								<div class="fixedFont heading" id="setAccel">
-									<span class='lighter'>
-									
-									</span>
-									
-									
-									
-									<b>setAccel</b>(accel)
-								</div>
-								
-								<div class="description">
-									Set the angular acceleration.
-									
-									
-									
-									
-								</div>
-								
-								
-								
-								
-									<dl class="detailList params">
-										<dt class="heading">Parameters:</dt>
-										
-											<dt>
-												<span class="light fixedFont">{number[3]}</span> <b>accel</b>
-												
-											</dt>
-											<dd>XYZ angular acceleration (in radians)</dd>
-										
-									</dl>
-								
-								
-								
-								<div class="hr"></div>
-							</li>
-						
-							<li 
-								 class='item11'
-							>
-								<div class="fixedFont heading" id="setAngle">
-									<span class='lighter'>
-									
-									</span>
-									
-									
-									
-									<b>setAngle</b>(theta)
-								</div>
-								
-								<div class="description">
-									Set the current rotation angle.
-									
-									
-									
-									
-								</div>
-								
-								
-								
-								
-									<dl class="detailList params">
-										<dt class="heading">Parameters:</dt>
-										
-											<dt>
-												<span class="light fixedFont">{number[3]}</span> <b>theta</b>
-												
-											</dt>
-											<dd>XYZ rotation angle (in radians)</dd>
-										
-									</dl>
-								
-								
-								
-								<div class="hr"></div>
-							</li>
-						
-							<li 
-								 class='item12'
-							>
-								<div class="fixedFont heading" id="setOrigin">
-									<span class='lighter'>
-									
-									</span>
-									
-									
-									
-									<b>setOrigin</b>(origin)
-								</div>
-								
-								<div class="description">
-									Set the origin of the Rotator Transform.
-									
-									
-									
-									
-								</div>
-								
-								
-								
-								
-									<dl class="detailList params">
-										<dt class="heading">Parameters:</dt>
-										
-											<dt>
-												<span class="light fixedFont">{number[3]}</span> <b>origin</b>
-												
-											</dt>
-											<dd>XYZ origin</dd>
-										
-									</dl>
-								
-								
-								
-								<div class="hr"></div>
-							</li>
-						
-							<li 
-								 class='item13'
-							>
-								<div class="fixedFont heading" id="setVel">
-									<span class='lighter'>
-									
-									</span>
-									
-									
-									
-									<b>setVel</b>(vel)
-								</div>
-								
-								<div class="description">
-									Set the angular velocity.
-									
-									
-									
-									
-								</div>
-								
-								
-								
-								
-									<dl class="detailList params">
-										<dt class="heading">Parameters:</dt>
-										
-											<dt>
-												<span class="light fixedFont">{number[3]}</span> <b>vel</b>
-												
-											</dt>
-											<dd>XYZ angular velocity (in radians)</dd>
-										
-									</dl>
-								
-								
-								
-								<div class="hr"></div>
-							</li>
-						
-							<li 
-								 class='item14'
-							>
-								<div class="fixedFont heading" id="toOctane">
-									<span class='lighter'>
-									
-									</span>
-									
-									<span class="light">{Object}</span>
-									
-									<b>toOctane</b>()
-								</div>
-								
-								<div class="description">
-									Get the Octane structure for the Rotator.
-									
-									
-									
-									
-								</div>
-								
-								
-								
-								
-								
-								
-									<dl class="detailList nomargin">
-									
-										
-										
-										
-										
-										
-										
-										
-											<dt class="heading">Returns:</dt>
-											
-												<dd><span class="light fixedFont">{Object}</span> the Octane structure representing the Rotator</dd>
-											
-										
-										
-										
-										
-										
-									
-									</dl>
-								
-								
-							</li>
-						
-					</ul>
-				</div>
-			</div>
 		
 		
 <!--

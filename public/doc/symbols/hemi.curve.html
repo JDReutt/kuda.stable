@@ -56,11 +56,21 @@
 				
 					<li><a href="../symbols/hemi.curve.html">hemi<span class='break'> </span>.<span class='break'> </span>curve</a></li>
 				
+					<li><a href="../symbols/hemi.curve.Box.html">hemi<span class='break'> </span>.<span class='break'> </span>curve<span class='break'> </span>.<span class='break'> </span>Box</a></li>
+				
+					<li><a href="../symbols/hemi.curve.ColorKey.html">hemi<span class='break'> </span>.<span class='break'> </span>curve<span class='break'> </span>.<span class='break'> </span>ColorKey</a></li>
+				
 					<li><a href="../symbols/hemi.curve.Curve.html">hemi<span class='break'> </span>.<span class='break'> </span>curve<span class='break'> </span>.<span class='break'> </span>Curve</a></li>
+				
+					<li><a href="../symbols/hemi.curve.GpuParticleSystem.html">hemi<span class='break'> </span>.<span class='break'> </span>curve<span class='break'> </span>.<span class='break'> </span>GpuParticleSystem</a></li>
+				
+					<li><a href="../symbols/hemi.curve.GpuParticleTrail.html">hemi<span class='break'> </span>.<span class='break'> </span>curve<span class='break'> </span>.<span class='break'> </span>GpuParticleTrail</a></li>
 				
 					<li><a href="../symbols/hemi.curve.Particle.html">hemi<span class='break'> </span>.<span class='break'> </span>curve<span class='break'> </span>.<span class='break'> </span>Particle</a></li>
 				
 					<li><a href="../symbols/hemi.curve.ParticleSystem.html">hemi<span class='break'> </span>.<span class='break'> </span>curve<span class='break'> </span>.<span class='break'> </span>ParticleSystem</a></li>
+				
+					<li><a href="../symbols/hemi.curve.ScaleKey.html">hemi<span class='break'> </span>.<span class='break'> </span>curve<span class='break'> </span>.<span class='break'> </span>ScaleKey</a></li>
 				
 					<li><a href="../symbols/hemi.dispatch.html">hemi<span class='break'> </span>.<span class='break'> </span>dispatch</a></li>
 				
@@ -289,7 +299,7 @@
 		
 		Documentation generator: <a href="http://code.google.com/p/jsdoc-toolkit/" target="_blank">JsDoc Toolkit</a> 2.4.0<br />
 		Template: <a href="http://www.thebrightlines.com/2010/05/06/new-template-for-jsdoctoolkit-codeview/" target="_blank">Codeview</a> 1.2<br />
-		Generated on: 2011-6-1 14:10
+		Generated on: 2011-7-9 15:09
 	</div>
 </div>
 
@@ -364,7 +374,7 @@
 									<td class="attributes">&lt;static&gt; &nbsp;</td>
 									<td class="nameDescription">
 										<div class="fixedFont">
-										hemi.curve.<b><a href="../symbols/hemi.curve.html#.curveType">curveType</a></b>
+										hemi.curve.<b><a href="../symbols/hemi.curve.html#.CurveType">CurveType</a></b>
 										</div>
 										<div class="description">Enum for different curve types, described below.</div>
 									</td>
@@ -446,28 +456,6 @@
 								>
 									<td class="attributes">&lt;static&gt; &nbsp;</td>
 									<td class="nameDescription">
-										<div class="fixedFont">hemi.curve.<b><a href="../symbols/hemi.curve.html#.GpuParticleSystem">GpuParticleSystem</a></b>(opt_cfg)
-										</div>
-										<div class="description">A particle system that is GPU driven.</div>
-									</td>
-								</tr>
-							
-								<tr
-									 class='item4'
-								>
-									<td class="attributes">&lt;static&gt; &nbsp;</td>
-									<td class="nameDescription">
-										<div class="fixedFont">hemi.curve.<b><a href="../symbols/hemi.curve.html#.GpuParticleTrail">GpuParticleTrail</a></b>(opt_cfg)
-										</div>
-										<div class="description">A GPU driven particle system that has trailing starts and stops.</div>
-									</td>
-								</tr>
-							
-								<tr
-									 class='item5'
-								>
-									<td class="attributes">&lt;static&gt; &nbsp;</td>
-									<td class="nameDescription">
 										<div class="fixedFont">hemi.curve.<b><a href="../symbols/hemi.curve.html#.hideBoxes">hideBoxes</a></b>(opt_trans)
 										</div>
 										<div class="description">Remove the bounding boxes from view.</div>
@@ -475,7 +463,7 @@
 								</tr>
 							
 								<tr
-									 class='item6'
+									 class='item4'
 								>
 									<td class="attributes">&lt;static&gt; &nbsp;</td>
 									<td class="nameDescription">
@@ -486,7 +474,7 @@
 								</tr>
 							
 								<tr
-									 class='item7'
+									 class='item5'
 								>
 									<td class="attributes">&lt;static&gt; &nbsp;</td>
 									<td class="nameDescription">
@@ -497,7 +485,7 @@
 								</tr>
 							
 								<tr
-									 class='item8'
+									 class='item6'
 								>
 									<td class="attributes">&lt;static&gt; &nbsp;</td>
 									<td class="nameDescription">
@@ -558,25 +546,25 @@ debugging purposes.</div>
 					</h2>
 					
 					
-						<div class="fixedFont heading" id=".curveType">
+						<div class="fixedFont heading" id=".CurveType">
 							<span class='lighter'>
 							&lt;static&gt; 
 							</span>
 							
 							
 							
-							<span class="light">hemi.curve.</span><b>curveType</b>							
+							<span class="light">hemi.curve.</span><b>CurveType</b>							
 						</div>
 						
 						<div class="description">
 							Enum for different curve types, described below.
 <ul><pre>
-<li>hemi.curve.curveType.Linear
-<li>hemi.curve.curveType.Bezier
-<li>hemi.curve.curveType.CubicHermite
-<li>hemi.curve.curveType.LinearNorm
-<li>hemi.curve.curveType.Cardinal
-<li>hemi.curve.curveType.Custom
+<li>hemi.curve.CurveType.Linear
+<li>hemi.curve.CurveType.Bezier
+<li>hemi.curve.CurveType.CubicHermite
+<li>hemi.curve.CurveType.LinearNorm
+<li>hemi.curve.CurveType.Cardinal
+<li>hemi.curve.CurveType.Custom
 </ul></pre>
 							
 							
@@ -736,16 +724,16 @@ debugging purposes.</div>
 										<dt class="heading">Parameters:</dt>
 										
 											<dt>
-												<span class="light fixedFont">{number[][]}</span> <b>points</b>
+												<span class="light fixedFont">{number[3][]}</span> <b>points</b>
 												
 											</dt>
-											<dd>Array of points (not waypoints)</dd>
+											<dd>array of points (not waypoints)</dd>
 										
 											<dt>
 												<span class="light fixedFont">{Object}</span> <b>config</b>
 												
 											</dt>
-											<dd>Configuration describing how the curve should look</dd>
+											<dd>configuration describing how the curve should look</dd>
 										
 									</dl>
 								
@@ -836,86 +824,6 @@ debugging purposes.</div>
 							<li 
 								 class='item3'
 							>
-								<div class="fixedFont heading" id=".GpuParticleSystem">
-									<span class='lighter'>
-									&lt;static&gt; 
-									</span>
-									
-									
-									
-									<span class="light">hemi.curve.</span><b>GpuParticleSystem</b>(opt_cfg)
-								</div>
-								
-								<div class="description">
-									A particle system that is GPU driven.
-									
-									
-									
-									
-								</div>
-								
-								
-								
-								
-									<dl class="detailList params">
-										<dt class="heading">Parameters:</dt>
-										
-											<dt>
-												<span class="light fixedFont">{Object}</span> <b>opt_cfg</b>
-												
-											</dt>
-											<dd>optional configuration object for the system</dd>
-										
-									</dl>
-								
-								
-								
-								<div class="hr"></div>
-							</li>
-						
-							<li 
-								 class='item4'
-							>
-								<div class="fixedFont heading" id=".GpuParticleTrail">
-									<span class='lighter'>
-									&lt;static&gt; 
-									</span>
-									
-									
-									
-									<span class="light">hemi.curve.</span><b>GpuParticleTrail</b>(opt_cfg)
-								</div>
-								
-								<div class="description">
-									A GPU driven particle system that has trailing starts and stops.
-									
-									
-									
-									
-								</div>
-								
-								
-								
-								
-									<dl class="detailList params">
-										<dt class="heading">Parameters:</dt>
-										
-											<dt>
-												<span class="light fixedFont">{Object}</span> <b>opt_cfg</b>
-												
-											</dt>
-											<dd>the configuration object for the system</dd>
-										
-									</dl>
-								
-								
-								
-								<div class="hr"></div>
-							</li>
-						
-							<li 
-								 class='item5'
-							>
 								<div class="fixedFont heading" id=".hideBoxes">
 									<span class='lighter'>
 									&lt;static&gt; 
@@ -956,7 +864,7 @@ removed.
 							</li>
 						
 							<li 
-								 class='item6'
+								 class='item4'
 							>
 								<div class="fixedFont heading" id=".hideCurves">
 									<span class='lighter'>
@@ -996,7 +904,7 @@ removed.
 							</li>
 						
 							<li 
-								 class='item7'
+								 class='item5'
 							>
 								<div class="fixedFont heading" id=".randomPoint">
 									<span class='lighter'>
@@ -1063,7 +971,7 @@ removed.
 							</li>
 						
 							<li 
-								 class='item8'
+								 class='item6'
 							>
 								<div class="fixedFont heading" id=".showBoxes">
 									<span class='lighter'>
