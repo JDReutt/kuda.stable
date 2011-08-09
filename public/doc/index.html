@@ -56,11 +56,21 @@
 				
 					<li><a href="symbols/hemi.curve.html">hemi<span class='break'> </span>.<span class='break'> </span>curve</a></li>
 				
+					<li><a href="symbols/hemi.curve.Box.html">hemi<span class='break'> </span>.<span class='break'> </span>curve<span class='break'> </span>.<span class='break'> </span>Box</a></li>
+				
+					<li><a href="symbols/hemi.curve.ColorKey.html">hemi<span class='break'> </span>.<span class='break'> </span>curve<span class='break'> </span>.<span class='break'> </span>ColorKey</a></li>
+				
 					<li><a href="symbols/hemi.curve.Curve.html">hemi<span class='break'> </span>.<span class='break'> </span>curve<span class='break'> </span>.<span class='break'> </span>Curve</a></li>
+				
+					<li><a href="symbols/hemi.curve.GpuParticleSystem.html">hemi<span class='break'> </span>.<span class='break'> </span>curve<span class='break'> </span>.<span class='break'> </span>GpuParticleSystem</a></li>
+				
+					<li><a href="symbols/hemi.curve.GpuParticleTrail.html">hemi<span class='break'> </span>.<span class='break'> </span>curve<span class='break'> </span>.<span class='break'> </span>GpuParticleTrail</a></li>
 				
 					<li><a href="symbols/hemi.curve.Particle.html">hemi<span class='break'> </span>.<span class='break'> </span>curve<span class='break'> </span>.<span class='break'> </span>Particle</a></li>
 				
 					<li><a href="symbols/hemi.curve.ParticleSystem.html">hemi<span class='break'> </span>.<span class='break'> </span>curve<span class='break'> </span>.<span class='break'> </span>ParticleSystem</a></li>
+				
+					<li><a href="symbols/hemi.curve.ScaleKey.html">hemi<span class='break'> </span>.<span class='break'> </span>curve<span class='break'> </span>.<span class='break'> </span>ScaleKey</a></li>
 				
 					<li><a href="symbols/hemi.dispatch.html">hemi<span class='break'> </span>.<span class='break'> </span>dispatch</a></li>
 				
@@ -289,7 +299,7 @@
 		
 		Documentation generator: <a href="http://code.google.com/p/jsdoc-toolkit/" target="_blank">JsDoc Toolkit</a> 2.4.0<br />
 		Template: <a href="http://www.thebrightlines.com/2010/05/06/new-template-for-jsdoctoolkit-codeview/" target="_blank">Codeview</a> 1.2<br />
-		Generated on: 2011-6-1 14:11
+		Generated on: 2011-7-9 15:10
 	</div>
 </div>
 
@@ -354,21 +364,45 @@ calls to the underlying O3D library.</p>
 				</li>
 			
 				<li>
+					<h2 class="classname"><a href="symbols/hemi.curve.Box.html">hemi.curve.Box</a></h2>
+					<p>A Box is defined by a minimum XYZ point and a maximum XYZ point.</p>
+				</li>
+			
+				<li>
+					<h2 class="classname"><a href="symbols/hemi.curve.ColorKey.html">hemi.curve.ColorKey</a></h2>
+					<p>A ColorKey contains a time key and a color value.</p>
+				</li>
+			
+				<li>
 					<h2 class="classname"><a href="symbols/hemi.curve.Curve.html">hemi.curve.Curve</a></h2>
 					<p>A Curve is used to represent and calculate different curves
 including: linear, bezier, cardinal, and cubic hermite.</p>
 				</li>
 			
 				<li>
+					<h2 class="classname"><a href="symbols/hemi.curve.GpuParticleSystem.html">hemi.curve.GpuParticleSystem</a></h2>
+					<p>A particle system that is GPU driven.</p>
+				</li>
+			
+				<li>
+					<h2 class="classname"><a href="symbols/hemi.curve.GpuParticleTrail.html">hemi.curve.GpuParticleTrail</a></h2>
+					<p>A GPU driven particle system that has trailing starts and stops.</p>
+				</li>
+			
+				<li>
 					<h2 class="classname"><a href="symbols/hemi.curve.Particle.html">hemi.curve.Particle</a></h2>
-					<p>A Particle allows for the movement of a transform along a set of
-points.</p>
+					<p>A Particle allows a Transform to move along a set of points.</p>
 				</li>
 			
 				<li>
 					<h2 class="classname"><a href="symbols/hemi.curve.ParticleSystem.html">hemi.curve.ParticleSystem</a></h2>
 					<p>A ParticleSystem manages a set of Particle objects, and fires
 them at the appropriate intervals.</p>
+				</li>
+			
+				<li>
+					<h2 class="classname"><a href="symbols/hemi.curve.ScaleKey.html">hemi.curve.ScaleKey</a></h2>
+					<p>A ScaleKey contains a time key and a scale value.</p>
 				</li>
 			
 				<li>
@@ -505,7 +539,7 @@ image on the HUD.</p>
 			
 				<li>
 					<h2 class="classname"><a href="symbols/hemi.manip.Turnable.html">hemi.manip.Turnable</a></h2>
-					<p>A Turnable allows a transform to be turned about an axis by the user		clicking and dragging with the mouse.</p>
+					<p>A Turnable allows a Transform to be turned about an axis by the    user clicking and dragging with the mouse.</p>
 				</li>
 			
 				<li>
@@ -515,7 +549,9 @@ image on the HUD.</p>
 			
 				<li>
 					<h2 class="classname"><a href="symbols/hemi.model.Model.html">hemi.model.Model</a></h2>
-					<p>A Model is a Javascript representation of a 3D model.</p>
+					<p>A Model contains geometric shapes, hierarchical transforms that
+manipulate those shapes, and materials that affect how the shapes are
+displayed.</p>
 				</li>
 			
 				<li>
@@ -535,7 +571,7 @@ image on the HUD.</p>
 			
 				<li>
 					<h2 class="classname"><a href="symbols/hemi.motion.Rotator.html">hemi.motion.Rotator</a></h2>
-					<p>A Rotator makes automated rotation easier by allowing simplecalls such as setVel to begin the automated spinning of a transform.</p>
+					<p>A Rotator makes automated rotation easier by allowing simplecalls such as setVel to begin the automated spinning of a Transform.</p>
 				</li>
 			
 				<li>
@@ -607,13 +643,13 @@ to handle shader sampling and texture maps.</p>
 			
 				<li>
 					<h2 class="classname"><a href="symbols/hemi.texture.TextureSampler.html">hemi.texture.TextureSampler</a></h2>
-					<p>A TestureSampler contains a textureURL and a value.</p>
+					<p>A TestureSampler contains a texture URL and a value.</p>
 				</li>
 			
 				<li>
 					<h2 class="classname"><a href="symbols/hemi.texture.TextureSet.html">hemi.texture.TextureSet</a></h2>
-					<p>A TextureSet can manage hemi.texture.TextureSampler's that are
-part of a set as defined by the author.</p>
+					<p>A TextureSet can manage TextureSamplers that are part of a set as
+defined by the author.</p>
 				</li>
 			
 				<li>
@@ -645,7 +681,7 @@ behavior and sequence events.</p>
 			
 				<li>
 					<h2 class="classname"><a href="symbols/hemi.view.Camera.html">hemi.view.Camera</a></h2>
-					<p>A Camera contains all of the properties and functionality forviewing a 3D scene.</p>
+					<p>A Camera controls the point of view and perspective when viewing a3D scene.</p>
 				</li>
 			
 				<li>
@@ -676,12 +712,12 @@ allow a Camera to follow a smooth path through several waypoints.</p>
 			
 				<li>
 					<h2 class="classname"><a href="symbols/hemi.world.TransformOwner.html">hemi.world.TransformOwner</a></h2>
-					<p>A TransformOwner contains a Citizen that owns at least onetransform and entries of other Citizens that need to be given any ofthose transforms as they become available during Octane loading.</p>
+					<p>A TransformOwner contains a Citizen that owns at least oneTransform and entries of other Citizens that need to be given any ofthose Transforms as they become available during Octane loading.</p>
 				</li>
 			
 				<li>
 					<h2 class="classname"><a href="symbols/hemi.world.TransformRegistry.html">hemi.world.TransformRegistry</a></h2>
-					<p>A TransformRegistry maintains listings of which transforms todistribute to which Citizens as they become available during Octaneloading.</p>
+					<p>A TransformRegistry maintains listings of which Transforms todistribute to which Citizens as they become available during Octaneloading.</p>
 				</li>
 			
 				<li>

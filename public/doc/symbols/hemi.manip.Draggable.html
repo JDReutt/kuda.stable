@@ -56,11 +56,21 @@
 				
 					<li><a href="../symbols/hemi.curve.html">hemi<span class='break'> </span>.<span class='break'> </span>curve</a></li>
 				
+					<li><a href="../symbols/hemi.curve.Box.html">hemi<span class='break'> </span>.<span class='break'> </span>curve<span class='break'> </span>.<span class='break'> </span>Box</a></li>
+				
+					<li><a href="../symbols/hemi.curve.ColorKey.html">hemi<span class='break'> </span>.<span class='break'> </span>curve<span class='break'> </span>.<span class='break'> </span>ColorKey</a></li>
+				
 					<li><a href="../symbols/hemi.curve.Curve.html">hemi<span class='break'> </span>.<span class='break'> </span>curve<span class='break'> </span>.<span class='break'> </span>Curve</a></li>
+				
+					<li><a href="../symbols/hemi.curve.GpuParticleSystem.html">hemi<span class='break'> </span>.<span class='break'> </span>curve<span class='break'> </span>.<span class='break'> </span>GpuParticleSystem</a></li>
+				
+					<li><a href="../symbols/hemi.curve.GpuParticleTrail.html">hemi<span class='break'> </span>.<span class='break'> </span>curve<span class='break'> </span>.<span class='break'> </span>GpuParticleTrail</a></li>
 				
 					<li><a href="../symbols/hemi.curve.Particle.html">hemi<span class='break'> </span>.<span class='break'> </span>curve<span class='break'> </span>.<span class='break'> </span>Particle</a></li>
 				
 					<li><a href="../symbols/hemi.curve.ParticleSystem.html">hemi<span class='break'> </span>.<span class='break'> </span>curve<span class='break'> </span>.<span class='break'> </span>ParticleSystem</a></li>
+				
+					<li><a href="../symbols/hemi.curve.ScaleKey.html">hemi<span class='break'> </span>.<span class='break'> </span>curve<span class='break'> </span>.<span class='break'> </span>ScaleKey</a></li>
 				
 					<li><a href="../symbols/hemi.dispatch.html">hemi<span class='break'> </span>.<span class='break'> </span>dispatch</a></li>
 				
@@ -289,7 +299,7 @@
 		
 		Documentation generator: <a href="http://code.google.com/p/jsdoc-toolkit/" target="_blank">JsDoc Toolkit</a> 2.4.0<br />
 		Template: <a href="http://www.thebrightlines.com/2010/05/06/new-template-for-jsdoctoolkit-codeview/" target="_blank">Codeview</a> 1.2<br />
-		Generated on: 2011-6-1 14:11
+		Generated on: 2011-7-9 15:09
 	</div>
 </div>
 
@@ -411,7 +421,7 @@
 									<td class="nameDescription">
 										<div class="fixedFont"><b><a href="../symbols/hemi.manip.Draggable.html#addTransform">addTransform</a></b>(transform)
 										</div>
-										<div class="description">Add a transform to the list of draggable transforms.</div>
+										<div class="description">Add a Transform to the list of draggable Transforms.</div>
 									</td>
 								</tr>
 							
@@ -455,7 +465,7 @@
 									<td class="nameDescription">
 										<div class="fixedFont"><b><a href="../symbols/hemi.manip.Draggable.html#clearTransforms">clearTransforms</a></b>()
 										</div>
-										<div class="description">Clear the list of draggable transforms.</div>
+										<div class="description">Clear the list of draggable Transforms.</div>
 									</td>
 								</tr>
 							
@@ -466,7 +476,7 @@
 									<td class="nameDescription">
 										<div class="fixedFont"><b><a href="../symbols/hemi.manip.Draggable.html#containsTransform">containsTransform</a></b>(transform)
 										</div>
-										<div class="description">Check if a given transform is contained within the children of the		transforms acted upon by this Draggable.</div>
+										<div class="description">Check if a given Transform is contained within the children of theTransforms acted upon by this Draggable.</div>
 									</td>
 								</tr>
 							
@@ -499,7 +509,7 @@
 									<td class="nameDescription">
 										<div class="fixedFont"><b><a href="../symbols/hemi.manip.Draggable.html#getPlane">getPlane</a></b>()
 										</div>
-										<div class="description">Get the two dimensional plane that the Draggable will translate itsactive transform along.</div>
+										<div class="description">Get the two dimensional plane that the Draggable will translate itsactive Transform along.</div>
 									</td>
 								</tr>
 							
@@ -510,7 +520,7 @@
 									<td class="nameDescription">
 										<div class="fixedFont"><b><a href="../symbols/hemi.manip.Draggable.html#getTransforms">getTransforms</a></b>()
 										</div>
-										<div class="description">Get the transforms that the Draggable currently contains.</div>
+										<div class="description">Get the Transforms that the Draggable currently contains.</div>
 									</td>
 								</tr>
 							
@@ -565,7 +575,7 @@
 									<td class="nameDescription">
 										<div class="fixedFont"><b><a href="../symbols/hemi.manip.Draggable.html#receiveTransform">receiveTransform</a></b>(transform)
 										</div>
-										<div class="description">Receive the given transform from the TransformRegistry.</div>
+										<div class="description">Receive the given Transform from the TransformRegistry.</div>
 									</td>
 								</tr>
 							
@@ -666,19 +676,19 @@
 							<dt class="heading">Parameters:</dt>
 							
 								<dt>
-									<span class="light fixedFont">{number[][]}</span>  <b>opt_plane</b>
+									<span class="light fixedFont">{number[3][3]}</span>  <b>opt_plane</b>
 									
 								</dt>
 								<dd>Array of 3 xyz points defining a plane</dd>
 							
 								<dt>
-									<span class="light fixedFont">{number[]}</span>  <b>opt_limits</b>
+									<span class="light fixedFont">{number[4]}</span>  <b>opt_limits</b>
 									
 								</dt>
 								<dd>An array containing 	   [min on u, max on u, min on v, max on v]</dd>
 							
 								<dt>
-									<span class="light fixedFont">{number[]}</span>  <b>opt_startUV</b>
+									<span class="light fixedFont">{number[2]}</span>  <b>opt_startUV</b>
 									
 								</dt>
 								<dd>Draggable's starting uv coordinate, if		not [0,0]</dd>
@@ -753,7 +763,7 @@
 								</div>
 								
 								<div class="description">
-									Add a transform to the list of draggable transforms.
+									Add a Transform to the list of draggable Transforms.
 									
 									
 									
@@ -767,7 +777,7 @@
 										<dt class="heading">Parameters:</dt>
 										
 											<dt>
-												<span class="light fixedFont">{o3d.transform}</span> <b>transform</b>
+												<span class="light fixedFont">{o3d.Transform}</span> <b>transform</b>
 												
 											</dt>
 											<dd>the transform to add</dd>
@@ -787,7 +797,7 @@
 									
 									</span>
 									
-									<span class="light">{number[]}</span>
+									<span class="light">{number[2]}</span>
 									
 									<b>clamp</b>(delta)
 								</div>
@@ -807,7 +817,7 @@
 										<dt class="heading">Parameters:</dt>
 										
 											<dt>
-												<span class="light fixedFont">{number[]}</span> <b>delta</b>
+												<span class="light fixedFont">{number[2]}</span> <b>delta</b>
 												
 											</dt>
 											<dd>the uv change to add before clamping</dd>
@@ -827,7 +837,7 @@
 										
 											<dt class="heading">Returns:</dt>
 											
-												<dd><span class="light fixedFont">{number[]}</span> the actual change in uv after clamping</dd>
+												<dd><span class="light fixedFont">{number[2]}</span> the actual change in uv after clamping</dd>
 											
 										
 										
@@ -912,7 +922,7 @@
 								</div>
 								
 								<div class="description">
-									Clear the list of draggable transforms.
+									Clear the list of draggable Transforms.
 									
 									
 									
@@ -941,7 +951,7 @@
 								</div>
 								
 								<div class="description">
-									Check if a given transform is contained within the children of the		transforms acted upon by this Draggable.
+									Check if a given Transform is contained within the children of theTransforms acted upon by this Draggable.
 									
 									
 									
@@ -955,10 +965,10 @@
 										<dt class="heading">Parameters:</dt>
 										
 											<dt>
-												<span class="light fixedFont">{o3d.transform}</span> <b>transform</b>
+												<span class="light fixedFont">{o3d.Transform}</span> <b>transform</b>
 												
 											</dt>
-											<dd>Transform to check against</dd>
+											<dd>transform to check against</dd>
 										
 									</dl>
 								
@@ -975,7 +985,7 @@
 										
 											<dt class="heading">Returns:</dt>
 											
-												<dd><span class="light fixedFont">{boolean}</span> True if the transform is found</dd>
+												<dd><span class="light fixedFont">{boolean}</span> true if the Transform is found</dd>
 											
 										
 										
@@ -1054,13 +1064,13 @@
 									
 									</span>
 									
-									<span class="light">{number[][]}</span>
+									<span class="light">{number[3][3]}</span>
 									
 									<b>getPlane</b>()
 								</div>
 								
 								<div class="description">
-									Get the two dimensional plane that the Draggable will translate itsactive transform along.
+									Get the two dimensional plane that the Draggable will translate itsactive Transform along.
 									
 									
 									
@@ -1083,7 +1093,7 @@
 										
 											<dt class="heading">Returns:</dt>
 											
-												<dd><span class="light fixedFont">{number[][]}</span> the current drag plane defined as 3 XYZ points</dd>
+												<dd><span class="light fixedFont">{number[3][3]}</span> the current drag plane defined as 3 XYZ points</dd>
 											
 										
 										
@@ -1110,7 +1120,7 @@
 								</div>
 								
 								<div class="description">
-									Get the transforms that the Draggable currently contains.
+									Get the Transforms that the Draggable currently contains.
 									
 									
 									
@@ -1133,7 +1143,7 @@
 										
 											<dt class="heading">Returns:</dt>
 											
-												<dd><span class="light fixedFont">{o3d.Transform[]}</span> array of transforms</dd>
+												<dd><span class="light fixedFont">{o3d.Transform[]}</span> array of Transforms</dd>
 											
 										
 										
@@ -1154,7 +1164,7 @@
 									
 									</span>
 									
-									<span class="light">{number[]}</span>
+									<span class="light">{number[2]}</span>
 									
 									<b>getUV</b>(x, y)
 								</div>
@@ -1200,7 +1210,7 @@
 										
 											<dt class="heading">Returns:</dt>
 											
-												<dd><span class="light fixedFont">{number[]}</span> equivalent UV coordinates</dd>
+												<dd><span class="light fixedFont">{number[2]}</span> equivalent UV coordinates</dd>
 											
 										
 										
@@ -1241,10 +1251,10 @@
 										<dt class="heading">Parameters:</dt>
 										
 											<dt>
-												<span class="light fixedFont">{o3d.inputevent}</span> <b>event</b>
+												<span class="light fixedFont">{o3d.Event}</span> <b>event</b>
 												
 											</dt>
-											<dd>Message describing how the mouse has moved</dd>
+											<dd>message describing how the mouse has moved</dd>
 										
 									</dl>
 								
@@ -1281,10 +1291,10 @@
 										<dt class="heading">Parameters:</dt>
 										
 											<dt>
-												<span class="light fixedFont">{o3d.mouseevent}</span> <b>event</b>
+												<span class="light fixedFont">{o3d.Event}</span> <b>event</b>
 												
 											</dt>
-											<dd>Message describing the mouse behavior</dd>
+											<dd>message describing the mouse behavior</dd>
 										
 									</dl>
 								
@@ -1327,10 +1337,10 @@
 											<dd>pick event information that		contains information on the shape and transformation picked.</dd>
 										
 											<dt>
-												<span class="light fixedFont">{o3d.mouseevent}</span> <b>mouseEvent</b>
+												<span class="light fixedFont">{o3d.Event}</span> <b>mouseEvent</b>
 												
 											</dt>
-											<dd>Message describing mouse behavior</dd>
+											<dd>message describing mouse behavior</dd>
 										
 									</dl>
 								
@@ -1353,7 +1363,7 @@
 								</div>
 								
 								<div class="description">
-									Receive the given transform from the TransformRegistry.
+									Receive the given Transform from the TransformRegistry.
 									
 									
 									
@@ -1370,7 +1380,7 @@
 												<span class="light fixedFont">{o3d.Transform}</span> <b>transform</b>
 												
 											</dt>
-											<dd>the transform</dd>
+											<dd>the Transform</dd>
 										
 									</dl>
 								
@@ -1407,10 +1417,10 @@
 										<dt class="heading">Parameters:</dt>
 										
 											<dt>
-												<span class="light fixedFont">{number[][]}</span> <b>coords</b>
+												<span class="light fixedFont">{number[2][2]}</span> <b>coords</b>
 												
 											</dt>
-											<dd>Min uv point, and max uv point of bounding box</dd>
+											<dd>min and max uv points on the current    plane</dd>
 										
 									</dl>
 								
@@ -1447,10 +1457,10 @@
 										<dt class="heading">Parameters:</dt>
 										
 											<dt>
-												<span class="light fixedFont">{number[][]}</span> <b>plane</b>
+												<span class="light fixedFont">{number[3][3]}</span> <b>plane</b>
 												
 											</dt>
-											<dd>Array of three xyz coordinates defining a plane</dd>
+											<dd>array of three XYZ coordinates defining a    plane</dd>
 										
 									</dl>
 								

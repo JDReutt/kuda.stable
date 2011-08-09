@@ -56,11 +56,21 @@
 				
 					<li><a href="../symbols/hemi.curve.html">hemi<span class='break'> </span>.<span class='break'> </span>curve</a></li>
 				
+					<li><a href="../symbols/hemi.curve.Box.html">hemi<span class='break'> </span>.<span class='break'> </span>curve<span class='break'> </span>.<span class='break'> </span>Box</a></li>
+				
+					<li><a href="../symbols/hemi.curve.ColorKey.html">hemi<span class='break'> </span>.<span class='break'> </span>curve<span class='break'> </span>.<span class='break'> </span>ColorKey</a></li>
+				
 					<li><a href="../symbols/hemi.curve.Curve.html">hemi<span class='break'> </span>.<span class='break'> </span>curve<span class='break'> </span>.<span class='break'> </span>Curve</a></li>
+				
+					<li><a href="../symbols/hemi.curve.GpuParticleSystem.html">hemi<span class='break'> </span>.<span class='break'> </span>curve<span class='break'> </span>.<span class='break'> </span>GpuParticleSystem</a></li>
+				
+					<li><a href="../symbols/hemi.curve.GpuParticleTrail.html">hemi<span class='break'> </span>.<span class='break'> </span>curve<span class='break'> </span>.<span class='break'> </span>GpuParticleTrail</a></li>
 				
 					<li><a href="../symbols/hemi.curve.Particle.html">hemi<span class='break'> </span>.<span class='break'> </span>curve<span class='break'> </span>.<span class='break'> </span>Particle</a></li>
 				
 					<li><a href="../symbols/hemi.curve.ParticleSystem.html">hemi<span class='break'> </span>.<span class='break'> </span>curve<span class='break'> </span>.<span class='break'> </span>ParticleSystem</a></li>
+				
+					<li><a href="../symbols/hemi.curve.ScaleKey.html">hemi<span class='break'> </span>.<span class='break'> </span>curve<span class='break'> </span>.<span class='break'> </span>ScaleKey</a></li>
 				
 					<li><a href="../symbols/hemi.dispatch.html">hemi<span class='break'> </span>.<span class='break'> </span>dispatch</a></li>
 				
@@ -289,7 +299,7 @@
 		
 		Documentation generator: <a href="http://code.google.com/p/jsdoc-toolkit/" target="_blank">JsDoc Toolkit</a> 2.4.0<br />
 		Template: <a href="http://www.thebrightlines.com/2010/05/06/new-template-for-jsdoctoolkit-codeview/" target="_blank">Codeview</a> 1.2<br />
-		Generated on: 2011-6-1 14:11
+		Generated on: 2011-7-9 15:09
 	</div>
 </div>
 
@@ -1070,7 +1080,7 @@ in 3D space.</div>
 									&lt;static&gt; 
 									</span>
 									
-									<span class="light">{float[3]}</span>
+									<span class="light">{number[3]}</span>
 									
 									<span class="light">hemi.utils.</span><b>cartesianToSpherical</b>(coords)
 								</div>
@@ -1093,7 +1103,7 @@ in 3D space.</div>
 										<dt class="heading">Parameters:</dt>
 										
 											<dt>
-												<span class="light fixedFont">{float[3]}</span> <b>coords</b>
+												<span class="light fixedFont">{number[3]}</span> <b>coords</b>
 												
 											</dt>
 											<dd>XYZ cartesian coordinates</dd>
@@ -1113,7 +1123,7 @@ in 3D space.</div>
 										
 											<dt class="heading">Returns:</dt>
 											
-												<dd><span class="light fixedFont">{float[3]}</span> Radius, Theta, Phi</dd>
+												<dd><span class="light fixedFont">{number[3]}</span> Radius, Theta, Phi</dd>
 											
 										
 										
@@ -1742,7 +1752,7 @@ length.
 									&lt;static&gt; 
 									</span>
 									
-									<span class="light">{float[3]}</span>
+									<span class="light">{number[3]}</span>
 									
 									<span class="light">hemi.utils.</span><b>cubicHermite</b>(t, p0, m0, p1, m1)
 								</div>
@@ -1766,31 +1776,31 @@ associated tangents.
 										<dt class="heading">Parameters:</dt>
 										
 											<dt>
-												<span class="light fixedFont">{float}</span> <b>t</b>
+												<span class="light fixedFont">{number}</span> <b>t</b>
 												
 											</dt>
 											<dd>time (between 0 and 1)</dd>
 										
 											<dt>
-												<span class="light fixedFont">{float[3]}</span> <b>p0</b>
+												<span class="light fixedFont">{number[3]}</span> <b>p0</b>
 												
 											</dt>
 											<dd>the first waypoint</dd>
 										
 											<dt>
-												<span class="light fixedFont">{float[3]}</span> <b>m0</b>
+												<span class="light fixedFont">{number[3]}</span> <b>m0</b>
 												
 											</dt>
 											<dd>the tangent through the first waypoint</dd>
 										
 											<dt>
-												<span class="light fixedFont">{float[3]}</span> <b>p1</b>
+												<span class="light fixedFont">{number[3]}</span> <b>p1</b>
 												
 											</dt>
 											<dd>the second waypoint</dd>
 										
 											<dt>
-												<span class="light fixedFont">{float[3]}</span> <b>m1</b>
+												<span class="light fixedFont">{number[3]}</span> <b>m1</b>
 												
 											</dt>
 											<dd>the tangent through the second waypoint</dd>
@@ -1810,7 +1820,7 @@ associated tangents.
 										
 											<dt class="heading">Returns:</dt>
 											
-												<dd><span class="light fixedFont">{float[3]}</span> the interpolated point</dd>
+												<dd><span class="light fixedFont">{number[3]}</span> the interpolated point</dd>
 											
 										
 										
@@ -2082,7 +2092,7 @@ Material.
 									&lt;static&gt; 
 									</span>
 									
-									<span class="light">{float[]}</span>
+									<span class="light">{number[3]}</span>
 									
 									<span class="light">hemi.utils.</span><b>intersect</b>(ray, plane)
 								</div>
@@ -2111,7 +2121,7 @@ Material.
 											<dd>Ray described by a near xyz point and a far xyz point</dd>
 										
 											<dt>
-												<span class="light fixedFont">{float[][]}</span> <b>plane</b>
+												<span class="light fixedFont">{number[3][3]}</span> <b>plane</b>
 												
 											</dt>
 											<dd>Array of 3 xyz coordinates defining a plane</dd>
@@ -2131,7 +2141,7 @@ Material.
 										
 											<dt class="heading">Returns:</dt>
 											
-												<dd><span class="light fixedFont">{float[]}</span> Array [t: Time value on ray, u: U-coordinate on plane,		v: V-coordinate on plane} of intersection point</dd>
+												<dd><span class="light fixedFont">{number[3]}</span> Array [t: Time value on ray, u: U-coordinate on plane,		v: V-coordinate on plane} of intersection point</dd>
 											
 										
 										
@@ -3136,7 +3146,7 @@ back to the original parent Transform. Destroy the foster Transform
 									&lt;static&gt; 
 									</span>
 									
-									<span class="light">{number[]}</span>
+									<span class="light">{number[3]}</span>
 									
 									<span class="light">hemi.utils.</span><b>uvToXYZ</b>(uv, plane)
 								</div>
@@ -3160,13 +3170,13 @@ in 3D space.
 										<dt class="heading">Parameters:</dt>
 										
 											<dt>
-												<span class="light fixedFont">{number[]}</span> <b>uv</b>
+												<span class="light fixedFont">{number[2]}</span> <b>uv</b>
 												
 											</dt>
 											<dd>uv coordinates on a plane</dd>
 										
 											<dt>
-												<span class="light fixedFont">{number[][]}</span> <b>plane</b>
+												<span class="light fixedFont">{number[3][3]}</span> <b>plane</b>
 												
 											</dt>
 											<dd>array of 3 xyz coordinates defining the plane</dd>
@@ -3186,7 +3196,7 @@ in 3D space.
 										
 											<dt class="heading">Returns:</dt>
 											
-												<dd><span class="light fixedFont">{number[]}</span> xyz coordinates of the uv location on the plane</dd>
+												<dd><span class="light fixedFont">{number[3]}</span> xyz coordinates of the uv location on the plane</dd>
 											
 										
 										
@@ -3311,7 +3321,7 @@ in 3D space.
 									&lt;static&gt; 
 									</span>
 									
-									<span class="light">{float[2]}</span>
+									<span class="light">{number[2]}</span>
 									
 									<span class="light">hemi.utils.</span><b>worldToScreen</b>(p)
 								</div>
@@ -3334,7 +3344,7 @@ in 3D space.
 										<dt class="heading">Parameters:</dt>
 										
 											<dt>
-												<span class="light fixedFont">{float[3]}</span> <b>p</b>
+												<span class="light fixedFont">{number[3]}</span> <b>p</b>
 												
 											</dt>
 											<dd>XYZ point to calculate from</dd>
@@ -3354,7 +3364,7 @@ in 3D space.
 										
 											<dt class="heading">Returns:</dt>
 											
-												<dd><span class="light fixedFont">{float[2]}</span> XY screen position of point</dd>
+												<dd><span class="light fixedFont">{number[2]}</span> XY screen position of point</dd>
 											
 										
 										
@@ -3375,7 +3385,7 @@ in 3D space.
 									&lt;static&gt; 
 									</span>
 									
-									<span class="light">{float[3]}</span>
+									<span class="light">{number[3]}</span>
 									
 									<span class="light">hemi.utils.</span><b>worldToScreenFloat</b>(p)
 								</div>
@@ -3398,7 +3408,7 @@ in 3D space.
 										<dt class="heading">Parameters:</dt>
 										
 											<dt>
-												<span class="light fixedFont">{float[3]}</span> <b>p</b>
+												<span class="light fixedFont">{number[3]}</span> <b>p</b>
 												
 											</dt>
 											<dd>XYZ point to calculate from</dd>
@@ -3418,7 +3428,7 @@ in 3D space.
 										
 											<dt class="heading">Returns:</dt>
 											
-												<dd><span class="light fixedFont">{float[3]}</span> XY screen position of point, plus z-distance,
+												<dd><span class="light fixedFont">{number[3]}</span> XY screen position of point, plus z-distance,
 		where 0.0 = near clip and 1.0 = flar clip</dd>
 											
 										

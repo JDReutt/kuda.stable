@@ -56,11 +56,21 @@
 				
 					<li><a href="../symbols/hemi.curve.html">hemi<span class='break'> </span>.<span class='break'> </span>curve</a></li>
 				
+					<li><a href="../symbols/hemi.curve.Box.html">hemi<span class='break'> </span>.<span class='break'> </span>curve<span class='break'> </span>.<span class='break'> </span>Box</a></li>
+				
+					<li><a href="../symbols/hemi.curve.ColorKey.html">hemi<span class='break'> </span>.<span class='break'> </span>curve<span class='break'> </span>.<span class='break'> </span>ColorKey</a></li>
+				
 					<li><a href="../symbols/hemi.curve.Curve.html">hemi<span class='break'> </span>.<span class='break'> </span>curve<span class='break'> </span>.<span class='break'> </span>Curve</a></li>
+				
+					<li><a href="../symbols/hemi.curve.GpuParticleSystem.html">hemi<span class='break'> </span>.<span class='break'> </span>curve<span class='break'> </span>.<span class='break'> </span>GpuParticleSystem</a></li>
+				
+					<li><a href="../symbols/hemi.curve.GpuParticleTrail.html">hemi<span class='break'> </span>.<span class='break'> </span>curve<span class='break'> </span>.<span class='break'> </span>GpuParticleTrail</a></li>
 				
 					<li><a href="../symbols/hemi.curve.Particle.html">hemi<span class='break'> </span>.<span class='break'> </span>curve<span class='break'> </span>.<span class='break'> </span>Particle</a></li>
 				
 					<li><a href="../symbols/hemi.curve.ParticleSystem.html">hemi<span class='break'> </span>.<span class='break'> </span>curve<span class='break'> </span>.<span class='break'> </span>ParticleSystem</a></li>
+				
+					<li><a href="../symbols/hemi.curve.ScaleKey.html">hemi<span class='break'> </span>.<span class='break'> </span>curve<span class='break'> </span>.<span class='break'> </span>ScaleKey</a></li>
 				
 					<li><a href="../symbols/hemi.dispatch.html">hemi<span class='break'> </span>.<span class='break'> </span>dispatch</a></li>
 				
@@ -289,7 +299,7 @@
 		
 		Documentation generator: <a href="http://code.google.com/p/jsdoc-toolkit/" target="_blank">JsDoc Toolkit</a> 2.4.0<br />
 		Template: <a href="http://www.thebrightlines.com/2010/05/06/new-template-for-jsdoctoolkit-codeview/" target="_blank">Codeview</a> 1.2<br />
-		Generated on: 2011-6-1 14:11
+		Generated on: 2011-7-9 15:09
 	</div>
 </div>
 
@@ -683,19 +693,19 @@
 											<dd>the name of the new Viewpoint</dd>
 										
 											<dt>
-												<span class="light fixedFont">{float[3]}</span> <b>eye</b>
+												<span class="light fixedFont">{number[3]}</span> <b>eye</b>
 												
 											</dt>
 											<dd>the coordinates of the eye</dd>
 										
 											<dt>
-												<span class="light fixedFont">{float[3]}</span> <b>target</b>
+												<span class="light fixedFont">{number[3]}</span> <b>target</b>
 												
 											</dt>
 											<dd>the coordinates of the target</dd>
 										
 											<dt>
-												<span class="light fixedFont">{float[3]}</span> <b>up</b>
+												<span class="light fixedFont">{number[3]}</span> <b>up</b>
 												
 											</dt>
 											<dd>the coordinates of the up direction</dd>
@@ -882,7 +892,7 @@
 									&lt;static&gt; 
 									</span>
 									
-									<span class="light">{[number]}</span>
+									<span class="light">{number[4]}</span>
 									
 									<span class="light">hemi.view.</span><b>getBGColor</b>()
 								</div>
@@ -911,7 +921,7 @@
 										
 											<dt class="heading">Returns:</dt>
 											
-												<dd><span class="light fixedFont">{[number]}</span> the background color</dd>
+												<dd><span class="light fixedFont">{number[4]}</span> the background color</dd>
 											
 										
 										
@@ -932,7 +942,7 @@
 									&lt;static&gt; 
 									</span>
 									
-									<span class="light">{float}</span>
+									<span class="light">{number}</span>
 									
 									<span class="light">hemi.view.</span><b>getTimeOfFrame</b>(frame)
 								</div>
@@ -972,7 +982,7 @@
 										
 											<dt class="heading">Returns:</dt>
 											
-												<dd><span class="light fixedFont">{float}</span> time that the frame occurs at</dd>
+												<dd><span class="light fixedFont">{number}</span> time that the frame occurs at</dd>
 											
 										
 										
@@ -1143,7 +1153,7 @@
 										<dt class="heading">Parameters:</dt>
 										
 											<dt>
-												<span class="light fixedFont">{[number]}</span> <b>rgba</b>
+												<span class="light fixedFont">{number[4]}</span> <b>rgba</b>
 												
 											</dt>
 											<dd>Red-Green-Blue-Alpha array</dd>

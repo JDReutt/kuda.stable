@@ -56,11 +56,21 @@
 				
 					<li><a href="../symbols/hemi.curve.html">hemi<span class='break'> </span>.<span class='break'> </span>curve</a></li>
 				
+					<li><a href="../symbols/hemi.curve.Box.html">hemi<span class='break'> </span>.<span class='break'> </span>curve<span class='break'> </span>.<span class='break'> </span>Box</a></li>
+				
+					<li><a href="../symbols/hemi.curve.ColorKey.html">hemi<span class='break'> </span>.<span class='break'> </span>curve<span class='break'> </span>.<span class='break'> </span>ColorKey</a></li>
+				
 					<li><a href="../symbols/hemi.curve.Curve.html">hemi<span class='break'> </span>.<span class='break'> </span>curve<span class='break'> </span>.<span class='break'> </span>Curve</a></li>
+				
+					<li><a href="../symbols/hemi.curve.GpuParticleSystem.html">hemi<span class='break'> </span>.<span class='break'> </span>curve<span class='break'> </span>.<span class='break'> </span>GpuParticleSystem</a></li>
+				
+					<li><a href="../symbols/hemi.curve.GpuParticleTrail.html">hemi<span class='break'> </span>.<span class='break'> </span>curve<span class='break'> </span>.<span class='break'> </span>GpuParticleTrail</a></li>
 				
 					<li><a href="../symbols/hemi.curve.Particle.html">hemi<span class='break'> </span>.<span class='break'> </span>curve<span class='break'> </span>.<span class='break'> </span>Particle</a></li>
 				
 					<li><a href="../symbols/hemi.curve.ParticleSystem.html">hemi<span class='break'> </span>.<span class='break'> </span>curve<span class='break'> </span>.<span class='break'> </span>ParticleSystem</a></li>
+				
+					<li><a href="../symbols/hemi.curve.ScaleKey.html">hemi<span class='break'> </span>.<span class='break'> </span>curve<span class='break'> </span>.<span class='break'> </span>ScaleKey</a></li>
 				
 					<li><a href="../symbols/hemi.dispatch.html">hemi<span class='break'> </span>.<span class='break'> </span>dispatch</a></li>
 				
@@ -289,7 +299,7 @@
 		
 		Documentation generator: <a href="http://code.google.com/p/jsdoc-toolkit/" target="_blank">JsDoc Toolkit</a> 2.4.0<br />
 		Template: <a href="http://www.thebrightlines.com/2010/05/06/new-template-for-jsdoctoolkit-codeview/" target="_blank">Codeview</a> 1.2<br />
-		Generated on: 2011-6-1 14:11
+		Generated on: 2011-7-9 15:09
 	</div>
 </div>
 
@@ -304,7 +314,9 @@
 		
 		<div class="intro">
 			<p class="description summary">
-				A Model is a Javascript representation of a 3D model.
+				A Model contains geometric shapes, hierarchical transforms that
+manipulate those shapes, and materials that affect how the shapes are
+displayed.
 			</p>
 				
 			
@@ -542,7 +554,7 @@
 									<td class="nameDescription">
 										<div class="fixedFont"><b><a href="../symbols/hemi.model.Model.html#load">load</a></b>()
 										</div>
-										<div class="description">Load the Model.</div>
+										<div class="description">Load the Model (or reload) from its file url.</div>
 									</td>
 								</tr>
 							
@@ -674,7 +686,7 @@
 									<td class="nameDescription">
 										<div class="fixedFont"><b><a href="../symbols/hemi.model.Model.html#setTransformOpacity">setTransformOpacity</a></b>(transform, opacity, opt_trickle)
 										</div>
-										<div class="description">Sets the opacity of the transform to the given value.</div>
+										<div class="description">Sets the opacity of the Transform to the given value.</div>
 									</td>
 								</tr>
 							
@@ -1047,7 +1059,7 @@
 									
 									</span>
 									
-									<span class="light">{Array}</span>
+									<span class="light">{number[3]}</span>
 									
 									<b>getCenterPoint</b>()
 								</div>
@@ -1076,7 +1088,7 @@
 										
 											<dt class="heading">Returns:</dt>
 											
-												<dd><span class="light fixedFont">{Array}</span> [x,y,z] point in 3D space</dd>
+												<dd><span class="light fixedFont">{number[3]}</span> XYZ point in 3D space</dd>
 											
 										
 										
@@ -1437,7 +1449,7 @@
 								</div>
 								
 								<div class="description">
-									Load the Model. Once finished, populate the Model with transforms,shapes, and materials.
+									Load the Model (or reload) from its file url.
 									
 									
 									
@@ -1946,7 +1958,7 @@
 											<dd>the Transform</dd>
 										
 											<dt>
-												<span class="light fixedFont">{Vectormath.Aos.Matrix4}</span> <b>matrix</b>
+												<span class="light fixedFont">{number[4][4]}</span> <b>matrix</b>
 												
 											</dt>
 											<dd>the new local matrix</dd>
@@ -1972,7 +1984,7 @@
 								</div>
 								
 								<div class="description">
-									Sets the opacity of the transform to the given value.
+									Sets the opacity of the Transform to the given value.
 									
 									
 									
@@ -1989,7 +2001,7 @@
 												<span class="light fixedFont">{o3d.Transform}</span> <b>transform</b>
 												
 											</dt>
-											<dd>the transform to update</dd>
+											<dd>the Transform to update</dd>
 										
 											<dt>
 												<span class="light fixedFont">{number}</span> <b>opacity</b>
@@ -2002,7 +2014,7 @@
 												
 											</dt>
 											<dd>optional flag indicating if opacity
-    should also be set for the transform's children (default is true)</dd>
+    should also be set for the Transform's children (default is true)</dd>
 										
 									</dl>
 								
