@@ -15,19 +15,13 @@
  * Boston, MA 02110-1301 USA.
  */
 
-var editor = (function(module, jQuery) {
-	module.utils = module.utils || {};
-		
-    /**
-     * EventTypes constants object.  Event types are used to differentiate
-     * listeners of model notifications.
-     */
-	module.EventTypes = module.EventTypes || {};
+var editor = (function(editor) {
+	editor.utils = editor.utils || {};
 			
     /**
      * The Listenable ...
      */
-	module.utils.Listenable = module.Class.extend({
+	editor.utils.Listenable = editor.Class.extend({
 		init: function() {
 			this.listeners = new Hashtable();
 		},
@@ -35,8 +29,7 @@ var editor = (function(module, jQuery) {
 		/**
 		 * Adds a listener that listens for the event type given.
 		 * 
-		 * @param {editor.EventTypes} eventType the event type this 
-		 *        listener is interested in
+		 * @param {string} eventType the event this listener is interested in
 		 * @param {function(Object):void or Object that contains notify()} 
 		 *        listener the listener to add
 		 */        
@@ -89,7 +82,7 @@ var editor = (function(module, jQuery) {
 		/**
 		 * Notifies listeners interested in the given event type.
 		 * 
-		 * @param {editor.EventTypes} eventType the event type to notify about
+		 * @param {string} eventType the event to notify about
 		 * @param {Object} value the data to give to the interested listeners.
 		 */
         notifyListeners: function(eventType, value) {
@@ -111,5 +104,20 @@ var editor = (function(module, jQuery) {
         }
 	});
 	
-	return module;
-})(editor || {}, jQuery);
+	// make the editor a listener
+	var notifier = new editor.utils.Listenable();
+			
+	editor.addListener = function(eventType, listener) {
+		notifier.addListener(eventType, listener);
+	};
+	
+	editor.notifyListeners = function(eventType, value) {
+		notifier.notifyListeners(eventType, value);
+	};
+	
+	editor.removeListener = function(listener) {
+		notifier.removeListener(listener);
+	};			
+	
+	return editor;
+})(editor || {});

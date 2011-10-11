@@ -18,11 +18,6 @@
 var editor = (function(module) {
 	module.ui = module.ui || {};
 	
-    module.EventTypes = module.EventTypes || {};
-	
-	// jquery triggered events
-	module.EventTypes.ColorPicked = 'editor.colorPicker.ColorPicked';
-	
 	module.ui.ColorPickerDefaults = {
 		container: null,
 		inputId: 'color',
@@ -37,16 +32,16 @@ var editor = (function(module) {
 			this._super(newOpts);
 		},
 		
-		finishLayout: function() {
+		layout: function() {
 			// initialize container
 			this.container = jQuery('<div></div>');
 			this.container.addClass(this.config.containerClass);
 			
 			// initialize inputs
-			this.rInput = jQuery('<input type="text" id="' + this.config.inputId + 'R" class="rNdx color"/>');
-			this.gInput = jQuery('<input type="text" id="' + this.config.inputId + 'G"  class="gNdx color"/>');
-			this.bInput = jQuery('<input type="text" id="' + this.config.inputId + 'B"  class="bNdx color"/>');
-			this.aInput = jQuery('<input type="text" id="' + this.config.inputId + 'A"  class="aNdx color"/>');
+			this.rInput = jQuery('<input type="text" id="' + this.config.inputId + 'R" class="rNdx color" placeholder="r" disabled />');
+			this.gInput = jQuery('<input type="text" id="' + this.config.inputId + 'G"  class="gNdx color" placeholder="g" disabled />');
+			this.bInput = jQuery('<input type="text" id="' + this.config.inputId + 'B"  class="bNdx color" placeholder="b" disabled />');
+			this.aInput = jQuery('<input type="text" id="' + this.config.inputId + 'A"  class="aNdx color" placeholder="a" disabled />');
 			
 			// initialize colorpicker button
 			this.pickerBtn = jQuery('<span id="' + this.config.buttonId + '" class="colorPicker"></span>');
@@ -64,6 +59,7 @@ var editor = (function(module) {
 				b = this.bInput,
 				a = this.aInput,
 				colorPickerElem = this.pickerBtn,
+				layer = editor.ui.Layer.DIALOG,
 				wgt = this;
 			
 			var options = {
@@ -92,10 +88,10 @@ var editor = (function(module) {
 			var colorPickedFcn = function(color) {
 				var rndFnc = module.utils.roundNumber;
 							 
-				r.val(rndFnc(color.val('r')/255, 2)).removeClass('vectorHelper');
-				g.val(rndFnc(color.val('g')/255, 2)).removeClass('vectorHelper');
-				b.val(rndFnc(color.val('b')/255, 2)).removeClass('vectorHelper');
-				a.val(rndFnc(color.val('a')/255, 2)).removeClass('vectorHelper');
+				r.val(rndFnc(color.val('r')/255, 2));
+				g.val(rndFnc(color.val('g')/255, 2));
+				b.val(rndFnc(color.val('b')/255, 2));
+				a.val(rndFnc(color.val('a')/255, 2));
 				
 				var val = [
 					parseFloat(r.val()), parseFloat(g.val()), parseFloat(b.val()), 
@@ -107,12 +103,8 @@ var editor = (function(module) {
 				
 			colorPickerElem.jPicker(options, function(color, context) {
 				var clr = colorPickedFcn(color);
-				wgt.notifyListeners(module.EventTypes.ColorPicked, clr);
+				wgt.notifyListeners(module.events.ColorPicked, clr);
 			});
-			
-			setTimeout(function() {
-				jQuery('.Move').text('Color Picker');				
-			}, 0);
 				
 			// save this picker
 			var found = false,
@@ -125,51 +117,63 @@ var editor = (function(module) {
 					found = true;
 				}
 			}
-			
-			this.setupAutoFills();
-		},
-	
-		setupAutoFills: function() {
-			var wgt = this;
-				
-			this.rInput.val('r');
-			this.gInput.val('g');
-			this.bInput.val('b');
-			this.aInput.val('a');
 						
-			this.find('.color').bind('keydown', function(evt) {
-				var elem = jQuery(this);
-				elem.removeClass('vectorHelper');
-			})
-			.bind('blur', function(evt) {
-				var elem = jQuery(this),
-					val = elem.val(),
-					cls = elem.attr('class'),
-					param = elem.attr('id'),
-					totalVal = null,
-					type = cls.match(/rNdx|gNdx|bNdx|aNdx/);				
+			// puts these last lines in the setTimeout queue, which should be
+			// after the colorpicker
+			setTimeout(function() {
+				jQuery('div.jPicker.Container:last.Move').text('Color Picker');
+			
+				jQuery(wgt.picker).siblings('.jPicker')
+					.bind('click', function(evt) {
+						var btn = jQuery(this),
+							win = options.window;
+						
+						// override default behavior
+						jQuery('div.jPicker.Container').each(function(){
+							var elem = jQuery(this);
+							
+							if (parseInt(elem.css('zIndex')) === 10) {
+								elem.css({ zIndex: layer });	
+							}
+							else {
+								// popups in the wrong place due to the button 
+								// being hidden at first
+								var left = win.position.x == 'left' ? (btn.offset().left - 530 - (win.position.y == 'center' ? 25 : 0)) :
+										win.position.x == 'center' ? (btn.offset().left - 260) :
+										win.position.x == 'right' ? (btn.offset().left - 10 + (win.position.y == 'center' ? 25 : 0)) :
+										win.position.x == 'screenCenter' ? (($(document).width() >> 1) - 260) : (btn.offset().left + parseInt(win.position.x)),
+									top = win.position.y == 'top' ? (btn.offset().top - 312) :
+										win.position.y == 'center' ? (btn.offset().top - 156) :
+										win.position.y == 'bottom' ? (btn.offset().top + 25) : (btn.offset().top + parseInt(win.position.y));
+								
+								elem.css({ 
+									zIndex: layer + 1,
+									left: Math.max(left, 0) + 'px',
+									position: 'absolute',
+									top: Math.max(top, 0) + 'px'
+								});
+								 
+							}
+						});
+					});
 				
-				if (val === '') {
-					elem.val(type[0].replace('Ndx', '')).addClass('vectorHelper');
-				}
-			})
-			.bind('focus', function(evt) {
-				var elem = jQuery(this),
-					val = elem.val();
-				if (val === 'r' || val === 'g' || val === 'b' || val === 'a') {
-					elem.val('');
-				}
-			})
-			.addClass('vectorHelper').attr('disabled', 'disabled');
+				// find the last container and override default
+				jQuery('div.jPicker.Container:last')
+					.unbind('mousedown')
+					.bind('mousedown', function() {
+						jQuery('div.jPicker.Container').each(function() {								
+							jQuery(this).css({ zIndex: layer });
+						});
+						jQuery(this).css({ zIndex: layer + 1 });
+					});				
+			}, 0);
 		},
 		
 		setColor: function(color) {	
-			var pickers = jQuery.jPicker.List;
-				
-			this.rInput.val(color[0]).removeClass('vectorHelper');
-			this.gInput.val(color[1]).removeClass('vectorHelper');
-			this.bInput.val(color[2]).removeClass('vectorHelper');
-			this.aInput.val(color[3]).removeClass('vectorHelper');
+			this.rInput.val(color[0]);
+			this.gInput.val(color[1]);
+			this.bInput.val(color[2]);
+			this.aInput.val(color[3]);
 			
 			this.picker.color.active.val('rgba', {
 				r: color[0] * 255,
@@ -180,27 +184,31 @@ var editor = (function(module) {
 		},
 		
 		getColor: function() {
-			var r = this.rInput.val();
-				g = this.gInput.val();
-				b = this.bInput.val();
+			var r = this.rInput.val(),
+				g = this.gInput.val(),
+				b = this.bInput.val(),
 				a = this.aInput.val(),
 				color = null;
 			
-			if (r !== 'r' && g !== 'g' && b !== 'b' && a !== 'a') {
-				color = [
-					parseFloat(r), parseFloat(g), parseFloat(b), 
-					parseFloat(a)
-				];
+			if (r !== '' && g !== '' && b !== '' && a !== '') {
+				r = parseFloat(r);
+				g = parseFloat(g);
+				b = parseFloat(b);
+				a = parseFloat(a);
+				
+				if (!(isNaN(r) || isNaN(g) || isNaN(b) || isNaN(a))) {
+					color = [r, g, b, a];
+				}
 			}
 			
 			return color;
 		},
 		
 		reset: function() {
-			this.rInput.val('r').addClass('vectorHelper');
-			this.gInput.val('g').addClass('vectorHelper');
-			this.bInput.val('b').addClass('vectorHelper');
-			this.aInput.val('a').addClass('vectorHelper');
+			this.rInput.val('');
+			this.gInput.val('');
+			this.bInput.val('');
+			this.aInput.val('');
 			
 			this.picker.color.active.val('hex', '#ffffff');
 		}

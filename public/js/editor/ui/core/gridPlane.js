@@ -18,8 +18,6 @@
 var editor = (function(module) {
 	module.ui = module.ui || {};
 	
-    module.EventTypes = module.EventTypes || {};
-	
 	var vertShaderVars = "varying float v_alpha;\n" +
 			"varying vec4 v_orig_position;\n\n",
 		vertShaderFunc = "void setAlpha(vec4 position) {\n" +
@@ -97,7 +95,7 @@ var editor = (function(module) {
 			modifyMaterial(this.markerMaterial, this.extent, this.fidelity * 5.0);
 			
 			this.markerMaterial.getParam('xAxisColor').value = [1.0, 0.0, 0.0, 1.0];
-			this.markerMaterial.getParam('zAxisColor').value = [0.0, 1.0, 0.0, 1.0];
+			this.markerMaterial.getParam('zAxisColor').value = [0.0, 0.0, 1.0, 1.0];
 		},
 		
 		setVisible: function(visible) {

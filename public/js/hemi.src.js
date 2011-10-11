@@ -18,15 +18,15 @@
 o3djs.base.o3d = o3d;
 /**
  * @namespace The core Hemi library used by Kuda.
- * @version 1.4.3
+ * @version 1.5.0
  */
 var hemi = (function(hemi) {
 	
 	/**
-	 * The version of Hemi released: 9/7/11
+	 * The version of Hemi released: 10/11/11
 	 * @constant
 	 */
-	hemi.version = '1.4.3';
+	hemi.version = '1.5.0';
 
 	/**
 	 * @namespace A module for handling low level functionality and wrapping
@@ -34,43 +34,6 @@ var hemi = (function(hemi) {
 	 */
 	hemi.core = hemi.core || {};
 	
-	/*
-	 * Create our own inheritance for Javascript.
-	 */
-	Function.prototype.inheritsFrom = function(parentClassOrObject) {
-		// First save the new and overridden properties of the subclass.
-		var propNames = [];
-		var props = [];
-		
-		for (var name in this.prototype) {
-			propNames.push(name);
-			props.push(this.prototype[name]);
-		}
-		
-		// Then perform inheritance. This replaces all properties of
-		// the subclass with those from the superclass.
-		if (parentClassOrObject.constructor == Function) {	
-			// Normal Inheritance		
-			this.prototype = new parentClassOrObject;
-			this.prototype.constructor = this;
-			this.prototype.parent = parentClassOrObject.prototype;
-		}
-		else {
-			// Pure Virtual Inheritance 
-			this.prototype = parentClassOrObject;
-			this.prototype.constructor = this;
-			this.prototype.parent = parentClassOrObject;
-		}
-			
-		// Finally add the subclass properties back in (or override those
-		// of the superclass).
-		for (var ndx = 0, len = props.length; ndx < len; ndx++) {
-			this.prototype[propNames[ndx]] = props[ndx];
-		}
-		
-		return this;
-	};
-
 	/*
 	 * Because Internet Explorer does not support Array.indexOf(), we can add
 	 * it in so that subsequent calls do not break.
@@ -224,24 +187,103 @@ var hemi = (function(hemi) {
  * Boston, MA 02110-1301 USA.
  */
 
+/* Simple JavaScript Inheritance
+ * By John Resig http://ejohn.org/
+ * MIT Licensed.
+ */
+// Inspired by base2 and Prototype
+var hemi = (function(hemi) {
+    var initializing = false, 
+		fnTest = /xyz/.test(function(){
+	        xyz;
+	    }) ? /\b_super\b/ : /.*/;
+    
+    // The base Class implementation (does nothing)
+    hemi.Class = function(){};
+    
+    // Create a new Class that inherits from this class
+    hemi.Class.extend = function(prop){
+        var _super = this.prototype;
+        
+        // Instantiate a base class (but only create the instance,
+        // don't run the init constructor)
+        initializing = true;
+        var prototype = new this();
+        initializing = false;
+        
+        // Copy the properties over onto the new prototype
+        for (var name in prop) {
+            // Check if we're overwriting an existing function
+            prototype[name] = typeof prop[name] == "function" &&
+            typeof _super[name] == "function" &&
+            fnTest.test(prop[name]) ? (function(name, fn){
+                return function(){
+                    var tmp = this._super;
+                    
+                    // Add a new ._super() method that is the same method
+                    // but on the super-class
+                    this._super = _super[name];
+                    
+                    // The method only need to be bound temporarily, so we
+                    // remove it when we're done executing
+                    var ret = fn.apply(this, arguments);
+                    this._super = tmp;
+                    
+                    return ret;
+                };
+            })(name, prop[name]) : prop[name];
+        }
+        
+        // The dummy class constructor
+        function Class(){
+            // All construction is actually done in the init method
+            if (!initializing && this.init) 
+                this.init.apply(this, arguments);
+        }
+        
+        // Populate our constructed prototype object
+        Class.prototype = prototype;
+        
+        // Enforce the constructor to be what we expect
+        Class.constructor = Class;
+        
+        // And make this class extendable
+        Class.extend = arguments.callee;
+        
+        return Class;
+    };
+	
+	return hemi;
+})(hemi || {});
+/* 
+ * Kuda includes a library and editor for authoring interactive 3D content for the web.
+ * Copyright (C) 2011 SRI International.
+ *
+ * This program is free software; you can redistribute it and/or modify it under the terms
+ * of the GNU General Public License as published by the Free Software Foundation; either 
+ * version 2 of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with this program; 
+ * if not, write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, 
+ * Boston, MA 02110-1301 USA.
+ */
+
 var hemi = (function(hemi) {
 	/**
 	 * @namespace A module to provide various utilities for Hemi.
 	 */
 	hemi.utils = hemi.utils || {};
 	
-	/**
-	 * @class A Hemi Hashtable extends a Hashtable to allow it to be queried for
-	 * Object attributes that are not the Hash key.
-	 * @extends Hashtable
+	/*
+	 * Here we extend Hashtable to allow it to be queried for Object attributes
+	 * that are not the Hash key.
 	 */
-	hemi.utils.Hashtable = function() {
-		Hashtable.call(this);
-	};
+	hemi.utils.Hashtable = Hashtable;
 	
-	hemi.utils.Hashtable.prototype = {
-		type: "hemi.utils.Hashtable",
-		
 		/**
 		 * Search the Hashtable for values with attributes that match the given
 		 * set of attributes. The attributes may be single values or arrays of
@@ -257,7 +299,7 @@ var hemi = (function(hemi) {
 		 * @param {Object} attributes a set of attributes to search for
 		 * @return {Object[]} an array of matching values
 		 */
-		query: function(attributes) {
+	hemi.utils.Hashtable.prototype.query = function(attributes) {
 			var values = this.values(),
 				props = [],
 				arrProps = [],
@@ -312,10 +354,7 @@ var hemi = (function(hemi) {
 			}
 			
 			return results;
-		}
 	};
-	
-	hemi.utils.Hashtable.inheritsFrom(Hashtable);
 	
 	return hemi;
 })(hemi || {});
@@ -2059,7 +2098,7 @@ var hemi = (function(hemi) {
 	};
 	
 	/**
-	 * Find the HemiTransformInfo for the given Transform and set its pickable
+	 * Find the TransformInfo for the given Transform and set its pickable
 	 * property.
 	 * 
 	 * @param {o3d.Transform} transform the Transform to set pickable for
@@ -2088,43 +2127,29 @@ var hemi = (function(hemi) {
 		this.pickManager = hemi.core.picking.createPickManager(this.pickRoot);
 		/*
 		 * Override PickManager's createTransformInfo function so that it will
-		 * construct our extended HemiTransformInfo instead.
+		 * construct our extended TransformInfo instead. Allows the user to
+		 * specify if the referenced Transform should be pickable or not. 
 		 */
 		this.pickManager.createTransformInfo = function(transform, parent) {
-			var info = new hemi.picking.HemiTransformInfo(transform, parent, this);
+			var info = new o3djs.picking.TransformInfo(transform, parent, this);
+			// Add the pickable property
+			info.pickable = true;
+			// Override the default value for this TransformInfo property
+			info.pickableEvenIfInvisible = true;
+			
 			this.addTransformInfo(info);
 			return info;
 		};
 	};
 	
 	/**
-	 * @class A HemiTransformInfo extends O3D's TransformInfo to allow the user
-	 * to specify if the referenced Transform should be pickable or not.
-	 * @extends o3djs.picking.TransformInfo
+	 * Set the pickable property for the TransformInfo.
 	 * 
-	 * @param {o3d.Transform} transform Transform to keep info about
-	 * @param {o3djs.picking.TransformInfo} parent Parent transformInfo of the
-	 *     transform. Can be null.
-	 * @param {o3djs.picking.PickManager} pickManager The PickManager this
-	 *     TransformInfo belongs to.
-	 */
-	hemi.picking.HemiTransformInfo = function(transform, parent, pickManager) {		
-		o3djs.picking.TransformInfo.call(this, transform, parent, pickManager);
-		
-		this.pickable = true;
-		// Override the default value for this TransformInfo property
-		this.pickableEvenIfInvisible = true;
-	};
-	
-	hemi.picking.HemiTransformInfo.prototype = {
-		/**
-		 * Set the pickable property for the HemiTransformInfo.
-		 * 
 		 * @param {boolean} pickable true to allow picks
 		 * @param {boolean} recurse true to apply the change to any child
 		 *     Transforms as well
 		 */
-		setPickable: function(pickable, recurse) {
+	o3djs.picking.TransformInfo.prototype.setPickable = function(pickable, recurse) {
 			this.pickable = pickable;
 			
 			if (recurse) {
@@ -2132,8 +2157,10 @@ var hemi = (function(hemi) {
 					this.childTransformInfos[key].setPickable(pickable, recurse);
 				}
 			}
-		},
+	};
 		
+	var pickFunc = o3djs.picking.TransformInfo.prototype.pick;
+	
 		/**
 		 * Override TransformInfo's pick function so that we can temporarily
 		 * hide the TransformInfo's shapes if it is not pickable.
@@ -2143,25 +2170,22 @@ var hemi = (function(hemi) {
 		 * @return {o3djs.picking.PickInfo} Information about the picking.
 		 *     null if the ray did not intersect any triangles.
 		 */
-		pick: function(worldRay) {
-			var hiddenShapeInfos;
+	o3djs.picking.TransformInfo.prototype.pick = function(worldRay) {
+		var hiddenShapeInfos = null;
 			
 			if (!this.pickable) {
 				hiddenShapeInfos = this.shapeInfos;
 				this.shapeInfos = {};
 			}
 			
-			var pickInfo = o3djs.picking.TransformInfo.prototype.pick.call(this, worldRay);
+		var pickInfo = pickFunc.call(this, worldRay);
 			
 			if (!this.pickable) {
 				this.shapeInfos = hiddenShapeInfos;
 			}
 			
 			return pickInfo;
-		}
 	};
-	
-	hemi.picking.HemiTransformInfo.inheritsFrom(o3djs.picking.TransformInfo);
 	
 	return hemi;
 })(hemi || {});
@@ -2250,13 +2274,13 @@ var hemi = (function(hemi) {
 
 		hemi.world.loader.loadBitmaps(pack, url,
 			function(bitmaps, exception){
+				hemi.loader.updateTask(url, 100);
+				
 				if (exception) {
 					hemi.core.error(exception);
 				} else {
 					callback(bitmaps);
 				}
-				
-				hemi.loader.updateTask(url, 100);
 			});
 		
 		var list = hemi.world.loader.loadInfo.children_,
@@ -2312,13 +2336,13 @@ var hemi = (function(hemi) {
 
 		hemi.world.loader.loadTexture(pack, url,
 			function(texture, exception) {
+				hemi.loader.updateTask(url, 100);
+				
 				if (exception) {
 					hemi.core.error(exception);
 				} else {
 					onLoadTexture.call(opt_this, texture);
 				}
-
-				hemi.loader.updateTask(url, 100);
 			});
 		
 		var list = hemi.world.loader.loadInfo.children_,
@@ -2341,26 +2365,33 @@ var hemi = (function(hemi) {
 	 * @param {function(o3d.Pack, o3d.Transform):void} opt_callback a function
 	 *     to pass the Pack and Transform loaded with data from the file
 	 * @param {o3djs.serialization.Options} opt_options options for the loader
+	 * @param {function(string):void} opt_errFnc optional error callback
 	 */
-	hemi.loader.loadModel = function(url, pack, parent, opt_callback, opt_options) {
+	hemi.loader.loadModel = function(url, pack, parent, opt_callback,
+			opt_options, opt_errFnc) {
 		url = hemi.loader.getPath(url);
 		opt_options = opt_options || {};
+		opt_errFnc = opt_errFnc || hemi.core.error;
 
+		try {
 		hemi.world.loader.loadScene(hemi.core.client, pack, parent, url,
 			function(pack, parent, exception) {
+					hemi.loader.updateTask(url, 100);
+					
 				if (exception) {
-					hemi.core.error(exception);
+						opt_errFnc(exception);
 				} else if (opt_callback) {
 					opt_callback(pack, parent);
 				}
-				
-				hemi.loader.updateTask(url, 100);
 			}, opt_options);
 		
 		var list = hemi.world.loader.loadInfo.children_,
 			loadInfo = list[list.length - 1];
 		
 		syncedIntervalFcn(url, loadInfo);
+		} catch (err) {
+			opt_errFnc(err);
+		}
 	};
 
 	/**
@@ -2576,8 +2607,10 @@ var hemi = (function(hemi) {
 	 * able to send Messages through the World's dispatch. The Citizen's id is
 	 * all that is necessary to retrieve the Citizen from its World, regardless
 	 * of its type.
+	 * @extends hemi.Class
 	 */
-	hemi.world.Citizen = function() {
+	hemi.world.Citizen = hemi.Class.extend({
+		init: function() {
 		/**
 		 * The name of the Citizen.
 		 * @type string
@@ -2587,9 +2620,8 @@ var hemi = (function(hemi) {
 		/* The unique identifier for any Citizen of the World */
 		this.worldId = null;
 		hemi.world.addCitizen(this);
-	};
+		},
 	
-	hemi.world.Citizen.prototype = {
         /**
          * Essentially a class name for Citizens.
          * @type string
@@ -2759,20 +2791,21 @@ var hemi = (function(hemi) {
 			
 			return octane;
 		}
-	};
+	});
 	
 	/**
 	 * @class A TransformOwner contains a Citizen that owns at least one
 	 * Transform and entries of other Citizens that need to be given any of
 	 * those Transforms as they become available during Octane loading.
+	 * @extends hemi.Class
 	 */
-	hemi.world.TransformOwner = function() {
+	hemi.world.TransformOwner = hemi.Class.extend({
+		init: function() {
 		this.citizen = null;
 		this.entries = new Hashtable();
 		this.toLoad = null;
-	};
+		},
 	
-	hemi.world.TransformOwner.prototype = {
 		/**
 		 * Distribute the Transforms of the owning Citizen to any other Citizens
 		 * that have registered interest in those Transforms.
@@ -2929,19 +2962,20 @@ var hemi = (function(hemi) {
 				}
 			}
 		}
-	};
+	});
 	
 	/**
 	 * @class A TransformRegistry maintains listings of which Transforms to
 	 * distribute to which Citizens as they become available during Octane
 	 * loading. This is necessary because Transforms are not proper Citizens.
+	 * @extends hemi.Class
 	 */
-	hemi.world.TransformRegistry = function() {
+	hemi.world.TransformRegistry = hemi.Class.extend({
+		init: function() {
 		this.owners = new Hashtable();
 		this.toLoad = null;
-	};
+		},
 	
-	hemi.world.TransformRegistry.prototype = {
 		/**
 		 * Distribute the Transforms of the given Citizen to any other Citizens
 		 * that have registered interest in those Transforms.
@@ -3069,7 +3103,7 @@ var hemi = (function(hemi) {
 				}
 			}
 		}
-	};
+	});
 	
 	/* All of the Citizens of the World */
 	hemi.world.citizens = new hemi.utils.Hashtable();
@@ -3147,9 +3181,10 @@ var hemi = (function(hemi) {
 	 */
 	hemi.world.toOctane = function(opt_filter) {
 		var octane = {
-			citizens: [],
+			version: hemi.version,
 			nextId: nextId,
 			camera: this.camera.getId(),
+			citizens: [],
 			fog: this.fog
 		};
 		
@@ -3852,8 +3887,6 @@ var hemi = (function(hemi) {
 	 * Setup the initial World.
 	 */
 	hemi.world.init = function() {
-		// Clean up 'fake' Citizens created by inheritance mechanism
-		hemi.world.citizens.clear();
 		nextId = reserveIds;
 		hemi.world.loader = createWorldLoader();
 		hemi.world.setCamera(new hemi.view.Camera());
@@ -4058,8 +4091,9 @@ var hemi = (function(hemi) {
 	 * Message is passed to the actual handler.
 	 * @extends hemi.world.Citizen
 	 */
-	hemi.handlers.ValueCheck = function() {
-		hemi.world.Citizen.call(this);
+	hemi.handlers.ValueCheck = hemi.world.Citizen.extend({
+		init: function() {
+			this._super();
 		
 		/**
 		 * A Citizen that the ValueCheck may be using.
@@ -4092,9 +4126,8 @@ var hemi = (function(hemi) {
 		 * @type string[]
 		 */
 		this.args = [];
-	};
+		},
 	
-	hemi.handlers.ValueCheck.prototype = {
         /**
          * Overwrites hemi.world.Citizen.citizenType.
          */
@@ -4104,7 +4137,8 @@ var hemi = (function(hemi) {
 		 * Send a cleanup Message and remove all references in the ValueCheck.
 		 */
 		cleanup: function() {
-			hemi.world.Citizen.prototype.cleanup.call(this);
+			this._super();
+			
 			this.citizen = null;
 			this.values = [];
 			this.handler = null;
@@ -4144,7 +4178,7 @@ var hemi = (function(hemi) {
 	     * @return {Object} the Octane structure representing the ValueCheck
 		 */
         toOctane: function() {
-            var octane = hemi.world.Citizen.prototype.toOctane.call(this),
+            var octane = this._super(),
             	valNames = ['values', 'valueParams', 'func', 'args'];
 			
 			for (var ndx = 0, len = valNames.length; ndx < len; ndx++) {
@@ -4170,9 +4204,7 @@ var hemi = (function(hemi) {
             
             return octane;
         }
-	};
-	
-	hemi.handlers.ValueCheck.inheritsFrom(hemi.world.Citizen);
+	});
 	
 	/**
 	 * Create a ValueCheck handler that will check pick Messages for the given
@@ -4258,8 +4290,9 @@ var hemi = (function(hemi) {
 	 * etc.
 	 * @extends hemi.world.Citizen
 	 */
-	hemi.audio.Audio = function() {
-		hemi.world.Citizen.call(this);
+	hemi.audio.Audio = hemi.world.Citizen.extend({
+		init: function() {
+			this._super();
 		
 		/*
 		 * The actual audio DOM element.
@@ -4305,9 +4338,8 @@ var hemi = (function(hemi) {
 				
 				that.send(hemi.msg.stop, { });
 			}, true);
-	};
+		},
 	
-	hemi.audio.Audio.prototype = {
 		/**
 		 * Overwrites hemi.world.Citizen.citizenType
 		 * @string
@@ -4338,7 +4370,7 @@ var hemi = (function(hemi) {
 		 * Send a cleanup Message and remove all references in the Audio.
 		 */
 		cleanup: function() {
-			hemi.world.Citizen.prototype.cleanup.call(this);
+			this._super();
 			this.audio = null;
 			this.urls = [];
 		},
@@ -4488,7 +4520,7 @@ var hemi = (function(hemi) {
 	     * @return {Object} the Octane structure representing the Audio
 		 */
 		toOctane: function() {
-			var octane = hemi.world.Citizen.prototype.toOctane.call(this);
+			var octane = this._super();
 			
 			octane.props.push({
 				name: 'looping',
@@ -4506,9 +4538,8 @@ var hemi = (function(hemi) {
 			
 			return octane;
 		}
-	};
+	});
 
-	hemi.audio.Audio.inheritsFrom(hemi.world.Citizen);
 	hemi.audio.Audio.prototype.msgSent =
 		hemi.audio.Audio.prototype.msgSent.concat([hemi.msg.load,
 			hemi.msg.start, hemi.msg.stop, hemi.msg.unload]);
@@ -5631,8 +5662,10 @@ var hemi = (function(hemi) {
 	 * 3D scene.
 	 * @extends hemi.world.Citizen
 	 */
-	hemi.view.Camera = function() {
-		hemi.world.Citizen.call(this);	
+	hemi.view.Camera = hemi.world.Citizen.extend({
+		init: function() {
+			this._super();
+			
 		var tween = hemi.utils.penner.linearTween,		
 			t = {
 				cam    : hemi.core.mainPack.createObject('Transform'),
@@ -5704,9 +5737,8 @@ var hemi = (function(hemi) {
 		hemi.view.addRenderListener(this);
 		this.update();
 		this.updateProjection();
-	};
+		},
 
-	hemi.view.Camera.prototype = {
         /**
          * Overwrites hemi.world.Citizen.citizenType
          * @string
@@ -5729,7 +5761,7 @@ var hemi = (function(hemi) {
 		 */
 		cleanup: function() {
 			hemi.view.removeRenderListener(this);
-			hemi.world.Citizen.prototype.cleanup.call(this);			
+			this._super();			
 			this.disableControl();
 			for (t in this.transforms) {
 				this.transforms[t].parent = null;
@@ -6283,7 +6315,7 @@ var hemi = (function(hemi) {
 	     * @return {Object} the Octane structure representing this Camera
 		 */
 		toOctane: function() {
-			var octane = hemi.world.Citizen.prototype.toOctane.call(this),
+			var octane = this._super(),
 				curView = hemi.view.createViewData(this);
 			
 			octane.props.push({
@@ -6407,9 +6439,8 @@ var hemi = (function(hemi) {
 					this.fov.current,aspect,this.clip.near,this.clip.far);
 			}
 		}
-	};
+	});
 	
-	hemi.view.Camera.inheritsFrom(hemi.world.Citizen);
 	hemi.view.Camera.prototype.msgSent =
 		hemi.view.Camera.prototype.msgSent.concat([
 			hemi.msg.start,
@@ -6423,13 +6454,14 @@ var hemi = (function(hemi) {
 	 * @param {hemi.curve.Curve} eye Curve for camera eye to follow
 	 * @param {hemi.curve.Curve} target Curve for camera target to follow
 	 */
-	hemi.view.CameraCurve = function(eye, target) {
-		hemi.world.Citizen.call(this);
+	hemi.view.CameraCurve = hemi.world.Citizen.extend({
+		init: function(eye, target) {
+			this._super();
+			
 		this.eye = eye;
 		this.target = target;
-	};
+		},
 	
-	hemi.view.CameraCurve.prototype = {
 		/**
          * Overwrites hemi.world.Citizen.citizenType
          * @string
@@ -6440,7 +6472,7 @@ var hemi = (function(hemi) {
 		 * Send a cleanup Message and remove all references in the CameraCurve.
 		 */
 		cleanup: function() {
-			hemi.world.Citizen.prototype.cleanup.call(this);			
+			this._super();			
 			this.eye = null;
 			this.target = null;
 		},
@@ -6451,7 +6483,7 @@ var hemi = (function(hemi) {
 	     * @return {Object} the Octane structure representing this CameraCurve
 		 */
 		toOctane: function() {
-			var octane = hemi.world.Citizen.prototype.toOctane.call(this);
+			var octane = this._super();
 			
 			octane.props.push({
 				name: 'eye',
@@ -6464,9 +6496,7 @@ var hemi = (function(hemi) {
 
 			return octane;
 		}
-	};
-	
-	hemi.view.CameraCurve.inheritsFrom(hemi.world.Citizen);
+	});
 	
 	hemi.view.ViewData = function(config) {
 		var cfg = config || {};
@@ -6483,8 +6513,10 @@ var hemi = (function(hemi) {
 	 * up axis, field of view, near plane, and far plane.
 	 * @extends hemi.world.Citizen
 	 */
-	hemi.view.Viewpoint = function(config) {
-		hemi.world.Citizen.call(this);
+	hemi.view.Viewpoint = hemi.world.Citizen.extend({
+		init: function(config) {
+			this._super();
+			
 		var cfg = config || {};
 		this.name = cfg.name || '';
 		this.eye = cfg.eye || [0,0,-1];
@@ -6493,9 +6525,8 @@ var hemi = (function(hemi) {
 		this.fov = cfg.fov || hemi.view.defaults.FOV;
 		this.np = cfg.np || hemi.view.defaults.NP;
 		this.fp = cfg.fp ||hemi.view.defaults.FP;
-	};
+		},
 	
-	hemi.view.Viewpoint.prototype = {
 		/**
          * Overwrites hemi.world.Citizen.citizenType
          * @string
@@ -6531,7 +6562,7 @@ var hemi = (function(hemi) {
 	     * @return {Object} the Octane structure representing this Viewpoint
 		 */
 		toOctane: function() {
-			var octane = hemi.world.Citizen.prototype.toOctane.call(this);
+			var octane = this._super();
 			
 			var names = ['eye', 'target', 'up', 'fov', 'np', 'fp'];
 			
@@ -6546,9 +6577,7 @@ var hemi = (function(hemi) {
 
 			return octane;
 		}
-	};
-	
-	hemi.view.Viewpoint.inheritsFrom(hemi.world.Citizen);
+	});
 	
 	/**
 	 * @class A ClientSize contains the height and width of the O3D client and
@@ -6924,8 +6953,9 @@ var hemi = (function(hemi) {
 	 * displayed.
 	 * @extends hemi.world.Citizen
 	 */
-	hemi.model.Model = function() {
-		hemi.world.Citizen.call(this);
+	hemi.model.Model = hemi.world.Citizen.extend({
+		init: function() {
+			this._super();
 
 		/**
 		 * A flag that indicates if the Model is currently animating.
@@ -6942,9 +6972,8 @@ var hemi = (function(hemi) {
 		this.transformUpdates = [];
 		this.animParam = null;
 		this.pack = null;
-	};
+		},
 
-	hemi.model.Model.prototype = {
 		/**
 		 * Overwrites hemi.world.Citizen.citizenType
 		 * @string
@@ -6955,7 +6984,7 @@ var hemi = (function(hemi) {
 		 * Send a cleanup Message and remove all references in the Model.
 		 */
 		cleanup: function() {
-			hemi.world.Citizen.prototype.cleanup.call(this);
+			this._super();
 			this.unload();
 		},
 
@@ -6965,7 +6994,7 @@ var hemi = (function(hemi) {
 		 * @return {Object} the Octane structure representing the Model
 		 */
 		toOctane: function() {
-			var octane = hemi.world.Citizen.prototype.toOctane.call(this);
+			var octane = this._super();
 
 			octane.props.push({
 				name: 'setFileName',
@@ -6997,17 +7026,20 @@ var hemi = (function(hemi) {
 		 * the file.
 		 * 
 		 * @param {string} fileName name of the file
+		 * @param {function(string):void} opt_errFnc optional error callback
 		 */
-		setFileName: function(fileName) {
+		setFileName: function(fileName, opt_errFnc) {
 			this.fileName = fileName;
 			this.name = getModelName(fileName);
-			this.load();
+			this.load(opt_errFnc);
 		},
 		
 		/**
 		 * Load the Model (or reload) from its file url.
+		 * 
+		 * @param {function(string):void} opt_errFnc optional error callback
 		 */
-		load: function() {
+		load: function(opt_errFnc) {
 			var config = new hemi.model.ModelConfig(),
 				that = this;
 			
@@ -7015,7 +7047,6 @@ var hemi = (function(hemi) {
 				this.unload();
 			}
 			
-			try {
 				hemi.loader.loadModel(
 					this.fileName,
 					config.pack,
@@ -7024,11 +7055,8 @@ var hemi = (function(hemi) {
 						hemi.core.loaderCallback(pack);
 						that.loadConfig(config);
 					},
-					{opt_animSource: config.animationTime});
-			} 
-			catch (e) {
-				alert('Loading failed: ' + e);
-			}
+				{opt_animSource: config.animationTime},
+				opt_errFnc);
 		},
 
 		/**
@@ -7060,6 +7088,12 @@ var hemi = (function(hemi) {
 			this.shapes = config.getShapes();
 			this.transforms = config.getTransforms();
 			this.pack = config.pack;
+			
+			for (var i = 0, il = this.materials.length; i < il; ++i) {
+				var mat = this.materials[i],
+					oid = mat.createParam('ownerId', 'o3d.ParamInteger');
+				oid.value = id;
+			}
 			
 			for (var t = 0, len = this.transforms.length; t < len; ++t) {
 				var transform = this.transforms[t],
@@ -7506,9 +7540,8 @@ var hemi = (function(hemi) {
 			
 			this.send(hemi.msg.unload, {});
 		}
-	};
+	});
 
-	hemi.model.Model.inheritsFrom(hemi.world.Citizen);
 	hemi.model.Model.prototype.msgSent =
 		hemi.model.Model.prototype.msgSent.concat([hemi.msg.animate,
 			hemi.msg.load, hemi.msg.unload]);
@@ -7639,8 +7672,9 @@ var hemi = (function(hemi) {
 	 * time, and Loops for repeating sections of the Animation.
 	 * @extends hemi.world.Citizen
 	 */
-	hemi.animation.Animation = function() {
-		hemi.world.Citizen.call(this);
+	hemi.animation.Animation = hemi.world.Citizen.extend({
+		init: function() {
+			this._super();
 		
 		/**
 		 * The target of the Animation. It should have an 'isAnimating'
@@ -7665,9 +7699,8 @@ var hemi = (function(hemi) {
 		
 		this.currentTime = 0;
 		this.loops = [];
-	};
+		},
 	
-	hemi.animation.Animation.prototype = {
         /**
          * Overwrites hemi.world.Citizen.citizenType.
 		 * @type string
@@ -7682,7 +7715,7 @@ var hemi = (function(hemi) {
 				this.stop();
 			}
 			
-			hemi.world.Citizen.prototype.cleanup.call(this);
+			this._super();
 			this.target = null;
 			this.loops = [];
 		},
@@ -7693,7 +7726,7 @@ var hemi = (function(hemi) {
 	     * @return {Object} the Octane structure representing the Animation
 		 */
 		toOctane: function(){
-			var octane = hemi.world.Citizen.prototype.toOctane.call(this);
+			var octane = this._super();
 			
 			octane.props.push({
 				name: 'target',
@@ -7841,9 +7874,8 @@ var hemi = (function(hemi) {
 		updateTarget: function(currentTime) {
 			this.target.setAnimationTime(currentTime);
 		}
-	};
+	});
 	
-	hemi.animation.Animation.inheritsFrom(hemi.world.Citizen);
 	hemi.animation.Animation.prototype.msgSent =
 		hemi.animation.Animation.prototype.msgSent.concat([
 			hemi.msg.start,
@@ -7904,8 +7936,10 @@ var hemi = (function(hemi) {
 	 * @param {o3d.Transform} opt_tran optional transform that will be spinning
 	 * @param {Object} opt_config optional configuration for the Rotator
 	 */
-	hemi.motion.Rotator = function(opt_tran, opt_config) {
-		hemi.world.Citizen.call(this);
+	hemi.motion.Rotator = hemi.world.Citizen.extend({
+		init: function(opt_tran, opt_config) {
+			this._super();
+			
 		var cfg = opt_config || {};
 		
 		this.accel = cfg.accel || [0,0,0];
@@ -7928,9 +7962,8 @@ var hemi = (function(hemi) {
 		}
 
 		this.enable();
-	};
+		},
 	
-	hemi.motion.Rotator.prototype = {
 		/**
 		 * Add a Transform to the list of Transforms that will be spinning. A
 		 * child Transform is created to allow the Rotator to spin about an
@@ -8014,7 +8047,7 @@ var hemi = (function(hemi) {
 		 */
 		cleanup: function() {
 			this.disable();
-			hemi.world.Citizen.prototype.cleanup.call(this);
+			this._super();
 			this.clearTransforms();
 		},
 		
@@ -8218,7 +8251,7 @@ var hemi = (function(hemi) {
 	     * @return {Object} the Octane structure representing the Rotator
 		 */
 		toOctane: function() {
-			var octane = hemi.world.Citizen.prototype.toOctane.call(this),
+			var octane = this._super(),
 				valNames = ['accel', 'angle', 'vel'];
 			
 			for (var ndx = 0, len = valNames.length; ndx < len; ndx++) {
@@ -8259,9 +8292,8 @@ var hemi = (function(hemi) {
 			
 			return octane;
 		}
-	};
+	});
 	
-    hemi.motion.Rotator.inheritsFrom(hemi.world.Citizen);
 	hemi.motion.Rotator.prototype.msgSent =
 		hemi.motion.Rotator.prototype.msgSent.concat([
 			hemi.msg.start,
@@ -8275,8 +8307,10 @@ var hemi = (function(hemi) {
 	 * @param {o3d.Transform} opt_tran optional Transform that will be moving
 	 * @param {Object} opt_config optional configuration for the Translator
 	 */
-	hemi.motion.Translator = function(opt_tran, opt_config) {
-		hemi.world.Citizen.call(this);
+	hemi.motion.Translator = hemi.world.Citizen.extend({
+		init: function(opt_tran, opt_config) {
+			this._super();
+			
 		var cfg = opt_config || {};
 		
 		this.pos = cfg.pos || [0,0,0];
@@ -8297,9 +8331,8 @@ var hemi = (function(hemi) {
 		}
 
 		this.enable();
-	};
+		},
 
-	hemi.motion.Translator.prototype = {
 		/**
 		 * Add the Transform to the list of Transforms that will be moving.
 		 *
@@ -8362,7 +8395,7 @@ var hemi = (function(hemi) {
 		 */
 		cleanup: function() {
 			this.disable();
-			hemi.world.Citizen.prototype.cleanup.call(this);
+			this._super();
 			this.clearTransforms();
 		},
 		
@@ -8549,7 +8582,7 @@ var hemi = (function(hemi) {
 	     * @return {Object} the Octane structure representing the Translator
 		 */
 		toOctane: function() {
-			var octane = hemi.world.Citizen.prototype.toOctane.call(this),
+			var octane = this._super(),
 				valNames = ['pos', 'vel', 'accel'];
 			
 			for (var ndx = 0, len = valNames.length; ndx < len; ndx++) {
@@ -8583,9 +8616,8 @@ var hemi = (function(hemi) {
 			
 			return octane;
 		}
-	};
+	});
 	
-    hemi.motion.Translator.inheritsFrom(hemi.world.Citizen);
 	hemi.motion.Translator.prototype.msgSent =
 		hemi.motion.Translator.prototype.msgSent.concat([
 			hemi.msg.start,
@@ -8608,11 +8640,17 @@ var hemi = (function(hemi) {
 			hemi.core.mainPack.removeObject(rotTran);
 			hemi.utils.unfosterTransform(offTran);
 		} else {
-			var parTran = tranObj.parent;
+			var parTran = tranObj.parent,
+				pChild = parTran.children[0],
+				rChild = rotTran.children[0];
 			
-			parTran.children[0].parent = parTran.parent;
-			rotTran.children[0].localMatrix = parTran.localMatrix;
-			rotTran.children[0].parent = rotTran.parent;
+			if (pChild) {
+				pChild.parent = parTran.parent;
+			}
+			if (rChild) {
+				rChild.localMatrix = parTran.localMatrix;
+				rChild.parent = rotTran.parent;
+			}
 			
 			origTran = offTran;
 			
@@ -8679,10 +8717,13 @@ var hemi = (function(hemi) {
 		if (tranObj.foster) {
 			origTran = hemi.utils.unfosterTransform(tranObj.tran);
 		} else {
-			var parTran = tranObj.parent;
+			var parTran = tranObj.parent,
+				child = parTran.children[0];
 
-			parTran.children[0].localMatrix = parTran.localMatrix;
-			parTran.children[0].parent = parTran.parent;
+			if (child) {
+				child.localMatrix = parTran.localMatrix;
+				child.parent = parTran.parent;
+			}
 			
 			origTran = tranObj.tran;
 			parTran.parent = null;
@@ -8795,8 +8836,9 @@ var hemi = (function(hemi) {
 	 * @class An Effect is a 3D particle effect.
 	 * @extends hemi.world.Citizen
 	 */
-	hemi.effect.Effect = function() {
-		hemi.world.Citizen.call(this);
+	hemi.effect.Effect = hemi.world.Citizen.extend({
+		init: function() {
+			this._super();
 		
 		/**
 		 * The particle state to use for drawing.
@@ -8830,9 +8872,8 @@ var hemi = (function(hemi) {
 		/* The containing Transform for the Effect */
 		this.transform = hemi.effect.particlePack.createObject('Transform');
 		this.transform.parent = hemi.core.client.root;
-	};
+		},
 	
-	hemi.effect.Effect.prototype = {
 		/**
 		 * Overwrites hemi.world.Citizen.citizenType
 		 * @type string
@@ -8843,7 +8884,7 @@ var hemi = (function(hemi) {
 		 * Send a cleanup Message and remove all references in the Effect.
 		 */
 		cleanup: function() {
-			hemi.world.Citizen.prototype.cleanup.call(this);
+			this._super();
 			
 			this.particles = null;
 			this.transform.parent = null;
@@ -8865,7 +8906,7 @@ var hemi = (function(hemi) {
 	     * @return {Object} the Octane structure representing the Effect
 		 */
 		toOctane: function() {
-			var octane = hemi.world.Citizen.prototype.toOctane.call(this);
+			var octane = this._super();
 			
 			var valNames = ['state', 'colorRamp', 'params'];
 			
@@ -8892,19 +8933,20 @@ var hemi = (function(hemi) {
 			
 			return octane;
 		}
-	};
+	});
 	
 	/**
 	 * @class An Emitter constantly generates particles.
 	 * @extends hemi.effect.Effect
 	 */
-	hemi.effect.Emitter = function() {
-		hemi.effect.Effect.call(this);
+	hemi.effect.Emitter = hemi.effect.Effect.extend({
+		init: function() {
+			this._super();
+			
 		/* Flag indicating if the Emitter is visible */
 		this.visible = false;
-	};
+		},
 	
-	hemi.effect.Emitter.prototype = {
 		/**
 		 * Overwrites hemi.world.Citizen.citizenType
 		 * @type string
@@ -8966,20 +9008,24 @@ var hemi = (function(hemi) {
 					});
 			}
 		}
-	};
+	});
+	
+	hemi.effect.Emitter.prototype.msgSent =
+		hemi.effect.Emitter.prototype.msgSent.concat([hemi.msg.visible]);
 	
 	/**
 	 * @class A Burst generates one set of particles at a time. It can be used
 	 * for a smoke puff, explosion, firework, water drip, etc.
 	 * @extends hemi.effect.Emitter
 	 */
-	hemi.effect.Burst = function() {
-		hemi.effect.Emitter.call(this);
+	hemi.effect.Burst = hemi.effect.Emitter.extend({
+		init: function() {
+			this._super();
+			
 		/* The OneShot particle effect */
 		this.oneShot = null;
-	};
+		},
 	
-	hemi.effect.Burst.prototype = {
 		/**
 		 * Overwrites hemi.world.Citizen.citizenType
 		 * @type string
@@ -8990,7 +9036,7 @@ var hemi = (function(hemi) {
 		 * Send a cleanup Message and remove all references in the Burst.
 		 */
 		cleanup: function() {
-			hemi.effect.Effect.prototype.cleanup.call(this);
+			this._super();
 			
 			this.oneShot = null;
 		},
@@ -8999,7 +9045,7 @@ var hemi = (function(hemi) {
 		 * Set the particle emitter up for the Burst.
 		 */
 		setup: function() {
-			hemi.effect.Emitter.prototype.setup.call(this);
+			this._super();
 			
 			this.oneShot = this.particles.createOneShot(this.transform);
 		},
@@ -9018,24 +9064,27 @@ var hemi = (function(hemi) {
 					position: this.params.position
 				});
 		}
-	};
+	});
+	
+	hemi.effect.Burst.prototype.msgSent =
+		hemi.effect.Burst.prototype.msgSent.concat([hemi.msg.burst]);
 	
 	/**
 	 * @class A Trail is a particle effect that can be started and stopped like
 	 * an animation. It can be used for effects like exhaust.
 	 * @extends hemi.effect.Effect
 	 */
-	hemi.effect.Trail = function() {
-		hemi.effect.Effect.call(this);
+	hemi.effect.Trail = hemi.effect.Effect.extend({
+		init: function() {
+			this._super();
 		
 		/* A flag that indicates if the Trail is currently animating */
 		this.isAnimating = false;
 		/* The number of seconds between particle births */
 		this.fireInterval = 1;
 		this.count = 0;
-	};
+		},
 	
-	hemi.effect.Trail.prototype = {
 		/**
 		 * Overwrites hemi.world.Citizen.citizenType
 		 * @type string
@@ -9127,7 +9176,7 @@ var hemi = (function(hemi) {
 	     * @return {Object} the Octane structure representing the Trail
 		 */
 		toOctane: function() {
-			var octane = hemi.effect.Effect.prototype.toOctane.call(this);
+			var octane = this._super();
 			
 			octane.props.unshift({
 				name: 'fireInterval',
@@ -9136,7 +9185,12 @@ var hemi = (function(hemi) {
 			
 			return octane;
 		}
-	};
+	});
+	
+	hemi.effect.Trail.prototype.msgSent =
+		hemi.effect.Trail.prototype.msgSent.concat([
+			hemi.msg.start,
+			hemi.msg.stop]);
 	
 	/**
 	 * Initialize the resources for the effect module.
@@ -9146,20 +9200,6 @@ var hemi = (function(hemi) {
 		this.particleSystem = hemi.core.particles.createParticleSystem(
 			this.particlePack,
 			hemi.view.viewInfo);
-		
-		// Perform inheritance for effect classes
-		hemi.effect.Effect.inheritsFrom(hemi.world.Citizen);
-		hemi.effect.Emitter.inheritsFrom(hemi.effect.Effect);
-		hemi.effect.Emitter.prototype.msgSent =
-			hemi.effect.Emitter.prototype.msgSent.concat([hemi.msg.visible]);
-		hemi.effect.Burst.inheritsFrom(hemi.effect.Emitter);
-		hemi.effect.Burst.prototype.msgSent =
-			hemi.effect.Burst.prototype.msgSent.concat([hemi.msg.burst]);
-		hemi.effect.Trail.inheritsFrom(hemi.effect.Effect);
-		hemi.effect.Trail.prototype.msgSent =
-			hemi.effect.Trail.prototype.msgSent.concat([
-				hemi.msg.start,
-				hemi.msg.stop]);
 	};
 	
 	/**
@@ -9373,8 +9413,9 @@ var hemi = (function(hemi) {
 	 * valid or if various events should be enabled.
 	 * @extends hemi.world.Citizen
 	 */
-	hemi.scene.Scene = function() {
-		hemi.world.Citizen.call(this);
+	hemi.scene.Scene = hemi.world.Citizen.extend({
+		init: function() {
+			this._super();
 		
 		/**
 		 * Flag indicating if the Scene is currently loaded.
@@ -9394,9 +9435,8 @@ var hemi = (function(hemi) {
 		 * @type hemi.scene.Scene
 		 */
 		this.prev = null;
-	};
+		},
 	
-	hemi.scene.Scene.prototype = {
         /**
          * Overwrites hemi.world.Citizen.citizenType.
          * @string
@@ -9407,7 +9447,7 @@ var hemi = (function(hemi) {
 		 * Send a cleanup Message and remove all references in the Scene.
 		 */
 		cleanup: function() {
-			hemi.world.Citizen.prototype.cleanup.call(this);
+			this._super();
 			
 			if (this.next !== null) {
 				this.next.prev = this.prev;
@@ -9426,7 +9466,7 @@ var hemi = (function(hemi) {
 	     * @return {Object} the Octane structure representing the Scene
 		 */
 		toOctane: function() {
-			var octane = hemi.world.Citizen.prototype.toOctane.call(this);
+			var octane = this._super();
 			
 			if (this.next === null) {
 				octane.props.push({
@@ -9496,9 +9536,8 @@ var hemi = (function(hemi) {
 				this.prev.load();
 			}
 		}
-	};
+	});
 	
-	hemi.scene.Scene.inheritsFrom(hemi.world.Citizen);
 	hemi.scene.Scene.prototype.msgSent =
 		hemi.scene.Scene.prototype.msgSent.concat([hemi.msg.load, hemi.msg.unload]);
 	
@@ -9563,8 +9602,9 @@ var hemi = (function(hemi) {
 	 * like pages and text.
 	 * @extends hemi.world.Citizen
 	 */
-	hemi.hud.Theme = function() {
-		hemi.world.Citizen.call(this);
+	hemi.hud.Theme = hemi.world.Citizen.extend({
+		init: function() {
+			this._super();
 		
 		/**
 		 * Configuration options for an image foreground overlay.
@@ -9714,9 +9754,8 @@ var hemi = (function(hemi) {
 				color: [0, 0, 0, 1]
 			}
 		};
-	};
+		},
 	
-	hemi.hud.Theme.prototype = {
 		/**
 		 * Overwrites hemi.world.Citizen.citizenType
 		 * @string
@@ -9736,7 +9775,7 @@ var hemi = (function(hemi) {
 	     * @return {Object} the Octane structure representing the Theme
 		 */
 		toOctane: function() {
-			var octane = hemi.world.Citizen.prototype.toOctane.call(this);
+			var octane = this._super();
 			
 			octane.props.push({
 				name: 'image',
@@ -9757,17 +9796,16 @@ var hemi = (function(hemi) {
 			
 			return octane;
 		}
-	};
-	
-	hemi.hud.Theme.inheritsFrom(hemi.world.Citizen);
+	});
 	
 	/**
 	 * @class A HudElement contains the basics of any element to be drawn on
 	 * the canvas.
 	 * @extends hemi.world.Citizen
 	 */
-	hemi.hud.HudElement = function() {
-		hemi.world.Citizen.call(this);
+	hemi.hud.HudElement = hemi.world.Citizen.extend({
+		init: function() {
+			this._super();
 		
 		/**
 		 * The handler function for mouse down events that occur within the
@@ -9820,9 +9858,8 @@ var hemi = (function(hemi) {
 		this.right = 0;
 		
 		this.config = {};
-	};
+		},
 	
-	hemi.hud.HudElement.prototype = {
 		/**
 		 * Overwrites hemi.world.Citizen.citizenType
 		 * @string
@@ -9833,7 +9870,7 @@ var hemi = (function(hemi) {
 		 * Send a cleanup Message and remove all references in the HudElement.
 		 */
 		cleanup: function() {
-			hemi.world.Citizen.prototype.cleanup.call(this);
+			this._super();
 			this.mouseDown = null;
 			this.mouseUp = null;
 			this.mouseMove = null;
@@ -9846,7 +9883,7 @@ var hemi = (function(hemi) {
 	     * @return {Object} the Octane structure representing the HudElement
 		 */
 		toOctane: function() {
-			var octane = hemi.world.Citizen.prototype.toOctane.call(this);
+			var octane = this._super();
 			
 			octane.props.push({
 				name: 'top',
@@ -9963,17 +10000,16 @@ var hemi = (function(hemi) {
 		setConfig: function(config) {
 			this.config = config;
 		}
-	};
-	
-	hemi.hud.HudElement.inheritsFrom(hemi.world.Citizen);
+	});
 	
 	/**
 	 * @class A HudText contains formated text and display options for a single
 	 * area of text on the HUD.
 	 * @extends hemi.hud.HudElement
 	 */
-	hemi.hud.HudText = function() {
-		hemi.hud.HudElement.call(this);
+	hemi.hud.HudText = hemi.hud.HudElement.extend({
+		init: function() {
+			this._super();
 		
 		/**
 		 * The x-coordinate of the HudText. The actual on screen location will
@@ -10016,9 +10052,8 @@ var hemi = (function(hemi) {
 		
 		this.text = [];
 		this.width = 0;
-	};
+		},
 	
-	hemi.hud.HudText.prototype = {
 		/**
 		 * Overwrites hemi.world.Citizen.citizenType
 		 * @string
@@ -10031,7 +10066,7 @@ var hemi = (function(hemi) {
 	     * @return {Object} the Octane structure representing the HudText
 		 */
 		toOctane: function() {
-			var octane = hemi.hud.HudElement.prototype.toOctane.call(this);
+			var octane = this._super();
 			
 			octane.props.push({
 				name: 'x',
@@ -10101,7 +10136,7 @@ var hemi = (function(hemi) {
 		 * @param {Object} config configuration options
 		 */
 		setConfig: function(config) {
-			hemi.hud.HudElement.prototype.setConfig.call(this, config);
+			this._super(config);
 			this.wrapText();
 		},
 
@@ -10160,17 +10195,16 @@ var hemi = (function(hemi) {
 			this.wrappedHeight = height;
 			this.wrappedText = wrappedText;
 		}
-	};
-	
-	hemi.hud.HudText.inheritsFrom(hemi.hud.HudElement);
+	});
 	
 	/**
 	 * @class A HudImage contains a texture and display options for a single
 	 * image on the HUD.
 	 * @extends hemi.hud.HudElement
 	 */
-	hemi.hud.HudImage = function() {
-		hemi.hud.HudElement.call(this);
+	hemi.hud.HudImage = hemi.hud.HudElement.extend({
+		init: function() {
+			this._super();
 		
 		/**
 		 * The x-coordinate of the left side of the HudImage.
@@ -10216,9 +10250,8 @@ var hemi = (function(hemi) {
 		
 		this.image = null;
 		this.url = null;
-	};
+		},
 	
-	hemi.hud.HudImage.prototype = {
 		/**
 		 * Overwrites hemi.world.Citizen.citizenType
 		 * @string
@@ -10229,7 +10262,7 @@ var hemi = (function(hemi) {
 		 * Send a cleanup Message and remove all references in the HudImage.
 		 */
 		cleanup: function() {
-			hemi.hud.HudElement.prototype.cleanup.call(this);
+			this._super();
 			this.image = null;
 		},
 		
@@ -10239,7 +10272,7 @@ var hemi = (function(hemi) {
 	     * @return {Object} the Octane structure representing the HudImage
 		 */
 		toOctane: function() {
-			var octane = hemi.hud.HudElement.prototype.toOctane.call(this);
+			var octane = this._super();
 			
 			octane.props.push({
 				name: 'x',
@@ -10333,9 +10366,8 @@ var hemi = (function(hemi) {
 					that.send(hemi.msg.load, {});
 				});
 		}
-	};
+	});
 
-	hemi.hud.HudImage.inheritsFrom(hemi.hud.HudElement);
 	hemi.hud.HudImage.prototype.msgSent =
 		hemi.hud.HudImage.prototype.msgSent.concat([hemi.msg.load]);
 
@@ -10344,8 +10376,9 @@ var hemi = (function(hemi) {
 	 * enabled or if a mouse is hovering over it.
 	 * @extends hemi.hud.HudImage
 	 */
-	hemi.hud.HudButton = function() {
-		hemi.hud.HudElement.call(this);
+	hemi.hud.HudButton = hemi.hud.HudElement.extend({
+		init: function() {
+			this._super();
 		
 		/**
 		 * The x-coordinate of the left side of the HudButton.
@@ -10417,14 +10450,13 @@ var hemi = (function(hemi) {
 				that.draw();
 			}
 		};
-	};
+		},
 	
-	hemi.hud.HudButton.prototype = {
 		/**
 		 * Send a cleanup Message and remove all references in the HudButton.
 		 */
 		cleanup: function() {
-			hemi.hud.HudElement.prototype.cleanup.call(this);
+			this._super();
 			this.mouseMove = null;
 			
 			if (this.enabledImg) {
@@ -10447,7 +10479,7 @@ var hemi = (function(hemi) {
 	     * @return {Object} the Octane structure representing the HudButton
 		 */
 		toOctane: function() {
-			var octane = hemi.hud.HudElement.prototype.toOctane.call(this);
+			var octane = this._super();
 			
 			octane.props.push({
 				name: 'x',
@@ -10601,17 +10633,16 @@ var hemi = (function(hemi) {
 			}
 			this.enabledImg.setImageUrl(enabledUrl);
 		}
-	};
-	
-	hemi.hud.HudButton.inheritsFrom(hemi.hud.HudElement);
+	});
 	
 	/**
 	 * @class A HudVideo contains a texture and display options for a single
 	 * image on the HUD.
 	 * @extends hemi.hud.HudElement
 	 */
-	hemi.hud.HudVideo = function() {
-		hemi.hud.HudElement.call(this);
+	hemi.hud.HudVideo = hemi.hud.HudElement.extend({
+		init: function() {
+			this._super();
 		
 		/**
 		 * The x-coordinate of the left side of the HudVideo.
@@ -10659,9 +10690,8 @@ var hemi = (function(hemi) {
 				src: vid.currentSrc
 			});
 		};
-	};
+		},
 	
-	hemi.hud.HudVideo.prototype = {
 		/**
 		 * Overwrites hemi.world.Citizen.citizenType
 		 * @string
@@ -10692,7 +10722,7 @@ var hemi = (function(hemi) {
 		 * Send a cleanup Message and remove all references in the HudVideo.
 		 */
 		cleanup: function() {
-			hemi.hud.HudElement.prototype.cleanup.call(this);
+			this._super();
 			this.video = null;
 			this.urls = [];
 		},
@@ -10703,7 +10733,7 @@ var hemi = (function(hemi) {
 	     * @return {Object} the Octane structure representing the HudVideo
 		 */
 		toOctane: function() {
-			var octane = hemi.hud.HudElement.prototype.toOctane.call(this);
+			var octane = this._super();
 			
 			octane.props.push({
 				name: 'x',
@@ -10786,9 +10816,8 @@ var hemi = (function(hemi) {
 				this.video.setAttribute('width', '' + width);
 			}
 		}
-	};
+	});
 
-	hemi.hud.HudVideo.inheritsFrom(hemi.hud.HudElement);
 	hemi.hud.HudVideo.prototype.msgSent =
 		hemi.hud.HudVideo.prototype.msgSent.concat([hemi.msg.load]);
 	
@@ -10797,8 +10826,9 @@ var hemi = (function(hemi) {
 	 * drawing a single page on the HUD.
 	 * @extends hemi.hud.HudElement
 	 */
-	hemi.hud.HudPage = function() {
-		hemi.hud.HudElement.call(this);
+	hemi.hud.HudPage = hemi.hud.HudElement.extend({
+		init: function() {
+			this._super();
 		
 		/**
 		 * Flag indicating if a background rectangle should be drawn for the
@@ -10818,9 +10848,8 @@ var hemi = (function(hemi) {
 		
 		this.elements = [];
 		this.auto = true;
-	};
+		},
 	
-	hemi.hud.HudPage.prototype = {
 		/**
 		 * Overwrites hemi.world.Citizen.citizenType
 		 * @string
@@ -10831,7 +10860,7 @@ var hemi = (function(hemi) {
 		 * Send a cleanup Message and remove all references in the HudPage.
 		 */
 		cleanup: function() {
-			hemi.hud.HudElement.prototype.cleanup.call(this);
+			this._super();
 			
 			for (var ndx = 0, len = this.elements.length; ndx < len; ndx++) {
 				this.elements[ndx].cleanup();
@@ -10846,7 +10875,7 @@ var hemi = (function(hemi) {
 	     * @return {Object} the Octane structure representing the HudPage
 		 */
 		toOctane: function() {
-			var octane = hemi.hud.HudElement.prototype.toOctane.call(this);
+			var octane = this._super();
 			
 			octane.props.push({
 				name: 'auto',
@@ -11082,24 +11111,22 @@ var hemi = (function(hemi) {
 			this.right = right;
 			this.auto = false;
 		}
-	};
-	
-	hemi.hud.HudPage.inheritsFrom(hemi.hud.HudElement);
+	});
 	
 	/**
 	 * @class A HudDisplay contains one or more HudPages to display
 	 * sequentially.
 	 * @extends hemi.world.Citizen
 	 */
-	hemi.hud.HudDisplay = function() {
-		hemi.world.Citizen.call(this);
+	hemi.hud.HudDisplay = hemi.world.Citizen.extend({
+		init: function() {
+			this._super();
 		
 		this.visible = false;
 		this.pages = [];
 		this.currentPage = 0;
-	};
+		},
 	
-	hemi.hud.HudDisplay.prototype = {
 		/**
 		 * Overwrites hemi.world.Citizen.citizenType
 		 * @string
@@ -11110,7 +11137,7 @@ var hemi = (function(hemi) {
 		 * Send a cleanup Message and remove all references in the HudDisplay.
 		 */
 		cleanup: function() {
-			hemi.world.Citizen.prototype.cleanup.call(this);
+			this._super();
 			
 			for (var ndx = 0, len = this.pages.length; ndx < len; ndx++) {
 				this.pages[ndx].cleanup();
@@ -11125,7 +11152,7 @@ var hemi = (function(hemi) {
 	     * @return {Object} the Octane structure representing the HudDisplay
 		 */
 		toOctane: function() {
-			var octane = hemi.world.Citizen.prototype.toOctane.call(this);
+			var octane = this._super();
 			
 			var pagesEntry = {
 				name: 'pages',
@@ -11357,9 +11384,8 @@ var hemi = (function(hemi) {
 			
 			return intersected;
 		}
-	};
+	});
 	
-	hemi.hud.HudDisplay.inheritsFrom(hemi.world.Citizen);
 	hemi.hud.HudDisplay.prototype.msgSent =
 		hemi.hud.HudDisplay.prototype.msgSent.concat([hemi.msg.visible]);
 	
@@ -11789,8 +11815,9 @@ var hemi = (function(hemi) {
 	 * @param {number[2]} opt_startUV Draggable's starting uv coordinate, if
 	 *		not [0,0]
 	 */
-	hemi.manip.Draggable = function(opt_plane, opt_limits, opt_startUV) {
-		hemi.world.Citizen.call(this);
+	hemi.manip.Draggable = hemi.world.Citizen.extend({
+		init: function(opt_plane, opt_limits, opt_startUV) {
+			this._super();
 		
 		this.activeTransform = null;
 		this.dragUV = null;
@@ -11813,9 +11840,8 @@ var hemi = (function(hemi) {
 		}
 		
 		this.enable();
-	};
+		},
 
-	hemi.manip.Draggable.prototype = {
 		/**
 		 * Overwrites hemi.world.Citizen.citizenType
 		 * @string
@@ -11827,7 +11853,7 @@ var hemi = (function(hemi) {
 		 */
 		cleanup: function() {
 			this.disable();
-			hemi.world.Citizen.prototype.cleanup.call(this);
+			this._super();
 			this.clearTransforms();
 			this.msgHandler = null;
 		},
@@ -11838,7 +11864,7 @@ var hemi = (function(hemi) {
 	     * @return {Object} the Octane structure representing the Draggable
 		 */
 		toOctane: function(){
-			var octane = hemi.world.Citizen.prototype.toOctane.call(this),
+			var octane = this._super(),
 				valNames = ['local', 'plane', 'umin', 'umax', 'vmin', 'vmax'];
 			
 			for (var ndx = 0, len = valNames.length; ndx < len; ndx++) {
@@ -12187,7 +12213,7 @@ var hemi = (function(hemi) {
 		setToWorld: function() {
 			this.local = false;
 		}
-	};
+	});
 
 	/**
 	 * @class A Turnable allows a Transform to be turned about an axis by the
@@ -12198,8 +12224,9 @@ var hemi = (function(hemi) {
 	 * @param {number[2]} opt_limits minimum and maximum angle limits (in radians)
 	 * @param {number} opt_startAngle starting angle (in radians, default is 0)
 	 */
-	hemi.manip.Turnable = function(opt_axis, opt_limits, opt_startAngle) {
-		hemi.world.Citizen.call(this);
+	hemi.manip.Turnable = hemi.world.Citizen.extend({
+		init: function(opt_axis, opt_limits, opt_startAngle) {
+			this._super();
 		
 		this.angle = opt_startAngle == null ? 0 : opt_startAngle;
 		this.axis = null;
@@ -12221,9 +12248,8 @@ var hemi = (function(hemi) {
 		}
 		
 		this.enable();
-	};
+		},
 	
-	hemi.manip.Turnable.prototype = {
 		/**
 		 * Overwrites hemi.world.Citizen.citizenType
 		 * @string
@@ -12235,7 +12261,7 @@ var hemi = (function(hemi) {
 		 */
 		cleanup: function() {
 			this.disable();
-			hemi.world.Citizen.prototype.cleanup.call(this);
+			this._super();
 			this.clearTransforms();
 			this.msgHandler = null;
 		},
@@ -12246,7 +12272,7 @@ var hemi = (function(hemi) {
 	     * @return {Object} the Octane structure representing the Turnable
 		 */
 		toOctane: function(){
-			var octane = hemi.world.Citizen.prototype.toOctane.call(this),
+			var octane = this._super(),
 				valNames = ['min', 'max'];
 			
 			for (var ndx = 0, len = valNames.length; ndx < len; ndx++) {
@@ -12577,10 +12603,11 @@ var hemi = (function(hemi) {
 			this.local = false;
 		}
 		
-	};
+	});
 	
-	hemi.manip.Scalable = function(axis) {
-		hemi.world.Citizen.call(this);
+	hemi.manip.Scalable = hemi.world.Citizen.extend({
+		init: function(axis) {
+			this._super();
 		this.activeTransform = null;
 		this.axis = null;
 		this.dragAxis = null;
@@ -12591,9 +12618,8 @@ var hemi = (function(hemi) {
 		
 		this.setAxis(axis);
 		this.enable();
-	};
+		},
 	
-	hemi.manip.Scalable.prototype = {
 		addTransform : function(transform) {
 			hemi.world.tranReg.register(transform, this);
 			var param = transform.getParam('ownerId'),
@@ -12624,7 +12650,7 @@ var hemi = (function(hemi) {
 		},
 		cleanup: function() {
 			this.disable();
-			hemi.world.Citizen.prototype.cleanup.call(this);
+			this._super();
 			this.clearTransforms();
 			this.msgHandler = null;
 		},
@@ -12780,15 +12806,11 @@ var hemi = (function(hemi) {
 			
 			return u.worldToScreenFloat(point);
 		}
-	};
+	});
 	
-	hemi.manip.Draggable.inheritsFrom(hemi.world.Citizen);
 	hemi.manip.Draggable.prototype.msgSent =
 		hemi.manip.Draggable.prototype.msgSent.concat([hemi.msg.drag]);
 	
-	hemi.manip.Turnable.inheritsFrom(hemi.world.Citizen);
-	
-	hemi.manip.Scalable.inheritsFrom(hemi.world.Citizen);
 	hemi.manip.Scalable.prototype.msgSent =
 		hemi.manip.Scalable.prototype.msgSent.concat([hemi.msg.scale]);
 
@@ -14248,11 +14270,13 @@ var hemi = (function(hemi) {
 	
 	/**
 	 * @class A particle system that is GPU driven.
+	 * @extends hemi.world.Citizen
 	 * 
 	 * @param {Object} opt_cfg optional configuration object for the system
 	 */
-	hemi.curve.GpuParticleSystem = function(opt_cfg) {
-		hemi.world.Citizen.call(this);
+	hemi.curve.GpuParticleSystem = hemi.world.Citizen.extend({
+		init: function(opt_cfg) {
+			this._super();
 		this.active = false;
 		this.aim = false;
 		this.boxes = [];
@@ -14274,22 +14298,14 @@ var hemi = (function(hemi) {
 		if (opt_cfg) {
 			this.loadConfig(opt_cfg);
 		}
-	};
+		},
 	
-	hemi.curve.GpuParticleSystem.prototype = {
         /**
          * Overwrites hemi.world.Citizen.citizenType.
 		 * @type string
          */
         citizenType: 'hemi.curve.GpuParticleSystem',
 		
-		/**
-		 * Send a cleanup Message and remove all references in the GpuParticleSystem.
-		 */
-		cleanup: function() {
-			hemi.world.Citizen.prototype.cleanup.call(this);
-		},
-	
 		/**
 		 * Hide the particle system's bounding boxes from view.
 		 */
@@ -14823,7 +14839,7 @@ var hemi = (function(hemi) {
 	     *     GpuParticleSystem
 		 */
 		toOctane: function(){
-			var octane = hemi.world.Citizen.prototype.toOctane.call(this);
+			var octane = this._super();
 			
 			octane.props.push({
 				name: 'loadConfig',
@@ -14864,24 +14880,23 @@ var hemi = (function(hemi) {
 			}
 			setupBounds(this.material, this.boxes);
 		}
-	};
+	});
 
-	hemi.curve.GpuParticleSystem.inheritsFrom(hemi.world.Citizen);
-	
 	/**
 	 * @class A GPU driven particle system that has trailing starts and stops.
+	 * @extends hemi.curve.GpuParticleSystem
 	 * 
 	 * @param {Object} opt_cfg the configuration object for the system
 	 */
-	hemi.curve.GpuParticleTrail = function(opt_cfg) {
-		hemi.curve.GpuParticleSystem.call(this, opt_cfg);
+	hemi.curve.GpuParticleTrail = hemi.curve.GpuParticleSystem.extend({
+		init: function(opt_cfg) {
+			this._super(opt_cfg);
 		
 		this.endTime = 1.0;
 		this.starting = false;
 		this.stopping = false;
-	};
+		},
 	
-	hemi.curve.GpuParticleTrail.prototype = {
 		/**
 		 * Update the particles on each render.
 		 * 
@@ -14963,9 +14978,7 @@ var hemi = (function(hemi) {
 				
 			}
 		}
-	};
-	
-	hemi.curve.GpuParticleTrail.inheritsFrom(hemi.curve.GpuParticleSystem);
+	});
 	
 	/*
 	 * Take the existing vertex buffer in the given primitive and copy the data
@@ -15496,8 +15509,10 @@ var hemi = (function(hemi) {
 	 * 
 	 * @param {Object} opt_config optional configuration for the Shape
 	 */
-	hemi.shape.Shape = function(opt_config) {
-		hemi.world.Citizen.call(this);
+	hemi.shape.Shape = hemi.world.Citizen.extend({
+		init: function(opt_config) {
+			this._super();
+			
 		this.color = null;
 		this.dim = {};
 		this.shapeType = null;
@@ -15510,9 +15525,8 @@ var hemi = (function(hemi) {
 		if (this.color && this.shapeType) {
 			this.create();
 		}
-	};
+		},
 	
-	hemi.shape.Shape.prototype =  {
         /**
          * Overwrites hemi.world.Citizen.citizenType.
          * @string
@@ -15523,7 +15537,7 @@ var hemi = (function(hemi) {
 		 * Send a cleanup Message and remove all references in the Shape.
 		 */
 		cleanup: function() {
-			hemi.world.Citizen.prototype.cleanup.call(this);
+			this._super();
 			
 			if (this.transform !== null) {
 				destroyTransform(this.transform);
@@ -15542,7 +15556,7 @@ var hemi = (function(hemi) {
 	     * @return {Object} the Octane structure representing the Shape
 		 */
 		toOctane: function(){
-			var octane = hemi.world.Citizen.prototype.toOctane.call(this),
+			var octane = this._super(),
 				valNames = ['color', 'dim', 'shapeType'];
 			
 			for (var i = 0, il = valNames.length; i < il; i++) {
@@ -15657,7 +15671,7 @@ var hemi = (function(hemi) {
 		 * @param {number} id the new id
 		 */
 		setId: function(id) {
-			this.parent.setId.call(this, id);
+			this._super(id);
 			
 			if (this.ownerId) {
 				this.ownerId.value = id;
@@ -15762,10 +15776,8 @@ var hemi = (function(hemi) {
 				this.tranUp.localMatrix = hemi.utils.clone(this.transform.localMatrix);
 			}
 		}
-	};
+	});
 
-	hemi.shape.Shape.inheritsFrom(hemi.world.Citizen);
-	
 	/**
 	 * Initialize a local root transform and pack.
 	 */
@@ -16729,8 +16741,9 @@ var hemi = (function(hemi) {
 	 * behavior and sequence events.
 	 * @extends hemi.world.Citizen
 	 */
-	hemi.time.Timer = function() {
-		hemi.world.Citizen.call(this);
+	hemi.time.Timer = hemi.world.Citizen.extend({
+		init: function() {
+			this._super();
 		
 		/*
 		 * The epoch time that this Timer was last started (or resumed)
@@ -16753,9 +16766,8 @@ var hemi = (function(hemi) {
 		 * @default 1000
 		 */
 		this.startTime = 1000;
-	};
+		},
 	
-	hemi.time.Timer.prototype = {
         /**
          * Overwrites hemi.world.Citizen.citizenType.
          * @string
@@ -16766,7 +16778,7 @@ var hemi = (function(hemi) {
 		 * Send a cleanup Message and remove all references in the Timer.
 		 */
 		cleanup: function() {
-			hemi.world.Citizen.prototype.cleanup.call(this);
+			this._super();
 			
 			if (this._timeId !== null) {
 				clearTimeout(this._timeId);
@@ -16851,7 +16863,7 @@ var hemi = (function(hemi) {
 	     * @return {Object} the Octane structure representing the Timer
 		 */
 		toOctane: function() {
-			var octane = hemi.world.Citizen.prototype.toOctane.call(this);
+			var octane = this._super();
 			
 			octane.props.push({
 				name: 'startTime',
@@ -16860,9 +16872,8 @@ var hemi = (function(hemi) {
 			
 			return octane;
 		}
-	};
+	});
 	
-	hemi.time.Timer.inheritsFrom(hemi.world.Citizen);
 	hemi.time.Timer.prototype.msgSent =
 		hemi.time.Timer.prototype.msgSent.concat([hemi.msg.start, hemi.msg.stop]);
 	

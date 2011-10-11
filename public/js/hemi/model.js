@@ -193,27 +193,27 @@ var hemi = (function(hemi) {
 	 * displayed.
 	 * @extends hemi.world.Citizen
 	 */
-	hemi.model.Model = function() {
-		hemi.world.Citizen.call(this);
+	hemi.model.Model = hemi.world.Citizen.extend({
+		init: function() {
+			this._super();
 
-		/**
-		 * A flag that indicates if the Model is currently animating.
-		 * @type boolean
-		 * @default false
-		 */
-		this.isAnimating = false;
-		this.isSkinned = false;
-		this.fileName = '';
-		this.root = null;
-		this.materials = [];
-		this.shapes = [];
-		this.transforms = [];
-		this.transformUpdates = [];
-		this.animParam = null;
-		this.pack = null;
-	};
-
-	hemi.model.Model.prototype = {
+			/**
+			 * A flag that indicates if the Model is currently animating.
+			 * @type boolean
+			 * @default false
+			 */
+			this.isAnimating = false;
+			this.isSkinned = false;
+			this.fileName = '';
+			this.root = null;
+			this.materials = [];
+			this.shapes = [];
+			this.transforms = [];
+			this.transformUpdates = [];
+			this.animParam = null;
+			this.pack = null;
+		},
+		
 		/**
 		 * Overwrites hemi.world.Citizen.citizenType
 		 * @string
@@ -224,7 +224,7 @@ var hemi = (function(hemi) {
 		 * Send a cleanup Message and remove all references in the Model.
 		 */
 		cleanup: function() {
-			hemi.world.Citizen.prototype.cleanup.call(this);
+			this._super();
 			this.unload();
 		},
 
@@ -234,7 +234,7 @@ var hemi = (function(hemi) {
 		 * @return {Object} the Octane structure representing the Model
 		 */
 		toOctane: function() {
-			var octane = hemi.world.Citizen.prototype.toOctane.call(this);
+			var octane = this._super();
 
 			octane.props.push({
 				name: 'setFileName',
@@ -266,17 +266,20 @@ var hemi = (function(hemi) {
 		 * the file.
 		 * 
 		 * @param {string} fileName name of the file
+		 * @param {function(string):void} opt_errFnc optional error callback
 		 */
-		setFileName: function(fileName) {
+		setFileName: function(fileName, opt_errFnc) {
 			this.fileName = fileName;
 			this.name = getModelName(fileName);
-			this.load();
+			this.load(opt_errFnc);
 		},
 		
 		/**
 		 * Load the Model (or reload) from its file url.
+		 * 
+		 * @param {function(string):void} opt_errFnc optional error callback
 		 */
-		load: function() {
+		load: function(opt_errFnc) {
 			var config = new hemi.model.ModelConfig(),
 				that = this;
 			
@@ -284,20 +287,16 @@ var hemi = (function(hemi) {
 				this.unload();
 			}
 			
-			try {
-				hemi.loader.loadModel(
-					this.fileName,
-					config.pack,
-					config.rootTransform,
-					function(pack, parent) {
-						hemi.core.loaderCallback(pack);
-						that.loadConfig(config);
-					},
-					{opt_animSource: config.animationTime});
-			} 
-			catch (e) {
-				alert('Loading failed: ' + e);
-			}
+			hemi.loader.loadModel(
+				this.fileName,
+				config.pack,
+				config.rootTransform,
+				function(pack, parent) {
+					hemi.core.loaderCallback(pack);
+					that.loadConfig(config);
+				},
+				{opt_animSource: config.animationTime},
+				opt_errFnc);
 		},
 
 		/**
@@ -329,6 +328,12 @@ var hemi = (function(hemi) {
 			this.shapes = config.getShapes();
 			this.transforms = config.getTransforms();
 			this.pack = config.pack;
+			
+			for (var i = 0, il = this.materials.length; i < il; ++i) {
+				var mat = this.materials[i],
+					oid = mat.createParam('ownerId', 'o3d.ParamInteger');
+				oid.value = id;
+			}
 			
 			for (var t = 0, len = this.transforms.length; t < len; ++t) {
 				var transform = this.transforms[t],
@@ -775,9 +780,8 @@ var hemi = (function(hemi) {
 			
 			this.send(hemi.msg.unload, {});
 		}
-	};
+	});
 
-	hemi.model.Model.inheritsFrom(hemi.world.Citizen);
 	hemi.model.Model.prototype.msgSent =
 		hemi.model.Model.prototype.msgSent.concat([hemi.msg.animate,
 			hemi.msg.load, hemi.msg.unload]);

@@ -27,6 +27,7 @@ o3djs.require('o3djs.particles');
 o3djs.require('o3djs.picking');
 o3djs.require('o3djs.rendergraph');
 o3djs.require('o3djs.canvas');
+o3djs.require('hemi.utils.inheritance');
 o3djs.require('hemi.utils.hashtable');
 o3djs.require('hemi.utils.jsUtils');
 o3djs.require('hemi.utils.mathUtils');
@@ -60,15 +61,15 @@ o3djs.require('hemi.timer');
 
 /**
  * @namespace The core Hemi library used by Kuda.
- * @version 1.4.3
+ * @version 1.5.0
  */
 var hemi = (function(hemi) {
 	
 	/**
-	 * The version of Hemi released: 9/7/11
+	 * The version of Hemi released: 10/11/11
 	 * @constant
 	 */
-	hemi.version = '1.4.3';
+	hemi.version = '1.5.0';
 
 	/**
 	 * @namespace A module for handling low level functionality and wrapping
@@ -76,43 +77,6 @@ var hemi = (function(hemi) {
 	 */
 	hemi.core = hemi.core || {};
 	
-	/*
-	 * Create our own inheritance for Javascript.
-	 */
-	Function.prototype.inheritsFrom = function(parentClassOrObject) {
-		// First save the new and overridden properties of the subclass.
-		var propNames = [];
-		var props = [];
-		
-		for (var name in this.prototype) {
-			propNames.push(name);
-			props.push(this.prototype[name]);
-		}
-		
-		// Then perform inheritance. This replaces all properties of
-		// the subclass with those from the superclass.
-		if (parentClassOrObject.constructor == Function) {	
-			// Normal Inheritance		
-			this.prototype = new parentClassOrObject;
-			this.prototype.constructor = this;
-			this.prototype.parent = parentClassOrObject.prototype;
-		}
-		else {
-			// Pure Virtual Inheritance 
-			this.prototype = parentClassOrObject;
-			this.prototype.constructor = this;
-			this.prototype.parent = parentClassOrObject;
-		}
-			
-		// Finally add the subclass properties back in (or override those
-		// of the superclass).
-		for (var ndx = 0, len = props.length; ndx < len; ndx++) {
-			this.prototype[propNames[ndx]] = props[ndx];
-		}
-		
-		return this;
-	};
-
 	/*
 	 * Because Internet Explorer does not support Array.indexOf(), we can add
 	 * it in so that subsequent calls do not break.
