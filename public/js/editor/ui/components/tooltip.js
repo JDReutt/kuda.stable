@@ -16,24 +16,40 @@
  */
 
 var editor = (function(editor) {
-	editor.ui = editor.ui || {};	
-	
-	editor.EventTypes = editor.EventTypes || {};
+	editor.ui = editor.ui || {};
 	
 	// internal.  no one else can see or use
 	var Tooltip = editor.ui.Component.extend({
 		init: function(options) {
-			this._super();
+			var newOpts = jQuery.extend({
+				cls: '',
+				mouseHide: true
+			}, options);
+			
+			this._super(newOpts);
 			this.id = 0;
+			this.currentElement = null;
 		},
 		
-		finishLayout : function() {
-			this.container = jQuery('<div class="tooltip"></div>');
-			this.msg = jQuery('<p></p>');
+		layout : function() {
+			var wgt = this,
+				hideFromMouse = function() {
+					if (!wgt.isAnimating) {
+						wgt.hide(0);
+					}
+				};
+			
+			this.container = jQuery('<div class="tooltip ' + this.config.cls + '"></div>');
+			this.msg = jQuery('<div class="content"></div>');
 			this.arrow = jQuery('<div class="arrow"></div>');
 			
-			// attach to the main body
+			// attach to the main body and bind mouse handler
 			this.container.append(this.msg);
+			
+			if (this.config.mouseHide) {
+				this.container.bind('mouseenter', hideFromMouse)
+				.bind('mouseleave', hideFromMouse);
+			}
 			
 			// detect border
 			if (this.msg.css('borderLeftWidth') !== 0) {
@@ -51,22 +67,23 @@ var editor = (function(editor) {
 			this.isVisible = false;
 		},
 		
-		setContainerClass: function(cls) {
-			this.container.removeClass(function() {
-				return jQuery(this).attr('class').replace('tooltip', '');
-			});
-			this.container.addClass(cls);
-		},
-		
-		show: function(element, msg, opt_autohide) {
+		show: function(element, content, opt_autohide, opt_offset) {
 			var ctn = this.container,
-				wgt = this;
+				wgt = this,
+				off = jQuery.extend({ top: 0, left: 0 }, opt_offset);
+			
+			this.currentElement = element;
 			
 			if (this.container.parents().size() === 0) {
 				jQuery('body').append(this.container);
 			}
-								
-			this.msg.text(msg);
+			
+			if (jQuery.type(content) == 'string') {
+				this.msg.text(content);
+			}
+			else {
+				this.msg.empty().append(content);
+			}
 			ctn.show();
 			
 			var	offset = element.offset(),
@@ -80,14 +97,18 @@ var editor = (function(editor) {
 				arrowLeft = arrowCenter > center ? 5 : center - arrowCenter,
 				windowWidth = window.innerWidth ? window.innerWidth 
 					: document.documentElement.offsetWidth,
+				windowHeight = jQuery(window).height(),
 				difference = width + offset.left > windowWidth 
 					? offset.left - (windowWidth - width) : 0,
-				top = atTop ? offset.top + elemHeight + arrowHeight 
-					: offset.top - height;
+				top = atTop ? offset.top + elemHeight + arrowHeight  + off.top
+					: offset.top - height - off.top,
+				bottom = atTop ? windowHeight - (offset.top + elemHeight 
+					+ arrowHeight + off.top + height) 
+					: windowHeight - (offset.top - off.top);
 			
 			// position this
-			ctn.offset({
-				top: top + 20,
+			ctn.css({
+				bottom: bottom - 20,
 				left: offset.left - difference
 			});
 			
@@ -109,13 +130,29 @@ var editor = (function(editor) {
 			});
 			
 			if (!this.isAnimating) {
+				var doc = jQuery(document),
+					checkMouse = function(evt) {
+						// Make sure the mouse is still over the correct element
+						if (wgt.currentElement) {
+							var ce = wgt.currentElement[0],
+								et = evt.target,
+								ep = jQuery(et).parent()[0];
+							
+							if (et !== ce && ep !== ce) {
+								wgt.hide(0);
+							}
+						}
+						doc.unbind('mousemove', checkMouse);
+					};
+				
 				this.isAnimating = true;				
 				ctn.css('opacity', 0).animate({
 					opacity: 1,
-					top: '-=20'
+					bottom: '+=20'
 				}, 200, function(){
 					wgt.isAnimating = false;
 					wgt.isVisible = true;
+					doc.bind('mousemove', checkMouse);
 				});
 			}
 			
@@ -131,7 +168,8 @@ var editor = (function(editor) {
 		
 		hideTimer: function(resetTimer, opt_time) {
 			var wgt = this,
-				id = this.id;
+				id = this.id,
+				time = opt_time == null ? 2000 : opt_time;
 			
 			if (resetTimer) {
 				id = this.id += 1;
@@ -139,7 +177,7 @@ var editor = (function(editor) {
 			
 			setTimeout(function() {
 				wgt.hideMessage(id);
-			}, opt_time || 2000);
+			}, time);
 		},
 		
 		hideMessage: function(id) {
@@ -149,17 +187,18 @@ var editor = (function(editor) {
 				
 				ctn.animate({
 					opacity: 0,
-					top: '-=20'
+					bottom: '+=20'
 				}, 200, function(){
 					ctn.hide();
 					wgt.isVisible = false;
+					wgt.currentElement = null;
 				});
 			}
 		}
 	});
 	
-	editor.ui.createTooltip = function() {		
-		return new Tooltip();
+	editor.ui.createTooltip = function(opts) {		
+		return new Tooltip(opts);
 	};
 	
 	return editor;

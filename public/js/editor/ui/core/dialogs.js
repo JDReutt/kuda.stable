@@ -113,18 +113,11 @@ var editor = (function(module) {
 		form.append(sel).append(btn);
 		
 		btn.bind('click', function() {
-			var id = parseInt(sel.val()),
-				model = hemi.world.getCitizenById(id);
-			
-			if (module.depends.check(model)) {
 				msg.text('Unloading Model...').show();
-				cb(model, function() {
+			cb(parseInt(sel.val()), function() {
 					msg.text('').hide();
 					dlg.dialog('close');			
 				});
-			} else {
-				dlg.dialog('close');
-			}
 		});
 			
 		dlg.dialog({
@@ -372,7 +365,7 @@ var editor = (function(module) {
 		lbl.text('Dependencies:');
 		msg.text('The following elements depend on this element either directly\
 				or indirectly. Please remove or modify them first.');
-		list.text(depList);
+		list.html(depList);
 		
 		btn.click(function() {
 			dlg.dialog('close');

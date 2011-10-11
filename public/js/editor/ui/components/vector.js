@@ -18,17 +18,11 @@
 var editor = (function(editor) {
 	editor.ui = editor.ui || {};
 	
-    editor.EventTypes = editor.EventTypes || {};
-	
-	// jquery triggered events
-	editor.EventTypes.VectorValueSet = 'editor.vector.VectorValueSet';
-	
 	editor.ui.VectorDefaults = {
 		container: null,
 		inputs: ['x', 'y', 'z'],
 		type: 'vector',
 		inputType: 'number',
-		paramName: '',
 		onBlur: null,
 		validator: null
 	};
@@ -52,7 +46,7 @@ var editor = (function(editor) {
 			this._super(newOpts);
 		},
 		
-		finishLayout: function() {
+		layout: function() {
 			// initialize container
 			this.container = this.config.container;
 			
@@ -82,7 +76,30 @@ var editor = (function(editor) {
 		},
 		
 		reset: function() {
-			this.find('.' + this.config.type).focus().val('').blur();
+			for (var i = 0, il = this.inputs.length; i < il; ++i) {
+				this.inputs[i].elem.reset();
+			}
+		},
+		
+		setInputName: function(name, ndx1, opt_ndx2) {
+			var found = false;
+			
+			for (var i = 0, il = this.inputs.length; i < il && !found; ++i) {
+				var obj = this.inputs[i];
+				
+				if (obj.ndx1 === ndx1 && obj.ndx2 == opt_ndx2) {
+					obj.elem.setName(name);
+					found = true;
+				}
+			}
+			
+			return found;
+		},
+		
+		setInputType: function(inputType) {
+			for (var i = 0, il = this.inputs.length; i < il; ++i) {
+				this.inputs[i].elem.setType(inputType);
+			}
 		}
 	});
 	
@@ -90,28 +107,16 @@ var editor = (function(editor) {
 //                              Private Methods                               //
 ////////////////////////////////////////////////////////////////////////////////
 	
-	var createInput = function() {
-			return jQuery('<input type="text" class="' + this.config.type + '" />');
-		},
-		
-		createDiv = function(ndx) {
+	var createDiv = function(ndx) {
 			var div = jQuery('<div class="vectorVec"></div>'),
 				addBtn = jQuery('<button>Add</button>'),
-				elem = new editor.ui.Input({
-					validator: this.config.validator,
-					inputClass: this.config.type,
-					type: this.config.inputType
-				}),
+				elem = createInput.call(this),
 				wgt = this;
 				
 			addBtn.bind('click', function() {
 				var btn = jQuery(this),
 					i = btn.data('ndx'),
-					newElem = new editor.ui.Input({
-						validator: wgt.config.validator,
-						inputClass: wgt.config.type,
-						type: wgt.config.inputType
-					});
+					newElem = createInput.call(wgt);
 					
 				wgt.inputs[i].push(newElem);
 				btn.before(newElem.container);
@@ -125,6 +130,18 @@ var editor = (function(editor) {
 				inputs: [elem]
 			};
 		},
+		
+		createInput = function(opt_name) {
+			var cfg = this.config;
+			
+			return new editor.ui.Input({
+				inputClass: cfg.type,
+				onBlur: cfg.onBlur,
+				placeHolder: opt_name,
+				type: cfg.inputType,
+				validator: cfg.validator
+			});
+		},
 			
 		getBoundedValue = function() {
 			var values = [],
@@ -132,8 +149,9 @@ var editor = (function(editor) {
 			
 			for (var i = 0, il = this.inputs.length; i < il && isComplete; i++) {
 				var obj = this.inputs[i],
-					val = obj.elem.getValue(),
-					isComplete = val !== '' && val !== null;
+					val = obj.elem.getValue();
+				
+				isComplete = val !== '' && val !== null;
 				
 				if (isComplete) {
 					if (this.multiDim) {
@@ -191,14 +209,11 @@ var editor = (function(editor) {
 		
 		layoutBounded = function() {
 			var inputs = this.config.inputs,
-				param = this.config.paramName,
-				type = this.config.type,
-				wgt = this,
 				il = inputs.length,
 				noPlaceHolders = false;
 				
 			// first detect a number or a list of placeholders
-			if (inputs.length === 1 && hemi.utils.isNumeric(inputs[0])) {
+			if (il === 1 && hemi.utils.isNumeric(inputs[0])) {
 				il = inputs[0];
 				noPlaceHolders = true;
 			}
@@ -215,15 +230,7 @@ var editor = (function(editor) {
 					
 					for (var j = 0; j < jl; j++) {
 						var inputTxt = ipt[j],
-							elem = new editor.ui.Input({
-								validator: this.config.validator,
-								inputClass: this.config.type,
-								type: this.config.inputType
-							});
-						
-						if (!noPlaceHolders) {
-							elem.container.attr('placeholder', inputTxt);
-						}
+							elem = createInput.call(this, noPlaceHolders ? null : inputTxt);
 						
 						this.inputs.push({
 							ndx1: i,
@@ -236,15 +243,7 @@ var editor = (function(editor) {
 					this.container.append(div);
 				}
 				else {
-					var elem = new editor.ui.Input({
-						validator: this.config.validator,
-						inputClass: this.config.type,
-						type: this.config.inputType
-					});
-					
-					if (!noPlaceHolders) {
-						elem.container.attr('placeholder', ipt);
-					}
+					var elem = createInput.call(this, noPlaceHolders ? null : ipt);
 					
 					this.inputs.push({
 						ndx1: i,
@@ -272,11 +271,7 @@ var editor = (function(editor) {
 					this.container.append(obj.div);
 				}
 				else {
-					var elem = new editor.ui.Input({
-						validator: this.config.validator,
-						inputClass: this.config.type,
-						type: this.config.inputType
-					});
+					var elem = createInput.call(this);
 					this.inputs.push(elem);
 					this.container.append(elem.container);
 				}
@@ -294,11 +289,7 @@ var editor = (function(editor) {
 					btn.before(obj.div);
 				}
 				else {
-					var elem = new editor.ui.Input({
-						validator: this.config.validator,
-						inputClass: this.config.type,
-						type: this.config.inputType
-					});
+					var elem = createInput.call(this);
 					this.inputs.push(elem);
 					btn.before(elem.container);
 				}
@@ -321,15 +312,10 @@ var editor = (function(editor) {
 			})
 			.bind('blur', function(evt) {
 				var elem = jQuery(this),
-					val = elem.val(),
-					totVal = wgt.getValue();
+					val = wgt.getValue();
 				
 				if (wgt.config.onBlur) {
 					wgt.config.onBlur(elem, evt, wgt);
-				}	
-				else if (totVal != null) {
-					wgt.notifyListeners(editor.EventTypes.VectorValueSet, 
-						totVal);
 				}
 			});
 		},
@@ -407,11 +393,7 @@ var editor = (function(editor) {
 						input.div = obj.div;
 					}
 					else {
-						input = this.inputs[i] = new editor.ui.Input({
-							validator: this.config.validator,
-							inputClass: this.config.type,
-							type: this.config.inputType
-						});					
+						input = this.inputs[i] = createInput.call(this);
 						this.addBtn.before(input.container);	
 					}				
 				}
@@ -422,11 +404,7 @@ var editor = (function(editor) {
 							ipt = input[j];
 						
 						if (ipt == null) {
-							ipt = input[j] = new editor.ui.Input({
-								validator: this.config.validator,
-								inputClass: this.config.type,
-								type: this.config.inputType
-							});
+							ipt = input[j] = createInput.call(this);
 						}
 						ipt.setValue(val);
 						input.div.find('button').before(ipt.container);

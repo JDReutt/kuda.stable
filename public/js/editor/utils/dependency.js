@@ -15,10 +15,10 @@
  * Boston, MA 02110-1301 USA.
  */
 
-var editor = (function(module) {
-	module.depends = module.depends || {};
+var editor = (function(editor) {
+	editor.depends = editor.depends || {};
 	
-	var DependencyManager = module.Class.extend({
+	var DependencyManager = editor.Class.extend({
 		init: function() {
 			this.depends = new Hashtable();
 		},
@@ -34,7 +34,9 @@ var editor = (function(module) {
 		},
 		
 		clearDependencies: function(citizen) {
-			this.depends.remove(citizen.getId());
+			if (citizen.getId) {
+				this.depends.remove(citizen.getId());
+			}
 		},
 		
 		getDependencies: function(citizen, getAll) {
@@ -85,59 +87,7 @@ var editor = (function(module) {
 //                              Private Methods                               //
 ////////////////////////////////////////////////////////////////////////////////	
 
-	var loadJSON = function() {
-			var that = this;
-			this.types = new Hashtable();
-			this.functions = new Hashtable();
-			this.parameters = new Hashtable();
-			
-			try {
-				hemi.loader.loadHtml('js/editor/data/hemi.json', function(data) {
-					var json = JSON.parse(data);
-				
-					for (var i = 0, il = json.length; i < il; i++) {
-						var type = json[i],
-							tname = type.name,
-							funcs = type.funcs,
-							tdata = {
-								description: type.desc,
-								methods: [],
-								parent: type.parent
-							};
-							
-						that.types.put(tname, tdata);
-							
-						for (var j = 0, jl = funcs.length; j < jl; j++) {
-							var func = funcs[j],
-								fname = func.name,
-								params = func.params,
-								fdata = {
-									description: func.desc,
-									parameters: []
-								};
-								
-							tdata.methods.push(fname);				
-							that.functions.put(tname + '.' + fname, fdata);
-							
-							for (var k = 0, kl = params.length; k < kl; k++) {
-								var param = params[k],
-									pname = param.name;
-								
-								fdata.parameters.push(pname);
-								that.parameters.put(tname + '.' + fname + '.' + pname, {
-									description: param.desc,
-									type: param.type
-								});
-							}
-						}
-					}
-				});
-			} catch (err) {
-				hemi.console.log(err);
-			}
-		},
-		
-		createDependencyString = function(cits) {			
+	var createDependencyString = function(cits) {			
 			var str = '';
 			
 			for (var i = 0, il = cits.length; i < il; ++i) {
@@ -152,7 +102,7 @@ var editor = (function(module) {
 				}
 				
 				if (i !== 0) {
-					str += ', ';
+					str += ', <br>';
 				}
 				
 				str += name + ' (' + type + ')';
@@ -167,13 +117,21 @@ var editor = (function(module) {
 
 	var mgr = new DependencyManager();
 	
-	module.depends.add = function(child, parent) {
+	editor.addListener(editor.events.PluginLoaded, function(name) {
+		var model = editor.getModel(name);
+		
+		model.addListener(editor.events.Removing, function(citizen) {
+			mgr.clearDependencies(citizen);
+	    });
+	});
+	
+	editor.depends.add = function(child, parent) {
 		if (child && parent) {
 			mgr.addDependency(child, parent);
 		}
 	};
 	
-	module.depends.check = function(citizen) {
+	editor.depends.check = function(citizen) {
 		var children = mgr.getDependencies(citizen, true),
 			safe = children.length === 0;
 		
@@ -187,19 +145,19 @@ var editor = (function(module) {
 		return safe;
 	};
 	
-	module.depends.clear = function(citizen) {
+	editor.depends.clear = function(citizen) {
 		mgr.clearDependencies(citizen);
 	};
 	
-	module.depends.remove = function(child, parent) {
+	editor.depends.remove = function(child, parent) {
 		if (child && parent) {
 			mgr.removeDependency(child, parent);
 		}
 	};
 	
-	module.depends.reset = function(child) {
+	editor.depends.reset = function(child) {
 		mgr.resetDependencies(child);
 	};
 	
-	return module;
+	return editor;
 })(editor || {});
