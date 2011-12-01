@@ -3,10 +3,8 @@
 
 var child = require('child_process'),
 	fs = require('fs'),
-	sys = require('sys'),
 	path = require('path'),
 	uglify = require('uglify-js'),
-	procFds = [process.stdin.fd, process.stdout.fd, process.stderr.fd],
 	filter = [];
 
 var createAssetsDir = function(fromDir, toDir) {
@@ -92,7 +90,7 @@ var removeFiles = function(dir) {
 var compressDir = function(toDir) {
 	// Package and compress the created directory
 	var tarChild = child.spawn('tar', ['-czf', toDir + '.tgz', toDir],
-		{customFds: procFds});
+		{customFds: [process.stdin.fd, process.stdout.fd, process.stderr.fd]});
 	
 	tarChild.on('exit', function (code) {
 		if (code === 0) {
@@ -257,6 +255,7 @@ var uglifyHemi = function(src, dst) {
 				'hemi/console.js',
 				'hemi/picking.js',
 				'hemi/loader.js',
+				'hemi/accessibility.js',
 				'hemi/world.js',
 				'hemi/octane.js',
 				'hemi/handlers/valueCheck.js',
@@ -352,7 +351,6 @@ if (process.argv.length > 3) {
 			}
 		}
 	} else if (type === 'ugly') {
-		sys.puts('Making ugly toDir:' + toDir + '\n');
 		uglifyFile(toDir);
 	} else if (type === 'uglifyO3d') {
 		uglifyO3d('./public/js', toDir);

@@ -21,7 +21,7 @@
 //                     			   Initialization  		                      //
 ////////////////////////////////////////////////////////////////////////////////
 
-	var shorthand = editor.tools.browser = editor.tools.browser || {};
+	var shorthand = editor.tools.browser;
 
 	shorthand.init = function() {
 		var navPane = editor.ui.getNavPane('Geometry'),
@@ -70,15 +70,12 @@
 //                     			  Tool Definition  		                      //
 ////////////////////////////////////////////////////////////////////////////////
 	
-    editor.ToolConstants = editor.ToolConstants || {};
-	editor.ToolConstants.EDITOR_PREFIX = 'EditorCitizen:';
-    editor.ToolConstants.SEL_HIGHLIGHT = 'selectorHighlight';
-    editor.ToolConstants.X_AXIS = 'x';
-    editor.ToolConstants.Y_AXIS = 'y';
-    editor.ToolConstants.Z_AXIS = 'z';
-    editor.ToolConstants.XY_PLANE = 'xyPlane';
-    editor.ToolConstants.XZ_PLANE = 'xzPlane';
-    editor.ToolConstants.YZ_PLANE = 'yzPlane';
+    shorthand.constants = {
+		// TODO: We need a better way of testing for our highlight shapes than
+		// searching for this prefix.
+    	HIGHLIGHT_PRE: 'kuda_highlight_',
+    	SEL_HIGHLIGHT: 'selectorHighlight'	
+    };
 	
 	shorthand.events = {
 		// browser model events
@@ -111,11 +108,6 @@
 		LoadModel: "browser.LoadModel",
 		UnloadModel: "browser.UnloadModel"
 	};
-	
-	// TODO: We need a better way of testing for our highlight shapes than
-	// searching for this prefix.
-	HIGHLIGHT_PRE = 'kuda_highlight_';
-	
 	
 ////////////////////////////////////////////////////////////////////////////////
 //                          	Helper Methods                                //
@@ -191,38 +183,28 @@
 		getNodeChildren = function(node) {
 			var children;
 			
-			if (jQuery.isFunction(node.getCitizenType)) {
-				var type = node.getCitizenType().split('.').pop();
-				
-				switch(type) {
-					case 'Model':
-						var citId = getCitNodeId(node),
-							tranObj = {
-								name: 'Transforms',
-								children: [node.root],
-								className: 'directory',
-								nodeId: citId + '_trans'
-							},
-							matObj = {
-								name: 'Materials',
-								children: node.materials,
-								className: 'directory',
-								nodeId: citId + '_mats'
-							};
-					    children = [tranObj, matObj];
-						break;
-					case 'Shape':
-					    children = [{
-								name: 'Transforms',
-								children: [node.getTransform()],
-								className: 'directory',
-								nodeId: getCitNodeId(node) + '_trans'
-							}];
-						break;
-					default:
-						children = null;
-						break;
-				}
+			if (node instanceof hemi.model.Model) {
+				var citId = getCitNodeId(node),
+					tranObj = {
+						name: 'Transforms',
+						children: [node.root],
+						className: 'directory',
+						nodeId: citId + '_trans'
+					},
+					matObj = {
+						name: 'Materials',
+						children: node.materials,
+						className: 'directory',
+						nodeId: citId + '_mats'
+					};
+			    children = [tranObj, matObj];
+			} else if (node instanceof hemi.shape.Shape) {
+			    children = [{
+						name: 'Transforms',
+						children: [node.getTransform()],
+						className: 'directory',
+						nodeId: getCitNodeId(node) + '_trans'
+					}];
 			} else {
 				children = node.children;
 			}
@@ -333,10 +315,10 @@
 			});
 		},
 		
-		addModel: function(url) {
+		addModel: function(url, modelName) {
 			var model = new hemi.model.Model(),
 				that = this;
-			
+			model.name = modelName;
 			model.setFileName(url, function(exception) {
 				model.cleanup();
 				that.notifyListeners(shorthand.events.LoadException, url);
@@ -485,7 +467,7 @@
 	    
 	    highlightShape: function(shape, transform) {
 	        var highlightShape = hemi.core.shape.duplicateShape(hemi.core.mainPack, shape);
-			highlightShape.name = HIGHLIGHT_PRE + shape.name;
+			highlightShape.name = shorthand.constants.HIGHLIGHT_PRE + shape.name;
 	        
 	        // Set all of it's elements to use the highlight material.
 	        var elements = highlightShape.elements;
@@ -534,9 +516,9 @@
 			state.getStateParam('FillMode').value = hemi.core.o3d.State.WIREFRAME;
 			
 			this.tranHighlightMat.state = state;
-			this.tranHighlightMat.name = editor.ToolConstants.SEL_HIGHLIGHT;
+			this.tranHighlightMat.name = shorthand.constants.SEL_HIGHLIGHT;
 			this.shapHighlightMat.state = state;
-			this.shapHighlightMat.name = editor.ToolConstants.SEL_HIGHLIGHT + 'Shape';
+			this.shapHighlightMat.name = shorthand.constants.SEL_HIGHLIGHT + 'Shape';
 		},
 		
 		isSelected: function(transform, opt_owner) {
@@ -605,7 +587,7 @@
 		},
 		
 		selectShape: function(shape, transform) {
-			var shapeName = HIGHLIGHT_PRE + shape.name,
+			var shapeName = shorthand.constants.HIGHLIGHT_PRE + shape.name,
 				shapes = transform.shapes,
 				highlightShape = null;
 			
@@ -763,7 +745,7 @@
 			for (var ndx = 0, len = shapes.length; ndx < len; ndx++) {
 				var shape = shapes[ndx];
 				
-				if (shape.name.match(HIGHLIGHT_PRE) === null) {
+				if (shape.name.match(shorthand.constants.HIGHLIGHT_PRE) === null) {
 					filtered.push(shape);
 				}
 			}
@@ -1230,44 +1212,78 @@
 			this.importData = null;
 		},
 		
+		errorHandler: function(error) {
+			this.showMessage(error);
+		},
+		
 		createImportPanel: function() {			
-			var pnl = this.find('#mbrImportPnl'),
-				btn = pnl.find('button'),
-				wgt = this;				
+			window.requestFileSystem  = window.requestFileSystem || window.webkitRequestFileSystem;
 			
-			btn.bind('click', function(evt) {
-				fileInput.click();
-			})
-			.file()
-			.choose(function(evt, input) {
-				wgt.showMessage('Uploading Model...');
-				
-				// assuming no multi select file
-				var file = input.files[0],
-					name = file.fileName != null ? file.fileName : file.name;
-					
-				jQuery.ajax({
-					url: '/model',
-					dataType: 'json',
-					type: 'post',
-					data: file,
-					processData: false,
-					contentType: 'application/octet-stream',
-					headers: {
-						'X-File-Name': encodeURIComponent(name),
-						'X-File-Size': file.size,
-						'X-File-Type': file.type
-					},
-					success: function(data, status, xhr) {
-						wgt.showMessage('Loading Model...');
-						wgt.importData = data;
-						wgt.notifyListeners(shorthand.events.LoadModel, data.url);
-					},
-					error: function(xhr, status, err) {
-						wgt.showMessage(xhr.responseText);
-					}
+			var pnl = this.find('#mbrImportPnl'),
+			btn = pnl.find('button'),
+			wgt = this;				
+		
+			var loadPnl = this.find('#mbrLoadPnl');
+			var sel = loadPnl.find('select');
+			
+			if (window.requestFileSystem) {
+				btn.bind('click', function(evt) {
+					fileDiv.show();
+					fileInput.focus().click();
+					fileDiv.hide();
+				})
+				.file({multiple: true})
+				.choose(function(evt, input) {
+					var files = input.files;
+					var jsonFileEntry;
+					var fileReadCounter = files.length;
+					var regEx = /.+\.json/;
+					window.requestFileSystem(window.PERMANENT, 50 * 1024 * 1024, function(fs) {
+						for (var i = 0; i < files.length; ++i) {
+							var file = files[i];
+							(function(curFile) {
+								var createFile = function(fileEntry) {
+									fileEntry.createWriter(function(fileWriter) {
+										fileWriter.onwriteend = function() {
+											fileReadCounter--;
+											if (fileReadCounter == 0 && jsonFileEntry) {
+												var prj = jQuery('<option value="' + jsonFileEntry.toURL() + '">' + jsonFileEntry.name.split('.')[0] + '</option>');
+												sel.append(prj);
+											}
+										};
+										if (regEx.test(fileEntry.name)) {
+											jsonFileEntry = fileEntry;
+										}
+										fileWriter.write(curFile);
+									}, wgt.errorHandler);
+								};
+								
+								var eraseCreateFile = function(fileEntry) {
+									var name = fileEntry.name;
+									(function(fileName) {
+										fileEntry.remove(function() {
+											fs.root.getFile(fileName, {create: true, exclusive: true}, createFile, wgt.errorHandler);
+										});
+									})(name);
+								};
+								
+								//Only one of these callbacks will get called
+								//if file exists
+								fs.root.getFile(curFile.name, {create: false, exclusive: true}, eraseCreateFile);
+								//if file doesn't exist
+								fs.root.getFile(curFile.name, {create: true, exclusive: true}, createFile);
+							})(file);
+						}
+						
+						
+					}, wgt.errorHandler);
 				});
-			});
+			}
+			else {
+				btn.bind('click', function(evt) {
+					wgt.errorHandler('Import not supported on this browser');
+				});
+			}
 			
 			// We need to hide the file div because it interferes with the mouse
 			// events for the minMax button.
@@ -1275,6 +1291,48 @@
 				fileDiv = fileInput.parent().parent();
 			
 			fileDiv.hide();
+		},
+		
+		loadModelsFromLocalFS: function(selectElement) {
+			window.requestFileSystem  = window.requestFileSystem || window.webkitRequestFileSystem;
+			var wgt = this;
+			
+			var regEx = /.+\.json/;
+			function listResults(entries) {
+				for (var i = 0; i < entries.length; ++i) {
+					var entry = entries[i];
+					if (regEx.test(entry.name)) {
+						var prj = jQuery('<option value="' + entry.toURL() + '">' + entry.name.split('.')[0] + '</option>');
+						selectElement.append(prj);
+					}
+				}
+			}
+			
+			function toArray(list) {
+				return Array.prototype.slice.call(list || [], 0);
+			}
+
+			if (window.requestFileSystem) {
+				window.requestFileSystem(window.PERMANENT, 50 * 1024 * 1024, function(fs) {
+					var dirReader = fs.root.createReader();
+					var entries = [];
+	
+					// Call the reader.readEntries() until no more results are returned.
+					var readEntries = function() {
+						dirReader.readEntries (function(results) {
+							if (!results.length) {
+								listResults(entries);
+							} 
+							else {
+								entries = entries.concat(toArray(results));
+								readEntries();
+							}
+						}, wgt.errorHandler);
+					};
+		
+					readEntries(); // Start reading dirs.
+				});
+			}
 		},
 		
 		createLoadPanel: function() {				
@@ -1286,7 +1344,8 @@
 			sel.bind('change', function() {
 				if (sel.val() !== '-1') {
 					wgt.showMessage('Loading Model...');
-					wgt.notifyListeners(shorthand.events.LoadModel, sel.val());
+					var modelName = sel.find('option[value="' + sel.val() + '"]').text();
+					wgt.notifyListeners(shorthand.events.LoadModel, {url: sel.val(), modelName: modelName});
 				}
 			});	
 			
@@ -1296,9 +1355,13 @@
 				
 				if (code == 13 && val !== '') { //Enter keycode
 					wgt.showMessage('Loading Model...');
-					wgt.notifyListeners(shorthand.events.LoadModel, val);
+					var modelName = sel.find('option[value="' + sel.val() + '"]').text();
+					wgt.notifyListeners(shorthand.events.LoadModel, {url: val, modelName: ipt.text()});
 				}
 			});
+			
+			this.loadModelsFromLocalFS(sel);
+
 		},
 		
 		createUnloadPanel: function() {			
@@ -1344,7 +1407,7 @@
 			});
 			// Removing import panel until import is reenabled in the server
 			this.find('#mbrImportPnl').hide();
-//			this.createImportPanel();
+			this.createImportPanel();
 			this.createLoadPanel();
 			this.createUnloadPanel();
 		},
@@ -1368,12 +1431,6 @@
 			var wgt = this,
 				sel = this.find('#mbrLoadPnl select'),
 				ipt = this.find('input');
-			
-			if (this.importData) {
-				var prj = jQuery('<option value="' + this.importData.url + '">' + this.importData.name + '</option>');
-				sel.append(prj);
-				this.importData = null;
-			}
 			
 			this.msgPanel.text('').slideUp(200, function() {		
 				sel.val(-1).sb('refresh');
@@ -1410,7 +1467,7 @@
 			}
 			else {									
 				// Removing import panel until import is reenabled in the server
-//				importPnl.show();
+				importPnl.show();
 			
 				ipt.hide();
 				sb.show();
@@ -1634,7 +1691,7 @@
 				var shape = shapes[ndx],
 					name = shape.name !== '' ? shape.name : 'unnamed'; 
 				
-				if (name.match(HIGHLIGHT_PRE) === null) {
+				if (name.match(shorthand.constants.HIGHLIGHT_PRE) === null) {
 					var item = new editor.ui.ListItem();
 					
 					item.setText(name);
@@ -1849,7 +1906,6 @@
 			this._super({
 				toolName: 'Geometry Browser',
 				toolTip: 'Browse through the transforms and materials of models and shapes',
-				elemId: 'browserBtn',
 				id: 'browser'
 			});
 			
@@ -1933,8 +1989,8 @@
 			});
 			
 			// loader widget specific
-			ldrWgt.addListener(shorthand.events.LoadModel, function(url) {
-				model.addModel(url);
+			ldrWgt.addListener(shorthand.events.LoadModel, function(data) {
+				model.addModel(data.url, data.modelName);
 			});
 			ldrWgt.addListener(shorthand.events.UnloadModel, function(mdl) {
 				model.removeModel(mdl);

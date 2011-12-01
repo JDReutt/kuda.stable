@@ -1,11 +1,22 @@
+/* 
+ * Kuda includes a library and editor for authoring interactive 3D content for the web.
+ * Copyright (C) 2011 SRI International.
+ *
+ * This program is free software; you can redistribute it and/or modify it under the terms
+ * of the GNU General Public License as published by the Free Software Foundation; either 
+ * version 2 of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with this program; 
+ * if not, write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, 
+ * Boston, MA 02110-1301 USA.
+ */
+
 var editor = (function(editor) {
 	editor.ui = editor.ui || {};	
-	
-// Notes: NavPanes own toolBars
-// 		  ToolBars own tools
-//  	  Tools are made up of MVC
-//		  Tool views are made up of widgets
-//		  	 tool views maintain widget states  
 	
 ////////////////////////////////////////////////////////////////////////////////
 //                     			   	Constants	  		                      //
@@ -44,6 +55,15 @@ var editor = (function(editor) {
 
 	var panels = [],
 		
+		/*
+		 * Adds the opacity parameter for animation.
+		 * 
+		 * @param {boolean} visible flag indicating visibility
+		 * @param {number} origOpacity the original opacity of the target
+		 * @param {jQuery} target the target element
+		 * @param {object} animData animation object literal passed to jQuery 
+		 * 		animate() method
+		 */
 		addOpacityAnim = function(visible, origOpacity, target, animData) {
 			var opacityStart = visible ? 0 : origOpacity,
 				opacityEnd = visible ? origOpacity : 0;
@@ -56,6 +76,14 @@ var editor = (function(editor) {
 			}
 		},
 		
+		/*
+		 * Adds the location parameter for animation, which is used for sliding
+		 * the element.
+		 * 
+		 * @param {number} destination the x/y position to slide to
+		 * @param {object} animData animation object literal passed to jQuery 
+		 * 		animate() method
+		 */
 		addSlideAnim = function(destination, animData) {
 			var ctn = this.container,
 				location;
@@ -81,6 +109,13 @@ var editor = (function(editor) {
 			animData[location] = animAmt;
 		},
 		
+		/*
+		 * Sets the visibility of a panel, using animations if specified
+		 * 
+		 * @param {boolean} visible flag indicating the new visibility
+		 * @param {boolean} opt_skipAnim optional flag indicating whether to 
+		 * 		skip the animation 
+		 */
 		setVisible = function(visible, opt_skipAnim) {
 			var ctn = this.container,
 				btn = this.minMaxBtn,
@@ -138,31 +173,39 @@ var editor = (function(editor) {
 			}
 		},
 	
-	hideMinMaxBtn = function(evt) {
-		var btn = jQuery(this).find('button.minMax'),
-			animData = {};
+		/*
+		 * Hides the min/max button of a panel
+		 * 
+		 * @param {Object} evt
+		 */
+		hideMinMaxBtn = function(evt) {
+			var btn = jQuery(this).find('button.minMax'),
+				animData = {};
+			
+			addOpacityAnim(false, btn.data('origOpacity'), btn, animData);
+			btn.animate(animData, function() {
+				btn.hide();
+			});
+		},
 		
-		addOpacityAnim(false, btn.data('origOpacity'), btn, animData);
-		btn.animate(animData, function() {
-			btn.hide();
-		});
-	},
-	
-	showMinMaxBtn = function(evt) {
-		var btn = jQuery(this).find('button.minMax'),
-			animData = {};
-		
-		addOpacityAnim(true, btn.data('origOpacity'), btn, animData);
-		btn.animate(animData);
-	},
+		showMinMaxBtn = function(evt) {
+			var btn = jQuery(this).find('button.minMax'),
+				animData = {};
+			
+			addOpacityAnim(true, btn.data('origOpacity'), btn, animData);
+			btn.animate(animData);
+		},
 	
 	PanelBase = editor.ui.Component.extend({
 		init: function(options) {
 			var newOpts = jQuery.extend({
 				location: editor.ui.Location.RIGHT,
 				classes: [],
+				minMax: true,
 				startsVisible: true
 			}, options);
+			
+			this.minMaxBtn = null;
 			this.origOpacity = null;
 			this.visible = true;
 			
@@ -179,8 +222,18 @@ var editor = (function(editor) {
 				ctn = this.container = jQuery('<div></div>'),
 				pnl = this;
 			
-			ctn.append(minMaxBtn);
 			jQuery('body').append(ctn);
+			
+			if (this.config.minMax) {
+				ctn.append(minMaxBtn);
+			}
+			
+			// put this on the tool layer and align it correctly
+			ctn.css({
+				zIndex: editor.ui.Layer.TOOL
+			})
+			.bind('mouseenter', showMinMaxBtn)
+			.bind('mouseleave', hideMinMaxBtn);
 			
 			minMaxBtn.bind('click', function(evt) {
 				var min = minMaxBtn.data('min');
@@ -192,19 +245,12 @@ var editor = (function(editor) {
 				}
 				
 				minMaxBtn.data('min', !min);
-			}).data('min', true).text('Min').hide();
+			}).data('origOpacity', 1).data('min', true).text('Min').hide();
 			
 			// add any specified classes
 			for (var i = 0, il = this.config.classes.length; i < il; i++) {
 				ctn.addClass(this.config.classes[i]);
 			}
-			
-			// put this on the tool layer and align it correctly
-			ctn.css({
-				zIndex: editor.ui.Layer.TOOL
-			})
-			.bind('mouseenter', showMinMaxBtn)
-			.bind('mouseleave', hideMinMaxBtn);
 			
 			switch(this.config.location) {
 				case editor.ui.Location.RIGHT:
@@ -220,7 +266,6 @@ var editor = (function(editor) {
 			
 			
 			this.origOpacity = ctn.css('opacity');
-			minMaxBtn.data('origOpacity', 1);
 		},
 		
 		getName: function() {
@@ -315,7 +360,7 @@ var editor = (function(editor) {
 						left: ctnWidth
 					});
 					break;
-			}			
+			}
 		},
 		
 		setVisible: function(visible, opt_skipAnim) {
@@ -521,11 +566,15 @@ var editor = (function(editor) {
 			this[widget.getName()] = widget;
 			this.widgets.push(widget);
 			
-			var pnl = this;
-			// TODO: listen to when a widget gets made visible/invisible
-			widget.addListener(editor.events.WidgetResized, function() {
-				pnl.resize();
-			});
+			widget.setMinHeight(parseInt(this.container.css('min-height')));
+		},
+		
+		resize: function() {
+			this._super();
+			
+			for (var i = 0, il = this.widgets.length; i < il; i++) {
+				this.widgets[i].sizeAndPosition();	
+			}
 		},
 		
 		setVisible: function(visible, opt_skipAnim) {
@@ -536,6 +585,25 @@ var editor = (function(editor) {
 					this.widgets[i].sizeAndPosition();	
 				}
 			}
+		}
+	});
+	
+////////////////////////////////////////////////////////////////////////////////
+//								Full Panel		  		                      //
+////////////////////////////////////////////////////////////////////////////////
+	
+	editor.ui.FullPanel = editor.ui.Panel.extend({
+		init: function(options) {
+			options = options || {};
+			options.minMax = false;
+			
+			if (options.classes) {
+				options.classes.unshift('fullPanel');
+			} else {
+				options.classes = ['fullPanel'];
+			}
+			
+			this._super(options);
 		}
 	});
 	
@@ -559,6 +627,7 @@ var editor = (function(editor) {
 				newOpts.classes = ['widget'];
 			}
 			
+			this.minHeight = null;
 			this._super(newOpts);
 		},
 		
@@ -590,7 +659,10 @@ var editor = (function(editor) {
 		
 		invalidate: function() {
 			this.sizeAndPosition();
-			this.notifyListeners(editor.events.WidgetResized);
+		},
+		
+		setMinHeight: function(pnlHeight) {
+			this.minHeight = pnlHeight;
 		},
 		
 		setVisible: function(visible) {
@@ -608,7 +680,7 @@ var editor = (function(editor) {
 				padding = parseInt(container.css('paddingBottom')) +
 					parseInt(container.css('paddingTop')),
 				win = jQuery(window),
-				winHeight = win.height();
+				winHeight = this.minHeight ? Math.max(win.height(), this.minHeight) : win.height();
 			
 			switch(this.config.height) {
 				case editor.ui.Height.FULL:
@@ -835,8 +907,7 @@ var editor = (function(editor) {
 				win = jQuery(window),
 				vwr = jQuery('.mainView'),
 			
-				windowWidth = window.innerWidth ? window.innerWidth 
-					: document.documentElement.offsetWidth,
+				windowWidth = win.width(),
 				windowHeight = win.height();
 				
 			if (windowWidth <= 1024) {
@@ -928,6 +999,10 @@ var editor = (function(editor) {
 		
 		// add an empty panel for select boxes
 		bdy.append('<div class="topBottomSelect"></div>');
+		
+		// unfortunately, this is necessary due to Chrome 15 in Windows 7, where
+		// a hardware accelerated 2d canvas comes up black
+		hemi.hud.hudMgr.clearDisplay();
 	};
 	
 	return editor;

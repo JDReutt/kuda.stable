@@ -61,15 +61,15 @@ o3djs.require('hemi.timer');
 
 /**
  * @namespace The core Hemi library used by Kuda.
- * @version 1.5.0
+ * @version 1.5.1
  */
 var hemi = (function(hemi) {
 	
 	/**
-	 * The version of Hemi released: 10/11/11
+	 * The version of Hemi released: 11/30/11
 	 * @constant
 	 */
-	hemi.version = '1.5.0';
+	hemi.version = '1.5.1';
 
 	/**
 	 * @namespace A module for handling low level functionality and wrapping
@@ -93,6 +93,44 @@ var hemi = (function(hemi) {
 			return -1;
 		};
 	}
+	
+	/**
+	 * This function creates a material that uses a lambert shader. Convenience
+	 * function added to match createBasicMaterial and createConstantMaterial.
+	 *
+	 * @param {!o3d.Pack} pack Pack to manage created objects.
+	 * @param {!o3djs.rendergraph.ViewInfo} viewInfo as returned from
+	 *     o3djs.rendergraph.createBasicView.
+	 * @param {(!o3djs.math.Vector4|!o3d.Texture)} colorOrTexture Either a color
+	 *     in the format [r, g, b, a] or an O3D texture.
+	 * @param {boolean} opt_transparent Whether or not the material is
+	 *     transparent. Defaults to false.
+	 * @return {!o3d.Material} The created material.
+	 */
+	o3djs.material.createLambertMaterial = function(pack, viewInfo,
+			colorOrTexture, opt_transparent) {
+		var material = pack.createObject('Material');
+		material.drawList = opt_transparent ? viewInfo.zOrderedDrawList :
+			viewInfo.performanceDrawList;
+		
+		if (colorOrTexture.length) {
+			material.createParam('diffuse', 'ParamFloat4').value = colorOrTexture;
+		} else {
+			var paramSampler = material.createParam('diffuseSampler', 'ParamSampler'),
+				sampler = pack.createObject('Sampler');
+			paramSampler.value = sampler;
+			sampler.texture = colorOrTexture;
+		}
+		
+		material.createParam('emissive', 'ParamFloat4').value = [0, 0, 0, 1];
+		material.createParam('ambient', 'ParamFloat4').value = [0, 0, 0, 1];
+		material.createParam('lightColor', 'ParamFloat4').value = [1, 1, 1, 1];
+		var lightPositionParam = material.createParam('lightWorldPos', 'ParamFloat3');
+		
+		o3djs.material.attachStandardEffect(pack, material, viewInfo, 'lambert');
+		lightPositionParam.value = [1000, 2000, 3000];
+		return material;
+	};
 	
 	/**
 	 * Pass the given error message to the registered error handler or throw an

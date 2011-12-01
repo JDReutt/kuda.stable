@@ -16,7 +16,7 @@
  */
 
 (function() {
-	var shorthand = editor.tools.behavior = editor.tools.behavior || {};
+	var shorthand = editor.tools.behavior;
 	
 		// model specific
 	shorthand.events.CitizenAdded = 'Trees.CitizenAdded';
@@ -81,12 +81,14 @@
 		},
 			
 		notify: function(eventType, value) {
-			if (eventType === editor.events.Created) {
-				this.addCitizen(value);
-			} else if (eventType === editor.events.Removing) {
-				this.removeCitizen(value);
-			} else if (eventType === editor.events.Updated) {
-				this.updateCitizen(value);
+			if (value instanceof hemi.world.Citizen) {
+				if (eventType === editor.events.Created) {
+					this.addCitizen(value);
+				} else if (eventType === editor.events.Removing) {
+					this.removeCitizen(value);
+				} else if (eventType === editor.events.Updated) {
+					this.updateCitizen(value);
+				}
 			}
 		},
 		
@@ -457,9 +459,9 @@
 			
 			if (opt_func) {
 				desc = editor.data.getMetaData().getDescription(type, opt_func);
-			} else if (type === editor.ToolConstants.SHAPE_PICK) {
+			} else if (type === shorthand.constants.SHAPE_PICK) {
 				desc = 'A Picked Shape is triggered when the user clicks on a shape that is part of a Model.';
-			} else if (type === editor.ToolConstants.CAM_MOVE) {
+			} else if (type === shorthand.constants.CAM_MOVE) {
 				desc = 'A Camera Move is triggered when a Camera arrives at a Viewpoint.';
 			} else {
 				desc = editor.data.getMetaData().getDescription(type);

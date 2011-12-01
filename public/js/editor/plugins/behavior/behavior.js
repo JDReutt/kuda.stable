@@ -135,7 +135,7 @@
 //                     			   Initialization  		                      //
 ////////////////////////////////////////////////////////////////////////////////
 
-	var shorthand = editor.tools.behavior = editor.tools.behavior || {},
+	var shorthand = editor.tools.behavior,
 		bhvMdl = null,
 		bhvView = null;
 	
@@ -179,10 +179,12 @@
 			var model = editor.getModel(name),
 				view = editor.getView(name);
 			
-			if (model !== bhvMdl) {
+			if (model && model !== bhvMdl) {
 				shorthand.treeModel.listenTo(model);
 			}
-			injectBehaviorWidget(view);
+			if (view) {
+				injectBehaviorWidget(view);
+			}
 		});
 	};	
 	
@@ -190,9 +192,10 @@
 //                     			  Tool Definition  		                      //
 ////////////////////////////////////////////////////////////////////////////////
     
-    editor.ToolConstants = editor.ToolConstants || {};
-	editor.ToolConstants.SHAPE_PICK = "ShapePick";
-	editor.ToolConstants.CAM_MOVE = "CameraMove";
+	shorthand.constants = {
+		CAM_MOVE: "CameraMove",
+		SHAPE_PICK: "ShapePick"
+	};
 	
 	shorthand.events = {
 		ArgumentSet: "messaging.ArgumentSet",
@@ -562,10 +565,10 @@
 					shorthand.getActionName(data).join('.'),
 					msgTarget.name,
 					'<td> \
-					<button class="editBtn">Edit</button>\
-					<button class="chainBtn">Chain</button>\
-					<button class="cloneBtn">Clone</button>\
-					<button class="removeBtn">Remove</button>\
+					<button class="editBtn" title="Edit behavior">Edit</button>\
+					<button class="chainBtn" title="Trigger another behavior from this">Chain</button>\
+					<button class="cloneBtn" title="Duplicate this behavior">Clone</button>\
+					<button class="removeBtn" title="Remove this behavior">Remove</button>\
 					</td>'
 				]),
 				tr = jQuery(this.table.fnGetNodes(row)),
@@ -719,7 +722,6 @@
 			this._super({
 				toolName: 'Behaviors',
 				toolTip: 'Overview of behaviors',
-				elemId: 'behaviorBtn',
 				id: 'behavior'
 			});
 			

@@ -171,7 +171,10 @@
 			var mdl = this;
 			
 			if (this.loadedPlugins.indexOf(pluginName) === -1) {
+				// Initialize the plugin's namespace
+				editor.tools[pluginName] = {};
 				editor.getScript('js/editor/plugins/' + pluginName + '/' + pluginName + '.js');
+				
 				this.callbacks.push({
 					callback: function(name){
 						mdl.currentPlugin = name;
@@ -333,7 +336,6 @@
 		init: function() {
 			this._super({
 				id: 'pluginManager',
-				elemId: 'plgWrapper',
 				toolName: 'Manage Plugins',
 				toolTip: ''
 			});
@@ -356,8 +358,7 @@
 		
 		layoutToolBarContainer: function() {			
 			var ctn = this.toolbarContainer = jQuery('<div id="' 
-				+ this.config.elemId + '"> \
-				</div>');
+				+ this.id + '"> </div>');
 				
 			this.list = new editor.ui.List();			
 			ctn.append(this.list.getUI());
