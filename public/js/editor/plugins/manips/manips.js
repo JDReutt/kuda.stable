@@ -21,7 +21,7 @@
 //								Initialization								  //
 ////////////////////////////////////////////////////////////////////////////////
 
-	var shorthand = editor.tools.manips = editor.tools.manips || {};
+	var shorthand = editor.tools.manips;
 	
 	shorthand.init = function() {
 		var navPane = editor.ui.getNavPane('Behaviors'),
@@ -566,7 +566,6 @@
 	        this._super({
 	            toolName: 'Manipulations',
 	    		toolTip: 'Create and edit manipulatable transforms',
-	    		elemId: 'manipsBtn',
 	    		id: 'manips'
 	        });
 	        

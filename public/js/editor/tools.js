@@ -17,6 +17,16 @@
 
 var editor = (function(editor) {	
 	editor.ui = editor.ui || {};
+	editor.tools = editor.tools || {};
+	
+	/**
+	 * Constants often used by tools.
+	 */
+	editor.ToolConstants = {
+		EDITOR_PREFIX: 'EditorCitizen:',
+		MODE_DOWN: 'down',
+		MODE_UP: 'up'
+	};
 	
 ////////////////////////////////////////////////////////////////////////////////
 //                     			  Architecture	  		                      //
@@ -233,16 +243,6 @@ var editor = (function(editor) {
 	        
 	        return found;
 		};
-	
-	/**
-	 * Constants for setting up a tool.
-	 */
-	editor.ToolConstants = {
-		MODE_DOWN: 'down',
-		MODE_UP: 'up',
-		SHAPE_PICK: "ShapePick",
-		CAM_MOVE: "CameraMove"
-	};
     
 ////////////////////////////////////////////////////////////////////////////////
 //                                   Model                                    //
@@ -298,7 +298,6 @@ var editor = (function(editor) {
      * Configuration object for the ToolView.
      */
     editor.ToolViewDefaults = {
-        elemId: null,
 		id: '',
         toolName: 'toolName',
 		toolTip: ''
@@ -322,12 +321,10 @@ var editor = (function(editor) {
 			this.mode = editor.ToolConstants.MODE_UP;
 			this.panels = [];
 			this.visiblePanels = [];
-			
-			if (this.config.elemId) {
-				this.layoutToolBarContainer();
-			}
-			
 			this.id = this.config.id;
+			
+			this.layoutToolBarContainer();
+			
 			views.put(this.id, this);
 			editor.notifyListeners(editor.events.ViewAdded, {
 				id: this.id,
@@ -415,11 +412,10 @@ var editor = (function(editor) {
 		 */
 		layoutToolBarContainer: function() {
 			var view = this,
-				left = 70;
+				classes = ['toolBtn', this.id, this.mode];
 			
-			this.toolbarContainer = jQuery('<div id="' + this.config.elemId 
-                + '" class="toolBtn ' + this.mode 
-				+ '" title="' + this.config.toolTip + '"></div>');			
+			this.toolbarContainer = jQuery('<div class="' + classes.join(' ') 
+				+ '" title="' + this.config.toolTip + '"></div>');
 			
 			this.toolHover = jQuery('<h3 class="toolHover">' + this.config.toolName + '</h3>')
 				.css('zIndex', editor.ui.Layer.TOOLBAR);

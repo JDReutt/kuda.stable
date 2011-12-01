@@ -21,7 +21,7 @@
 //                     			   Initialization  		                      //
 ////////////////////////////////////////////////////////////////////////////////
 	
-	var shorthand = editor.tools.particleCurves = editor.tools.particleCurves || {};
+	var shorthand = editor.tools.particleCurves;
 
 	shorthand.init = function() {
 		var navPane = editor.ui.getNavPane('Effects'),
@@ -1017,7 +1017,6 @@
 			this._super({
 				toolName: 'Particle Curves',
 				toolTip: 'Create and edit particle curves',
-		        elemId: 'particleCurvesBtn',
 		        id: 'particleCurves'
 		    });
 			

@@ -23,9 +23,6 @@ var editor = {
 (function() {
 	o3djs.require('editor.requires');
 	
-	// The container for tool plugins
-	editor.tools = {};
-	
 ////////////////////////////////////////////////////////////////////////////////
 //                               Dispatch Proxy                               //
 ////////////////////////////////////////////////////////////////////////////////
@@ -43,7 +40,7 @@ var editor = {
 			if (this.editorSpecs === null) {
 				this.editorSpecs = hemi.dispatch.msgSpecs;
 				hemi.dispatch.msgSpecs = this.worldSpecs;
-					}
+			}
 		},
 		
 		unswap: function() {
@@ -93,20 +90,16 @@ var editor = {
 			var ret = hemi.dispatch.toOctane();
 			this.unswap();
 			return ret;
-				}
+		}
 	};
-			
+	
 	var dispatchProxy = new DispatchProxy();
-				
+	
 ////////////////////////////////////////////////////////////////////////////////
 //                                 Main App                                   //
 ////////////////////////////////////////////////////////////////////////////////
-				
-//	test = {
-//		activePlugins: activePlugins,
-//		loadedPlugins: loadedPlugins
-//	};
-			
+		
+		
 	var initViewerStep1 = function() {						
 			o3djs.webgl.makeClients(function(clientElements) {
 				setupWorldMessages();
@@ -115,7 +108,7 @@ var editor = {
 				editor.plugins.init();
 			});
 		},
-			
+		
 		setupWorldMessages = function() {			
 			hemi.world.subscribe(hemi.msg.cleanup, function() {
 				editor.notifyListeners(editor.events.WorldCleaned);
@@ -129,31 +122,31 @@ var editor = {
 		uninitViewer = function() {
 			if (hemi.core.client) {
 				hemi.core.client.cleanup();
-				}
+			}
 		};
-		
+	
 ////////////////////////////////////////////////////////////////////////////////
 //                             Editor Utilities                               //
 ////////////////////////////////////////////////////////////////////////////////
-			
+	
 	editor.getActivePlugins = function() {
 		return activePlugins;
-				};
-			
+	};
+	
 	editor.getActiveTool = function() {
 		var views = editor.getViews();
 			
 		for (var i = 0, il = views.length; i < il; i++) {
 			var view = views[i];
-					
+			
 			if (view.mode === editor.ToolConstants.MODE_DOWN) {
 				return view;
-						}
-					}
-								
+			}
+		}
+		
 		return null;
 	};
-		
+	
 	editor.getCss = function(url, media) {
 		jQuery( document.createElement('link') ).attr({
 	        href: url,
@@ -162,7 +155,7 @@ var editor = {
 	        rel: 'stylesheet'
 	    }).appendTo('head');
 	};
-			
+	
 	editor.getDispatchProxy = function() {
 		return dispatchProxy;
 	};
@@ -171,21 +164,21 @@ var editor = {
 		dispatchProxy.swap();
 		var data = hemi.world.toOctane(function(citizen) {
 			return citizen.name.search(editor.ToolConstants.EDITOR_PREFIX) === -1;
-			});
+		});
 		dispatchProxy.unswap();
 		return data;
 	};
-		
+	
 	editor.getScript = function(url, callback) {
 		var script = document.createElement('script');
 		script.type = 'text/javascript';
 		script.src = url;
-			
+		
 		editor.notifyListeners(editor.events.ScriptLoadStart, url);
-				
+		
 		{
 	        var done = false;
-				
+	
 	        // Attach handlers for all browsers
 	        script.onload = script.onreadystatechange = function(){
 	            if (!done && (!this.readyState ||
@@ -194,28 +187,23 @@ var editor = {
 	                done = true;
 					if (callback) {
 						callback();
-			}
+					}
 					editor.notifyListeners(editor.events.ScriptLoaded, url);
-			
+	
 	                // Handle memory leak in IE
 	                script.onload = script.onreadystatechange = null;
-					}
+	            }
 	        };
-				}
+	    }
 		
 	    document.body.appendChild(script);
 	};
 	
-	window.onload = function() {		
-//		app.sizeViewerPane();
+	window.onload = function() {	
 		initViewerStep1();
 	};
 	
 	window.onunload = function() {
 		uninitViewer();
 	};
-	
-	jQuery(window).resize(function() {
-//		app.sizeViewerPane();
-	});
 })();

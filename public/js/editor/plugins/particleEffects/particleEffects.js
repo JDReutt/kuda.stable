@@ -21,7 +21,7 @@
 //                     			   Initialization  		                      //
 ////////////////////////////////////////////////////////////////////////////////
 
-	var shorthand = editor.tools.particleEffects = editor.tools.particleEffects || {};
+	var shorthand = editor.tools.particleEffects;
 
 	shorthand.init = function() {
 		var navPane = editor.ui.getNavPane('Effects'),
@@ -686,7 +686,6 @@
 	        this._super({
 	            toolName: 'Particle Effects',
 	    		toolTip: 'Particle Effects: Create and edit particle effects',
-	    		elemId: 'particleEffectsBtn',
 	    		id: 'particleEffects'
 	        });
 

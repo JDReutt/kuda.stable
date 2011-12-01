@@ -21,7 +21,7 @@
 //								Initialization								  //
 ////////////////////////////////////////////////////////////////////////////////
 	
-	var shorthand = editor.tools.hud = editor.tools.hud || {};
+	var shorthand = editor.tools.hud;
 	
 	shorthand.init = function() {
 		var navPane = editor.ui.getNavPane('HUD'),
@@ -912,7 +912,6 @@
 	        this._super({
 	            toolName: 'Heads-Up Displays',
 	    		toolTip: 'Create and edit heads-up displays',
-	    		elemId: 'hudBtn',
 	    		id: 'hud'
 	        });
 			

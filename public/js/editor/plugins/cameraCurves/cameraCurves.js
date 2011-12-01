@@ -21,7 +21,7 @@
 //                     			   Initialization  		                      //
 ////////////////////////////////////////////////////////////////////////////////
  
-	var shorthand = editor.tools.cameraCurves = editor.tools.cameraCurves || {};
+	var shorthand = editor.tools.cameraCurves;
 
 	shorthand.init = function() {
 		var navPane = editor.ui.getNavPane('Camera'),
@@ -573,7 +573,6 @@
 			this._super({
 				toolName: 'Camera Curves',
 		        toolTip: 'Create curves for cameras to travel on',
-				elemId: 'camCurvesBtn',
 				id: 'cameraCurves'
 			});
 			this.pre = 'vp_';

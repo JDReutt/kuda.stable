@@ -21,7 +21,7 @@
 //								Initialization								  //
 ////////////////////////////////////////////////////////////////////////////////
 
-	var shorthand = editor.tools.motions = editor.tools.motions || {};
+	var shorthand = editor.tools.motions;
 
 	shorthand.init = function() {
 		var navPane = editor.ui.getNavPane('Animation'),
@@ -538,7 +538,6 @@
 	        this._super({
 	            toolName: 'Motions',
 	    		toolTip: 'Create and edit moving transforms',
-	    		elemId: 'motionsBtn',
 	    		id: 'motions'
 	        });
 	        

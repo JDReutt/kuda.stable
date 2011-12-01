@@ -21,7 +21,7 @@
 //                     			   Initialization  		                      //
 ////////////////////////////////////////////////////////////////////////////////
 
-	var shorthand = editor.tools.shapes = editor.tools.shapes || {};
+	var shorthand = editor.tools.shapes;
 
 	shorthand.init = function() {
 		var navPane = editor.ui.getNavPane('Geometry'),
@@ -454,7 +454,6 @@
 	        this._super({
 		        toolName: 'Shapes',
 				toolTip: 'Create and edit primitive shapes',
-				elemId: 'shapesBtn',
 				id: 'shapes'
 		    });
 			

@@ -21,7 +21,7 @@
 //								Initialization								  //
 ////////////////////////////////////////////////////////////////////////////////
 
-	var shorthand = editor.tools.scenes = editor.tools.scenes || {};
+	var shorthand = editor.tools.scenes;
 
 	shorthand.init = function() {
 		var navPane = editor.ui.getNavPane('Behaviors'),
@@ -238,7 +238,6 @@
 	        this._super({
 	            toolName: 'Scenes',
 	    		toolTip: 'Create and edit scenes',
-	    		elemId: 'scenesBtn',
 	    		id: 'scenes'
 	        });
 	        
