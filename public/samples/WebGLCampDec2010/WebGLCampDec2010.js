@@ -16,9 +16,10 @@
  */
 
 (function() {
-	hemi.loader.loadPath = '../../';
-	var SLIDE1_EYE = [0, 0, 9470],
-		SLIDE1_TARGET = [0, 0, 8000],
+	hemi.loadPath = '../../';
+	var client,
+		SLIDE1_EYE = new THREE.Vector3(0, 0, 9470),
+		SLIDE1_TARGET = new THREE.Vector3(0, 0, 8000),
 		SLIDE_1Z = 9000,
 		currentSlide = 1,
 		slides = [{
@@ -77,8 +78,8 @@
 			vector: [0, 0, -1000]
 		}],
 		loadedSlideCount = 0,
-		digDisp = new hemi.model.Model(),
-		vp = new hemi.view.Viewpoint({
+		digDisp,
+		vp = new hemi.Viewpoint({
 				eye:	SLIDE1_EYE,
 				target:	SLIDE1_TARGET,
 				fov:	Math.PI / 3,
@@ -99,20 +100,25 @@
 		listNdx = null,
 		pbar = null,
 		camera = null;
-
-	function init(clientElements) {
-		core.init(clientElements[0]);
-		view.setBGColor([1, 1, 1, 1]);
-		pbar = new hext.progressUI.bar();
-		digDisp.setFileName('assets/DigitalDisplay/scene.json');
-		world.subscribe(hemi.msg.ready, function() {
-			makeSlide(0, slides[0]);
-		});
-		world.ready();
-	}
+		
+	function createWorld() {
+		digDisp = new hemi.Model(client);
+		digDisp.setFileName('assets/DigitalDisplay/DigitalDisplay.dae');	// Set the model file
+		/**
+		 * When we call the 'ready' function, it will wait for the model to
+		 *		finish loading and then it will send out a Ready message. Here
+		 *		we register a handler, setupScene(), to be run when the message
+		 *		is sent.
+		 */
+		hemi.subscribe(hemi.msg.ready,
+			function(msg) {
+				makeSlide(0, slides[0]);
+			});
+		
+		hemi.ready();   // Indicate that we are ready to start our script
+	};
 
 	function onSlideLoad(index, sprite) {
-		sprite.setFrame(index);
 		loadedSlideCount++;
 
 		if (loadedSlideCount === slides.length) {
@@ -122,46 +128,58 @@
 
 	function makeSlide(index, slide) {
 		if (index < slides.length) {
-			var sprite = new hemi.sprite.Sprite(720, 540);
-			slide.transform = sprite.transform;
-			if (index) sprite.parent(slides[index - 1].transform);
-			sprite.addFrame(slide.url, onSlideLoad);
-			sprite.transform.translate(slide.vector);
+			var geom = new THREE.PlaneGeometry(720, 540), 
+				image = THREE.ImageUtils.loadTexture(hemi.loadPath + slide.url, null, function() {
+					onSlideLoad(index, panel);
+				}),
+				material = new THREE.MeshBasicMaterial({ map: image }),
+				panel = new THREE.Mesh(geom, material);
+			client.scene.add(panel);
+			slide.transform = panel;
+			if (index) slides[index - 1].transform.add(panel);
+			panel.translateX(slide.vector[0]);
+			panel.translateY(slide.vector[1]);
+			panel.translateZ(slide.vector[2]);
 			index++;
 			makeSlide(index, slides[index]);
 		}
 	}
 
 	function setupScene() {
-		camera = world.camera;
-		var pack = core.mainPack,
-			checkerMaterial = core.material.createCheckerMaterial(pack,
-				view.viewInfo, [0, 0, 0.5, 1], [1, 1, 1, 1], false, 50),
-			shape = core.primitives.createPlane(pack, checkerMaterial, 20000, 20000, 1, 1),
-			transform = pack.createObject('Transform');
-		checkerMaterial.getParam('lightWorldPos').bind(camera.light.position);
-		transform.parent = core.client.root;
-		transform.translate([0, -270, 0]);
-		transform.addShape(shape);
+		camera = client.camera;
+		var material = new THREE.MeshPhongMaterial({
+				color: 0xff77ff
+			}),
+			shape = new THREE.PlaneGeometry(20000, 20000),
+			transform = new THREE.Mesh(shape, material);
+//			checkerMaterial = core.material.createCheckerMaterial(pack,
+//				view.viewInfo, [0, 0, 0.5, 1], [1, 1, 1, 1], false, 50),
+//			shape = core.primitives.createPlane(pack, checkerMaterial, 20000, 20000, 1, 1),
+//			transform = pack.createObject('Transform');
+//		checkerMaterial.getParam('lightWorldPos').bind(camera.light.position);
+//		transform.parent = core.client.root;
+		client.scene.add(transform);
+		transform.translateY(-270);
+		transform.rotation.x = -Math.PI/2;
 
-		makeOcta([1700, -120, 8000], 300);
-		makeOcta([-900, -120, 0], 200);
-		makePyramid([-3200, 480, -7400]);
-		makeCylinder([-4200, 330, 7500 ]);
-		makeGiantCube([-6400, 1730, -5000]);
-		makeGiantCube([5000, 1730, -4000]);
-		makeGiantCube([5600, 1730, 5000]);
-		makeBigCube([2000, 230, 4000]);
-		makeBigCube([-3000, 230, -2000]);
-		makeBigCube([-6000, 230, 6000]);
-		makeBigBox([1500, -145, 0]);
-		makeBigBox([-2000, -145, 7500]);
-		makeCubeStack3([-2200, -170, 300]);
-		makeCubeStack3([-3500, -170, 4100]);
-		makeCubeStack3([-600, -170, 8300]);
+		makeOcta(new THREE.Vector3(1700, -120, 8000), 300);
+		makeOcta(new THREE.Vector3(-900, -120, 0), 200);
+		makePyramid(new THREE.Vector3(-3200, 480, -7400));
+		makeCylinder(new THREE.Vector3(-4200, 330, 7500 ));
+		makeGiantCube(new THREE.Vector3(-6400, 1730, -5000));
+		makeGiantCube(new THREE.Vector3(5000, 1730, -4000));
+		makeGiantCube(new THREE.Vector3(5600, 1730, 5000));
+		makeBigCube(new THREE.Vector3(2000, 230, 4000));
+		makeBigCube(new THREE.Vector3(-3000, 230, -2000));
+		makeBigCube(new THREE.Vector3(-6000, 230, 6000));
+		makeBigBox(new THREE.Vector3(1500, -145, 0));
+		makeBigBox(new THREE.Vector3(-2000, -145, 7500));
+		makeCubeStack3(new THREE.Vector3(-2200, -170, 300));
+		makeCubeStack3(new THREE.Vector3(-3500, -170, 4100));
+		makeCubeStack3(new THREE.Vector3(-600, -170, 8300));
 
-		digDisp.root.scale([2, 2, 2]);
-		digDisp.root.translate(164, 120, SLIDE_1Z / 2 + 495);
+		digDisp.root.scale.set(2, 2, 2);
+		digDisp.root.position.set(328, 240, SLIDE_1Z + 990);
 		updateDigDisp(0, 1);
 
 		// vp.eye = SLIDE1_EYE;
@@ -207,23 +225,27 @@
 	}
 
 	function updateDigDisp(ndx, upOrDown) {
-		hemi.texture.translate(digDisp.shapes[ndx].elements[0], 0.1 * upOrDown, 0);
+		hemi.utils.translateUVs(digDisp.geometries[ndx], 0.1 * upOrDown, 0);
 		dispDigits[ndx] = (dispDigits[ndx] + upOrDown) % 10;
 		if (dispDigits[ndx] < 0) dispDigits[ndx] = 9;
 
 		if ((dispDigits[ndx] == 0 && upOrDown == 1) || (dispDigits[ndx] == 9 && upOrDown == -1)) {
 			if (ndx < 9) updateDigDisp(shapeNdx[ndx], upOrDown);
 		} else {
-			digDisp.root.translate(0, 0, -500 * upOrDown);
+			digDisp.root.position.z -= 1000 * upOrDown;
 		}
 	}
 
 	function moveOnRails() {
 		var eyes = [
-				SLIDE1_EYE, [800, 0, SLIDE1_EYE[2]],
-				[2800, 0, 4900], [1500, 2000, -9000],
-				[-1200, 100, -9000], [-2000, 800, 0],
-				[-1000, 300, SLIDE1_EYE[2]], SLIDE1_EYE
+				SLIDE1_EYE, 
+				new THREE.Vector3(800, 0, SLIDE1_EYE.z),
+				new THREE.Vector3(2800, 0, 4900), 
+				new THREE.Vector3(1500, 2000, -9000),
+				new THREE.Vector3(-1200, 100, -9000), 
+				new THREE.Vector3(-2000, 800, 0),
+				new THREE.Vector3(-1000, 300, SLIDE1_EYE.z), 
+				SLIDE1_EYE
 			],
 			targets = [
 				SLIDE1_TARGET, eyes[2],
@@ -231,105 +253,153 @@
 				eyes[5], eyes[6],
 				eyes[7], SLIDE1_TARGET
 			],
-			curveEye = new hemi.curve.Curve(eyes, hemi.curve.CurveType.Cardinal),
-			curveTarget = new hemi.curve.Curve(targets, hemi.curve.CurveType.Cardinal),
-			camCurve = new hemi.view.CameraCurve(curveEye, curveTarget);
+			curveEye = new hemi.Curve(eyes, hemi.CurveType.Cardinal),
+			curveTarget = new hemi.Curve(targets, hemi.CurveType.Cardinal),
+			camCurve = new hemi.CameraCurve(curveEye, curveTarget);
 			// curveEye.draw(50, { jointSize: 4 });
-			camera.moveOnCurve(camCurve, 25);
+		camera.moveOnCurve(camCurve, 25);
 	}
 
 	function moveCameraToSlide(slide) {
 		if (slide === 0) {
 			var offset = (currentSlide - 1) * 1000;
-			vp.eye = [0, 0, SLIDE1_EYE[2] - offset];
-			vp.target = [0, 0, SLIDE1_TARGET[2] - offset];
+			vp.eye = new THREE.Vector3(0, 0, SLIDE1_EYE.z - offset);
+			vp.target = new THREE.Vector3(0, 0, SLIDE1_TARGET.z - offset);
 			camera.onCurve = false;
 			camera.moveToView(vp, 0);
 		} else {
 			var offset = (slide - 2) * 1000,
-				Za = SLIDE1_EYE[2] - offset,
+				Za = SLIDE1_EYE.z - offset,
 				Zb = Za - 170,
 				Zc = Zb - 600,
 				Zd = Za - 1000,
-				Zt = SLIDE1_TARGET[2] - offset,
+				Zt = SLIDE1_TARGET.z - offset,
 				eyes = [
-				[0, 0, Za], [0, 400, Zb],
-				[0, 400, Zc], [0, 0, Zd]],
+					new THREE.Vector3(0, 0, Za), 
+					new THREE.Vector3(0, 400, Zb),
+					new THREE.Vector3(0, 400, Zc), 
+					new THREE.Vector3(0, 0, Zd)],
 				targets = [
-				[0, 0, Zt], [0, 0, Zt]],
-			curveEye = new hemi.curve.Curve(eyes, hemi.curve.CurveType.CubicHermite, { tangents: tangents }),
-			curveTarget = new hemi.curve.Curve(targets, hemi.curve.CurveType.Linear),
-			camCurve = new hemi.view.CameraCurve(curveEye, curveTarget);
+					new THREE.Vector3(0, 0, Zt), 
+					new THREE.Vector3(0, 0, Zt)],
+			curveEye = new hemi.Curve(eyes, hemi.CurveType.CubicHermite, { tangents: tangents }),
+			curveTarget = new hemi.Curve(targets, hemi.CurveType.Linear),
+			camCurve = new hemi.CameraCurve(curveEye, curveTarget);
 			// curveEye.draw(50, { jointSize: 4 });
 			camera.moveOnCurve(camCurve, 1.2);
 		}
 	}
 
 	function makeOcta(vector, size) {
-		hemi.shape.create({
+		var shape = hemi.createShape({
 			shape: 'octa',
-			color: [Math.random(), Math.random(), Math.random(), 1],
-			size: size}).translate(vector);
+			color: randomColor(),
+			size: size});
+
+		shape.position.addSelf(vector);
+		client.scene.add(shape);
 	}
 
 	function makePyramid(vector) {
-		var pyr = hemi.shape.create({
+		var pyr = hemi.createShape({
 			shape: 'pyramid',
-			color: [Math.random(), Math.random(), Math.random(), 1],
+			color: randomColor(),
 			h: 1500, w: 2000, d: 2000});
-		pyr.translate(vector);
-		pyr.rotateY(sixty);
+
+		pyr.rotation.y += sixty;
+		pyr.position.addSelf(vector);
+		client.scene.add(pyr);
 	}
 
 	function makeCylinder(vector) {
-		hemi.shape.create({
+		var shape = hemi.createShape({
 			shape: 'cylinder',
-			color: [Math.random(), Math.random(), Math.random(), 1],
-			r: 500, h: 1200}).translate(vector);
+			color: randomColor(),
+			r: 500, h: 1200});
+
+		shape.position.addSelf(vector);
+		client.scene.add(shape);
 	}
 
 	function makeGiantCube(vector) {
-		var cube = hemi.shape.create({ shape: 'cube', color: [Math.random(), Math.random(), Math.random(), 1], size: 4000 });
-		cube.translate(vector);
-		cube.rotateY(thirty);
+		var cube = hemi.createShape({
+			shape: 'cube', 
+			color: randomColor(), 
+			size: 4000 });
+
+		cube.rotation.y += thirty;
+		cube.position.addSelf(vector);
+		client.scene.add(cube);
 	}
 
 	function makeBigCube(vector) {
-		var cube = hemi.shape.create({ shape: 'cube', color: [Math.random(), Math.random(), Math.random(), 1], size: 1000 });
-		cube.translate(vector);
-		cube.rotateY(sixty);
+		var cube = hemi.createShape({
+			shape: 'cube', 
+			color: randomColor(), 
+			size: 1000 });
+
+		cube.rotation.y += sixty;
+		cube.position.addSelf(vector);
+		client.scene.add(cube);
 	}
 
 	function makeBigBox(vector) {
-		var box = hemi.shape.create({
+		var box = hemi.createShape({
 			shape: 'box',
-			color: [Math.random(), Math.random(), Math.random(), 1],
+			color: randomColor(),
 			h: 250, w: 1500, d: 500 });
-		box.translate(vector);
-		box.rotateY(thirty);
+
+		box.rotation.y += thirty;
+		box.position.addSelf(vector);
+		client.scene.add(box);
 	}
 
 	function makeCubeStack3(vector) {
-		var cubea = hemi.shape.create({ shape: 'cube', color: [Math.random(), Math.random(), Math.random(), 1], size: 200 }),
-			cubeb = hemi.shape.create({ shape: 'cube', color: [Math.random(), Math.random(), Math.random(), 1], size: 100 }),
-			cubec = hemi.shape.create({ shape: 'cube', color: [Math.random(), Math.random(), Math.random(), 1], size: 50 });
-		cubeb.parent = cubea;
-		cubec.parent = cubeb;
-		cubea.translate(vector);
-		cubea.rotateY(thirty);
-		cubeb.translate([20, 150, 0]); // 1 / 2 cubea size + 1 / 2 cubeb size
-		cubeb.rotateY(thirty);
-		cubec.translate([0, 75, 10]);
-		cubec.rotateY(thirty);
+		var cubea = hemi.createShape({
+				shape: 'cube', 
+				color: randomColor(), 
+				size: 200 }),
+			cubeb = hemi.createShape({
+				shape: 'cube', 
+				color: randomColor(), 
+				size: 100 }),
+			cubec = hemi.createShape({
+				shape: 'cube', 
+				color: randomColor(), 
+				size: 50 });
+
+		cubea.rotation.y += thirty;
+		cubea.position.addSelf(vector);
+		client.scene.add(cubea);
+
+		cubeb.rotation.y += thirty;
+		cubeb.position.addSelf(new THREE.Vector3(20, 150, 0));
+		cubea.add(cubeb);
+
+		cubec.rotation.y += thirty;
+		cubec.position.addSelf(new THREE.Vector3(0, 75, 10));
+		cubeb.add(cubec);
 	}
-
-	jQuery(window).load(function() {
-		o3djs.webgl.makeClients(init);
-	});
-
-	jQuery(window).unload(function() {
-		if (core.client) {
-			core.client.cleanup();
-		}
-	});
+	
+	function randomColor() {
+		return parseInt(Math.floor(Math.random()*16777215).toString(16), 16);
+	}
+	
+	window.onload = function() {
+		/**
+		 * It is possible to have multiple clients (i.e. multiple frames
+		 * 		rendering 3d content) on one page that would have to be
+		 * 		initialized. In this case, we only want to initialize the
+		 *		first one.
+		 */
+		client = hemi.makeClients()[0];
+		
+		/**
+		 * Set the background color to white. The parameters are a hex
+		 * 		code for the RGB values and an alpha value between 0 and 1.
+		 */
+		client.setBGColor(0xffffff, 1);
+		
+		createWorld();
+	}
 })();

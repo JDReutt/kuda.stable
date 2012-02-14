@@ -1,1 +1,1 @@
-{"plugins":["viewpoints","cameraCurves","browser","shapes","animations","motions","particleEffects","particleCurves","fog","behavior","manips","timers","hud","scenes"]}
+{"plugins":["browser","shapes","motions","animations","viewpoints","cameraCurves","behavior","manipulation","timers","states","particleCurves","particleEffects","fog","hud"]}

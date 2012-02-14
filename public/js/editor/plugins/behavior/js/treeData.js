@@ -16,64 +16,63 @@
  */
 
 (function() {
+	"use strict";
+	
 	var shorthand = editor.tools.behavior;
 	shorthand.treeData = shorthand.treeData || {};
 	
-////////////////////////////////////////////////////////////////////////////////
-//                                 Constants                                  //
-////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Constants
+////////////////////////////////////////////////////////////////////////////////////////////////////
 	
 	var MSG_WILDCARD = shorthand.treeData.MSG_WILDCARD = 'Any';
 	
 	shorthand.treeData.chainTable = (function() {
 		var chainTable = new Hashtable();
 		// Animation
-		chainTable.put('hemi.animation.Animation' + '_' + 'onRender', [hemi.msg.stop]); // Calls stop()
-		chainTable.put('hemi.animation.Animation' + '_' + 'start', [hemi.msg.start, hemi.msg.stop]); // Leads to stop()
-		chainTable.put('hemi.animation.Animation' + '_' + 'stop', [hemi.msg.stop]);
+		chainTable.put('hemi.AnimationGroup' + '_' + 'start', [hemi.msg.start, hemi.msg.stop]); // Leads to stop()
+		chainTable.put('hemi.AnimationGroup' + '_' + 'stop', [hemi.msg.stop]);
 		// Burst
-		chainTable.put('hemi.effect.Burst' + '_' + 'trigger', [hemi.msg.burst]);
+		chainTable.put('hemi.ParticleBurst' + '_' + 'trigger', [hemi.msg.burst]);
 		// Emitter
-		chainTable.put('hemi.effect.Emitter' + '_' + 'hide', [hemi.msg.visible]);
-		chainTable.put('hemi.effect.Emitter' + '_' + 'show', [hemi.msg.visible]);
+		chainTable.put('hemi.ParticleEmitter' + '_' + 'hide', [hemi.msg.visible]);
+		chainTable.put('hemi.ParticleEmitter' + '_' + 'show', [hemi.msg.visible]);
 		// Trail
-		chainTable.put('hemi.effect.Trail' + '_' + 'start', [hemi.msg.start]);
-		chainTable.put('hemi.effect.Trail' + '_' + 'stop', [hemi.msg.stop]);
+		chainTable.put('hemi.ParticleTrail' + '_' + 'start', [hemi.msg.start]);
+		chainTable.put('hemi.ParticleTrail' + '_' + 'stop', [hemi.msg.stop]);
 		// HudDisplay
-		chainTable.put('hemi.hud.HudDisplay' + '_' + 'clearPages', [hemi.msg.visible]); // Calls hide()
-		chainTable.put('hemi.hud.HudDisplay' + '_' + 'hide', [hemi.msg.visible]);
-		chainTable.put('hemi.hud.HudDisplay' + '_' + 'nextPage', [hemi.msg.visible]); // Calls showPage()
-		chainTable.put('hemi.hud.HudDisplay' + '_' + 'previousPage', [hemi.msg.visible]); // Calls showPage()
-		chainTable.put('hemi.hud.HudDisplay' + '_' + 'show', [hemi.msg.visible]); // Calls showPage()
-		chainTable.put('hemi.hud.HudDisplay' + '_' + 'showPage', [hemi.msg.visible]);
-		// Draggable
-		chainTable.put('hemi.manip.Draggable' + '_' + 'onMouseMove', [hemi.msg.drag]);
-		chainTable.put('hemi.manip.Draggable' + '_' + 'onPick', [hemi.msg.drag]); // Calls onMouseMove()
+		chainTable.put('hemi.HudDisplay' + '_' + 'clear', [hemi.msg.visible]); // Calls hide()
+		chainTable.put('hemi.HudDisplay' + '_' + 'hide', [hemi.msg.visible]);
+		chainTable.put('hemi.HudDisplay' + '_' + 'nextPage', [hemi.msg.visible]); // Calls showPage()
+		chainTable.put('hemi.HudDisplay' + '_' + 'previousPage', [hemi.msg.visible]); // Calls showPage()
+		chainTable.put('hemi.HudDisplay' + '_' + 'show', [hemi.msg.visible]); // Calls showPage()
+		chainTable.put('hemi.HudDisplay' + '_' + 'showPage', [hemi.msg.visible]);
+		// Mesh
+		chainTable.put('hemi.Mesh' + '_' + 'move', [hemi.msg.start, hemi.msg.stop]); // Leads to stop
+		chainTable.put('hemi.Mesh' + '_' + 'setMovable', [hemi.msg.move]);
+		chainTable.put('hemi.Mesh' + '_' + 'setResizable', [hemi.msg.resize]);
+		chainTable.put('hemi.Mesh' + '_' + 'turn', [hemi.msg.start, hemi.msg.stop]); // Leads to stop
 		// Model
-		chainTable.put('hemi.model.Model' + '_' + 'incrementAnimationTime', [hemi.msg.animate]); // Calls setAnimationTime()
-		chainTable.put('hemi.model.Model' + '_' + 'load', [hemi.msg.load]); // Calls loadConfig()
-		chainTable.put('hemi.model.Model' + '_' + 'loadConfig', [hemi.msg.load]);
-		chainTable.put('hemi.model.Model' + '_' + 'setAnimationTime', [hemi.msg.animate]);
-		chainTable.put('hemi.model.Model' + '_' + 'setFileName', [hemi.msg.load]); // Calls loadModel()
-		chainTable.put('hemi.model.Model' + '_' + 'unload', [hemi.msg.unload]);
-		// Rotator
-		chainTable.put('hemi.motion.Rotator' + '_' + 'rotate', [hemi.msg.start, hemi.msg.stop]); // Leads to onRender()
-		chainTable.put('hemi.motion.Rotator' + '_' + 'onRender', [hemi.msg.stop]);
-		// Translator
-		chainTable.put('hemi.motion.Translator' + '_' + 'move', [hemi.msg.start, hemi.msg.stop]); // Leads to onRender()
-		chainTable.put('hemi.motion.Translator' + '_' + 'onRender', [hemi.msg.stop]);
-		// Scene
-		chainTable.put('hemi.scene.Scene' + '_' + 'load', [hemi.msg.load]);
-		chainTable.put('hemi.scene.Scene' + '_' + 'nextScene', [hemi.msg.load, hemi.msg.unload]); // Calls load(), unload()
-		chainTable.put('hemi.scene.Scene' + '_' + 'previousScene', [hemi.msg.load, hemi.msg.unload]); // Calls load(), unload()
-		chainTable.put('hemi.scene.Scene' + '_' + 'unload', [hemi.msg.unload]);
+		chainTable.put('hemi.Model' + '_' + 'load', [hemi.msg.load]);
+		chainTable.put('hemi.Model' + '_' + 'setFileName', [hemi.msg.load]); // Calls load()
+		chainTable.put('hemi.Model' + '_' + 'unload', [hemi.msg.unload]);
+		// State
+		chainTable.put('hemi.State' + '_' + 'load', [hemi.msg.load]);
+		chainTable.put('hemi.State' + '_' + 'nextState', [hemi.msg.load, hemi.msg.unload]); // Calls load(), unload()
+		chainTable.put('hemi.State' + '_' + 'previousState', [hemi.msg.load, hemi.msg.unload]); // Calls load(), unload()
+		chainTable.put('hemi.State' + '_' + 'unload', [hemi.msg.unload]);
+		// Timer
+		chainTable.put('hemi.Timer' + '_' + 'start', [hemi.msg.start, hemi.msg.stop]); // Leads to stop()
+		chainTable.put('hemi.Timer' + '_' + 'stop', [hemi.msg.stop]);
+		// Transform
+		chainTable.put('hemi.Transform' + '_' + 'move', [hemi.msg.start, hemi.msg.stop]); // Leads to stop
+		chainTable.put('hemi.Transform' + '_' + 'turn', [hemi.msg.start, hemi.msg.stop]); // Leads to stop
 		// Camera
-		chainTable.put('hemi.view.Camera' + '_' + 'moveOnCurve', [hemi.msg.start, hemi.msg.stop]); // Leads to update()
-		chainTable.put('hemi.view.Camera' + '_' + 'moveToView', [hemi.msg.start, hemi.msg.stop]); // Leads to update()
-		chainTable.put('hemi.view.Camera' + '_' + 'onRender', [hemi.msg.stop]); // Calls update()
-		chainTable.put('hemi.view.Camera' + '_' + 'update', [hemi.msg.stop]);
+		chainTable.put('hemi.Camera' + '_' + 'moveOnCurve', [hemi.msg.start, hemi.msg.stop]); // Leads to update()
+		chainTable.put('hemi.Camera' + '_' + 'moveToView', [hemi.msg.start, hemi.msg.stop]); // Leads to update()
+		chainTable.put('hemi.Camera' + '_' + 'update', [hemi.msg.stop]);
 		// Citizen
-		chainTable.put('hemi.world.Citizen' + '_' + 'cleanup', [hemi.msg.cleanup]);
+		chainTable.put('hemi.Citizen' + '_' + 'cleanup', [hemi.msg.cleanup]);
 		
 		return chainTable;
 	})();
@@ -81,45 +80,43 @@
 	var methodsToRemove = shorthand.treeData.methodsToRemove = [
         'constructor',
         'init',
-		'getId',
-		'setId',
-		'getCitizenType',
-		'setCitizenType',
-		'toOctane'
+        'onRender',
+		'_getId',
+		'_setId',
+		'_toOctane'
 	];
 		
-////////////////////////////////////////////////////////////////////////////////
-//                               Local Variables                              //
-////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Local Variables
+////////////////////////////////////////////////////////////////////////////////////////////////////
 	
 	var commonMethods = {
-		'hemi.animation.Animation': ['reset', 'start', 'stop'],
-		'hemi.audio.Audio': ['pause', 'play', 'seek', 'setVolume'],
-		'hemi.curve.GpuParticleSystem': ['pause', 'play', 'start', 'stop'],
-		'hemi.effect.Burst': ['trigger'],
-		'hemi.effect.Emitter': ['hide', 'show'],
-		'hemi.effect.Trail': ['start', 'stop'],
-		'hemi.hud.HudDisplay': ['hide', 'nextPage', 'previousPage', 'show'],
-		'hemi.hud.Theme': ['load'],
-		'hemi.manip.Draggable': ['disable', 'enable'],
-		'hemi.manip.Scalable': ['disable', 'enable'],
-		'hemi.manip.Turnable': ['disable', 'enable'],
-		'hemi.model.Model': ['load', 'unload'],
-		'hemi.motion.Rotator': ['disable', 'enable', 'rotate', 'setAccel',
-			'setAngle', 'setVel'],
-		'hemi.motion.Translator': ['disable', 'enable', 'move', 'setAccel',
-			'setPos', 'setVel'],
-		'hemi.scene.Scene': ['load', 'nextScene', 'previousScene', 'unload'],
-		'hemi.view.Camera': ['disableControl', 'enableControl', 'moveOnCurve',
+		'hemi.AnimationGroup': ['reset', 'start', 'stop'],
+		'hemi.Audio': ['pause', 'play', 'seek', 'setVolume'],
+		'hemi.ParticleCurve': ['pause', 'play', 'start', 'stop'],
+		'hemi.ParticleBurst': ['trigger'],
+		'hemi.ParticleEmitter': ['hide', 'show'],
+		'hemi.ParticleTrail': ['start', 'stop'],
+		'hemi.HudDisplay': ['hide', 'nextPage', 'previousPage', 'show'],
+		'hemi.Model': ['load', 'unload'],
+		'hemi.State': ['load', 'nextState', 'previousState', 'unload'],
+		'hemi.Timer': ['pause', 'reset', 'resume', 'start', 'stop'],
+		'hemi.Mesh': ['move', 'turn', 'cancelInteraction', 'cancelMoving', 'cancelTurning', 
+			'setMovable', 'setMoving', 'setPickable', 'setTurnable', 'setTurning', 'setResizable',
+			'setVisible'],
+		'hemi.Transform': ['move', 'turn', 'cancelInteraction', 'cancelMoving', 'cancelTurning', 
+			'setMovable', 'setMoving', 'setPickable', 'setTurnable', 'setTurning', 'setResizable',
+			'setVisible'],
+		'hemi.Camera': ['disableControl', 'enableControl', 'moveOnCurve',
 			'moveToView', 'orbit', 'rotate', 'truck']
 	};
 	
-////////////////////////////////////////////////////////////////////////////////
-//                                  Methods                                   //
-////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Methods
+////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	var isCommon = function(citizen, method) {
-		var type = citizen.getCitizenType ? citizen.getCitizenType() : citizen.name,
+		var type = citizen._octaneType ? citizen._octaneType : citizen.name,
 			methList = commonMethods[type],
 			common = false;
 		
@@ -141,8 +138,8 @@
 			return null;
 		} else if (citizen === MSG_WILDCARD) {
 			nodeName += citizen;
-		} else if (citizen.getCitizenType !== undefined) {
-			nodeName += citizen.getCitizenType().split('.').pop();
+		} else if (citizen._octaneType !== undefined) {
+			nodeName += citizen._octaneType.split('.').pop();
 		}
 		
 		if (config.id != null) {
@@ -178,7 +175,7 @@
 		var name = getNodeName(citizen, {
 			option: null,
 			prefix: prefix,
-			id: citizen.getId()
+			id: citizen._getId()
 		});
 		
 		return {
@@ -194,6 +191,60 @@
 		};
 	};
 	
+	var createShapeTransformJson = function(tCit, prefix, method) {
+		var shape = tCit.citizen;
+		
+		return {
+			data: shape.name || '',
+			attr: {
+				id: getNodeName(tCit, {
+					option: null,
+					prefix: prefix,
+					id: tCit._getId()
+				}),
+				rel: 'citizen'
+			},
+			children: [shorthand.treeData[method](shape.mesh, prefix)],
+			state: 'closed',
+			metadata: {
+				type: 'citizen',
+				citizen: tCit
+			}
+		};
+	};
+	
+	var createModelTransformJson = function(tCit, prefix, method) {
+		var model = tCit.citizen,
+			list = [],
+			transforms = [];
+		
+		THREE.SceneUtils.traverseHierarchy(model.root, function(transform) {
+			list.push(transform);	
+		});
+		
+		for (var ndx = 0, len = list.length; ndx < len; ndx++) {
+			transforms.push(shorthand.treeData[method](list[ndx], prefix));
+		}
+		
+		return {
+			data: model.name || '',
+			attr: {
+				id: getNodeName(tCit, {
+					option: null,
+					prefix: prefix,
+					id: tCit._getId()
+				}),
+				rel: 'citizen'
+			},
+			children: transforms,
+			state: 'closed',
+			metadata: {
+				type: 'citizen',
+				citizen: tCit
+			}
+		};
+	};
+	
 	shorthand.treeData.getNodeName = getNodeName;
 	shorthand.treeData.getNodePath = getNodePath;
 	shorthand.treeData.createCitizenJson = createCitizenJson;
@@ -204,11 +255,21 @@
 			shapePick: true,
 			name: 'Picked Shape:',
 			citizen: model,
-			getCitizenType: function() {
-				return shorthand.constants.SHAPE_PICK;
-			},
-			getId: function() {
-				return this.citizen.getId();
+			_octaneType: shorthand.constants.SHAPE_PICK,
+			_getId: function() {
+				return this.citizen._getId();
+			}
+		};
+	};
+	
+	shorthand.treeData.createTransformCitizen = function(model) {
+		return {
+			isTransform: true,
+			name: 'Transforms',
+			citizen: model,
+			_octaneType: shorthand.constants.TRANSFORM,
+			_getId: function() {
+				return this.citizen._getId();
 			}
 		};
 	};
@@ -218,17 +279,15 @@
 			camMove: true,
 			name: 'Camera Move:',
 			citizen: camera,
-			getCitizenType: function() {
-				return shorthand.constants.CAM_MOVE;
-			},
-			getId: function() {
-				return this.citizen.getId();
+			_octaneType: shorthand.constants.CAM_MOVE,
+			_getId: function() {
+				return this.citizen._getId();
 			}
 		};
 	};
 	
-	shorthand.treeData.createCitizenTypeJson = function(citizen, prefix) {
-		var type = citizen.getCitizenType().split('.').pop(),
+	shorthand.treeData.createOctaneTypeJson = function(citizen, prefix) {
+		var type = citizen._octaneType.split('.').pop(),
 			name = getNodeName(citizen, {
 				option: null,
 				prefix: prefix
@@ -249,7 +308,7 @@
 	};
 	
 	shorthand.treeData.createTriggerJson = function(citizen, prefix) {
-		var id = citizen.getId(),
+		var id = citizen._getId(),
 			name = getNodeName(citizen, {
 				option: MSG_WILDCARD,
 				prefix: prefix,
@@ -266,15 +325,16 @@
 					parent: citizen,
 					msg: MSG_WILDCARD
 				}
-			}];
+			}],
+			msgSent = citizen._msgSent;
 		
-		for (var ndx = 0, len = citizen.msgSent.length; ndx < len; ndx++) {
-			var msg = citizen.msgSent[ndx],
-				name = getNodeName(citizen, {
-					option: msg,
-					prefix: prefix,
-					id: id
-				});
+		for (var ndx = 0, len = msgSent ? msgSent.length : 0; ndx < len; ndx++) {
+			var msg = msgSent[ndx];
+			name = getNodeName(citizen, {
+				option: msg,
+				prefix: prefix,
+				id: id
+			});
 			
 			msgs.push({
 				data: msg.split('.').pop(),
@@ -299,9 +359,10 @@
 	shorthand.treeData.createActionJson = function(citizen, prefix) {
 		var methods = [],
 			moreMethods = [],
-			id = citizen.getId();
+			id = citizen._getId(),
+			node;
 		
-		for (propName in citizen) {
+		for (var propName in citizen) {
 			var prop = citizen[propName];
 			
 			if (jQuery.isFunction(prop) && methodsToRemove.indexOf(propName) === -1) {
@@ -309,18 +370,18 @@
 						option: propName,
 						prefix: prefix,
 						id: id
-					}),
-					node = {
-						data: propName,
-						attr: {
-							id: name,
-							rel: 'method'
-						},
-						metadata: {
-							type: 'method',
-							parent: citizen
-						}
-					};
+					});
+				node = {
+					data: propName,
+					attr: {
+						id: name,
+						rel: 'method'
+					},
+					metadata: {
+						type: 'method',
+						parent: citizen
+					}
+				};
 				
 				if (isCommon(citizen, propName)) {
 					methods.push(node);
@@ -353,23 +414,24 @@
 			methods = moreMethods;
 		}
 		
-		var node = createCitizenJson(citizen, prefix);
+		node = createCitizenJson(citizen, prefix);
 		node.children = methods;
 		node.state = 'closed';
 		return node;
 	};
 	
 	shorthand.treeData.createModuleJson = function(module, prefix) {
-		var methods = [];
+		var methods = [],
+			name;
 		
-		for (propName in module) {
+		for (var propName in module) {
 			var prop = module[propName];
 			
 			if (jQuery.isFunction(prop) && methodsToRemove.indexOf(propName) === -1) {
-				var name = getNodeName(module, {
+				name = getNodeName(module, {
 					option: propName,
 					prefix: prefix,
-					id: module.getId()
+					id: module._getId()
 				});
 				
 				methods.push({
@@ -386,9 +448,9 @@
 			}
 		}
 		
-		var name = getNodeName(module, {
+		name = getNodeName(module, {
 			prefix: prefix,
-			id: module.getId()
+			id: module._getId()
 		});
 		
 		return {
@@ -420,7 +482,7 @@
 		var name = getNodeName(cmCit, {
 			option: null,
 			prefix: prefix,
-			id: cmCit.getId()
+			id: cmCit._getId()
 		});
 		
 		return {
@@ -460,9 +522,9 @@
 	
 	shorthand.treeData.createViewpointJson = function(cmCit, viewpoint, prefix) {
 		var name = getNodeName(cmCit, {
-				option: viewpoint.getId(),
+				option: viewpoint._getId(),
 				prefix: prefix,
-				id: cmCit.getId()
+				id: cmCit._getId()
 			});
 			
 		return {
@@ -474,26 +536,30 @@
 			metadata: {
 				type: 'message',
 				parent: cmCit,
-				msg: viewpoint.getId()
+				msg: viewpoint._getId()
 			}
 		};
 	};
 	
 	shorthand.treeData.createModelPickJson = function(spCit, prefix) {
 		var model = spCit.citizen,
-			id = spCit.getId(),
-			shapes = [];
-		
-		for (var ndx = 0, len = model.shapes.length; ndx < len; ndx++) {
-			var shape = model.shapes[ndx],
-				name = getNodeName(spCit, {
-					option: shape.name || '',
-					prefix: prefix,
-					id: id
-				});
-			
-			shapes.push({
-				data: shape.name || '',
+			id = spCit._getId(),
+			meshes = [],
+			meshJson = [],
+			name;
+
+		findMeshes(model.root, meshes);
+
+		for (var i = 0, il = meshes.length; i < il; ++i) {
+			var mesh = meshes[i];
+			name = getNodeName(spCit, {
+				option: mesh.name || '',
+				prefix: prefix,
+				id: id
+			});
+
+			meshJson.push({
+				data: mesh.name || '',
 				attr: {
 					id: name,
 					rel: 'message'
@@ -501,24 +567,24 @@
 				metadata: {
 					type: 'message',
 					parent: spCit,
-					msg: shape.name || ''
+					msg: mesh.name || ''
 				}
 			});
 		}
-		
-		var name = getNodeName(spCit, {
+
+		name = getNodeName(spCit, {
 			option: null,
 			prefix: prefix,
 			id: id
 		});
-		
+
 		return {
 			data: model.name || '',
 			attr: {
 				id: name,
 				rel: 'citizen'
 			},
-			children: shapes,
+			children: meshJson,
 			state: 'closed',
 			metadata: {
 				type: 'citizen',
@@ -527,9 +593,17 @@
 		};
 	};
 	
+	shorthand.treeData.createModelTransformTriggerJson = function(tCit, prefix) {
+		return createModelTransformJson(tCit, prefix, 'createTriggerJson');
+	};
+	
+	shorthand.treeData.createModelTransformActionJson = function(tCit, prefix) {
+		return createModelTransformJson(tCit, prefix, 'createActionJson');
+	};
+	
 	shorthand.treeData.createShapePickJson = function(spCit, prefix) {
-		var shape = spCit.citizen.transform.shapes[0],
-			id = spCit.getId(),
+		var shape = spCit.citizen,
+			id = spCit._getId(),
 			name = getNodeName(spCit, {
 				option: shape.name || '',
 				prefix: prefix,
@@ -544,7 +618,7 @@
 				metadata: {
 					type: 'message',
 					parent: spCit,
-					msg: shape.name || ''
+					msg: shape.mesh.name || ''
 				}
 			}];
 		
@@ -555,7 +629,7 @@
 		});
 		
 		return {
-			data: spCit.citizen.name || '',
+			data: shape.name || '',
 			attr: {
 				id: name,
 				rel: 'citizen'
@@ -569,6 +643,14 @@
 		};
 	};
 	
+	shorthand.treeData.createShapeTransformTriggerJson = function(tCit, prefix) {
+		return createShapeTransformJson(tCit, prefix, 'createTriggerJson');
+	};
+	
+	shorthand.treeData.createShapeTransformActionJson = function(tCit, prefix) {
+		return createShapeTransformJson(tCit, prefix, 'createActionJson');
+	};
+	
 	shorthand.treeData.createShapePickTypeJson = function(spCit, prefix) {
 		var name = getNodeName(spCit, {
 			option: null,
@@ -577,6 +659,26 @@
 		
 		return {
 			data: 'Picked Shape',
+			attr: {
+				id: name,
+				rel: 'citType'
+			},
+			state: 'closed',
+			children: [],
+			metadata: {
+				type: 'citType'
+			}
+		};
+	};
+	
+	shorthand.treeData.createTransformTypeJson = function(tCit, prefix) {
+		var name = getNodeName(tCit, {
+			option: null,
+			prefix: prefix
+		});
+		
+		return {
+			data: 'Transforms',
 			attr: {
 				id: name,
 				rel: 'citType'
@@ -650,5 +752,17 @@
 			}
 		};
 	};
-	
+
+	function findMeshes(transform, meshes) {
+		var children = transform.children;
+
+		if (transform.geometry) {
+			meshes.push(transform);
+		}
+
+		for (var i = 0, il = children.length; i < il; ++i) {
+			findMeshes(children[i], meshes);
+		}
+	}
+
 })();

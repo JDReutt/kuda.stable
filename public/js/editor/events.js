@@ -15,7 +15,7 @@
  * Boston, MA 02110-1301 USA.
  */
 
-var editor = (function(editor) {
+(function(editor) {
 	/**
 	 * @namespace A module for managing the string literals for event types.
 	 * @example
@@ -34,6 +34,8 @@ var editor = (function(editor) {
 		Editing: 'editor.Editing',
 		
 		Enabled: 'editor.Enabled',
+
+		Invalidate: 'editor.Invalidate',
 		
 		Loaded: 'editor.Loaded',
 		
@@ -70,13 +72,11 @@ var editor = (function(editor) {
 		Updated: 'editor.Updated',
 		
 		ViewAdded: 'editor.ViewAdded',
-		
+
 		WidgetVisible: 'editor.WidgetVisible',
 		
 		WorldCleaned: 'editor.WorldCleaned',
 		
 		WorldLoaded: 'editor.WorldLoaded'
 	};
-
-	return editor;
-})(editor || {});
+})(editor);

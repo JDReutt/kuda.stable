@@ -1,437 +1,196 @@
-/* 
- * Kuda includes a library and editor for authoring interactive 3D content for the web.
- * Copyright (C) 2011 SRI International.
- *
- * This program is free software; you can redistribute it and/or modify it under the terms
- * of the GNU General Public License as published by the Free Software Foundation; either 
- * version 2 of the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
- * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
- * See the GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License along with this program; 
- * if not, write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, 
- * Boston, MA 02110-1301 USA.
+/*
+ * Licensed under the MIT license: http://www.opensource.org/licenses/mit-license.php
+ * The MIT License (MIT)
+ * 
+ * Copyright (c) 2011 SRI International
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+ * associated  documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the  Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-var hemi = (function(hemi) {
+(function () {
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Constants
+////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	/**
-	 * @namespace A module for easily creating primitives in Kuda.
+	 * Enum for different geometry shape types.
 	 */
-	hemi.shape = hemi.shape || {};
-	
-	hemi.shape.BOX = 'box';
-	hemi.shape.CUBE = 'cube';
-	hemi.shape.SPHERE = 'sphere';
-	hemi.shape.CYLINDER = 'cylinder';
-	hemi.shape.CONE = 'cone';
-	hemi.shape.ARROW = 'arrow';
-	hemi.shape.TETRA = 'tetra';
-	hemi.shape.OCTA = 'octa';
-	hemi.shape.PYRAMID = 'pyramid';
-	hemi.shape.CUSTOM = 'custom';
-	hemi.shape.SHAPE_ROOT = "ShapeRoot";
-	
-	/**
-	 * @class A TransformUpdate allows changes to the Transform in a Shape to be
-	 * persisted through Octane.
-	 */
-	hemi.shape.TransformUpdate = function() {
-		/**
-		 * The updated position, rotation, and scale of the Transform.
-		 * @type number[4][4]
-		 */
-		this.localMatrix = null;
-		/**
-		 * A flag indicating if the Transform is visible.
-		 * @type boolean
-		 */
-		this.visible = null;
-		/**
-		 * A flag indicating if the Transform is able to be picked.
-		 * @type boolean
-		 */
-		this.pickable = null;
+	hemi.ShapeType = {
+		ARROW: 'arrow',
+		BOX: 'box',
+		CONE: 'cone',
+		CUBE: 'cube',
+		CUSTOM: 'custom',
+		CYLINDER: 'cylinder',
+		OCTA: 'octa',
+		PLANE: 'plane',
+		PYRAMID: 'pyramid',
+		SPHERE: 'sphere',
+		TETRA: 'tetra'
 	};
 
-	hemi.shape.TransformUpdate.prototype = {
-		/**
-		 * Apply the changes in the TransformUpdate to the given Transform.
-		 * 
-		 * @param {o3d.Transform} transform the Transform to update
-		 */
-		apply: function(transform) {
-			if (this.localMatrix != null) {
-				transform.localMatrix = this.localMatrix;
-			}
-			
-			if (this.pickable != null) {
-				hemi.picking.setPickable(transform, this.pickable, true);
-			}
-			
-			if (this.visible != null) {
-				transform.visible = this.visible;
-			}
-		},
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Shape class
+////////////////////////////////////////////////////////////////////////////////////////////////////
 
-		/**
-		 * Check if the TransformUpdate has been modified.
-		 * 
-		 * @return {boolean} true if the Transform has been changed
-		 */
-		isModified: function() {
-			return this.localMatrix != null || this.pickable != null || this.visible != null;
-		},
-		
-		/**
-		 * Reset the TransformUpdate to its unmodified state.
-		 */
-		reset: function() {
-			this.localMatrix = this.pickable = this.visible = null;
-		},
-
-		/**
-		 * Get the Octane structure for the TransformUpdate.
-		 *
-		 * @return {Object} the Octane structure representing the TransformUpdate
-		 */
-		toOctane: function() {
-			var octane = {
-					type: 'hemi.shape.TransformUpdate',
-					props: []
-				},
-				valNames = ['localMatrix', 'visible', 'pickable'];
-			
-			for (var i = 0, il = valNames.length; i < il; i++) {
-				var name = valNames[i];
-				octane.props.push({
-					name: name,
-					val: this[name]
-				});
-			};
-
-			return octane;
-		}
-	};
-	
 	/**
-	 * @class A Shape is a wrapper class around basic geometric shapes such as
-	 * cubes and spheres that allows them to interact with the World in complex
-	 * ways.
-	 * @extends hemi.world.Citizen
+	 * @class A Shape is a wrapper class around basic geometric shapes such as cubes and spheres
+	 * that allows them to interact with the World in complex ways.
 	 * 
+	 * @param {hemi.Client} client the Client that will render the Shape
 	 * @param {Object} opt_config optional configuration for the Shape
 	 */
-	hemi.shape.Shape = hemi.world.Citizen.extend({
-		init: function(opt_config) {
-			this._super();
-			
-			this.color = null;
-			this.dim = {};
-			this.shapeType = null;
-			this.transform = null;
-			this.tranUp = new hemi.shape.TransformUpdate();
-			
-			if (opt_config != null) {
-				this.loadConfig(opt_config);
-			}
-			if (this.color && this.shapeType) {
-				this.create();
-			}
-		},
-		
-        /**
-         * Overwrites hemi.world.Citizen.citizenType.
-         * @string
-         */
-        citizenType: 'hemi.shape.Shape',
-		
-		/**
-		 * Send a cleanup Message and remove all references in the Shape.
-		 */
-		cleanup: function() {
-			this._super();
-			
-			if (this.transform !== null) {
-				destroyTransform(this.transform);
-			}
-			
-			this.color = null;
-			this.dim = {};
-			this.shapeType = null;
-			this.transform = null;
-			this.tranUp = null;
-		},
-		
-		/**
-		 * Get the Octane structure for the Shape.
-	     *
-	     * @return {Object} the Octane structure representing the Shape
-		 */
-		toOctane: function(){
-			var octane = this._super(),
-				valNames = ['color', 'dim', 'shapeType'];
-			
-			for (var i = 0, il = valNames.length; i < il; i++) {
-				var name = valNames[i];
-				octane.props.push({
-					name: name,
-					val: this[name]
-				});
-			};
-			
-			if (this.tranUp.isModified()) {
-				octane.props.push({
-					name: 'tranUp',
-					oct: this.tranUp.toOctane()
-				});
-			}
-			
-			octane.props.push({
-				name: 'create',
-				arg: []
-			});
-			
-			return octane;
-		},
-		
-		/**
-		 * Change the existing Shape to a new type of Shape using the given
-		 * configuration.
-		 * 
-		 * @param {Object} cfg configuration options for the Shape
-		 */
-		change: function(cfg) {
-			this.loadConfig(cfg);
-			
-			var config = hemi.utils.join({
-						shape: this.shapeType,
-						color: this.color
-					},
-					this.dim),
-				newTran = hemi.shape.create(config),
-				oldTran = this.transform,
-				oldShapes = oldTran.shapes.slice(0),
-				newShapes = newTran.shapes.slice(0);
-			
-			while (oldShapes.length === 0) {
-				oldTran = oldTran.children[0];
-				oldShapes = oldTran.shapes;
-			}
-			
-			for (var i = 0, il = newShapes.length; i < il; i++) {
-				oldTran.addShape(newShapes[i]);
-				newTran.removeShape(newShapes[i]);
-			}
-			
-			for (var i = 0, il = oldShapes.length; i < il; i++) {
-				newTran.addShape(oldShapes[i]);
-				oldTran.removeShape(oldShapes[i]);
-			}
-			
-			applyColor(this.transform, this.color);
-			
-			destroyTransform(newTran);
-		},
-		
-		/**
-		 * Create the actual shape and transform for the Shape.
-		 */
-		create: function() {
-			var config = hemi.utils.join({
-					shape: this.shapeType,
-					color: this.color
-				},
-				this.dim);
-			
-			if (this.transform !== null) {
-				destroyTransform(this.transform);
-			}
-			
-			this.transform = hemi.shape.create(config);
-			this.tranUp.apply(this.transform);
-			this.setName(this.name);
-			
-			this.ownerId = this.transform.createParam('ownerId', 'o3d.ParamInteger');
-			this.ownerId.value = this.getId();
-			hemi.world.tranReg.distribute(this);
-		},
-		
-		/**
-		 * Load the given configuration object.
-		 * 
-		 * @param {Object} config configuration options for the Shape
-		 */
-		loadConfig: function(config) {
-			this.tranUp.reset();
-			this.dim = {};
-			
-			for (t in config) {
-				if (t === 'color') {
-					this.color = config[t];
-				} else if (t === 'type') {
-					this.shapeType = config[t];
-				} else {
-					this.dim[t] = config[t];
-				}
-			}
-		},
-		
-		/**
-		 * Overwrites Citizen.setId() so that the internal transform gets the
-		 * new id as well.
-		 * 
-		 * @param {number} id the new id
-		 */
-		setId: function(id) {
-			this._super(id);
-			
-			if (this.ownerId) {
-				this.ownerId.value = id;
-			}
-		},
-		
-		/**
-		 * Sets the transform and shape names as well as the overall name for
-		 * this shape.
-		 * 
-		 * @param {string} name the new name
-		 */
-		setName: function(name) {
-			this.name = name;
-			this.transform.name = this.name + ' Transform';
-			this.transform.shapes[0].name = this.name + ' Shape';
-		},
-		
-		/**
-		 * Get the transform for the Shape.
-		 * 
-		 * @return {o3d.Transform} the transform for the Shape
-		 */
-		getTransform: function() {
-			return this.transform;
-		},
-		
-		/**
-		 * Rotate the Transforms in the Shape.
-		 * 
-		 * @param {Object} config configuration options
-		 */
-		rotate: function(config) {
-			var axis = config.axis.toLowerCase(),
-				rad = config.rad;
-			
-			switch(axis) {
-				case 'x':
-					this.transform.rotateX(rad);
-					break;
-				case 'y':
-					this.transform.rotateY(rad);
-					break;
-				case 'z':
-					this.transform.rotateZ(rad);
-					break;
-			}
-			
-			this.tranUp.localMatrix = hemi.utils.clone(this.transform.localMatrix);
-		},
-		
-		/**
-		 * Scale the Transforms in the Shape.
-		 * 
-		 * @param {Object} config configuration options
-		 */
-		scale: function(config) {
-			this.transform.scale(config.x, config.y, config.z);
-			this.tranUp.localMatrix = hemi.utils.clone(this.transform.localMatrix);
-		},
+	var Shape = function(client, opt_config) {
+		this.client = client;
+		this.config = opt_config || {};
+		this.mesh = null;
 
-		/**
-		 * Set the pickable flag for the Transforms in the Shape.
-		 *
-		 * @param {Object} config configuration options
-		 */
-		setPickable: function(config) {
-			hemi.picking.setPickable(this.transform, config.pick, true);
-			this.tranUp.pickable = config.pick ? null : false;
-		},
-
-		/**
-		 * Set the Shape Transform's matrix to the new matrix.
-		 * 
-		 * @param {number[4][4]} matrix the new local matrix
-		 */
-		setMatrix: function(matrix) {			
-			this.transform.localMatrix = matrix;
-			this.tranUp.localMatrix = hemi.utils.clone(matrix);
-		},
-		
-		/**
-		 * Set the visible flag for the Transforms in the Shape.
-		 *
-		 * @param {Object} config configuration options
-		 */
-		setVisible: function(config) {
-			this.transform.visible = config.vis;
-			this.tranUp.visible = config.vis ? null : false;
-		},
-		
-		/**
-		 * Translate the Shape by the given amounts.
-		 * 
-		 * @param {number} x amount to translate on the x axis
-		 * @param {number} y amount to translate on the y axis
-		 * @param {number} z amount to translate on the z axis
-		 */
-		translate: function(x, y, z) {
-			if (this.transform !== null) {
-				this.transform.translate(x, y, z);
-				this.tranUp.localMatrix = hemi.utils.clone(this.transform.localMatrix);
-			}
+		if (this.config.shape) {
+			this.create();
 		}
-	});
-	
-	/**
-	 * Initialize a local root transform and pack.
+	};
+
+	/*
+	 * Remove all references in the Shape.
 	 */
-	hemi.shape.init = function() {
-		hemi.shape.root = hemi.core.mainPack.createObject('Transform');
-		hemi.shape.root.name = hemi.shape.SHAPE_ROOT;
-		hemi.shape.root.parent = hemi.picking.pickRoot;
-		hemi.shape.pack = hemi.core.mainPack;
-		hemi.shape.material = hemi.core.material.createBasicMaterial(
-			hemi.shape.pack,
-			hemi.view.viewInfo,
-			[0,0,0,1],
-			false);
-		hemi.shape.transMaterial = hemi.core.material.createBasicMaterial(
-			hemi.shape.pack,
-			hemi.view.viewInfo,
-			[0,0,0,1],
-			true);
-		
-		hemi.world.addCamCallback(function(camera) {
-			var pos = camera.light.position,
-				param = hemi.shape.material.getParam('lightWorldPos');
+	Shape.prototype._clean = function() {
+		if (this.mesh !== null) {
+			this.mesh.cleanup();
+			this.mesh = null;
+		}
+
+		this.client = null;
+		this.config = {};
+	};
+
+	/*
+	 * Octane properties for Shape.
+	 * 
+	 * @return {Object[]} array of Octane properties
+	 */
+	Shape.prototype._octane = ['client', 'config', 'mesh', 'create'];
+
+	/**
+	 * Create the actual geometry for the Shape.
+	 */
+	Shape.prototype.create = function() {
+		var renderer = this.client.renderer,
+			scene = this.client.scene;
 			
-			if (param) {
-				param.bind(pos);
-			}
-			
-			param = hemi.shape.transMaterial.getParam('lightWorldPos'); 
-			if (param) {
-				param.bind(pos);
-			}
-		});
+		if (this.mesh === null) {
+			this.mesh = new hemi.Mesh();
+		} else if (this.mesh.__webglInit) {
+			// cleanup
+			scene.__objectsRemoved.push(this.mesh);
+			renderer.initWebGLObjects(scene);
+			renderer.deallocateObject(this.mesh);
+		}
+
+		hemi.createShape(this.config, this.mesh);
+		this.setName(this.name);
+
+		if (this.mesh.parent === undefined) {
+			// updateMatrix() call is due to a specific case for when loading from octane
+			this.mesh.updateMatrix();
+
+			scene.add(this.mesh);
+		} else {
+			// need the renderer to do some setup
+			scene.__objectsAdded.push(this.mesh);
+			renderer.initWebGLObjects(scene);
+		}
+	};
+
+	/**
+	 * Set the color of the Shape.
+	 * 
+	 * @param {number} color the new color (in hex)
+	 */
+	Shape.prototype.setColor = function(color) {
+		if (this.config.material) {
+			this.config.material.color = color;
+		} else {
+			this.config.color = color;
+			this.mesh.material.color = color;
+		}
+	};
+
+	/**
+	 * Set the name for the Shape as well as its Mesh and geometry.
+	 * 
+	 * @param {string} name the new name
+	 */
+	Shape.prototype.setName = function(name) {
+		this.name = name;
+		this.mesh.name = this.name + ' Mesh';
+		this.mesh.geometry.name = this.name + ' Geometry';
+	};
+
+	/**
+	 * Set the opacity of the Shape.
+	 * 
+	 * @param {number} opacity the new opacity (0 to 1)
+	 */
+	Shape.prototype.setOpacity = function(opacity) {
+		this.config.opacity = opacity;
+		this.mesh.material.opacity = opacity;
+		this.mesh.material.transparent = opacity < 1;
+	};
+
+	/**
+	 * Set the shape type of the Shape.
+	 * 
+	 * @param {string} type the new shape type
+	 */
+	Shape.prototype.setType = function(type) {
+		this.config.shape = type;
+		this.create();
 	};
 	
+	/**
+	 * Convenience method for translating the mesh.
+	 * 
+	 * @param {number} x amount to translate in the x direction 
+	 * @param {number} y amount to translate in the y direction
+	 * @param {number} z amount to translate in the z direction
+	 */
+	Shape.prototype.translate = function(x, y, z) {
+		this.mesh.translateX(x);
+		this.mesh.translateY(y);
+		this.mesh.translateZ(z);
+		this.mesh.updateMatrix();
+		this.mesh.updateMatrixWorld(true);
+	};
+
+	hemi.makeCitizen(Shape, 'hemi.Shape', {
+		cleanup: Shape.prototype._clean,
+		toOctane: Shape.prototype._octane
+	});
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Global functions
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
 	/**
 	 * Create a geometric shape with the given properties. Valid properties:
 	 * shape: the type of shape to create
-	 * color: the color of the shape to create
-	 * mat: the Material to use for the shape (overrides color)
+	 * color: the color of the shape
+	 * opacity: the opacity of the shape
+	 * material: the Material to use for the shape (overrides color and opacity)
 	 * height/h: height of the shape
 	 * width/w: width of the shape
 	 * depth/d: depth of the shape
@@ -441,403 +200,236 @@ var hemi = (function(hemi) {
 	 * radiusT/r2: top radius of the shape
 	 * tail: length of the tail of the shape
 	 * vertices/v: a series of vertices defining the shape
+	 * faces/f: a series of faces referencing three vertices each
+	 * faceVertexUvs/uvs: a series of uv coordinates
 	 * 
 	 * @param {Object} shapeInfo properties of the shape to create
-	 * @return {o3d.Transform} the parent Transform of the created geometry
+	 * @param {hemi.Mesh} opt_mesh optional Mesh to contain the geometry
+	 * @return {THREE.Mesh} the parent Mesh of the created geometry
 	 */
-	hemi.shape.create = function(shapeInfo) {
-		var transform = null,
-			shapeType = shapeInfo.shape,
-			color = null,
-			material;
-		
-		if (shapeInfo.mat != null) {
-			material = shapeInfo.mat;
-			
-			var param = material.getParam('lightWorldPos'); 
-			if (param) {
-				param.bind(hemi.world.camera.light.position);
-			}
+	hemi.createShape = function(shapeInfo, opt_mesh) {
+		var mesh = opt_mesh || new hemi.Mesh(),
+			shapeType = shapeInfo.shape || hemi.ShapeType.Box,
+			color = shapeInfo.color || 0x000000,
+			opacity = shapeInfo.opacity === undefined ? 1 : shapeInfo.opacity;
+
+		if (shapeInfo.material !== undefined) {
+			mesh.material = shapeInfo.material;
 		} else {
-			color = shapeInfo.color;
-			
-			if (color[3] < 1) {
-				material = hemi.shape.transMaterial;
-			}
-			else {
-				material = hemi.shape.material;
-			}
+			mesh.material = new THREE.MeshPhongMaterial({
+				color: color,
+				opacity: opacity,
+				transparent: opacity < 1
+			});
 		}
-		
+
 		switch (shapeType.toLowerCase()) {
-			case hemi.shape.BOX:
-				transform = hemi.shape.createBox(
-					shapeInfo.height != null ? shapeInfo.height :
-						shapeInfo.h != null ? shapeInfo.h : 1,
-					shapeInfo.width != null ? shapeInfo.width :
-						shapeInfo.w != null ? shapeInfo.w : 1,
-					shapeInfo.depth != null ? shapeInfo.depth :
-						shapeInfo.d != null ? shapeInfo.d : 1,
-					material);
+			case hemi.ShapeType.BOX:
+				var w = shapeInfo.width !== undefined ? shapeInfo.width :
+						shapeInfo.w !== undefined ? shapeInfo.w : 1,
+					h = shapeInfo.height !== undefined ? shapeInfo.height :
+						shapeInfo.h !== undefined ? shapeInfo.h : 1,
+					d = shapeInfo.depth !== undefined ? shapeInfo.depth :
+						shapeInfo.d !== undefined ? shapeInfo.d : 1;
+
+				mesh.geometry = new THREE.CubeGeometry(w, h, d);
 				break;
-			case hemi.shape.CUBE:
-				transform = hemi.shape.createCube(
-					shapeInfo.size != null ? shapeInfo.size : 1,
-					material);
+			case hemi.ShapeType.CUBE:
+				var size = shapeInfo.size !== undefined ? shapeInfo.size : 1;
+
+				mesh.geometry = new THREE.CubeGeometry(size, size, size);
 				break;
-			case hemi.shape.SPHERE:
-				transform = hemi.shape.createSphere(
-					shapeInfo.radius != null ? shapeInfo.radius :
-						shapeInfo.r != null ? shapeInfo.r : 1,
-					material);
+			case hemi.ShapeType.SPHERE:
+				var r = shapeInfo.radius !== undefined ? shapeInfo.radius :
+						shapeInfo.r !== undefined ? shapeInfo.r : 1;
+
+				mesh.geometry = new THREE.SphereGeometry(r, 24, 12);
 				break;
-			case hemi.shape.CYLINDER:
-				transform = hemi.shape.createCylinder(
-					shapeInfo.radiusB != null ? shapeInfo.radiusB :
-							shapeInfo.r1 != null ? shapeInfo.r1 :
-							shapeInfo.radius != null ? shapeInfo.radius :
-							shapeInfo.r != null ? shapeInfo.r : 1,
-					shapeInfo.radiusT != null ? shapeInfo.radiusT :
-							shapeInfo.r2 != null ? shapeInfo.r2 :
-							shapeInfo.radius != null ? shapeInfo.radius :
-							shapeInfo.r != null ? shapeInfo.r : 1,
-					shapeInfo.height != null ? shapeInfo.height : 
-						shapeInfo.h != null ? shapeInfo.h : 1,
-					material);
+			case hemi.ShapeType.CYLINDER:
+				var r1 = shapeInfo.radiusB !== undefined ? shapeInfo.radiusB :
+						shapeInfo.r1 !== undefined ? shapeInfo.r1 : 1,
+					r2 = shapeInfo.radiusT !== undefined ? shapeInfo.radiusT :
+						shapeInfo.r2 !== undefined ? shapeInfo.r2 : 1,
+					h = shapeInfo.height !== undefined ? shapeInfo.height :
+						shapeInfo.h !== undefined ? shapeInfo.h : 1;
+
+				mesh.geometry = new THREE.CylinderGeometry(r1, r2, h, 24);
 				break;
-			case hemi.shape.CONE:
-				transform = hemi.shape.createCone(
-					shapeInfo.radius != null ? shapeInfo.radius :
-							shapeInfo.r != null ? shapeInfo.r : 1,
-					shapeInfo.height != null ? shapeInfo.height : 
-						shapeInfo.h != null ? shapeInfo.h : 1,
-					material);
+			case hemi.ShapeType.CONE:
+				var r = shapeInfo.radius !== undefined ? shapeInfo.radius :
+						shapeInfo.r !== undefined ? shapeInfo.r : 1,
+					h = shapeInfo.height !== undefined ? shapeInfo.height :
+						shapeInfo.h !== undefined ? shapeInfo.h : 1;
+
+				mesh.geometry = new THREE.CylinderGeometry(0, r, h, 24);
 				break;
-			case hemi.shape.ARROW:
-				transform = hemi.shape.createArrow(
-					shapeInfo.size != null ? shapeInfo.size : 1,
-					shapeInfo.tail != null ? shapeInfo.tail : 1,
-					material);
+			case hemi.ShapeType.PLANE:
+				var w = shapeInfo.width !== undefined ? shapeInfo.width :
+						shapeInfo.w !== undefined ? shapeInfo.w : 1,
+					h = shapeInfo.height !== undefined ? shapeInfo.height :
+						shapeInfo.h !== undefined ? shapeInfo.h : 1;
+
+				mesh.geometry = new THREE.PlaneGeometry(w, h);
 				break;
-			case hemi.shape.TETRA:
-				transform = hemi.shape.createTetra(
-					shapeInfo.size != null ? shapeInfo.size : 1,
-					material);
+			case hemi.ShapeType.ARROW:
+				mesh.geometry = createArrow(
+					shapeInfo.size !== undefined ? shapeInfo.size : 1,
+					shapeInfo.tail !== undefined ? shapeInfo.tail : 1,
+					shapeInfo.depth !== undefined ? shapeInfo.depth : 1);
 				break;
-			case hemi.shape.OCTA:
-				transform = hemi.shape.createOcta(
-					shapeInfo.size != null ? shapeInfo.size : 1,
-					material);
+			case hemi.ShapeType.TETRA:
+				mesh.geometry = createTetra(shapeInfo.size !== undefined ? shapeInfo.size : 1);
 				break;
-			case hemi.shape.PYRAMID:
-				transform = hemi.shape.createPyramid(
-					shapeInfo.height != null ? shapeInfo.height :
-						shapeInfo.h != null ? shapeInfo.h : 1,
-					shapeInfo.width != null ? shapeInfo.width :
-						shapeInfo.w != null ? shapeInfo.w : 1,
-					shapeInfo.depth != null ? shapeInfo.depth :
-						shapeInfo.d != null ? shapeInfo.d : 1,
-					material);
+			case hemi.ShapeType.OCTA:
+				var size = shapeInfo.size !== undefined ? shapeInfo.size : 1;
+
+				mesh.geometry = new THREE.OctahedronGeometry(size/2, 0);
 				break;
-			case hemi.shape.CUSTOM:
-				transform = hemi.shape.createCustom(
-					shapeInfo.vertices != null ? shapeInfo.vertices :
-						shapeInfo.v != null ? shapeInfo.v : [[0,0,0]],
-					material);
+			case hemi.ShapeType.PYRAMID:
+				mesh.geometry = createPyramid(
+					shapeInfo.height !== undefined ? shapeInfo.height :
+						shapeInfo.h !== undefined ? shapeInfo.h : 1,
+					shapeInfo.width !== undefined ? shapeInfo.width :
+						shapeInfo.w !== undefined ? shapeInfo.w : 1,
+					shapeInfo.depth !== undefined ? shapeInfo.depth :
+						shapeInfo.d !== undefined ? shapeInfo.d : 1);
+				break;
+			case hemi.ShapeType.CUSTOM:
+				mesh.geometry = createCustom(
+					shapeInfo.vertices !== undefined ? shapeInfo.vertices :
+						shapeInfo.v !== undefined ? shapeInfo.v : [],
+					shapeInfo.faces !== undefined ? shapeInfo.faces :
+						shapeInfo.f !== undefined ? shapeInfo.f : [],
+					shapeInfo.faceVertexUvs !== undefined ? shapeInfo.faceVertexUvs :
+						shapeInfo.uvs !== undefined ? shapeInfo.uvs : []);
 				break;
 		}
-		
-		if (transform !== null && color != null) {
-			applyColor(transform, color);
-		}
-		
-		return transform;
+
+		mesh.geometry.computeBoundingSphere();
+		mesh.geometry.computeBoundingBox();
+		mesh.boundRadius = mesh.geometry.boundingSphere.radius;
+		return mesh;
 	};
-	
-	/**
-	 * Create a box.
-	 * 
-	 * @param {number} h height of box (along y-axis)
-	 * @param {number} w width of box (along x-axis)
-	 * @param {number} d depth of box (along z-axis)
-	 * @param {o3d.Material} material material to use on box
-	 * @return {o3d.Transform} the Transform containing the created box
-	 */
-	hemi.shape.createBox = function(h, w, d, material) {
-		var pack = hemi.shape.pack,
-			trans = pack.createObject('Transform'),
-			shape = hemi.core.primitives.createBox(pack, material, w, h, d);
-		
-		trans.parent = hemi.shape.root;
-		trans.addShape(shape);
-		
-		return trans;
-	};
-	
-	/**
-	 * Create a cube.
-	 * 
-	 * @param {number} size dimensions of cube
-	 * @param {o3d.Material} material material to use on cube
-	 * @return {o3d.Transform} the Transform containing the created cube
-	 */
-	hemi.shape.createCube = function(size, material) {
-		var pack = hemi.shape.pack,
-			trans = pack.createObject('Transform'),
-			shape = hemi.core.primitives.createBox(pack, material, size, size,
-				size);
-		
-		trans.parent = hemi.shape.root;
-		trans.addShape(shape);
-		
-		return trans;
-	};
-	
-	/**
-	 * Create a cylinder.
-	 * 
-	 * @param {number} r1 Radius at bottom
-	 * @param {number} r2 Radius at top
-	 * @param {number} h height (along y-axis)
-	 * @param {o3d.Material} material material to use on cylinder
-	 * @return {o3d.Transform} the Transform containing the created cylinder
-	 */
-	hemi.shape.createCylinder = function(r1, r2, h, material) {
-		var pack = hemi.shape.pack,
-			trans = pack.createObject('Transform'),
-			shape = hemi.core.primitives.createTruncatedCone(pack, material, r1,
-				r2, h, 24, 1);
-		
-		trans.parent = hemi.shape.root;
-		trans.addShape(shape);
-		
-		return trans;
-	};
-	
-	/**
-	 * Create a cone.
-	 * 
-	 * @param {number} r radius of the base
-	 * @param {number} h height (along y-axis)
-	 * @param {o3d.Material} material material to use on cone
-	 * @return {o3d.Transform} the Transform containing the created cone
-	 */
-	hemi.shape.createCone = function(r, h, material) {
-		var pack = hemi.shape.pack,
-			trans = pack.createObject('Transform'),
-			shape = hemi.core.primitives.createTruncatedCone(pack, material, r,
-					0, h, 24, 1);
-		
-		trans.parent = hemi.shape.root;
-		trans.addShape(shape);
-		
-		return trans;
-	};
-	
-	/**
-	 * Create a sphere.
-	 * 
-	 * @param {number} r radius of sphere
-	 * @param {o3d.Material} material material to use on sphere
-	 * @return {o3d.Transform} the Transform containing the created sphere
-	 */
-	hemi.shape.createSphere = function(r, material) {
-		var pack = hemi.shape.pack,
-			trans = pack.createObject('Transform'),
-			shape = hemi.core.primitives.createSphere(pack, material, r, 24, 12);
-		
-		trans.parent = hemi.shape.root;
-		trans.addShape(shape);
-		
-		return trans;
-	};
-	
-	/**
-	 * Create an arrow.
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Utility functions
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	/*
+	 * Create arrow geometry.
 	 * 
 	 * @param {number} size the scale of the arrow head on each axis
 	 * @param {number} tail the length of the arrow tail
-	 * @param {o3d.Material} material material to use on arrow
-	 * @return {o3d.Transform} the Transform containing the created sphere
+	 * @param {number} depth the depth to extrude the arrow
+	 * @return {THREE.Geometry} the arrow geometry
 	 */
-	hemi.shape.createArrow = function(size, tail, material) {
-		var pack = hemi.shape.pack,
-			trans = pack.createObject('Transform'),
+	function createArrow(size, tail, depth) {
+		var totalWidth = size + tail,
 			halfSize = size / 2,
-			shape = hemi.core.primitives.createPrism(pack, material, [[0, size],
-				[-size, 0], [-halfSize, 0], [-halfSize, -tail],
-				[halfSize, -tail], [halfSize, 0], [size, 0]], size);
-		
-		trans.parent = hemi.shape.root;
-		trans.addShape(shape);
-		
-		return trans;
-	};
-	
+			halfWidth = totalWidth / 2,
+			heightDif = halfSize / 2,
+			curX = 0,
+			curY = halfWidth,
+			points = [
+				new THREE.Vector2(curX, curY),
+				new THREE.Vector2(curX += halfSize, curY -= size),
+				new THREE.Vector2(curX -= heightDif, curY),
+				new THREE.Vector2(curX, curY -= tail),
+				new THREE.Vector2(curX -= halfSize, curY),
+				new THREE.Vector2(curX, curY += tail),
+				new THREE.Vector2(curX -= heightDif, curY),
+				new THREE.Vector2(curX += halfSize, curY += size)
+			],
+			shape = new THREE.Shape(points);
+
+		return shape.extrude({amount: depth, bevelEnabled: false});
+	}
+
 	/**
-	 * Create a tetrahedron.
+	 * Create custom geometry from lists of vertices, faces, and uvs.
 	 * 
-	 * @param {number} size size of cube in which tetrahedron will be inscribed
-	 * @param {o3d.Material} material material to use on tetrahedron
-	 * @return {o3d.Transform} the Transform containing the created tetrahedron
+	 * @param {THREE.Vertex[]} verts list of vertices
+	 * @param {THREE.Face3[]} faces list of faces. The normal is determined by right-hand rule (i.e.
+	 *     polygon will be visible from side from which vertices are listed in counter-clockwise
+	 *     order)
+	 * @param {THREE.UV[3][]} faceUvs list of face vertex uvs
+	 * @return {THREE.Geometry} the custom geometry
 	 */
-	hemi.shape.createTetra = function(size, material) {
-		var halfSize = size / 2,
-			v = [[halfSize, halfSize, halfSize],
-				 [-halfSize, -halfSize, halfSize],
-				 [-halfSize, halfSize, -halfSize],
-				 [halfSize, -halfSize, -halfSize]],
-			verts = [[v[0], v[2], v[1]],
-					 [v[0], v[1], v[3]],
-					 [v[0], v[3], v[2]],
-					 [v[1], v[2], v[3]]];
-			trans = hemi.shape.createCustom(verts, material);
-		
-		return trans;
-	};
-	
+	function createCustom(verts, faces, faceUvs) {
+		var geo = new THREE.Geometry();
+
+		geo.vertices = verts;	
+		geo.faces = faces;
+		geo.faceVertexUvs[0] = faceUvs;
+
+		for (var i = 0, il = faces.length; i < il; ++i) {
+			var face = faces[i],
+				normal = hemi.utils.computeNormal(verts[face.a], verts[face.b], verts[face.c]);
+
+			face.normal.copy(normal);
+			face.vertexNormals.push(normal.clone(), normal.clone(), normal.clone());
+		}
+
+		geo.computeCentroids();
+		geo.mergeVertices();
+		return geo;
+	}
+
 	/**
-	 * Create a stellated octahedron.
-	 * 
-	 * @param {number} size size of cube on which octahedron will be inscribed
-	 * @param {o3d.Material} material material to use on octahedron
-	 * @return {o3d.Transform} the Transform containing the created octahedron
-	 */
-	hemi.shape.createOcta = function(size, material) {
-		var pack = hemi.shape.pack,
-			trans = pack.createObject('Transform'),
-			t1 = hemi.shape.createTetra(size, material),
-			t2 = hemi.shape.createTetra(size, material);
-		
-		t1.parent = trans;
-		t2.parent = trans;
-		t2.rotateY(Math.PI/2);
-		trans.parent = hemi.shape.root;
-		
-		return trans;
-	};
-	
-	/**
-	 * Create a pyramid.
+	 * Create pyramid geometry.
 	 * 
 	 * @param {number} h height of pyramid (along z-axis)
 	 * @param {number} w width of pyramid (along x-axis)
 	 * @param {number} d depth of pyramid (along y-axis)
-	 * @param {o3d.Material} material material to use on pyramid
-	 * @return {o3d.Transform} the Transform containing the created pyramid
+	 * @return {THREE.Geometry} the pyramid geometry
 	 */
-	hemi.shape.createPyramid = function(h, w, d, material) {
+	function createPyramid(h, w, d) {
 		var halfH = h / 2,
 			halfW = w / 2,
 			halfD = d / 2,
-			v = [[halfW, -halfH, halfD],
-				[-halfW, -halfH, halfD],
-				[-halfW, -halfH, -halfD],
-				[halfW, -halfH, -halfD],
-				[0, halfH, 0]];
-			verts = [[v[0],v[1],v[2]],
-					 [v[0],v[2],v[3]],
-					 [v[1],v[0],v[4]],
-					 [v[2],v[1],v[4]],
-					 [v[3],v[2],v[4]],
-					 [v[0],v[3],v[4]]];
-			trans = hemi.shape.createCustom(verts, material);
-		
-		return trans;
-	};
-	
-	/**
-	 * Create a custom shape from a list of vertices.
-	 * 
-	 * @param {number[3][3][]} verts list of triples of xyz coordinates. Each
-	 *     triple represents a polygon, with the normal determined by right-hand
-	 *     rule (i.e. polygon will be visible from side from which vertices are
-	 *     listed in counter-clockwise order).
-	 * @param {o3d.Material} material material to apply to custom shape. Note -
-	 *     UV mapping is a simple [0,0],[0,1],[1,0], so most complicated
-	 *     textures will not look good
-	 * @return {o3d.Transform} the Transform containing the created custom shape
-	 */
-	hemi.shape.createCustom = function(verts, material) {
-		var pack = hemi.shape.pack,
-			trans = pack.createObject('Transform'),
-			vertexInfo = hemi.core.primitives.createVertexInfo(),
-			positionStream = vertexInfo.addStream(3, o3djs.base.o3d.Stream.POSITION),
-			normalStream = vertexInfo.addStream(3, o3djs.base.o3d.Stream.NORMAL),
-			texCoordStream = vertexInfo.addStream(2, o3djs.base.o3d.Stream.TEXCOORD, 0);
+			v = [new THREE.Vertex(new THREE.Vector3(halfW, -halfH, halfD)),
+				 new THREE.Vertex(new THREE.Vector3(-halfW, -halfH, halfD)),
+				 new THREE.Vertex(new THREE.Vector3(-halfW, -halfH, -halfD)),
+				 new THREE.Vertex(new THREE.Vector3(halfW, -halfH, -halfD)),
+				 new THREE.Vertex(new THREE.Vector3(0, halfH, 0))],
+			f = [new THREE.Face3(0, 1, 2),
+				 new THREE.Face3(0, 2, 3),
+				 new THREE.Face3(1, 0, 4),
+				 new THREE.Face3(2, 1, 4),
+				 new THREE.Face3(3, 2, 4),
+				 new THREE.Face3(0, 3, 4)],
+			uvs = [[new THREE.UV(0, 0), new THREE.UV(0, 1), new THREE.UV(1, 0)], 
+				   [new THREE.UV(0, 0), new THREE.UV(0, 1), new THREE.UV(1, 0)], 
+				   [new THREE.UV(0, 0), new THREE.UV(0, 1), new THREE.UV(1, 0)], 
+				   [new THREE.UV(0, 0), new THREE.UV(0, 1), new THREE.UV(1, 0)], 
+				   [new THREE.UV(0, 0), new THREE.UV(0, 1), new THREE.UV(1, 0)], 
+				   [new THREE.UV(0, 0), new THREE.UV(0, 1), new THREE.UV(1, 0)]];
 
-		for (var i = 0, il = verts.length; i < il; i++) {
-			var normal = hemi.core.math.cross(
-				hemi.core.math.normalize([verts[i][1][0] - verts[i][0][0],
-										  verts[i][1][1] - verts[i][0][1],
-										  verts[i][1][2] - verts[i][0][2]]),
-				hemi.core.math.normalize([verts[i][2][0] - verts[i][0][0],
-										  verts[i][2][1] - verts[i][0][1],
-										  verts[i][2][2] - verts[i][0][2]]));
-			positionStream.addElementVector(verts[i][0]);
-			normalStream.addElementVector(normal);
-			texCoordStream.addElement(0, 1);
-			positionStream.addElementVector(verts[i][1]);
-			normalStream.addElementVector(normal);
-			texCoordStream.addElement(1, 0);
-			positionStream.addElementVector(verts[i][2]);
-			normalStream.addElementVector(normal);
-			texCoordStream.addElement(0, 0);
-			vertexInfo.addTriangle(i*3,i*3+1,i*3+2);
-		}
-		
-		var shape = vertexInfo.createShape(pack, material);
-		trans.parent = hemi.shape.root;
-		trans.addShape(shape);
-		
-		return trans;
-	};
-	
-	// Internal functions
-	
+		return createCustom(v, f, uvs);
+	}
+
 	/*
-	 * Apply the given color to the given transform.
+	 * Create tetrahedron geometry.
 	 * 
-	 * @param {o3d.Transform} transform transform to apply color to
-	 * @param {number[4]} color RGBA color to apply
+	 * @param {number} size size of cube in which tetrahedron will be inscribed
+	 * @return {THREE.Geometry} the tetrahedron geometry
 	 */
-	var applyColor = function(transform, color) {
-		var children = transform.children,
-			param = transform.getParam('diffuse');
-		
-		if (param === null) {
-			param = transform.createParam('diffuse', 'o3d.ParamFloat4');
-		}
-		
-		param.value = color;
-		
-		for (var i = 0, il = children.length; i < il; i++) {
-			applyColor(children[i], color);
-		}
-	};
-	
-	/*
-	 * Remove the given transform and any child transforms or shapes from the
-	 * shape pack.
-	 * 
-	 * @param {o3d.Transform} transform transform to destroy
-	 */
-	var destroyTransform = function(transform) {
-		var children = transform.children,
-			shapes = transform.shapes;
-		
-		transform.parent = null;
-		
-		for (var i = 0, il = children.length; i < il; i++) {
-			destroyTransform(children[i]);
-		}
-		
-		for (var i = 0, il = shapes.length; i < il; i++) {
-			hemi.shape.pack.removeObject(shapes[i]);
-		}
-		
-		hemi.shape.pack.removeObject(transform);
-	};
-	
-	return hemi;
-})(hemi || {});
+	function createTetra(size) {
+		var halfSize = size / 2,
+			v = [new THREE.Vertex(new THREE.Vector3(halfSize, halfSize, halfSize)),
+				 new THREE.Vertex(new THREE.Vector3(-halfSize, -halfSize, halfSize)),
+				 new THREE.Vertex(new THREE.Vector3(-halfSize, halfSize, -halfSize)),
+				 new THREE.Vertex(new THREE.Vector3(halfSize, -halfSize, -halfSize))],
+			f = [new THREE.Face3(0, 2, 1),
+				 new THREE.Face3(0, 1, 3),
+				 new THREE.Face3(0, 3, 2),
+				 new THREE.Face3(1, 2, 3)],
+			uvs = [[new THREE.UV(0, 0), new THREE.UV(0, 1), new THREE.UV(1, 0)], 
+				   [new THREE.UV(0, 0), new THREE.UV(0, 1), new THREE.UV(1, 0)], 
+				   [new THREE.UV(0, 0), new THREE.UV(0, 1), new THREE.UV(1, 0)], 
+				   [new THREE.UV(0, 0), new THREE.UV(0, 1), new THREE.UV(1, 0)]];
+
+		return createCustom(v, f, uvs);
+	}
+
+})();

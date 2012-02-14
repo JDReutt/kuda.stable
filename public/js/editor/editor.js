@@ -15,13 +15,10 @@
  * Boston, MA 02110-1301 USA.
  */
 
-var editor = {
-		// Keep a copy of the Hemi Class for inheritnace
-		Class: hemi.Class
-	};
+var editor = {};
 
-(function() {
-	o3djs.require('editor.requires');
+(function(editor, hemi, jQuery) {
+	"use strict";
 	
 ////////////////////////////////////////////////////////////////////////////////
 //                               Dispatch Proxy                               //
@@ -38,14 +35,13 @@ var editor = {
 	DispatchProxy.prototype = {
 		swap: function() {
 			if (this.editorSpecs === null) {
-				this.editorSpecs = hemi.dispatch.msgSpecs;
-				hemi.dispatch.msgSpecs = this.worldSpecs;
+				this.editorSpecs = hemi._resetMsgSpecs(this.worldSpecs);
 			}
 		},
 		
 		unswap: function() {
 			if (this.editorSpecs !== null) {
-				hemi.dispatch.msgSpecs = this.editorSpecs;
+				hemi._resetMsgSpecs(this.editorSpecs);
 				this.editorSpecs = null;
 			}
 		},
@@ -100,30 +96,32 @@ var editor = {
 ////////////////////////////////////////////////////////////////////////////////
 		
 		
-	var initViewerStep1 = function() {						
-			o3djs.webgl.makeClients(function(clientElements) {
-				setupWorldMessages();
-				editor.ui.initializeView(clientElements);
-				editor.projects.init();
-				editor.plugins.init();
-			});
-		},
+	function initViewer() {
+		editor.client = hemi.makeClients({
+			resizeHandler: editor.ui.resizeView
+		})[0];
+								
+		setupWorldMessages();
+		editor.ui.initializeView(editor.client);
+		editor.projects.init();
+		editor.plugins.init();
+	}
 		
-		setupWorldMessages = function() {			
-			hemi.world.subscribe(hemi.msg.cleanup, function() {
-				editor.notifyListeners(editor.events.WorldCleaned);
-			});
-			hemi.world.subscribe(hemi.msg.ready, function() {
-				editor.notifyListeners(editor.events.WorldLoaded);
-				editor.projects.loadingDone();
-			});
-		},
-		
-		uninitViewer = function() {
-			if (hemi.core.client) {
-				hemi.core.client.cleanup();
-			}
-		};
+	function setupWorldMessages() {			
+		hemi.subscribe(hemi.msg.worldCleanup, function(msg) {
+			editor.notifyListeners(editor.events.WorldCleaned);
+		});
+		hemi.subscribe(hemi.msg.ready, function() {
+			editor.notifyListeners(editor.events.WorldLoaded);
+			editor.projects.loadingDone();
+		});
+	}
+	
+	function uninitViewer() {
+		if (hemi.core.client) {
+			hemi.core.client.cleanup();
+		}
+	}
 	
 ////////////////////////////////////////////////////////////////////////////////
 //                             Editor Utilities                               //
@@ -149,11 +147,11 @@ var editor = {
 	
 	editor.getCss = function(url, media) {
 		jQuery( document.createElement('link') ).attr({
-	        href: url,
-	        media: media || 'screen',
-	        type: 'text/css',
-	        rel: 'stylesheet'
-	    }).appendTo('head');
+			href: url,
+			media: media || 'screen',
+			type: 'text/css',
+			rel: 'stylesheet'
+		}).appendTo('head');
 	};
 	
 	editor.getDispatchProxy = function() {
@@ -176,34 +174,28 @@ var editor = {
 		
 		editor.notifyListeners(editor.events.ScriptLoadStart, url);
 		
-		{
-	        var done = false;
+		var done = false;
+
+		// Attach handlers for all browsers
+		script.onload = script.onreadystatechange = function(){
+			if (!done && (!this.readyState ||
+					this.readyState == "loaded" || 
+					this.readyState == "complete")) {
+				done = true;
+				if (callback) {
+					callback();
+				}
+				editor.notifyListeners(editor.events.ScriptLoaded, url);
+
+				// Handle memory leak in IE
+				script.onload = script.onreadystatechange = null;
+			}
+		};
 	
-	        // Attach handlers for all browsers
-	        script.onload = script.onreadystatechange = function(){
-	            if (!done && (!this.readyState ||
-	            		this.readyState == "loaded" || 
-						this.readyState == "complete")) {
-	                done = true;
-					if (callback) {
-						callback();
-					}
-					editor.notifyListeners(editor.events.ScriptLoaded, url);
-	
-	                // Handle memory leak in IE
-	                script.onload = script.onreadystatechange = null;
-	            }
-	        };
-	    }
-		
 	    document.body.appendChild(script);
 	};
 	
 	window.onload = function() {	
-		initViewerStep1();
+		initViewer();
 	};
-	
-	window.onunload = function() {
-		uninitViewer();
-	};
-})();
+})(editor, hemi, jQuery);

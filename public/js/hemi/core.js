@@ -1,253 +1,425 @@
-/* 
- * Kuda includes a library and editor for authoring interactive 3D content for the web.
- * Copyright (C) 2011 SRI International.
- *
- * This program is free software; you can redistribute it and/or modify it under the terms
- * of the GNU General Public License as published by the Free Software Foundation; either 
- * version 2 of the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
- * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
- * See the GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License along with this program; 
- * if not, write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, 
- * Boston, MA 02110-1301 USA.
+/*
+ * Licensed under the MIT license: http://www.opensource.org/licenses/mit-license.php
+ * The MIT License (MIT)
+ * 
+ * Copyright (c) 2011 SRI International
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+ * associated  documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the  Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-o3djs.base.o3d = o3d;
-o3djs.require('o3djs.webgl');
-o3djs.require('o3djs.debug');
-o3djs.require('o3djs.element');
-o3djs.require('o3djs.event');
-o3djs.require('o3djs.loader');
-o3djs.require('o3djs.math');
-o3djs.require('o3djs.pack');
-o3djs.require('o3djs.particles');
-o3djs.require('o3djs.picking');
-o3djs.require('o3djs.rendergraph');
-o3djs.require('o3djs.canvas');
-o3djs.require('hemi.utils.inheritance');
-o3djs.require('hemi.utils.hashtable');
-o3djs.require('hemi.utils.jsUtils');
-o3djs.require('hemi.utils.mathUtils');
-o3djs.require('hemi.utils.shaderUtils');
-o3djs.require('hemi.utils.stringUtils');
-o3djs.require('hemi.utils.transformUtils');
-o3djs.require('hemi.msg');
-o3djs.require('hemi.console');
-o3djs.require('hemi.picking');
-o3djs.require('hemi.loader');
-o3djs.require('hemi.world');
-o3djs.require('hemi.octane');
-o3djs.require('hemi.handlers.valueCheck');
-o3djs.require('hemi.audio');
-o3djs.require('hemi.dispatch');
-o3djs.require('hemi.input');
-o3djs.require('hemi.view');
-o3djs.require('hemi.model');
-o3djs.require('hemi.animation');
-o3djs.require('hemi.motion');
-o3djs.require('hemi.effect');
-o3djs.require('hemi.scene');
-o3djs.require('hemi.hud');
-o3djs.require('hemi.manip');
-o3djs.require('hemi.curve');
-o3djs.require('hemi.sprite');
-o3djs.require('hemi.shape');
-o3djs.require('hemi.fx');
-o3djs.require('hemi.texture');
-o3djs.require('hemi.timer');
+/**
+ * Create the requestAnimationFrame function if needed. Each browser implements it as a different
+ * name currently. Default to a timeout if not supported. Credit to
+ * http://paulirish.com/2011/requestanimationframe-for-smart-animating/
+ * and others...
+ */
+if (!window.requestAnimationFrame) {
+	window.requestAnimationFrame = (function() {
+		return window.mozRequestAnimationFrame ||
+			window.webkitRequestAnimationFrame ||
+			window.oRequestAnimationFrame      ||
+			window.msRequestAnimationFrame     ||
+			function(callback, element) {
+				window.setTimeout(callback, 1000 / 60);
+			};
+	})();
+}
 
 /**
  * @namespace The core Hemi library used by Kuda.
- * @version 1.5.1
+ * @version 2.0.0
  */
-var hemi = (function(hemi) {
-	
-	/**
-	 * The version of Hemi released: 11/30/11
-	 * @constant
-	 */
-	hemi.version = '1.5.1';
+ var hemi = hemi || {};
+
+(function() {
+
+		/*
+		 * The function to pass errors thrown using hemi.error. Default is to throw a new Error.
+		 * @type function(string):void
+		 */
+	var errCallback = null,
+		/*
+		 * The current frames per second that are enforced by Hemi.
+		 * @type number
+		 * @default 60
+		 */
+		fps = 60,
+		/*
+		 * Cached inverse of the frames per second.
+		 * @type number
+		 */
+		hz = 1 / fps,
+		/*
+		 * Cached inverse of the frames per millisecond. (Internal time is in milliseconds)
+		 * @type number
+		 */
+		hzMS = hz * 1000,
+		/*
+		 * The time of the last render in milliseconds.
+		 * @type {number}
+		 */
+		lastRenderTime = 0,
+		/*
+		 * Map of initialized renderers by the id of their DOM element's parent node.
+		 * @type {Object}
+		 */
+		renderers = {},
+		/*
+		 * Array of render listener objects that all have an onRender function.
+		 * @type Object[]
+		 */
+		renderListeners = [],
+		/*
+		 * The index of the render listener currently running onRender().
+		 * @type number
+		 */
+		renderNdx = -1;
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Constants
+////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	/**
-	 * @namespace A module for handling low level functionality and wrapping
-	 * calls to the underlying O3D library.
+	 * Conversion factor for degrees to radians.
+	 * @type number
+	 * @default Math.PI / 180
 	 */
-	hemi.core = hemi.core || {};
-	
+	hemi.DEG_TO_RAD = Math.PI / 180;
+
+	/**
+	 * Half of Pi
+	 * @type number
+	 * @default Math.PI / 2
+	 */
+	hemi.HALF_PI = Math.PI / 2;
+
+	/**
+	 * Conversion factor for radians to degrees.
+	 * @type number
+	 * @default 180 / Math.PI
+	 */
+	hemi.RAD_TO_DEG = 180 / Math.PI;
+
+	/**
+	 * The version of Hemi released: 2/14/2012
+	 * @constant
+	 */
+	hemi.version = '2.0.0';
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Global functions
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	/**
+	 * The list of Clients being rendered on the current webpage.
+	 */
+	hemi.clients = [];
+
 	/*
-	 * Because Internet Explorer does not support Array.indexOf(), we can add
-	 * it in so that subsequent calls do not break.
-	 *
-	 * @param {Object} obj
+	 * Get the renderer associated with the given DOM id. If no renderer matches the id, the first
+	 * available renderer (if any) is returned.
+	 * 
+	 * @param {string} domId id of the parent node of the renderer DOM element
+	 * @return {THREE.WebGLRenderer} a matching or available renderer, or null
 	 */
-	if (!Array.indexOf) {
-		Array.prototype.indexOf = function(obj) {
-			for (var i = 0; i < this.length; i++) {
-				if (this[i] == obj) {
-					return i;
+	hemi._getRenderer = function(domId) {
+		var renderer = renderers[domId];
+
+		if (!renderer) {
+			console.log('No rendererer matches id ' + domId);
+			renderer = null;
+
+			// If there's at least one renderer currently, just return that for convenience
+			for (var id in renderers) {
+				renderer = renderers[id];
+				break;
+			}
+		}
+
+		return renderer;
+	};
+
+	/*
+	 * Search the webpage for any divs with an ID starting with "kuda" and create a canvas within
+	 * each div that will be rendered to using WebGL.
+	 */
+	hemi._makeRenderers = function() {
+		var elements = document.getElementsByTagName('div');
+
+		for (var i = 0, il = elements.length; i < il; ++i) {
+			var element = elements[i],
+				id = element.id;
+
+			if (id && id.match(/^kuda/)) {
+				if (renderers[id]) {
+					console.log('Renderer already exists for id ' + id);
+				} else {
+					var renderer = getRenderer(element);
+
+					if (renderer) {
+						var dom = renderer.domElement;
+						element.appendChild(dom);
+						dom.style.width = "100%";
+						dom.style.height = "100%";
+						hemi.input.init(dom);
+
+						renderers[id] = renderer;
+					}
 				}
 			}
-			return -1;
-		};
-	}
-	
-	/**
-	 * This function creates a material that uses a lambert shader. Convenience
-	 * function added to match createBasicMaterial and createConstantMaterial.
-	 *
-	 * @param {!o3d.Pack} pack Pack to manage created objects.
-	 * @param {!o3djs.rendergraph.ViewInfo} viewInfo as returned from
-	 *     o3djs.rendergraph.createBasicView.
-	 * @param {(!o3djs.math.Vector4|!o3d.Texture)} colorOrTexture Either a color
-	 *     in the format [r, g, b, a] or an O3D texture.
-	 * @param {boolean} opt_transparent Whether or not the material is
-	 *     transparent. Defaults to false.
-	 * @return {!o3d.Material} The created material.
-	 */
-	o3djs.material.createLambertMaterial = function(pack, viewInfo,
-			colorOrTexture, opt_transparent) {
-		var material = pack.createObject('Material');
-		material.drawList = opt_transparent ? viewInfo.zOrderedDrawList :
-			viewInfo.performanceDrawList;
-		
-		if (colorOrTexture.length) {
-			material.createParam('diffuse', 'ParamFloat4').value = colorOrTexture;
-		} else {
-			var paramSampler = material.createParam('diffuseSampler', 'ParamSampler'),
-				sampler = pack.createObject('Sampler');
-			paramSampler.value = sampler;
-			sampler.texture = colorOrTexture;
 		}
-		
-		material.createParam('emissive', 'ParamFloat4').value = [0, 0, 0, 1];
-		material.createParam('ambient', 'ParamFloat4').value = [0, 0, 0, 1];
-		material.createParam('lightColor', 'ParamFloat4').value = [1, 1, 1, 1];
-		var lightPositionParam = material.createParam('lightWorldPos', 'ParamFloat3');
-		
-		o3djs.material.attachStandardEffect(pack, material, viewInfo, 'lambert');
-		lightPositionParam.value = [1000, 2000, 3000];
-		return material;
 	};
-	
+
 	/**
-	 * Pass the given error message to the registered error handler or throw an
-	 * Error if no handler is registered.
+	 * Utility function to reset the render listeners. This should typically not be used.
+	 * 
+	 * @param {Object[]} opt_listeners optional set of new render listeners
+	 * @return {Object[]} the previous set of render listeners
+	 */
+	hemi._resetRenderListeners = function(opt_listeners) {
+		var oldListeners = renderListeners;
+		renderListeners = opt_listeners || [];
+		return oldListeners;
+	};
+
+	/**
+	 * Add the given render listener to hemi. A listener must implement the onRender function.
+	 * 
+	 * @param {Object} listener the render listener to add
+	 */
+	hemi.addRenderListener = function(listener) {
+		if (renderListeners.indexOf(listener) === -1) {
+			renderListeners.push(listener);
+		}
+	};
+
+	/**
+	 * Pass the given error message to the registered error handler or throw an Error if no handler
+	 * is registered.
 	 * 
 	 * @param {string} msg error message
 	 */
-	hemi.core.error = function(msg) {
-		if (this.errCallback) {
-			this.errCallback(msg);
+	hemi.error = function(msg) {
+		if (errCallback) {
+			errCallback(msg);
 		} else {
 			var err = new Error(msg);
 			err.name = 'HemiError';
 			throw err;
 		}
 	};
-	
+
+	/**
+	 * Get the Client that is rendering the given Transform.
+	 * 
+	 * @param {hemi.Transform} transform the Transform to get the Client for
+	 * @return {hemi.Client} the Client rendering the Transform, or null
+	 */
+	hemi.getClient = function(transform) {
+		var scene = transform.parent;
+
+		while (scene.parent !== undefined) {
+			scene = scene.parent;
+		}
+
+		for (var i = 0, il = hemi.clients.length; i < il; ++i) {
+			var client = hemi.clients[i];
+
+			if (scene === client.scene) {
+				return client;
+			}
+		}
+
+		return null;
+	};
+
+	/**
+	 * Get the current frames-per-second that will be enforced for rendering.
+	 * 
+	 * @return {number} current frames-per-second
+	 */
+	hemi.getFPS = function() {
+		return fps;
+	};
+
+	/**
+	 * Get the time that the specified animation frame occurs at.
+	 *
+	 * @param {number} frame frame number to get the time for
+	 * @return {number} time that the frame occurs at in seconds
+	 */
+	hemi.getTimeOfFrame = function(frame) {
+		return frame * hz;
+	};
+
+	/**
+	 * Initialize hemi features. This does not need to be called if hemi.makeClients() is called,
+	 * but it can be used on its own if you don't want to use hemi's client system.
+	 * 
+	 * @param {Object} opt_config optional configuration parameters
+	 */
+	hemi.init = function(opt_config) {
+		var handler = opt_config && opt_config.resizeHandler ? opt_config.resizeHandler : resize;
+		window.addEventListener('resize', handler, false);
+
+		lastRenderTime = new Date().getTime();
+		render(true);
+	};
+
+	/**
+	 * Create a Client for each rendered canvas on the page.
+	 * 
+	 * @param {Object} opt_config optional configuration parameters
+	 * @return {hemi.Client[]} array of all existing Clients
+	 */
+	hemi.makeClients = function(opt_config) {
+		var numClients = hemi.clients.length,
+			ndx = -1;
+
+		hemi._makeRenderers();
+
+		for (var id in renderers) {
+			var renderer = renderers[id],
+				client = ++ndx < numClients ? hemi.clients[ndx] : new hemi.Client(true);
+
+			client.setRenderer(renderer);
+		}
+
+		hemi.init(opt_config);
+		return hemi.clients;
+	};
+
+	/**
+	 * Remove the given render listener from hemi.
+	 * 
+	 * @param {Object} listener the render listener to remove
+	 * @return {Object} the removed listener if successful or null
+	 */
+	hemi.removeRenderListener = function(listener) {
+		var ndx = renderListeners.indexOf(listener),
+			retVal = null;
+
+		if (ndx !== -1) {
+			retVal = renderListeners.splice(ndx, 1)[0];
+
+			if (ndx <= renderNdx) {
+				// Adjust so that the next render listener will not get skipped.
+				renderNdx--;
+			}
+		}
+
+		return retVal;
+	};
+
 	/**
 	 * Set the given function as the error handler for Hemi errors.
 	 * 
 	 * @param {function(string):void} callback error handling function
 	 */
-	hemi.core.setErrorCallback = function(callback) {
-		this.errCallback = callback;
+	hemi.setErrorCallback = function(callback) {
+		errCallback = callback;
 	};
 
-	hemi.core.init = function(clientElement) {
-		// Create aliases o3djs libraries
-		this.event = o3djs.event;
-		this.loader = o3djs.loader;
-		this.math = o3djs.math;
-		this.particles = o3djs.particles;
-		this.renderGraph = o3djs.rendergraph;
-		this.canvas = o3djs.canvas;
-		this.material = o3djs.material;
-		this.shape = o3djs.shape;
-		this.picking = o3djs.picking;
-		this.primitives = o3djs.primitives;
-		this.io = o3djs.io;
-		this.debug = o3djs.debug;
-
-		this.o3dElement = clientElement;
-		this.o3d = this.o3dElement.o3d;
-		this.client = this.o3dElement.client;
-		this.mainPack = this.client.createPack();
-		this.errCallback = null;
-
-		hemi.picking.init();
-		hemi.input.init();
-		hemi.view.init();
-		hemi.curve.init();
-		hemi.model.init();
-		hemi.effect.init();
-		hemi.hud.init();
-		hemi.shape.init();
-		hemi.sprite.init();
-		hemi.world.init();
-	};
-	
 	/**
-	 * Callback function for whenever a new model file is loaded. This function
-	 * updates the picking tree and sets up materials.
-	 *
-	 * @param {o3d.Pack} pack the pack loaded with scene content
+	 * Set the current frames-per-second that will be enforced for rendering.
+	 * 
+	 * @param {number} newFps frames-per-second to enforce
 	 */
-	hemi.core.loaderCallback = function(pack) {
-		// Update picking info
-		hemi.picking.pickManager.update();
-		
-		// Generate draw elements and setup material draw lists.
-		o3djs.pack.preparePack(pack, hemi.view.viewInfo);
-		
-		var materials = pack.getObjectsByClassName('o3d.Material'),
-			worldFog = hemi.world.fog;
-		
-		for (var m = 0; m < materials.length; ++m) {
-			var material = materials[m];
-			// Connect each material's lightWorldPos param to the camera
-			var param = material.getParam('lightWorldPos');
-			
-			if (param) {
-				param.bind(hemi.world.camera.light.position);
+	hemi.setFPS = function(newFps) {
+		fps = newFps;
+		hz = 1/fps;
+		hzMS = hz * 1000;
+	};
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Utility functions
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	/*
+	 * Get the supported renderer for the browser (WebGL or canvas) If WebGL is not supported,
+	 * display a warning message.
+	 * 
+	 * @param {Object} element DOM element to add warning message to if necessary
+	 * @return {THREE.WebGLRenderer} the supported renderer or null
+	 */
+	function getRenderer(element) {
+		var renderer = null;
+
+		if (Detector.webgl) {
+			renderer = new THREE.WebGLRenderer();
+		} else {
+			if (Detector.canvas) {
+				renderer = new THREE.CanvasRenderer();
 			}
-			
-			param = material.getParam('ambientIntensity');
-			
-			if (param) {
-				param.value = [0.3, 0.3, 0.3, 0.2];
-			}
-			
-			param = material.getParam('ambient');
-			
-			if (param) {
-				param.value = [0.3, 0.3, 0.3, 0.2];
-			}
-			
-			param = material.getParam('lightColor');
-		
-			if (param) {
-				param.bind(hemi.world.camera.light.color);
-			}
-			
-			// For now, the Z-sorted draw list does not work well with
-			// transparent shapes like particles. So stick them in the
-			// performance list.
-			if (material.drawList == hemi.view.viewInfo.zOrderedDrawList) {
-				material.drawList = hemi.view.viewInfo.performanceDrawList;
-			}
-			
-			if (worldFog !== null) {
-				var fogPrms = hemi.fx.addFog(material);
-				fogPrms.start.value = worldFog.start;
-				fogPrms.end.value = worldFog.end;
-				fogPrms.color.value = worldFog.color;
+
+			Detector.addGetWebGLMessage({
+				id: 'warn_' + element.id,
+				parent: element
+			});
+
+			(function(elem) {
+				setTimeout(function() {
+					var msg = document.getElementById('warn_' + elem.id);
+					elem.removeChild(msg);
+				}, 5000);
+			})(element);
+		}
+
+		return renderer;
+	}
+
+	/*
+	 * The render function to be executed on each animation frame. Calls onRender for each render
+	 * listener and then for each Client.
+	 * 
+	 * @param {boolean} update flag to force Clients to render
+	 */
+	function render(update) {
+		requestAnimationFrame(render);
+
+		var renderTime = new Date().getTime(),
+			event = {
+				elapsedTime: hz
+			};
+
+		while (renderTime - lastRenderTime > hzMS) {
+			update = true;
+			lastRenderTime += hzMS;
+
+			for (renderNdx = 0; renderNdx < renderListeners.length; ++renderNdx) {
+				renderListeners[renderNdx].onRender(event);
 			}
 		}
-	};
-	
-	return hemi;
-})(hemi || {});
+
+		renderNdx = -1;
+
+		if (update) {
+			for (var i = 0, il = hemi.clients.length; i < il; ++i) {
+				hemi.clients[i].onRender(event);
+			}
+		}
+	}
+
+	/*
+	 * Window resize handler function.
+	 */
+	function resize() {
+		for (var i = 0; i < hemi.clients.length; ++i) {
+			hemi.clients[i]._resize();
+		}
+	}
+
+})();

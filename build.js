@@ -117,190 +117,149 @@ var uglifyFile = function(file, header) {
 };
 
 var catFiles = function(args) {
-	args.uglyData = "";
+	args.libData = '';
+	args.libMinData = '';
+	args.moduleData = '';
+
+	for (var i = 0, il = args.libFiles.length; i < il; i++) {
+		var file = args.libFiles[i],
+			data = fs.readFileSync(args.dist + '/' + file),
+			fileData = data.toString();
+		args.libData += fileData;
+	}
+
+	for (var i = 0, il = args.libMinFiles.length; i < il; i++) {
+		var file = args.libMinFiles[i],
+			data = fs.readFileSync(args.dist + '/' + file),
+			fileData = data.toString();
+		args.libMinData += fileData;
+	}
 
 	for (var i = 0, il = args.moduleFiles.length; i < il; i++) {
 		var file = args.moduleFiles[i],
 			data = fs.readFileSync(args.dist + '/' + file),
-			uglyData = data.toString().replace(args.replace, "");
-		args.uglyData += uglyData;
+			fileData = data.toString();
+		args.moduleData += fileData;
 	}
-};
-
-var uglifyO3d = function(src, dst) {
-	var args = {
-		dist: src,
-		moduleFiles: [
-			'o3d-webgl/base.js',
-			'o3d-webgl/object_base.js',
-			'o3d-webgl/named_object_base.js',
-			'o3d-webgl/named_object.js',
-			'o3d-webgl/param_object.js',
-			'o3d-webgl/param_array.js',
-			'o3d-webgl/param.js',
-			'o3d-webgl/event.js',
-			'o3d-webgl/raw_data.js',
-			'o3d-webgl/texture.js',
-			'o3d-webgl/bitmap.js',
-			'o3d-webgl/file_request.js',
-			'o3d-webgl/client.js',
-			'o3d-webgl/render_node.js',
-			'o3d-webgl/clear_buffer.js',
-			'o3d-webgl/state_set.js',
-			'o3d-webgl/viewport.js',
-			'o3d-webgl/tree_traversal.js',
-			'o3d-webgl/draw_list.js',
-			'o3d-webgl/draw_pass.js',
-			'o3d-webgl/render_surface_set.js',
-			'o3d-webgl/render_surface.js',
-			'o3d-webgl/state.js',
-			'o3d-webgl/draw_context.js',
-			'o3d-webgl/ray_intersection_info.js',
-			'o3d-webgl/sampler.js',
-			'o3d-webgl/transform.js',
-			'o3d-webgl/pack.js',
-			'o3d-webgl/bounding_box.js',
-			'o3d-webgl/draw_element.js',
-			'o3d-webgl/element.js',
-			'o3d-webgl/field.js',
-			'o3d-webgl/buffer.js',
-			'o3d-webgl/stream.js',
-			'o3d-webgl/vertex_source.js',
-			'o3d-webgl/stream_bank.js',
-			'o3d-webgl/primitive.js',
-			'o3d-webgl/shape.js',
-			'o3d-webgl/effect.js',
-			'o3d-webgl/material.js',
-			'o3d-webgl/archive_request.js',
-			'o3d-webgl/param_operation.js',
-			'o3d-webgl/function.js',
-			'o3d-webgl/counter.js',
-			'o3d-webgl/curve.js',
-			'o3d-webgl/skin.js',
-			'o3djs/base.js',
-			'o3djs/effect.js',
-			'o3djs/util.js',
-			'o3djs/webgl.js',
-			'o3djs/debug.js',
-			'o3djs/element.js',
-			'o3djs/event.js',
-			'o3djs/loader.js',
-			'o3djs/math.js',
-			'o3djs/pack.js',
-			'o3djs/particles.js',
-			'o3djs/picking.js',
-			'o3djs/primitives.js',
-			'o3djs/rendergraph.js',
-			'o3djs/canvas.js',
-			'o3djs/material.js',
-			'o3djs/io.js',
-			'o3djs/scene.js',
-			'o3djs/serialization.js',
-			'o3djs/error.js',
-			'o3djs/texture.js',
-			'o3djs/shape.js'
-		],
-		replace: /(o3d|o3djs)\.(include|require)\('.*?'\);\s*/g
-	},
-	header =
-'/*\n\
- * Copyright 2010, Google Inc.\n\
- * All rights reserved.\n\
- *\n\
- * Redistribution and use in source and binary forms, with or without\n\
- * modification, are permitted provided that the following conditions are\n\
- * met:\n\
- *\n\
- *     * Redistributions of source code must retain the above copyright\n\
- * notice, this list of conditions and the following disclaimer.\n\
- *     * Redistributions in binary form must reproduce the above\n\
- * copyright notice, this list of conditions and the following disclaimer\n\
- * in the documentation and/or other materials provided with the\n\
- * distribution.\n\
- *     * Neither the name of Google Inc. nor the names of its\n\
- * contributors may be used to endorse or promote products derived from\n\
- * this software without specific prior written permission.\n\
- *\n\
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS\n\
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT\n\
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR\n\
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT\n\
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,\n\
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT\n\
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,\n\
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY\n\
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT\n\
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE\n\
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.\n\
- */\n';
-	catFiles(args);
-	fs.writeFileSync(dst + '/o3d.src.js', args.uglyData);
-	// TODO: Add the license
-	uglifyFile(dst + '/o3d.src.js', header);
 };
 
 var uglifyHemi = function(src, dst) {
 		var args = {
-			dist: src,
-			moduleFiles: [
-				'hemi/core.js',
-				'hemi/utils/inheritance.js',
-				'hemi/utils/hashtable.js',
-				'hemi/utils/jsUtils.js',
-				'hemi/utils/mathUtils.js',
-				'hemi/utils/shaderUtils.js',
-				'hemi/utils/stringUtils.js',
-				'hemi/utils/transformUtils.js',
-				'hemi/msg.js',
-				'hemi/console.js',
-				'hemi/picking.js',
-				'hemi/loader.js',
-				'hemi/accessibility.js',
-				'hemi/world.js',
-				'hemi/octane.js',
-				'hemi/handlers/valueCheck.js',
-				'hemi/audio.js',
-				'hemi/dispatch.js',
-				'hemi/input.js',
-				'hemi/view.js',
-				'hemi/model.js',
-				'hemi/animation.js',
-				'hemi/motion.js',
-				'hemi/effect.js',
-				'hemi/scene.js',
-				'hemi/hud.js',
-				'hemi/manip.js',
-				'hemi/curve.js',
-				'hemi/sprite.js',
-				'hemi/shape.js',
-				'hemi/fx.js',
-				'hemi/texture.js',
-				'hemi/timer.js'
-			],
-			replace: /o3djs\.require\('(hemi|o3djs).*?'\);\s*/g
-		},
-		header =
+				dist: src,
+				libFiles: [
+					'lib/Detector.js',
+					'lib/jshashtable.js',
+					'hemi/particles.js',
+				],
+				libMinFiles: [
+					'lib/Detector.min.js',
+					'lib/jshashtable.min.js',
+					'hemi/particles.min.js',
+				],
+				moduleFiles: [
+					'hemi/core.js',
+					'hemi/utils/hashtable.js',
+					'hemi/utils/jsUtils.js',
+					'hemi/utils/mathUtils.js',
+					'hemi/utils/shaderUtils.js',
+					'hemi/utils/stringUtils.js',
+					'hemi/utils/transformUtils.js',
+					'hemi/msg.js',
+					'hemi/loader.js',
+					//'hemi/accessibility.js',
+					'hemi/world.js',
+					'hemi/octane.js',
+					'hemi/audio.js',
+					'hemi/dispatch.js',
+					'hemi/input.js',
+					'hemi/motion.js',
+					'hemi/transform.js',
+					'hemi/view.js',
+					'hemi/model.js',
+					'hemi/picker.js',
+					'hemi/client.js',
+					'hemi/animationGroup.js',
+					'hemi/effect.js',
+					'hemi/state.js',
+					'hemi/hud.js',
+					'hemi/manip.js',
+					'hemi/curve.js',
+					'hemi/sprite.js',
+					'hemi/shape.js',
+					'hemi/fx.js',
+					'hemi/texture.js',
+					'hemi/timer.js',
+					'hemi/valueCheck.js'
+				]
+			},
+			header =
 '/*\n\
- * Kuda includes a library and editor for authoring interactive 3D content for the web.\n\
- * Copyright (C) 2011 SRI International.\n\
- *\n\
- * This program is free software; you can redistribute it and/or modify it under the terms\n\
- * of the GNU General Public License as published by the Free Software Foundation; either\n\
- * version 2 of the License, or (at your option) any later version.\n\
- *\n\
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;\n\
- * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n\
- * See the GNU General Public License for more details.\n\
- *\n\
- * You should have received a copy of the GNU General Public License along with this program;\n\
- * if not, write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,\n\
- * Boston, MA 02110-1301 USA.\n\
+ * Licensed under the MIT license: http://www.opensource.org/licenses/mit-license.php\n\
+ * The MIT License (MIT)\n\
+ * \n\
+ * Copyright (c) 2011 SRI International\n\
+ * \n\
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and\n\
+ * associated  documentation files (the "Software"), to deal in the Software without restriction,\n\
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,\n\
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is\n\
+ * furnished to do so, subject to the following conditions:\n\
+ * \n\
+ * The above copyright notice and this permission notice shall be included in all copies or\n\
+ * substantial portions of the  Software.\n\
+ * \n\
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT\n\
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND\n\
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,\n\
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,\n\
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.\n\
  */\n';
 		catFiles(args);
-		fs.writeFileSync(dst + '/hemi.src.js', args.uglyData);
-		// TODO: Add the GPL header
-		uglifyFile(dst + '/hemi.src.js', header);
+		fs.writeFileSync(dst + '/hemi.src.js', args.libData + args.moduleData);
+
+		var uglyData = uglifyMe(args.moduleData),
+			outFile = fs.openSync(dst + '/hemi.min.js', 'w+');
+		fs.writeSync(outFile, args.libMinData + header + uglyData);
 };
+
+var uglifyEditor = function(src, dst) {
+		var args = {
+				dist: src,
+				libFiles: [],
+				libMinFiles: [],
+				moduleFiles: [
+					'editor/editor.js',
+					'editor/events.js',
+					'editor/utils/listener.js',
+					'editor/utils/misc.js',
+					'editor/utils/dependency.js',
+					'editor/data/metadata.js',
+					'editor/ui/components/component.js',
+					'editor/ui/components/input.js',
+					'editor/ui/components/menu.js',
+					'editor/ui/components/colorpicker.js',
+					'editor/ui/components/tooltip.js',
+					'editor/ui/components/validator.js',
+					'editor/ui/components/vector.js',
+					'editor/ui/components/treeSelector.js',
+					'editor/ui/components/list.js',
+					'editor/ui/core/view.js',
+					'editor/ui/core/progress.js',
+					'editor/ui/core/transformHandles.js',
+					'editor/ui/core/gridPlane.js',
+					'editor/ui/core/dialogs.js',
+					'editor/tools.js',
+					'editor/project.js',
+					'editor/pluginManager.js'
+				]
+			};
+		catFiles(args);
+		fs.writeFileSync(dst + '/editor.src.js', args.libData + args.moduleData);
+
+		var uglyData = uglifyMe(args.moduleData),
+			outFile = fs.openSync(dst + '/editor.min.js', 'w+');
+		fs.writeSync(outFile, args.libMinData + uglyData);
+}
 
 var checkForToDir = function(toDir) {
 	if (path.existsSync(toDir)) {
@@ -339,7 +298,7 @@ if (process.argv.length > 3) {
 		checkForToDir(toDir);
 		// Copy only the core Hemi library
 		filter.push('app.js', 'build.js', 'PublishReadMe',
-			'PublishTemplate.html', 'editor', 'hemi', 'o3djs', 'o3d-webgl', 'parse.js');
+			'PublishTemplate.html', 'editor', 'hemi', 'parse.js');
 		copyFiles('.', toDir, false);
 		copyFiles('./public/js', toDir, true);
 
@@ -350,12 +309,12 @@ if (process.argv.length > 3) {
 				copyFiles(docDir, toDir + '/doc', true);
 			}
 		}
-	} else if (type === 'ugly') {
-		uglifyFile(toDir);
-	} else if (type === 'uglifyO3d') {
-		uglifyO3d('./public/js', toDir);
+	} else if (type === 'uglify') {
+		uglifyFile(toDir, '');
 	} else if (type == 'uglifyHemi') {
 		uglifyHemi('./public/js', toDir);
+	} else if (type == 'uglifyEditor') {
+		uglifyEditor('./public/js', toDir);
 	} else {
 		checkForToDir(toDir);
 
@@ -384,5 +343,5 @@ if (process.argv.length > 3) {
 } else {
 	process.stdout.write('Usage: node build.js [options] [type] [toDir]\n' +
 		'Valid options are: --no-doc, --zip\n' +
-		'Valid types are: core, editor, full, uglifyHemi, uglifyO3d, ugly\n');
+		'Valid types are: core, editor, full, uglifyHemi, `uglifyEditor, uglify\n');
 }

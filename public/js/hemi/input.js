@@ -1,117 +1,183 @@
-/* 
- * Kuda includes a library and editor for authoring interactive 3D content for the web.
- * Copyright (C) 2011 SRI International.
- *
- * This program is free software; you can redistribute it and/or modify it under the terms
- * of the GNU General Public License as published by the Free Software Foundation; either 
- * version 2 of the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
- * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
- * See the GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License along with this program; 
- * if not, write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, 
- * Boston, MA 02110-1301 USA.
+/*
+ * Licensed under the MIT license: http://www.opensource.org/licenses/mit-license.php
+ * The MIT License (MIT)
+ * 
+ * Copyright (c) 2011 SRI International
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+ * associated  documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the  Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-var hemi = (function(hemi) {	
+(function() {
+
+	var mouseDownListeners = [],
+		mouseUpListeners = [],
+		mouseMoveListeners = [],
+		mouseWheelListeners = [],
+		keyDownListeners = [],
+		keyUpListeners = [],
+		keyPressListeners = [];
+
+	// Register document listeners
+	document.addEventListener('keypress', function(event) {
+		hemi.input.keyPress(event);
+	}, true);
+	document.addEventListener('keydown', function(event) {
+		hemi.input.keyDown(event);
+	}, true);
+	document.addEventListener('keyup', function(event) {
+		hemi.input.keyUp(event);
+	}, true);
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Global functions
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
 	/**
 	 * @namespace A module for handling all keyboard and mouse input.
 	 */
 	hemi.input = hemi.input || {};
-	
+
+	/**
+	 * Utility function to reset the key input listeners. This should typically not be used.
+	 * 
+	 * @param {Object} opt_listeners optional map of new key down/up/press listeners
+	 * @return {Object} map of the previous key down/up/press listeners
+	 */
+	hemi._resetKeyListeners = function(opt_listeners) {
+		var listeners = {
+			down: keyDownListeners,
+			up: keyUpListeners,
+			press: keyPressListeners
+		};
+
+		opt_listeners = opt_listeners || {};
+		keyDownListeners = opt_listeners.down || [];
+		keyUpListeners = opt_listeners.up || [];
+		keyPressListeners = opt_listeners.press || [];
+
+		return listeners;
+	};
+
+	/**
+	 * Utility function to reset the mouse input listeners. This should typically not be used.
+	 * 
+	 * @param {Object} opt_listeners optional map of new mouse down/up/move/wheel listeners
+	 * @return {Object} map of the previous mouse down/up/move/wheel listeners
+	 */
+	hemi._resetMouseListeners = function(opt_listeners) {
+		var listeners = {
+			down: mouseDownListeners,
+			up: mouseUpListeners,
+			move: mouseMoveListeners,
+			wheel: mouseWheelListeners
+		};
+
+		opt_listeners = opt_listeners || {};
+		mouseDownListeners = opt_listeners.down || [];
+		mouseUpListeners = opt_listeners.up || [];
+		mouseMoveListeners = opt_listeners.move || [];
+		mouseWheelListeners = opt_listeners.wheel || [];
+
+		return listeners;
+	};
+
 	/**
 	 * Setup the listener lists and register the event handlers.
 	 */
-	hemi.input.init = function() {
-		hemi.input.mouseDownListeners = [];
-		hemi.input.mouseUpListeners = [];
-		hemi.input.mouseMoveListeners = [];
-		hemi.input.mouseWheelListeners = [];
-        hemi.input.keyDownListeners = [];
-        hemi.input.keyUpListeners = [];
-        hemi.input.keyPressListeners = [];
-		
-		hemi.core.event.addEventListener(hemi.core.o3dElement, 'mousedown', hemi.input.mouseDown);
-		hemi.core.event.addEventListener(hemi.core.o3dElement, 'mousemove', hemi.input.mouseMove);
-		hemi.core.event.addEventListener(hemi.core.o3dElement, 'mouseup', hemi.input.mouseUp);
-		hemi.core.event.addEventListener(hemi.core.o3dElement, 'wheel', hemi.input.scroll);
-		
-		document.addEventListener('keypress', function(event) {
-			hemi.input.keyPress(event);
+	hemi.input.init = function(canvas) {
+		canvas.addEventListener('mousedown', function(event) {
+			hemi.input.mouseDown(event);
 		}, true);
-		document.addEventListener('keydown', function(event) {
-			hemi.input.keyDown(event);
+		canvas.addEventListener('mousemove', function(event) {
+			hemi.input.mouseMove(event);
 		}, true);
-		document.addEventListener('keyup', function(event) {
-			hemi.input.keyUp(event);
+		canvas.addEventListener('mouseup', function(event) {
+			hemi.input.mouseUp(event);
 		}, true);
+		canvas.addEventListener('mousewheel', function(event) {
+			hemi.input.scroll(event);
+		}, false);
+		canvas.addEventListener('DOMMouseScroll', function(event) {
+			hemi.input.scroll(event);
+		}, false);
 	};
-	
+
 	/**
 	 * Register the given listener as a "mouse down" listener.
 	 *  
 	 * @param {Object} listener an object that implements onMouseDown()
 	 */
 	hemi.input.addMouseDownListener = function(listener) {
-		addListener(hemi.input.mouseDownListeners, listener);
+		addListener(mouseDownListeners, listener);
 	};
-	
+
 	/**
 	 * Register the given listener as a "mouse up" listener.
 	 *  
 	 * @param {Object} listener an object that implements onMouseUp()
 	 */
 	hemi.input.addMouseUpListener = function(listener) {
-		addListener(hemi.input.mouseUpListeners, listener);
+		addListener(mouseUpListeners, listener);
 	};
-	
+
 	/**
 	 * Register the given listener as a "mouse move" listener.
 	 *  
 	 * @param {Object} listener an object that implements onMouseMove()
 	 */
 	hemi.input.addMouseMoveListener = function(listener) {
-		addListener(hemi.input.mouseMoveListeners, listener);
+		addListener(mouseMoveListeners, listener);
 	};
-	
+
 	/**
 	 * Register the given listener as a "mouse wheel" listener.
 	 *  
 	 * @param {Object} listener an object that implements onScroll()
 	 */
 	hemi.input.addMouseWheelListener = function(listener) {
-		addListener(hemi.input.mouseWheelListeners, listener);
+		addListener(mouseWheelListeners, listener);
 	};
-    
+   
 	/**
 	 * Register the given listener as a "key down" listener.
 	 *  
 	 * @param {Object} listener an object that implements onKeyDown()
 	 */
-    hemi.input.addKeyDownListener = function(listener) {
-		addListener(hemi.input.keyDownListeners, listener);
-    };
-    
+	hemi.input.addKeyDownListener = function(listener) {
+		addListener(keyDownListeners, listener);
+	};
+
 	/**
 	 * Register the given listener as a "key up" listener.
 	 *  
 	 * @param {Object} listener an object that implements onKeyUp()
 	 */
-    hemi.input.addKeyUpListener = function(listener) {
-		addListener(hemi.input.keyUpListeners, listener);
-    };
-    
+	hemi.input.addKeyUpListener = function(listener) {
+		addListener(keyUpListeners, listener);
+	};
+
 	/**
 	 * Register the given listener as a "key press" listener.
 	 *  
 	 * @param {Object} listener an object that implements onKeyPress()
 	 */
-    hemi.input.addKeyPressListener = function(listener) {
-		addListener(hemi.input.keyPressListeners, listener);
-    };
-	
+	hemi.input.addKeyPressListener = function(listener) {
+		addListener(keyPressListeners, listener);
+	};
+
 	/**
 	 * Remove the given listener from the list of "mouse down" listeners.
 	 * 
@@ -119,9 +185,9 @@ var hemi = (function(hemi) {
 	 * @return {Object} the removed listener if successful or null
 	 */
 	hemi.input.removeMouseDownListener = function(listener) {
-		return removeListener(hemi.input.mouseDownListeners, listener);
+		return removeListener(mouseDownListeners, listener);
 	};
-	
+
 	/**
 	 * Remove the given listener from the list of "mouse up" listeners.
 	 * 
@@ -129,9 +195,9 @@ var hemi = (function(hemi) {
 	 * @return {Object} the removed listener if successful or null
 	 */
 	hemi.input.removeMouseUpListener = function(listener) {
-		return removeListener(hemi.input.mouseUpListeners, listener);
+		return removeListener(mouseUpListeners, listener);
 	};
-	
+
 	/**
 	 * Remove the given listener from the list of "mouse move" listeners.
 	 * 
@@ -139,9 +205,9 @@ var hemi = (function(hemi) {
 	 * @return {Object} the removed listener if successful or null
 	 */
 	hemi.input.removeMouseMoveListener = function(listener) {
-		return removeListener(hemi.input.mouseMoveListeners, listener);
+		return removeListener(mouseMoveListeners, listener);
 	};
-	
+
 	/**
 	 * Remove the given listener from the list of "mouse wheel" listeners.
 	 * 
@@ -149,136 +215,143 @@ var hemi = (function(hemi) {
 	 * @return {Object} the removed listener if successful or null
 	 */
 	hemi.input.removeMouseWheelListener = function(listener) {
-		return removeListener(hemi.input.mouseWheelListeners, listener);
+		return removeListener(mouseWheelListeners, listener);
 	};
-    
+
 	/**
 	 * Remove the given listener from the list of "key down" listeners.
 	 * 
 	 * @param {Object} listener the listener to remove
 	 * @return {Object} the removed listener if successful or null
 	 */
-    hemi.input.removeKeyDownListener = function(listener) {
-		return removeListener(hemi.input.keyDownListeners, listener);
-    };
-    
+	hemi.input.removeKeyDownListener = function(listener) {
+		return removeListener(keyDownListeners, listener);
+	};
+
 	/**
 	 * Remove the given listener from the list of "key up" listeners.
 	 * 
 	 * @param {Object} listener the listener to remove
 	 * @return {Object} the removed listener if successful or null
 	 */
-    hemi.input.removeKeyUpListener = function(listener) {
-		return removeListener(hemi.input.keyUpListeners, listener);
-    };
-    
+	hemi.input.removeKeyUpListener = function(listener) {
+		return removeListener(keyUpListeners, listener);
+	};
+
 	/**
 	 * Remove the given listener from the list of "key press" listeners.
 	 * 
 	 * @param {Object} listener the listener to remove
 	 * @return {Object} the removed listener if successful or null
 	 */
-    hemi.input.removeKeyPressListener = function(listener) {
-		return removeListener(hemi.input.keyPressListeners, listener);
-    };
-	
+	hemi.input.removeKeyPressListener = function(listener) {
+		return removeListener(keyPressListeners, listener);
+	};
+
 	/**
 	 * Handle the event generated by the user pressing a mouse button down.
 	 * 
-	 * @param {o3d.Event} event information about the event which is passed on
-	 *                    to registered "mouse down" listeners
+	 * @param {Object} event information about the event which is passed on to registered "mouse
+	 *     down" listeners
 	 */
 	hemi.input.mouseDown = function(event) {
-		for (var ndx = 0; ndx < hemi.input.mouseDownListeners.length; ndx++) {
-			hemi.input.mouseDownListeners[ndx].onMouseDown(event);
+		var newEvent = getRelativeEvent(event);
+		for (var ndx = 0; ndx < mouseDownListeners.length; ndx++) {
+			mouseDownListeners[ndx].onMouseDown(newEvent);
 		}
 	};
-	
+
 	/**
 	 * Handle the event generated by the user releasing a pressed mouse button.
 	 * 
-	 * @param {o3d.Event} event information about the event which is passed on
-	 *                    to registered "mouse up" listeners
+	 * @param {Object} event information about the event which is passed on to registered "mouse up"
+	 *     listeners
 	 */
 	hemi.input.mouseUp = function(event) {
-		for (var ndx = 0; ndx < hemi.input.mouseUpListeners.length; ndx++) {
-			hemi.input.mouseUpListeners[ndx].onMouseUp(event);
+		var newEvent = getRelativeEvent(event);
+		for (var ndx = 0; ndx < mouseUpListeners.length; ndx++) {
+			mouseUpListeners[ndx].onMouseUp(newEvent);
 		}
 	};
-	
+
 	/**
 	 * Handle the event generated by the user moving the mouse.
 	 * 
-	 * @param {o3d.Event} event information about the event which is passed on
-	 *                    to registered "mouse move" listeners
+	 * @param {Object} event information about the event which is passed on to registered "mouse
+	 *     move" listeners
 	 */
 	hemi.input.mouseMove = function(event) {
-		for (var ndx = 0; ndx < hemi.input.mouseMoveListeners.length; ndx++) {
-			hemi.input.mouseMoveListeners[ndx].onMouseMove(event);
+		var newEvent = getRelativeEvent(event);
+		for (var ndx = 0; ndx < mouseMoveListeners.length; ndx++) {
+			mouseMoveListeners[ndx].onMouseMove(newEvent);
 		}
 	};
-	
+
 	/**
 	 * Handle the event generated by the user scrolling a mouse wheel.
 	 * 
-	 * @param {o3d.Event} event information about the event which is passed on
-	 *                    to registered "mouse wheel" listeners
+	 * @param {Object} event information about the event which is passed on to registered "mouse
+	 *     wheel" listeners
 	 */
 	hemi.input.scroll = function(event) {
-		for (var ndx = 0; ndx < hemi.input.mouseWheelListeners.length; ndx++) {
-			hemi.input.mouseWheelListeners[ndx].onScroll(event);
+		var newEvent = getRelativeEvent(event);
+		newEvent.deltaY = event.detail ? -event.detail : event.wheelDelta;
+		cancelEvent(event);
+		for (var ndx = 0; ndx < mouseWheelListeners.length; ndx++) {
+			mouseWheelListeners[ndx].onScroll(newEvent);
 		}
 	};
-    
+
 	/**
 	 * Handle the event generated by the user pressing a key down.
 	 * 
-	 * @param {o3d.Event} event information about the event which is passed on
-	 *                    to registered "key down" listeners
+	 * @param {Object} event information about the event which is passed on to registered "key down"
+	 *     listeners
 	 */
-    hemi.input.keyDown = function(event) {
-        for (var ndx = 0; ndx < hemi.input.keyDownListeners.length; ndx++) {
-            hemi.input.keyDownListeners[ndx].onKeyDown(event);
-        }
-    };
-    
+	hemi.input.keyDown = function(event) {
+		for (var ndx = 0; ndx < keyDownListeners.length; ndx++) {
+			keyDownListeners[ndx].onKeyDown(event);
+		}
+	};
+
 	/**
 	 * Handle the event generated by the user releasing a pressed key.
 	 * 
-	 * @param {o3d.Event} event information about the event which is passed on
-	 *                    to registered "key up" listeners
+	 * @param {Object} event information about the event which is passed on to registered "key up"
+	 *     listeners
 	 */
-    hemi.input.keyUp = function(event) {
-        for (var ndx = 0; ndx < hemi.input.keyUpListeners.length; ndx++) {
-            hemi.input.keyUpListeners[ndx].onKeyUp(event);
-        }
-    };
-    
+	hemi.input.keyUp = function(event) {
+		for (var ndx = 0; ndx < keyUpListeners.length; ndx++) {
+			keyUpListeners[ndx].onKeyUp(event);
+		}
+	};
+
 	/**
-	 * Handle the event generated by the user pressing a key down and releasing
-	 * it.
+	 * Handle the event generated by the user pressing a key down and releasing it.
 	 * 
-	 * @param {o3d.Event} event information about the event which is passed on
-	 *                    to registered "key press" listeners
+	 * @param {Object} event information about the event which is passed on to registered "key
+	 *     press" listeners
 	 */
-    hemi.input.keyPress = function(event) {
-        for (var ndx = 0; ndx < hemi.input.keyPressListeners.length; ndx++) {
-            hemi.input.keyPressListeners[ndx].onKeyPress(event);
-        }
-    };
-	
-	// Internal functions
-	
+	hemi.input.keyPress = function(event) {
+		for (var ndx = 0; ndx < keyPressListeners.length; ndx++) {
+			keyPressListeners[ndx].onKeyPress(event);
+		}
+	};
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Utility functions
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
 	/*
 	 * Add the given listener to the given set of listeners.
 	 * 
 	 * @param {Object[]} listenerSet list to add to
 	 * @param {Object} listener object to add
 	 */
-	var addListener = function(listenerSet, listener) {
+	function addListener(listenerSet, listener) {
 		listenerSet.push(listener);
-	};
-	
+	}
+
 	/*
 	 * Remove the given listener from the given set of listeners.
 	 * 
@@ -286,20 +359,49 @@ var hemi = (function(hemi) {
 	 * @param {Object} listener object to remove
 	 * @return {Object} the removed listener if successful or null 
 	 */
-	var removeListener = function(listenerSet, listener) {
-        var found = null;
-		var ndx = listenerSet.indexOf(listener);
-		
-		if (ndx != -1) {
-			var spliced = listenerSet.splice(ndx, 1);
-			
-			if (spliced.length == 1) {
-				found = spliced[0];
-			}
+	function removeListener(listenerSet, listener) {
+		var ndx = listenerSet.indexOf(listener),
+			found = null;
+
+		if (ndx !== -1) {
+			found = listenerSet.splice(ndx, 1)[0];
 		}
-        
-        return found;
-	};
-	
-	return hemi;
-})(hemi || {});
+
+		return found;
+	}
+
+	function getRelativeXY(event) {
+		var element = event.target ? event.target : event.srcElement,
+			xy = {x: 0, y: 0};
+
+		for (var e = element; e; e = e.offsetParent) {
+			xy.x += e.offsetLeft;
+			xy.y += e.offsetTop;
+		}
+
+		xy.x = event.pageX - xy.x;
+		xy.y = event.pageY - xy.y;
+
+		return xy;
+	}
+
+	function getRelativeEvent(event) {
+		var newEvent = hemi.utils.clone(event, false),
+			xy = getRelativeXY(newEvent);
+
+		newEvent.x = xy.x;
+		newEvent.y = xy.y;
+
+		return newEvent;
+	}
+
+	function cancelEvent(event) {
+		if (!event) event = window.event;
+
+		event.cancelBubble = true;
+
+		if (event.stopPropagation) event.stopPropagation();
+		if (event.preventDefault) event.preventDefault();
+	}
+
+})();

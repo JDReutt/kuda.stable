@@ -1,331 +1,2052 @@
-/* 
- * Kuda includes a library and editor for authoring interactive 3D content for the web.
- * Copyright (C) 2011 SRI International.
- *
- * This program is free software; you can redistribute it and/or modify it under the terms
- * of the GNU General Public License as published by the Free Software Foundation; either 
- * version 2 of the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
- * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
- * See the GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License along with this program; 
- * if not, write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, 
- * Boston, MA 02110-1301 USA.
- */
-
-o3djs.base.o3d = o3d;
 /**
- * @namespace The core Hemi library used by Kuda.
- * @version 1.5.1
+ * @author alteredq / http://alteredqualia.com/
+ * @author mr.doob / http://mrdoob.com/
  */
-var hemi = (function(hemi) {
-	
-	/**
-	 * The version of Hemi released: 11/30/11
-	 * @constant
-	 */
-	hemi.version = '1.5.1';
 
-	/**
-	 * @namespace A module for handling low level functionality and wrapping
-	 * calls to the underlying O3D library.
-	 */
-	hemi.core = hemi.core || {};
+Detector = {
 
-	/*
-	 * Because Internet Explorer does not support Array.indexOf(), we can add
-	 * it in so that subsequent calls do not break.
-	 *
-	 * @param {Object} obj
-	 */
-	if (!Array.indexOf) {
-		Array.prototype.indexOf = function(obj) {
-			for (var i = 0; i < this.length; i++) {
-				if (this[i] == obj) {
-					return i;
+	canvas : !! window.CanvasRenderingContext2D,
+	webgl : ( function () { try { return !! window.WebGLRenderingContext && !! document.createElement( 'canvas' ).getContext( 'experimental-webgl' ); } catch( e ) { return false; } } )(),
+	workers : !! window.Worker,
+	fileapi : window.File && window.FileReader && window.FileList && window.Blob,
+
+	getWebGLErrorMessage : function () {
+
+		var domElement = document.createElement( 'div' );
+
+		domElement.style.fontFamily = 'monospace';
+		domElement.style.fontSize = '13px';
+		domElement.style.textAlign = 'center';
+		domElement.style.background = '#eee';
+		domElement.style.color = '#000';
+		domElement.style.padding = '1em';
+		domElement.style.width = '475px';
+		domElement.style.margin = '5em auto 0';
+
+		if ( ! this.webgl ) {
+
+			domElement.innerHTML = window.WebGLRenderingContext ? [
+				'Your graphics card does not seem to support <a href="http://khronos.org/webgl/wiki/Getting_a_WebGL_Implementation">WebGL</a>.<br />',
+				'Find out how to get it <a href="http://get.webgl.org/">here</a>.'
+			].join( '\n' ) : [
+				'Your browser does not seem to support <a href="http://khronos.org/webgl/wiki/Getting_a_WebGL_Implementation">WebGL</a>.<br/>',
+				'Find out how to get it <a href="http://get.webgl.org/">here</a>.'
+			].join( '\n' );
+
+		}
+
+		return domElement;
+
+	},
+
+	addGetWebGLMessage : function ( parameters ) {
+
+		var parent, id, domElement;
+
+		parameters = parameters || {};
+
+		parent = parameters.parent !== undefined ? parameters.parent : document.body;
+		id = parameters.id !== undefined ? parameters.id : 'oldie';
+
+		domElement = Detector.getWebGLErrorMessage();
+		domElement.id = id;
+
+		parent.appendChild( domElement );
+
+	}
+
+};
+/**
+ * Copyright 2010 Tim Down.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+/**
+ * jshashtable
+ *
+ * jshashtable is a JavaScript implementation of a hash table. It creates a single constructor function called Hashtable
+ * in the global scope.
+ *
+ * Author: Tim Down <tim@timdown.co.uk>
+ * Version: 2.1
+ * Build date: 21 March 2010
+ * Website: http://www.timdown.co.uk/jshashtable
+ */
+
+var Hashtable = (function() {
+	var FUNCTION = "function";
+
+	var arrayRemoveAt = (typeof Array.prototype.splice == FUNCTION) ?
+		function(arr, idx) {
+			arr.splice(idx, 1);
+		} :
+
+		function(arr, idx) {
+			var itemsAfterDeleted, i, len;
+			if (idx === arr.length - 1) {
+				arr.length = idx;
+			} else {
+				itemsAfterDeleted = arr.slice(idx + 1);
+				arr.length = idx;
+				for (i = 0, len = itemsAfterDeleted.length; i < len; ++i) {
+					arr[idx + i] = itemsAfterDeleted[i];
 				}
 			}
-			return -1;
+		};
+
+	function hashObject(obj) {
+		var hashCode;
+		if (typeof obj == "string") {
+			return obj;
+		} else if (typeof obj.hashCode == FUNCTION) {
+			// Check the hashCode method really has returned a string
+			hashCode = obj.hashCode();
+			return (typeof hashCode == "string") ? hashCode : hashObject(hashCode);
+		} else if (typeof obj.toString == FUNCTION) {
+			return obj.toString();
+		} else {
+			try {
+				return String(obj);
+			} catch (ex) {
+				// For host objects (such as ActiveObjects in IE) that have no toString() method and throw an error when
+				// passed to String()
+				return Object.prototype.toString.call(obj);
+			}
+		}
+	}
+
+	function equals_fixedValueHasEquals(fixedValue, variableValue) {
+		return fixedValue.equals(variableValue);
+	}
+
+	function equals_fixedValueNoEquals(fixedValue, variableValue) {
+		return (typeof variableValue.equals == FUNCTION) ?
+			   variableValue.equals(fixedValue) : (fixedValue === variableValue);
+	}
+
+	function createKeyValCheck(kvStr) {
+		return function(kv) {
+			if (kv === null) {
+				throw new Error("null is not a valid " + kvStr);
+			} else if (typeof kv == "undefined") {
+				throw new Error(kvStr + " must not be undefined");
+			}
 		};
 	}
-	
-	/**
-	 * This function creates a material that uses a lambert shader. Convenience
-	 * function added to match createBasicMaterial and createConstantMaterial.
-	 *
-	 * @param {!o3d.Pack} pack Pack to manage created objects.
-	 * @param {!o3djs.rendergraph.ViewInfo} viewInfo as returned from
-	 *     o3djs.rendergraph.createBasicView.
-	 * @param {(!o3djs.math.Vector4|!o3d.Texture)} colorOrTexture Either a color
-	 *     in the format [r, g, b, a] or an O3D texture.
-	 * @param {boolean} opt_transparent Whether or not the material is
-	 *     transparent. Defaults to false.
-	 * @return {!o3d.Material} The created material.
-	 */
-	o3djs.material.createLambertMaterial = function(pack, viewInfo,
-			colorOrTexture, opt_transparent) {
-		var material = pack.createObject('Material');
-		material.drawList = opt_transparent ? viewInfo.zOrderedDrawList :
-			viewInfo.performanceDrawList;
-		
-		if (colorOrTexture.length) {
-			material.createParam('diffuse', 'ParamFloat4').value = colorOrTexture;
-		} else {
-			var paramSampler = material.createParam('diffuseSampler', 'ParamSampler'),
-				sampler = pack.createObject('Sampler');
-			paramSampler.value = sampler;
-			sampler.texture = colorOrTexture;
+
+	var checkKey = createKeyValCheck("key"), checkValue = createKeyValCheck("value");
+
+	/*----------------------------------------------------------------------------------------------------------------*/
+
+	function Bucket(hash, firstKey, firstValue, equalityFunction) {
+        this[0] = hash;
+		this.entries = [];
+		this.addEntry(firstKey, firstValue);
+
+		if (equalityFunction !== null) {
+			this.getEqualityFunction = function() {
+				return equalityFunction;
+			};
 		}
-		
-		material.createParam('emissive', 'ParamFloat4').value = [0, 0, 0, 1];
-		material.createParam('ambient', 'ParamFloat4').value = [0, 0, 0, 1];
-		material.createParam('lightColor', 'ParamFloat4').value = [1, 1, 1, 1];
-		var lightPositionParam = material.createParam('lightWorldPos', 'ParamFloat3');
-		
-		o3djs.material.attachStandardEffect(pack, material, viewInfo, 'lambert');
-		lightPositionParam.value = [1000, 2000, 3000];
-		return material;
+	}
+
+	var EXISTENCE = 0, ENTRY = 1, ENTRY_INDEX_AND_VALUE = 2;
+
+	function createBucketSearcher(mode) {
+		return function(key) {
+			var i = this.entries.length, entry, equals = this.getEqualityFunction(key);
+			while (i--) {
+				entry = this.entries[i];
+				if ( equals(key, entry[0]) ) {
+					switch (mode) {
+						case EXISTENCE:
+							return true;
+						case ENTRY:
+							return entry;
+						case ENTRY_INDEX_AND_VALUE:
+							return [ i, entry[1] ];
+					}
+				}
+			}
+			return false;
+		};
+	}
+
+	function createBucketLister(entryProperty) {
+		return function(aggregatedArr) {
+			var startIndex = aggregatedArr.length;
+			for (var i = 0, len = this.entries.length; i < len; ++i) {
+				aggregatedArr[startIndex + i] = this.entries[i][entryProperty];
+			}
+		};
+	}
+
+	Bucket.prototype = {
+		getEqualityFunction: function(searchValue) {
+			return (typeof searchValue.equals == FUNCTION) ? equals_fixedValueHasEquals : equals_fixedValueNoEquals;
+		},
+
+		getEntryForKey: createBucketSearcher(ENTRY),
+
+		getEntryAndIndexForKey: createBucketSearcher(ENTRY_INDEX_AND_VALUE),
+
+		removeEntryForKey: function(key) {
+			var result = this.getEntryAndIndexForKey(key);
+			if (result) {
+				arrayRemoveAt(this.entries, result[0]);
+				return result[1];
+			}
+			return null;
+		},
+
+		addEntry: function(key, value) {
+			this.entries[this.entries.length] = [key, value];
+		},
+
+		keys: createBucketLister(0),
+
+		values: createBucketLister(1),
+
+		getEntries: function(entries) {
+			var startIndex = entries.length;
+			for (var i = 0, len = this.entries.length; i < len; ++i) {
+				// Clone the entry stored in the bucket before adding to array
+				entries[startIndex + i] = this.entries[i].slice(0);
+			}
+		},
+
+		containsKey: createBucketSearcher(EXISTENCE),
+
+		containsValue: function(value) {
+			var i = this.entries.length;
+			while (i--) {
+				if ( value === this.entries[i][1] ) {
+					return true;
+				}
+			}
+			return false;
+		}
 	};
-	
+
+	/*----------------------------------------------------------------------------------------------------------------*/
+
+	// Supporting functions for searching hashtable buckets
+
+	function searchBuckets(buckets, hash) {
+		var i = buckets.length, bucket;
+		while (i--) {
+			bucket = buckets[i];
+			if (hash === bucket[0]) {
+				return i;
+			}
+		}
+		return null;
+	}
+
+	function getBucketForHash(bucketsByHash, hash) {
+		var bucket = bucketsByHash[hash];
+
+		// Check that this is a genuine bucket and not something inherited from the bucketsByHash's prototype
+		return ( bucket && (bucket instanceof Bucket) ) ? bucket : null;
+	}
+
+	/*----------------------------------------------------------------------------------------------------------------*/
+
+	function Hashtable(hashingFunctionParam, equalityFunctionParam) {
+		var that = this;
+		var buckets = [];
+		var bucketsByHash = {};
+
+		var hashingFunction = (typeof hashingFunctionParam == FUNCTION) ? hashingFunctionParam : hashObject;
+		var equalityFunction = (typeof equalityFunctionParam == FUNCTION) ? equalityFunctionParam : null;
+
+		this.put = function(key, value) {
+			checkKey(key);
+			checkValue(value);
+			var hash = hashingFunction(key), bucket, bucketEntry, oldValue = null;
+
+			// Check if a bucket exists for the bucket key
+			bucket = getBucketForHash(bucketsByHash, hash);
+			if (bucket) {
+				// Check this bucket to see if it already contains this key
+				bucketEntry = bucket.getEntryForKey(key);
+				if (bucketEntry) {
+					// This bucket entry is the current mapping of key to value, so replace old value and we're done.
+					oldValue = bucketEntry[1];
+					bucketEntry[1] = value;
+				} else {
+					// The bucket does not contain an entry for this key, so add one
+					bucket.addEntry(key, value);
+				}
+			} else {
+				// No bucket exists for the key, so create one and put our key/value mapping in
+				bucket = new Bucket(hash, key, value, equalityFunction);
+				buckets[buckets.length] = bucket;
+				bucketsByHash[hash] = bucket;
+			}
+			return oldValue;
+		};
+
+		this.get = function(key) {
+			checkKey(key);
+
+			var hash = hashingFunction(key);
+
+			// Check if a bucket exists for the bucket key
+			var bucket = getBucketForHash(bucketsByHash, hash);
+			if (bucket) {
+				// Check this bucket to see if it contains this key
+				var bucketEntry = bucket.getEntryForKey(key);
+				if (bucketEntry) {
+					// This bucket entry is the current mapping of key to value, so return the value.
+					return bucketEntry[1];
+				}
+			}
+			return null;
+		};
+
+		this.containsKey = function(key) {
+			checkKey(key);
+			var bucketKey = hashingFunction(key);
+
+			// Check if a bucket exists for the bucket key
+			var bucket = getBucketForHash(bucketsByHash, bucketKey);
+
+			return bucket ? bucket.containsKey(key) : false;
+		};
+
+		this.containsValue = function(value) {
+			checkValue(value);
+			var i = buckets.length;
+			while (i--) {
+				if (buckets[i].containsValue(value)) {
+					return true;
+				}
+			}
+			return false;
+		};
+
+		this.clear = function() {
+			buckets.length = 0;
+			bucketsByHash = {};
+		};
+
+		this.isEmpty = function() {
+			return !buckets.length;
+		};
+
+		var createBucketAggregator = function(bucketFuncName) {
+			return function() {
+				var aggregated = [], i = buckets.length;
+				while (i--) {
+					buckets[i][bucketFuncName](aggregated);
+				}
+				return aggregated;
+			};
+		};
+
+		this.keys = createBucketAggregator("keys");
+		this.values = createBucketAggregator("values");
+		this.entries = createBucketAggregator("getEntries");
+
+		this.remove = function(key) {
+			checkKey(key);
+
+			var hash = hashingFunction(key), bucketIndex, oldValue = null;
+
+			// Check if a bucket exists for the bucket key
+			var bucket = getBucketForHash(bucketsByHash, hash);
+
+			if (bucket) {
+				// Remove entry from this bucket for this key
+				oldValue = bucket.removeEntryForKey(key);
+				if (oldValue !== null) {
+					// Entry was removed, so check if bucket is empty
+					if (!bucket.entries.length) {
+						// Bucket is empty, so remove it from the bucket collections
+						bucketIndex = searchBuckets(buckets, hash);
+						arrayRemoveAt(buckets, bucketIndex);
+						delete bucketsByHash[hash];
+					}
+				}
+			}
+			return oldValue;
+		};
+
+		this.size = function() {
+			var total = 0, i = buckets.length;
+			while (i--) {
+				total += buckets[i].entries.length;
+			}
+			return total;
+		};
+
+		this.each = function(callback) {
+			var entries = that.entries(), i = entries.length, entry;
+			while (i--) {
+				entry = entries[i];
+				callback(entry[0], entry[1]);
+			}
+		};
+
+		this.putAll = function(hashtable, conflictCallback) {
+			var entries = hashtable.entries();
+			var entry, key, value, thisValue, i = entries.length;
+			var hasConflictCallback = (typeof conflictCallback == FUNCTION);
+			while (i--) {
+				entry = entries[i];
+				key = entry[0];
+				value = entry[1];
+
+				// Check for a conflict. The default behaviour is to overwrite the value for an existing key
+				if ( hasConflictCallback && (thisValue = that.get(key)) ) {
+					value = conflictCallback(key, thisValue, value);
+				}
+				that.put(key, value);
+			}
+		};
+
+		this.clone = function() {
+			var clone = new Hashtable(hashingFunctionParam, equalityFunctionParam);
+			clone.putAll(that);
+			return clone;
+		};
+	}
+
+	return Hashtable;
+})();/*
+ * Port of O3D's gpu-enabled particle system to Three.js with minor modifications.
+ * @author Erik Kitson
+ */
+
+/*
+ * Copyright 2009, Google Inc.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ *
+ *     * Redistributions of source code must retain the above copyright
+ * notice, this list of conditions and the following disclaimer.
+ *     * Redistributions in binary form must reproduce the above
+ * copyright notice, this list of conditions and the following disclaimer
+ * in the documentation and/or other materials provided with the
+ * distribution.
+ *     * Neither the name of Google Inc. nor the names of its
+ * contributors may be used to endorse or promote products derived from
+ * this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
+ var hemi = hemi || {};
+
+/**
+ * @fileoverview This file contains various functions and classes for rendering gpu based particles.
+ */
+(function() {
 	/**
-	 * Pass the given error message to the registered error handler or throw an
-	 * Error if no handler is registered.
+	 * @namespace A Module with various GPU particle functions and classes.
+	 * Note: GPU particles have the issue that they are not sorted per particle but rather per
+	 * emitter.
+	 */
+	hemi.particles = hemi.particles || {};
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Particle shader code
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	var SHADERS = {
+			particle3d: {
+				attributes: {
+					uvLifeTimeFrameStart: { type: 'v4', value: [] },
+					positionStartTime: { type: 'v4', value: [] },
+					velocityStartSize: { type: 'v4', value: [] },
+					accelerationEndSize: { type: 'v4', value: [] },
+					spinStartSpinSpeed: { type: 'v4', value: [] },
+					orientation: { type: 'v4', value: [] },
+					colorMult: { type: 'v4', value: [] }
+				},
+				uniforms: {
+					worldVelocity: { type: 'v3', value: new THREE.Vector3() },
+					worldAcceleration: { type: 'v3', value: new THREE.Vector3() },
+					timeRange: { type: 'f', value: 0.0 },
+					time: { type: 'f', value: 0.0 },
+					timeOffset: { type: 'f', value: 0.0 },
+					frameDuration: { type: 'f', value: 0.0 },
+					numFrames: { type: 'f', value: 0.0 },
+					rampSampler: { type: 't', value: 0, texture: null },
+					colorSampler: { type: 't', value: 1, texture: null }
+				},
+				vertexShader: '' +
+					'uniform vec3 worldVelocity;\n' +
+					'uniform vec3 worldAcceleration;\n' +
+					'uniform float timeRange;\n' +
+					'uniform float time;\n' +
+					'uniform float timeOffset;\n' +
+					'uniform float frameDuration;\n' +
+					'uniform float numFrames;\n' +
+					'\n' +
+					'attribute vec4 uvLifeTimeFrameStart; \n' +
+					'attribute vec4 positionStartTime; \n' +
+					'attribute vec4 velocityStartSize; \n' +
+					'attribute vec4 accelerationEndSize; \n' +
+					'attribute vec4 spinStartSpinSpeed; \n' +
+					'attribute vec4 orientation; \n' +
+					'attribute vec4 colorMult; \n' +
+					'\n' +
+					'varying vec4 v_position;\n' +
+					'varying vec2 v_texcoord;\n' +
+					'varying float v_percentLife;\n' +
+					'varying vec4 v_colorMult;\n' +
+					'varying float v_discard;\n' +
+					'\n' +
+					'void main() {\n' +
+					'  vec2 uv = uvLifeTimeFrameStart.xy;\n' +
+					'  float lifeTime = uvLifeTimeFrameStart.z;\n' +
+					'  float frameStart = uvLifeTimeFrameStart.w;\n' +
+					'  vec3 position = positionStartTime.xyz;\n' +
+					'  float startTime = positionStartTime.w;\n' +
+					'  vec3 velocity = (objectMatrix * vec4(velocityStartSize.xyz, 0)).xyz\n' +
+					'      + worldVelocity;\n' +
+					'  float startSize = velocityStartSize.w;\n' +
+					'  vec3 acceleration = (objectMatrix *\n' +
+					'      vec4(accelerationEndSize.xyz, 0)).xyz + worldAcceleration;\n' +
+					'  float endSize = accelerationEndSize.w;\n' +
+					'  float spinStart = spinStartSpinSpeed.x;\n' +
+					'  float spinSpeed = spinStartSpinSpeed.y;\n' +
+					'\n' +
+					'  if (startTime < 0.0) {\n' +
+					'    v_discard = 1.0;\n' +
+					'    gl_Position = vec4(0);\n' +
+					'    return;\n' +
+					'  } else {\n' +
+					'    v_discard = -1.0;\n' +
+					'  }\n' +
+					'\n' +
+					'  float localTime = mod((time - timeOffset - startTime), timeRange);\n' +
+					'  float percentLife = localTime / lifeTime;\n' +
+					'\n' +
+					'  float frame = mod(floor(localTime / frameDuration + frameStart),\n' +
+					'                     numFrames);\n' +
+					'  float uOffset = frame / numFrames;\n' +
+					'  float u = uOffset + (uv.x + 0.5) * (1.0 / numFrames);\n' +
+					'\n' +
+					'  v_texcoord = vec2(u, uv.y + 0.5);\n' +
+					'  v_colorMult = colorMult;\n' +
+					'\n' +
+					'  float size = mix(startSize, endSize, percentLife);\n' +
+					'  size = (percentLife < 0.0 || percentLife > 1.0) ? 0.0 : size;\n' +
+					'  float s = sin(spinStart + spinSpeed * localTime);\n' +
+					'  float c = cos(spinStart + spinSpeed * localTime);\n' +
+					'\n' +
+					'  vec4 rotatedPoint = vec4((uv.x * c + uv.y * s) * size, 0.0,\n' +
+					'                               (uv.x * s - uv.y * c) * size, 1.0);\n' +
+					'  vec3 center = velocity * localTime +\n' +
+					'                  acceleration * localTime * localTime + \n' +
+					'                  position;\n' +
+					'  \n' +
+					'      vec4 q2 = orientation + orientation;\n' +
+					'      vec4 qx = orientation.xxxw * q2.xyzx;\n' +
+					'      vec4 qy = orientation.xyyw * q2.xyzy;\n' +
+					'      vec4 qz = orientation.xxzw * q2.xxzz;\n' +
+					'  \n' +
+					'      mat4 localMatrix = mat4(\n' +
+					'        (1.0 - qy.y) - qz.z, \n' +
+					'        qx.y + qz.w, \n' +
+					'        qx.z - qy.w,\n' +
+					'        0,\n' +
+					'  \n' +
+					'        qx.y - qz.w, \n' +
+					'        (1.0 - qx.x) - qz.z, \n' +
+					'        qy.z + qx.w,\n' +
+					'        0,\n' +
+					'  \n' +
+					'        qx.z + qy.w, \n' +
+					'        qy.z - qx.w, \n' +
+					'        (1.0 - qx.x) - qy.y,\n' +
+					'        0,\n' +
+					'  \n' +
+					'        center.x, center.y, center.z, 1.0);\n' +
+					'  rotatedPoint = localMatrix * rotatedPoint;\n' +
+					'  gl_Position = projectionMatrix * modelViewMatrix * rotatedPoint;\n' +
+					'  v_percentLife = percentLife;\n' +
+					'}\n',
+				fragmentShader: '' +
+					'varying vec4 v_position;\n' +
+					'varying vec2 v_texcoord;\n' +
+					'varying float v_percentLife;\n' +
+					'varying vec4 v_colorMult;\n' +
+					'varying float v_discard;\n' +
+					'\n' +
+					'// We need to implement 1D!\n' +
+					'uniform sampler2D rampSampler;\n' +
+					'uniform sampler2D colorSampler;\n' +
+					'\n' +
+					'void main() {\n' +
+					'  if (v_discard > 0.0) {\n' +
+					'    discard;\n' +
+					'  }\n' +
+					'\n' +
+					'  vec4 colorMult = texture2D(rampSampler, \n' +
+					'      vec2(v_percentLife, 0.5)) * v_colorMult;\n' +
+					'  vec4 color = texture2D(colorSampler, v_texcoord) * colorMult;\n' +
+					'  gl_FragColor = color;\n' +
+					'}\n'
+			},
+			particle2d: {
+				attributes: {
+					uvLifeTimeFrameStart: { type: 'v4', value: [] },
+					positionStartTime: { type: 'v4', value: [] },
+					velocityStartSize: { type: 'v4', value: [] },
+					accelerationEndSize: { type: 'v4', value: [] },
+					spinStartSpinSpeed: { type: 'v4', value: [] },
+					colorMult: { type: 'v4', value: [] }
+				},
+				uniforms: {
+					viewInverse: { type: 'm4', value: null },
+					worldVelocity: { type: 'v3', value: new THREE.Vector3() },
+					worldAcceleration: { type: 'v3', value: new THREE.Vector3() },
+					timeRange: { type: 'f', value: 0.0 },
+					time: { type: 'f', value: 0.0 },
+					timeOffset: { type: 'f', value: 0.0 },
+					frameDuration: { type: 'f', value: 0.0 },
+					numFrames: { type: 'f', value: 0.0 },
+					rampSampler: { type: 't', value: 0, texture: null },
+					colorSampler: { type: 't', value: 1, texture: null }
+				},
+				vertexShader: '' +
+					'uniform mat4 viewInverse;\n' +
+					'uniform vec3 worldVelocity;\n' +
+					'uniform vec3 worldAcceleration;\n' +
+					'uniform float timeRange;\n' +
+					'uniform float time;\n' +
+					'uniform float timeOffset;\n' +
+					'uniform float frameDuration;\n' +
+					'uniform float numFrames;\n' +
+					'\n' +
+					'attribute vec4 uvLifeTimeFrameStart; \n' +
+					'attribute vec4 positionStartTime; \n' +
+					'attribute vec4 velocityStartSize; \n' +
+					'attribute vec4 accelerationEndSize; \n' +
+					'attribute vec4 spinStartSpinSpeed; \n' +
+					'attribute vec4 colorMult; \n' +
+					'\n' +
+					'varying vec4 v_position;\n' +
+					'varying vec2 v_texcoord;\n' +
+					'varying float v_percentLife;\n' +
+					'varying vec4 v_colorMult;\n' +
+					'varying float v_discard;\n' +
+					'\n' +
+					'void main() {\n' +
+					'  vec2 uv = uvLifeTimeFrameStart.xy;\n' +
+					'  float lifeTime = uvLifeTimeFrameStart.z;\n' +
+					'  float frameStart = uvLifeTimeFrameStart.w;\n' +
+					'  vec3 position = (objectMatrix * vec4(positionStartTime.xyz, 1.0)).xyz;\n' +
+					'  float startTime = positionStartTime.w;\n' +
+					'  vec3 velocity = (objectMatrix * vec4(velocityStartSize.xyz, 0)).xyz \n' +
+					'      + worldVelocity;\n' +
+					'  float startSize = velocityStartSize.w;\n' +
+					'  vec3 acceleration = (objectMatrix *\n' +
+					'      vec4(accelerationEndSize.xyz, 0)).xyz + worldAcceleration;\n' +
+					'  float endSize = accelerationEndSize.w;\n' +
+					'  float spinStart = spinStartSpinSpeed.x;\n' +
+					'  float spinSpeed = spinStartSpinSpeed.y;\n' +
+					'\n' +
+					'  if (startTime < 0.0) {\n' +
+					'    v_discard = 1.0;\n' +
+					'    gl_Position = vec4(0);\n' +
+					'    return;\n' +
+					'  } else {\n' +
+					'    v_discard = -1.0;\n' +
+					'  }\n' +
+					'\n' +
+					'  float localTime = mod((time - timeOffset - startTime), timeRange);\n' +
+					'  float percentLife = localTime / lifeTime;\n' +
+					'\n' +
+					'  float frame = mod(floor(localTime / frameDuration + frameStart),\n' +
+					'                     numFrames);\n' +
+					'  float uOffset = frame / numFrames;\n' +
+					'  float u = uOffset + (uv.x + 0.5) * (1.0 / numFrames);\n' +
+					'\n' +
+					'  v_texcoord = vec2(u, uv.y + 0.5);\n' +
+					'  v_colorMult = colorMult;\n' +
+					'\n' +
+					'  vec3 basisX = viewInverse[0].xyz;\n' +
+					'  vec3 basisZ = viewInverse[1].xyz;\n' +
+					'\n' +
+					'  float size = mix(startSize, endSize, percentLife);\n' +
+					'  size = (percentLife < 0.0 || percentLife > 1.0) ? 0.0 : size;\n' +
+					'  float s = sin(spinStart + spinSpeed * localTime);\n' +
+					'  float c = cos(spinStart + spinSpeed * localTime);\n' +
+					'\n' +
+					'  vec2 rotatedPoint = vec2(uv.x * c + uv.y * s, \n' +
+					'                               -uv.x * s + uv.y * c);\n' +
+					'  vec3 localPosition = vec3(basisX * rotatedPoint.x +\n' +
+					'                                basisZ * rotatedPoint.y) * size +\n' +
+					'                         velocity * localTime +\n' +
+					'                         acceleration * localTime * localTime + \n' +
+					'                         position;\n' +
+					'\n' +
+					'  gl_Position = (projectionMatrix * viewMatrix * vec4(localPosition, 1.0));\n' +
+					'  v_percentLife = percentLife;\n' +
+					'}\n',
+				fragmentShader: '' +
+					'varying vec4 v_position;\n' +
+					'varying vec2 v_texcoord;\n' +
+					'varying float v_percentLife;\n' +
+					'varying vec4 v_colorMult;\n' +
+					'varying float v_discard;\n' +
+					'\n' +
+					'// We need to implement 1D!\n' +
+					'uniform sampler2D rampSampler;\n' +
+					'uniform sampler2D colorSampler;\n' +
+					'\n' +
+					'void main() {\n' +
+					'  if (v_discard > 0.0) {\n' +
+					'    discard;\n' +
+					'  }\n' +
+					'\n' +
+					'  vec4 colorMult = texture2D(rampSampler, \n' +
+					'      vec2(v_percentLife, 0.5)) * v_colorMult;\n' +
+					'  vec4 color = texture2D(colorSampler, v_texcoord) * colorMult;\n' +
+					'  gl_FragColor = color;\n' +
+					'}\n'
+			}
+		},
+		// Corner UV values
+		PARTICLE_CORNERS = [
+			[-0.5, -0.5],
+			[+0.5, -0.5],
+			[+0.5, +0.5],
+			[-0.5, +0.5]
+		];
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// System class
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	/**
+	 * An Object to manage Particles.
+	 * You only need one of these to run multiple emitters of different types
+	 * of particles.
+	 * 
+	 * @param {function(): number} opt_randomFunction A function that returns
+	 *     a random number between 0.0 and 1.0. This allows you to pass in a
+	 *     pseudo random function if you need particles that are reproducable.
+	 */
+	hemi.particles.System = function(opt_randomFunction) {
+		var pixelBase = [0, 0.20, 0.70, 1, 0.70, 0.20, 0, 0],
+			pixels = [];
+
+		for (var yy = 0; yy < 8; ++yy) {
+			for (var xx = 0; xx < 8; ++xx) {
+				var pixel = pixelBase[xx] * pixelBase[yy];
+				pixels.push(pixel, pixel, pixel, pixel);
+			}
+		}
+
+		var colorPixels = convertToPixels(pixels),
+			colorTexture = new THREE.DataTexture(colorPixels, 8, 8, THREE.RGBAFormat),
+			rampPixels = convertToPixels(
+				[1, 1, 1, 1,
+				 1, 1, 1, 0.5,
+				 1, 1, 1, 0]),
+			rampTexture = new THREE.DataTexture(rampPixels, 3, 1, THREE.RGBAFormat);
+
+		rampTexture.wrapT = THREE.RepeatWrapping;
+		colorTexture.needsUpdate = rampTexture.needsUpdate = true;
+
+		this._randomFunction = opt_randomFunction || function() {
+			return Math.random();
+		};
+
+		/**
+		 * The default color texture for particles.
+		 * @type {THREE.Texture}
+		 */
+		this.defaultColorTexture = colorTexture;
+
+		/**
+		 * The default ramp texture for particles.
+		 * @type {THREE.Texture}
+		 */
+		this.defaultRampTexture = rampTexture;
+
+		/**
+		 * List of Emitters controlled by this System.
+		 */
+		this.emitters = [];
+	};
+
+	/**
+	 * Creates a particle emitter.
+	 * 
+	 * @param {THREE.Camera} camera the camera that will be used to view this
+	 *     Emitter.
+	 * @param {THREE.Texture} opt_texture The texture to use for the particles.
+	 *     If you don't supply a texture a default is provided.
+	 * @return {hemi.particles.Emitter} The new emitter.
+	 */
+	hemi.particles.System.prototype.createEmitter = function(camera, opt_texture) {
+		return new hemi.particles.Emitter(this, camera, opt_texture);
+	};
+
+	/**
+	 * Creates a Trail particle emitter.
+	 * You can use this for jet exhaust, etc...
+	 * 
+	 * @param {THREE.Camera} camera the camera that will be used to view this
+	 *     Emitter.
+	 * @param {number} maxParticles Maximum number of particles to appear at once.
+	 * @param {hemi.particles.Spec} parameters The parameters used to
+	 *     generate particles.
+	 * @param {THREE.Texture} opt_texture The texture to use for the particles.
+	 *     If you don't supply a texture a default is provided.
+	 * @param {function(number, hemi.particles.Spec): void} opt_paramSetter A
+	 *     function that is called for each particle to allow it's parameters to
+	 *     be adjusted per particle. The number is the index of the particle
+	 *     being created, in other words, if numParticles is 20 this value will
+	 *     be 0 to 19. The ParticleSpec is a spec for this particular particle.
+	 *     You can set any per particle value before returning.
+	 * @return {hemi.particles.Trail} A Trail object.
+	 */
+	hemi.particles.System.prototype.createTrail = function(camera, maxParticles, parameters, opt_texture, opt_paramSetter) {
+		return new hemi.particles.Trail(this, camera, maxParticles, parameters, opt_texture, opt_paramSetter);
+	};
+
+	/**
+	 * Update emitters with the given time delta.
+	 * 
+	 * @param {number} delta amount of time to advance the particles by
+	 */
+	hemi.particles.System.prototype.update = function(delta) {
+		for (var i = 0, il = this.emitters.length; i < il; ++i) {
+			this.emitters[i]._timeParam.value += delta;
+		}
+	};
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Spec class
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	/**
+	* A particle Spec specifies how to emit particles.
+	*
+	* NOTE: For all particle functions you can specify a particle Spec as a
+	* Javascript object, only specifying the fields that you care about.
+	*
+	* <pre>
+	* emitter.setParameters({
+	*   numParticles: 40,
+	*   lifeTime: 2,
+	*   timeRange: 2,
+	*   startSize: 50,
+	*   endSize: 90,
+	*   positionRange: [10, 10, 10],
+	*   velocity:[0, 0, 60], velocityRange: [15, 15, 15],
+	*   acceleration: [0, 0, -20],
+	*   spinSpeedRange: 4}
+	* );
+	* </pre>
+	*
+	* Many of these parameters are in pairs. For paired paramters each particle
+	* specfic value is set like this
+	*
+	* particle.field = value + Math.random() - 0.5 * valueRange * 2;
+	*
+	* or in English
+	*
+	* particle.field = value plus or minus valueRange.
+	*
+	* So for example, if you wanted a value from 10 to 20 you'd pass 15 for value
+	* and 5 for valueRange because
+	*
+	* 15 + or - 5  = (10 to 20)
+	*
+	* @constructor
+	*/
+	hemi.particles.Spec = function() {
+		/**
+		* The number of particles to emit.
+		* @type {number}
+		*/
+		this.numParticles = 1;
+
+		/**
+		* The number of frames in the particle texture.
+		* @type {number}
+		*/
+		this.numFrames = 1;
+
+		/**
+		* The frame duration at which to animate the particle texture in seconds per
+		* frame.
+		* @type {number}
+		*/
+		this.frameDuration = 1;
+
+		/**
+		* The initial frame to display for a particular particle.
+		* @type {number}
+		*/
+		this.frameStart = 0;
+
+		/**
+		* The frame start range.
+		* @type {number}
+		*/
+		this.frameStartRange = 0;
+
+		/**
+		* The life time of the entire particle system.
+		* To make a particle system be continuous set this to match the lifeTime.
+		* @type {number}
+		*/
+		this.timeRange = 99999999;
+
+		/**
+		* The startTime of a particle.
+		* @type {number}
+		*/
+		this.startTime = null;
+
+		/**
+		* The lifeTime of a particle.
+		* @type {number}
+		*/
+		this.lifeTime = 1;
+
+		/**
+		* The lifeTime range.
+		* @type {number}
+		*/
+		this.lifeTimeRange = 0;
+
+		/**
+		* The starting size of a particle.
+		* @type {number}
+		*/
+		this.startSize = 1;
+
+		/**
+		* The starting size range.
+		* @type {number}
+		*/
+		this.startSizeRange = 0;
+
+		/**
+		* The ending size of a particle.
+		* @type {number}
+		*/
+		this.endSize = 1;
+
+		/**
+		* The ending size range.
+		* @type {number}
+		*/
+		this.endSizeRange = 0;
+
+		/**
+		* The starting position of a particle in local space.
+		* @type {number[3]}
+		*/
+		this.position = [0, 0, 0];
+
+		/**
+		* The starting position range.
+		* @type {number[3]}
+		*/
+		this.positionRange = [0, 0, 0];
+
+		/**
+		* The velocity of a paritcle in local space.
+		* @type {number[3]}
+		*/
+		this.velocity = [0, 0, 0];
+
+		/**
+		* The velocity range.
+		* @type {number[3]}
+		*/
+		this.velocityRange = [0, 0, 0];
+
+		/**
+		* The acceleration of a particle in local space.
+		* @type {number[3]}
+		*/
+		this.acceleration = [0, 0, 0];
+
+		/**
+		* The accleration range.
+		* @type {number[3]}
+		*/
+		this.accelerationRange = [0, 0, 0];
+
+		/**
+		* The starting spin value for a particle in radians.
+		* @type {number}
+		*/
+		this.spinStart = 0;
+
+		/**
+		* The spin start range.
+		* @type {number}
+		*/
+		this.spinStartRange = 0;
+
+		/**
+		* The spin speed of a particle in radians.
+		* @type {number}
+		*/
+		this.spinSpeed = 0;
+
+		/**
+		* The spin speed range.
+		* @type {number}
+		*/
+		this.spinSpeedRange = 0;
+
+		/**
+		* The color multiplier of a particle.
+		* @type {number[4]}
+		*/
+		this.colorMult = [1, 1, 1, 1];
+
+		/**
+		* The color multiplier range.
+		* @type {number[4]}
+		*/
+		this.colorMultRange = [0, 0, 0, 0];
+
+		/**
+		* The velocity of all paritcles in world space.
+		* @type {number[3]}
+		*/
+		this.worldVelocity = [0, 0, 0];
+
+		/**
+		* The acceleration of all paritcles in world space.
+		* @type {number[3]}
+		*/
+		this.worldAcceleration = [0, 0, 0];
+
+		/**
+		* Whether these particles are oriented in 2d or 3d. true = 2d, false = 3d.
+		* @type {boolean}
+		*/
+		this.billboard = true;
+
+		/**
+		* The orientation of a particle. This is only used if billboard is false.
+		* @type {number[4]}
+		*/
+		this.orientation = [0, 0, 0, 1];
+	};
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Emitter class
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	/**
+	* A ParticleEmitter
+	* @constructor
+	* 
+	* @param {hemi.particles.System} particleSystem The particle system to
+	*     manage this Emitter.
+	* @param {THREE.Camera} camera the camera that will be used to view this
+	*     Emitter.
+	* @param {THREE.Texture} opt_texture The texture to use for the particles.
+	*     If you don't supply a texture a default is provided.
+	*/
+	hemi.particles.Emitter = function(particleSystem, camera, opt_texture) {
+		this._camera = camera;
+		this._colorTexture = opt_texture || null;
+		/*
+		* The particle system managing this emitter.
+		* @type {hemi.particles.System}
+		*/
+		this._particleSystem = null;
+		this._rampTexture = null;
+		this._timeParam = null;
+
+		/**
+		* The material used by this emitter.
+		* @type {THREE.ShaderMaterial}
+		*/
+		this.material = new THREE.ShaderMaterial({
+			blending: THREE.AdditiveBlending,
+			depthWrite: false,
+			transparent: true
+		});
+
+		this.material.name = 'particles';
+
+		/**
+		* The Shape used to render these particles.
+		* @type {THREE.Geometry}
+		*/
+		this.shape = new THREE.Geometry();
+
+		if (particleSystem) {
+			this._colorTexture = opt_texture || particleSystem.defaultColorTexture;
+			this._rampTexture = particleSystem.defaultRampTexture;
+			this._particleSystem = particleSystem;
+			particleSystem.emitters.push(this);
+		}
+	};
+
+	/**
+	* Sets the blending for the particles.
+	* You can use this to set the emitter to draw with BLEND, ADD, SUBTRACT, etc.
+	* 
+	* @param {number} blending Enumeration for the blend to use.
+	*/
+	hemi.particles.Emitter.prototype.setBlending = function(blending) {
+		this.material.blending = blending;
+	};
+
+	/**
+	* Sets the colorRamp for the particles.
+	* The colorRamp is used as a multiplier for the texture. When a particle
+	* starts it is multiplied by the first color, as it ages to progressed
+	* through the colors in the ramp.
+	*
+	* <pre>
+	* particleEmitter.setColorRamp([
+	*   1, 0, 0, 1,    // red
+	*   0, 1, 0, 1,    // green
+	*   1, 0, 1, 0]);  // purple but with zero alpha
+	* </pre>
+	*
+	* The code above sets the particle to start red, change to green then
+	* fade out while changing to purple.
+	*
+	* @param {number[]} colorRamp An array of color values in the form RGBA.
+	*/
+	hemi.particles.Emitter.prototype.setColorRamp = function(colorRamp) {
+		var width = colorRamp.length / 4;
+
+		if (width % 1 !== 0) {
+			hemi.error('colorRamp must have multiple of 4 entries');
+		}
+
+		var rampPixels = convertToPixels(colorRamp);
+
+		if (this._rampTexture === this._particleSystem.defaultRampTexture || this._rampTexture.image.width !== width) {
+			this._rampTexture = new THREE.DataTexture(rampPixels, width, 1, THREE.RGBAFormat);
+			this._rampTexture.wrapT = THREE.RepeatWrapping;
+			this._rampTexture.needsUpdate = true;
+
+			if (this.material.uniforms.rampSampler) {
+				this.material.uniforms.rampSampler.texture = this._rampTexture;
+			}
+		} else {
+			this._rampTexture.image.data = rampPixels;
+		}
+	};
+
+	/**
+	* Validates and adds missing particle parameters.
+	* 
+	* @param {hemi.particles.Spec} parameters The parameters to validate.
+	*/
+	hemi.particles.Emitter.prototype.validateParameters = function(parameters) {
+		var defaults = new hemi.particles.Spec();
+
+		for (var key in parameters) {
+			if (typeof defaults[key] === 'undefined') {
+				hemi.error('unknown particle parameter "' + key + '"');
+			}
+		}
+		for (key in defaults) {
+			if (typeof parameters[key] === 'undefined') {
+				parameters[key] = defaults[key];
+			}
+		}
+	};
+
+	/**
+	* Sets the parameters of the particle emitter.
+	*
+	* Each of these parameters are in pairs. The used to create a table
+	* of particle parameters. For each particle a specfic value is
+	* set like this
+	*
+	* particle.field = value + Math.random() - 0.5 * valueRange * 2;
+	*
+	* or in English
+	*
+	* particle.field = value plus or minus valueRange.
+	*
+	* So for example, if you wanted a value from 10 to 20 you'd pass 15 for value
+	* and 5 for valueRange because
+	*
+	* 15 + or - 5  = (10 to 20)
+	*
+	* @param {hemi.particles.Spec} parameters The parameters for the emitter.
+	* @param {function(number, hemi.particles.Spec): void} opt_paramSetter A
+	*     function that is called for each particle to allow it's parameters to
+	*     be adjusted per particle. The number is the index of the particle
+	*     being created, in other words, if numParticles is 20 this value will
+	*     be 0 to 19. The ParticleSpec is a spec for this particular particle.
+	*     You can set any per particle value before returning.
+	*/
+	hemi.particles.Emitter.prototype.setParameters = function(parameters, opt_paramSetter) {
+		setupMaterial.call(this, parameters);
+
+		var numParticles = parameters.numParticles;
+
+		allocateParticles.call(this, numParticles);
+		createParticles.call(this, numParticles, parameters, opt_paramSetter);
+	};
+
+	/**
+	* Creates a OneShot particle emitter instance.
+	* You can use this for dust puffs, explosions, fireworks, etc...
+	* 
+	* @param {THREE.Object3D} opt_parent The parent for the OneShot.
+	* @return {hemi.particles.OneShot} A OneShot object.
+	*/
+	hemi.particles.Emitter.prototype.createOneShot = function(opt_parent) {
+		return new hemi.particles.OneShot(this, opt_parent);
+	};
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// OneShot class
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	/**
+	* An object to manage a particle emitter instance as a one shot. Examples of
+	* one shot effects are things like an explosion, some fireworks.
+	* @constructor
+	* 
+	* @param {hemi.particles.Emitter} emitter The emitter to use for the
+	*     OneShot.
+	* @param {THREE.Object3D} opt_parent The parent for this OneShot.
+	*/
+	hemi.particles.OneShot = function(emitter, opt_parent) {
+		this._emitter = emitter;
+		this._timeOffsetParam = emitter.material.uniforms.timeOffset;
+
+		/**
+		* Transform for OneShot.
+		* @type {THREE.Mesh}
+		*/
+		this._transform = new THREE.Mesh(emitter.shape, emitter.material);
+		this._transform.doubleSided = true; // turn off face culling
+		this._transform.visible = false;
+		this._transform.matrixAutoUpdate = false;
+
+		if (opt_parent) {
+			opt_parent.add(this._transform);
+		}
+	};
+
+	/**
+	* Triggers the oneshot.
+	*
+	* Note: You must have set the parent either at creation, with setParent, or by
+	* passing in a parent here.
+	*
+	* @param {THREE.Vector3} opt_position The position of the one shot
+	*     relative to its parent.
+	* @param {THREE.Object3D} opt_parent The parent for this one shot.
+	*/
+	hemi.particles.OneShot.prototype.trigger = function(opt_position, opt_parent) {
+		if (opt_parent) {
+			opt_parent.add(this._transform);
+		}
+		if (opt_position) {
+			this._transform.position.copy(opt_position);
+			this._transform.updateMatrix();
+		}
+
+		this._transform.visible = true;
+		this._timeOffsetParam.value = this._emitter._timeParam.value;
+	};
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Trail class
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	/**
+	* A type of emitter to use for particle effects that leave trails like exhaust.
+	* @constructor
+	* @extends {hemi.particles.Emitter}
+	* 
+	* @param {hemi.particles.System} particleSystem The particle system to
+	*     manage this emitter.
+	* @param {THREE.Camera} camera the camera that will be used to view this
+	*     Emitter.
+	* @param {number} maxParticles Maximum number of particles to appear at once.
+	* @param {hemi.particles.Spec} parameters The parameters used to generate
+	*     particles.
+	* @param {THREE.Texture} opt_texture The texture to use for the particles.
+	*     If you don't supply a texture a default is provided.
+	* @param {function(number, hemi.particles.Spec): void} opt_paramSetter A
+	*     function that is called for each particle to allow it's parameters to
+	*     be adjusted per particle. The number is the index of the particle
+	*     being created, in other words, if numParticles is 20 this value will
+	*     be 0 to 19. The ParticleSpec is a spec for this particular particle.
+	*     You can set any per particle value before returning.
+	*/
+	hemi.particles.Trail = function(particleSystem, camera, maxParticles, parameters, opt_texture, opt_paramSetter) {
+		hemi.particles.Emitter.call(this, particleSystem, camera, opt_texture);
+
+		this._birthIndex = 0;
+		this._maxParticles = maxParticles;
+		this._parameters = parameters;
+		this._paramSetter = opt_paramSetter;
+
+		parameters.startTime = -1;
+		this.shape.dynamic = true;
+
+		allocateParticles.call(this, maxParticles);
+		setupMaterial.call(this, parameters);
+		createParticles.call(this, maxParticles, parameters, opt_paramSetter);
+	};
+
+	hemi.particles.Trail.prototype = new hemi.particles.Emitter();
+	hemi.particles.Trail.constructor = hemi.particles.Trail;
+
+	/**
+	* Births particles from this Trail.
+	* 
+	* @param {number[3]} position Position to birth particles at.
+	*/
+	hemi.particles.Trail.prototype.birthParticles = function(position) {
+		var numParticles = this._parameters.numParticles,
+			positionRange = this._parameters.positionRange,
+			startTime = this._timeParam.value;
+
+		while (this._birthIndex + numParticles >= this._maxParticles) {
+			var numParticlesToEnd = this._maxParticles - this._birthIndex;
+			updateParticles.call(this, this._birthIndex, numParticlesToEnd, startTime, position, positionRange);
+			numParticles -= numParticlesToEnd;
+			this._birthIndex = 0;
+		}
+
+		updateParticles.call(this, this._birthIndex, numParticles, startTime, position, positionRange);
+		this._birthIndex += numParticles;
+	};
+
+// Private functions
+
+	/*
+	 * Allocates particles.
+	 * 
+	 * @param {number} numParticles Number of particles to allocate.
+	 */
+	function allocateParticles(numParticles) {
+		for (var i = 0; i < numParticles; ++i) {
+			for (var j = 0; j < 4; ++j) {
+				this.shape.vertices.push(new THREE.Vertex());
+			}
+
+			var index = i * 4;
+			this.shape.faces.push(new THREE.Face3(index, index + 1, index + 3));
+			this.shape.faces.push(new THREE.Face3(index + 1, index + 2, index + 3));
+		}
+	}
+
+	/*
+	 * Creates particles.
+	 *  
+	 * @param {number} numParticles The number of particles to create.
+	 * @param {hemi.particles.Spec} parameters The parameters for the emitter.
+	 * @param {function(number, hemi.particles.Spec): void} opt_paramSetter A function that is
+	 *     called for each particle to allow it's parameters to be adjusted per particle. The number
+	 *     is the index of the particle being created, in other words, if numParticles is 20 this
+	 *     value will be 0 to 19. The ParticleSpec is a spec for this particular particle. You can
+	 *     set any per particle value before returning.
+	 */
+	function createParticles(numParticles, parameters, opt_paramSetter) {
+		var attributes = this.material.attributes,
+			uniforms = this.material.uniforms,
+			uvLifeTimeFrameStart = attributes.uvLifeTimeFrameStart,
+			positionStartTime = attributes.positionStartTime,
+			velocityStartSize = attributes.velocityStartSize,
+			accelerationEndSize = attributes.accelerationEndSize,
+			spinStartSpinSpeed = attributes.spinStartSpinSpeed,
+			orientation = attributes.orientation,
+			colorMult = attributes.colorMult,
+			wv = parameters.worldVelocity,
+			wa = parameters.worldAcceleration,
+			random = this._particleSystem._randomFunction,
+
+			plusMinus = function(range) {
+				return (random() - 0.5) * range * 2;
+			},
+
+			plusMinusVector = function(v, range) {
+				var r = [];
+
+				for (var i = 0, il = v.length; i < il; ++i) {
+					r[i] = v[i] + plusMinus(range[i]);
+				}
+
+				return r;
+			};
+
+		// Set the globals.
+		uniforms.colorSampler.texture = this._colorTexture;
+		uniforms.rampSampler.texture = this._rampTexture;
+		uniforms.timeRange.value = parameters.timeRange;
+		uniforms.numFrames.value = parameters.numFrames;
+		uniforms.frameDuration.value = parameters.frameDuration;
+		uniforms.worldVelocity.value.set(wv[0], wv[1], wv[2]);
+		uniforms.worldAcceleration.value.set(wa[0], wa[1], wa[2]);
+
+		if (parameters.billboard) {
+			uniforms.viewInverse.value = this._camera.matrixWorld;
+		}
+
+		for (var ii = 0; ii < numParticles; ++ii) {
+			if (opt_paramSetter) {
+				opt_paramSetter(ii, parameters);
+			}
+
+			var pLifeTime = parameters.lifeTime,
+				pStartTime = (parameters.startTime === null) ?
+					(ii * pLifeTime / numParticles) : parameters.startTime,
+				pFrameStart =
+					parameters.frameStart + plusMinus(parameters.frameStartRange),
+				pPosition = plusMinusVector(parameters.position, parameters.positionRange),
+				pVelocity = plusMinusVector(parameters.velocity, parameters.velocityRange),
+				pAcceleration = plusMinusVector(parameters.acceleration, parameters.accelerationRange),
+				pColorMult =plusMinusVector(parameters.colorMult, parameters.colorMultRange),
+				pSpinStart =
+					parameters.spinStart + plusMinus(parameters.spinStartRange),
+				pSpinSpeed =
+					parameters.spinSpeed + plusMinus(parameters.spinSpeedRange),
+				pStartSize =
+					parameters.startSize + plusMinus(parameters.startSizeRange),
+				pEndSize = parameters.endSize + plusMinus(parameters.endSizeRange),
+				pOrientation = parameters.orientation;
+
+			// make each corner of the particle.
+			for (var jj = 0; jj < 4; ++jj) {
+				var offset = ii * 4 + jj;
+
+				uvLifeTimeFrameStart.value[offset] = new THREE.Vector4(
+					PARTICLE_CORNERS[jj][0],
+					PARTICLE_CORNERS[jj][1],
+					pLifeTime,
+					pFrameStart);
+
+				positionStartTime.value[offset] =  new THREE.Vector4(
+					pPosition[0],
+					pPosition[1],
+					pPosition[2],
+					pStartTime);
+
+				velocityStartSize.value[offset] =  new THREE.Vector4(
+					pVelocity[0],
+					pVelocity[1],
+					pVelocity[2],
+					pStartSize);
+
+				accelerationEndSize.value[offset] =  new THREE.Vector4(
+					pAcceleration[0],
+					pAcceleration[1],
+					pAcceleration[2],
+					pEndSize);
+
+				spinStartSpinSpeed.value[offset] =  new THREE.Vector4(
+					pSpinStart,
+					pSpinSpeed,
+					0,
+					0);
+
+				colorMult.value[offset] =  new THREE.Vector4(
+					pColorMult[0],
+					pColorMult[1],
+					pColorMult[2],
+					pColorMult[3]);
+				
+				if (orientation) {
+					orientation.value[offset] =  new THREE.Vector4(
+						pOrientation[0],
+						pOrientation[1],
+						pOrientation[2],
+						pOrientation[3]);
+				}
+			}
+		}
+
+		uvLifeTimeFrameStart.needsUpdate = true;
+		positionStartTime.needsUpdate = true;
+		velocityStartSize.needsUpdate = true;
+		accelerationEndSize.needsUpdate = true;
+		spinStartSpinSpeed.needsUpdate = true;
+		colorMult.needsUpdate = true;
+
+		if (orientation) orientation.needsUpdate = true;
+	}
+
+	function setupMaterial(parameters) {
+		this.validateParameters(parameters);
+
+		var shader = SHADERS[parameters.billboard ? 'particle2d' : 'particle3d'];
+
+		this.material.attributes = THREE.UniformsUtils.clone(shader.attributes);
+		this.material.uniforms = THREE.UniformsUtils.clone(shader.uniforms);
+		this.material.vertexShader = shader.vertexShader;
+		this.material.fragmentShader = shader.fragmentShader;
+		this._timeParam = this.material.uniforms.time;
+	}
+
+	/*
+	 * Update the start time and position of particles.
+	 *  
+	 * @param {number} firstParticle Index of first particle to update.
+	 * @param {number} numParticles The number of particles to update.
+	 * @param {number} startTime The start time to set for the specified particles.
+	 * @param {number[3]} position The base position to set for the specified particles.
+	 * @param {number[3]} positionRange Variance for the base position for each particle.
+	 */
+	function updateParticles(firstParticle, numParticles, startTime, position, positionRange) {
+		var positionStartTime = this.material.attributes.positionStartTime,
+			random = this._particleSystem._randomFunction,
+
+			plusMinus = function(range) {
+				return (random() - 0.5) * range * 2;
+			},
+
+			plusMinusVector = function(v, range) {
+				var r = [];
+
+				for (var i = 0, il = v.length; i < il; ++i) {
+					r[i] = v[i] + plusMinus(range[i]);
+				}
+
+				return r;
+			};
+
+		for (var i = firstParticle, il = firstParticle + numParticles; i < il; ++i) {
+			var pPosition = plusMinusVector(position, positionRange);
+
+			// make each corner of the particle.
+			for (var j = 0; j < 4; ++j) {
+				var offset = i * 4 + j;
+
+				positionStartTime.value[offset].x = pPosition[0];
+				positionStartTime.value[offset].y = pPosition[1];
+				positionStartTime.value[offset].z = pPosition[2];
+				positionStartTime.value[offset].w = startTime;
+			}
+		}
+
+		positionStartTime.needsUpdate = true;
+	}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Utility functions
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	function convertToPixels(values) {
+		var pixels = new Uint8Array(values.length),
+			pixel;
+
+		for (var i = 0; i < values.length; ++i) {
+			pixel = values[i] * 256.0;
+			pixels[i] = pixel > 255 ? 255 : pixel < 0 ? 0 : pixel;
+		}
+
+		return pixels;
+	}
+
+})();
+/*
+ * Licensed under the MIT license: http://www.opensource.org/licenses/mit-license.php
+ * The MIT License (MIT)
+ * 
+ * Copyright (c) 2011 SRI International
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+ * associated  documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the  Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
+
+/**
+ * Create the requestAnimationFrame function if needed. Each browser implements it as a different
+ * name currently. Default to a timeout if not supported. Credit to
+ * http://paulirish.com/2011/requestanimationframe-for-smart-animating/
+ * and others...
+ */
+if (!window.requestAnimationFrame) {
+	window.requestAnimationFrame = (function() {
+		return window.mozRequestAnimationFrame ||
+			window.webkitRequestAnimationFrame ||
+			window.oRequestAnimationFrame      ||
+			window.msRequestAnimationFrame     ||
+			function(callback, element) {
+				window.setTimeout(callback, 1000 / 60);
+			};
+	})();
+}
+
+/**
+ * @namespace The core Hemi library used by Kuda.
+ * @version 2.0.0
+ */
+ var hemi = hemi || {};
+
+(function() {
+
+		/*
+		 * The function to pass errors thrown using hemi.error. Default is to throw a new Error.
+		 * @type function(string):void
+		 */
+	var errCallback = null,
+		/*
+		 * The current frames per second that are enforced by Hemi.
+		 * @type number
+		 * @default 60
+		 */
+		fps = 60,
+		/*
+		 * Cached inverse of the frames per second.
+		 * @type number
+		 */
+		hz = 1 / fps,
+		/*
+		 * Cached inverse of the frames per millisecond. (Internal time is in milliseconds)
+		 * @type number
+		 */
+		hzMS = hz * 1000,
+		/*
+		 * The time of the last render in milliseconds.
+		 * @type {number}
+		 */
+		lastRenderTime = 0,
+		/*
+		 * Map of initialized renderers by the id of their DOM element's parent node.
+		 * @type {Object}
+		 */
+		renderers = {},
+		/*
+		 * Array of render listener objects that all have an onRender function.
+		 * @type Object[]
+		 */
+		renderListeners = [],
+		/*
+		 * The index of the render listener currently running onRender().
+		 * @type number
+		 */
+		renderNdx = -1;
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Constants
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	/**
+	 * Conversion factor for degrees to radians.
+	 * @type number
+	 * @default Math.PI / 180
+	 */
+	hemi.DEG_TO_RAD = Math.PI / 180;
+
+	/**
+	 * Half of Pi
+	 * @type number
+	 * @default Math.PI / 2
+	 */
+	hemi.HALF_PI = Math.PI / 2;
+
+	/**
+	 * Conversion factor for radians to degrees.
+	 * @type number
+	 * @default 180 / Math.PI
+	 */
+	hemi.RAD_TO_DEG = 180 / Math.PI;
+
+	/**
+	 * The version of Hemi released: 2/14/2012
+	 * @constant
+	 */
+	hemi.version = '2.0.0';
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Global functions
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	/**
+	 * The list of Clients being rendered on the current webpage.
+	 */
+	hemi.clients = [];
+
+	/*
+	 * Get the renderer associated with the given DOM id. If no renderer matches the id, the first
+	 * available renderer (if any) is returned.
+	 * 
+	 * @param {string} domId id of the parent node of the renderer DOM element
+	 * @return {THREE.WebGLRenderer} a matching or available renderer, or null
+	 */
+	hemi._getRenderer = function(domId) {
+		var renderer = renderers[domId];
+
+		if (!renderer) {
+			console.log('No rendererer matches id ' + domId);
+			renderer = null;
+
+			// If there's at least one renderer currently, just return that for convenience
+			for (var id in renderers) {
+				renderer = renderers[id];
+				break;
+			}
+		}
+
+		return renderer;
+	};
+
+	/*
+	 * Search the webpage for any divs with an ID starting with "kuda" and create a canvas within
+	 * each div that will be rendered to using WebGL.
+	 */
+	hemi._makeRenderers = function() {
+		var elements = document.getElementsByTagName('div');
+
+		for (var i = 0, il = elements.length; i < il; ++i) {
+			var element = elements[i],
+				id = element.id;
+
+			if (id && id.match(/^kuda/)) {
+				if (renderers[id]) {
+					console.log('Renderer already exists for id ' + id);
+				} else {
+					var renderer = getRenderer(element);
+
+					if (renderer) {
+						var dom = renderer.domElement;
+						element.appendChild(dom);
+						dom.style.width = "100%";
+						dom.style.height = "100%";
+						hemi.input.init(dom);
+
+						renderers[id] = renderer;
+					}
+				}
+			}
+		}
+	};
+
+	/**
+	 * Utility function to reset the render listeners. This should typically not be used.
+	 * 
+	 * @param {Object[]} opt_listeners optional set of new render listeners
+	 * @return {Object[]} the previous set of render listeners
+	 */
+	hemi._resetRenderListeners = function(opt_listeners) {
+		var oldListeners = renderListeners;
+		renderListeners = opt_listeners || [];
+		return oldListeners;
+	};
+
+	/**
+	 * Add the given render listener to hemi. A listener must implement the onRender function.
+	 * 
+	 * @param {Object} listener the render listener to add
+	 */
+	hemi.addRenderListener = function(listener) {
+		if (renderListeners.indexOf(listener) === -1) {
+			renderListeners.push(listener);
+		}
+	};
+
+	/**
+	 * Pass the given error message to the registered error handler or throw an Error if no handler
+	 * is registered.
 	 * 
 	 * @param {string} msg error message
 	 */
-	hemi.core.error = function(msg) {
-		if (this.errCallback) {
-			this.errCallback(msg);
+	hemi.error = function(msg) {
+		if (errCallback) {
+			errCallback(msg);
 		} else {
 			var err = new Error(msg);
 			err.name = 'HemiError';
 			throw err;
 		}
 	};
-	
+
+	/**
+	 * Get the Client that is rendering the given Transform.
+	 * 
+	 * @param {hemi.Transform} transform the Transform to get the Client for
+	 * @return {hemi.Client} the Client rendering the Transform, or null
+	 */
+	hemi.getClient = function(transform) {
+		var scene = transform.parent;
+
+		while (scene.parent !== undefined) {
+			scene = scene.parent;
+		}
+
+		for (var i = 0, il = hemi.clients.length; i < il; ++i) {
+			var client = hemi.clients[i];
+
+			if (scene === client.scene) {
+				return client;
+			}
+		}
+
+		return null;
+	};
+
+	/**
+	 * Get the current frames-per-second that will be enforced for rendering.
+	 * 
+	 * @return {number} current frames-per-second
+	 */
+	hemi.getFPS = function() {
+		return fps;
+	};
+
+	/**
+	 * Get the time that the specified animation frame occurs at.
+	 *
+	 * @param {number} frame frame number to get the time for
+	 * @return {number} time that the frame occurs at in seconds
+	 */
+	hemi.getTimeOfFrame = function(frame) {
+		return frame * hz;
+	};
+
+	/**
+	 * Initialize hemi features. This does not need to be called if hemi.makeClients() is called,
+	 * but it can be used on its own if you don't want to use hemi's client system.
+	 * 
+	 * @param {Object} opt_config optional configuration parameters
+	 */
+	hemi.init = function(opt_config) {
+		var handler = opt_config && opt_config.resizeHandler ? opt_config.resizeHandler : resize;
+		window.addEventListener('resize', handler, false);
+
+		lastRenderTime = new Date().getTime();
+		render(true);
+	};
+
+	/**
+	 * Create a Client for each rendered canvas on the page.
+	 * 
+	 * @param {Object} opt_config optional configuration parameters
+	 * @return {hemi.Client[]} array of all existing Clients
+	 */
+	hemi.makeClients = function(opt_config) {
+		var numClients = hemi.clients.length,
+			ndx = -1;
+
+		hemi._makeRenderers();
+
+		for (var id in renderers) {
+			var renderer = renderers[id],
+				client = ++ndx < numClients ? hemi.clients[ndx] : new hemi.Client(true);
+
+			client.setRenderer(renderer);
+		}
+
+		hemi.init(opt_config);
+		return hemi.clients;
+	};
+
+	/**
+	 * Remove the given render listener from hemi.
+	 * 
+	 * @param {Object} listener the render listener to remove
+	 * @return {Object} the removed listener if successful or null
+	 */
+	hemi.removeRenderListener = function(listener) {
+		var ndx = renderListeners.indexOf(listener),
+			retVal = null;
+
+		if (ndx !== -1) {
+			retVal = renderListeners.splice(ndx, 1)[0];
+
+			if (ndx <= renderNdx) {
+				// Adjust so that the next render listener will not get skipped.
+				renderNdx--;
+			}
+		}
+
+		return retVal;
+	};
+
 	/**
 	 * Set the given function as the error handler for Hemi errors.
 	 * 
 	 * @param {function(string):void} callback error handling function
 	 */
-	hemi.core.setErrorCallback = function(callback) {
-		this.errCallback = callback;
+	hemi.setErrorCallback = function(callback) {
+		errCallback = callback;
 	};
 
-	hemi.core.init = function(clientElement) {
-		// Create aliases o3djs libraries
-		this.event = o3djs.event;
-		this.loader = o3djs.loader;
-		this.math = o3djs.math;
-		this.particles = o3djs.particles;
-		this.renderGraph = o3djs.rendergraph;
-		this.canvas = o3djs.canvas;
-		this.material = o3djs.material;
-		this.shape = o3djs.shape;
-		this.picking = o3djs.picking;
-		this.primitives = o3djs.primitives;
-		this.io = o3djs.io;
-		this.debug = o3djs.debug;
-
-		this.o3dElement = clientElement;
-		this.o3d = this.o3dElement.o3d;
-		this.client = this.o3dElement.client;
-		this.mainPack = this.client.createPack();
-		this.errCallback = null;
-
-		hemi.picking.init();
-		hemi.input.init();
-		hemi.view.init();
-		hemi.curve.init();
-		hemi.model.init();
-		hemi.effect.init();
-		hemi.hud.init();
-		hemi.shape.init();
-		hemi.sprite.init();
-		hemi.world.init();
-	};
-	
 	/**
-	 * Callback function for whenever a new model file is loaded. This function
-	 * updates the picking tree and sets up materials.
-	 *
-	 * @param {o3d.Pack} pack the pack loaded with scene content
+	 * Set the current frames-per-second that will be enforced for rendering.
+	 * 
+	 * @param {number} newFps frames-per-second to enforce
 	 */
-	hemi.core.loaderCallback = function(pack) {
-		// Update picking info
-		hemi.picking.pickManager.update();
-		
-		// Generate draw elements and setup material draw lists.
-		o3djs.pack.preparePack(pack, hemi.view.viewInfo);
-		
-		var materials = pack.getObjectsByClassName('o3d.Material'),
-			worldFog = hemi.world.fog;
-		
-		for (var m = 0; m < materials.length; ++m) {
-			var material = materials[m];
-			// Connect each material's lightWorldPos param to the camera
-			var param = material.getParam('lightWorldPos');
-			
-			if (param) {
-				param.bind(hemi.world.camera.light.position);
+	hemi.setFPS = function(newFps) {
+		fps = newFps;
+		hz = 1/fps;
+		hzMS = hz * 1000;
+	};
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Utility functions
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	/*
+	 * Get the supported renderer for the browser (WebGL or canvas) If WebGL is not supported,
+	 * display a warning message.
+	 * 
+	 * @param {Object} element DOM element to add warning message to if necessary
+	 * @return {THREE.WebGLRenderer} the supported renderer or null
+	 */
+	function getRenderer(element) {
+		var renderer = null;
+
+		if (Detector.webgl) {
+			renderer = new THREE.WebGLRenderer();
+		} else {
+			if (Detector.canvas) {
+				renderer = new THREE.CanvasRenderer();
 			}
-			
-			param = material.getParam('ambientIntensity');
-			
-			if (param) {
-				param.value = [0.3, 0.3, 0.3, 0.2];
-			}
-			
-			param = material.getParam('ambient');
-			
-			if (param) {
-				param.value = [0.3, 0.3, 0.3, 0.2];
-			}
-			
-			param = material.getParam('lightColor');
-		
-			if (param) {
-				param.bind(hemi.world.camera.light.color);
-			}
-			
-			// For now, the Z-sorted draw list does not work well with
-			// transparent shapes like particles. So stick them in the
-			// performance list.
-			if (material.drawList == hemi.view.viewInfo.zOrderedDrawList) {
-				material.drawList = hemi.view.viewInfo.performanceDrawList;
-			}
-			
-			if (worldFog !== null) {
-				var fogPrms = hemi.fx.addFog(material);
-				fogPrms.start.value = worldFog.start;
-				fogPrms.end.value = worldFog.end;
-				fogPrms.color.value = worldFog.color;
+
+			Detector.addGetWebGLMessage({
+				id: 'warn_' + element.id,
+				parent: element
+			});
+
+			(function(elem) {
+				setTimeout(function() {
+					var msg = document.getElementById('warn_' + elem.id);
+					elem.removeChild(msg);
+				}, 5000);
+			})(element);
+		}
+
+		return renderer;
+	}
+
+	/*
+	 * The render function to be executed on each animation frame. Calls onRender for each render
+	 * listener and then for each Client.
+	 * 
+	 * @param {boolean} update flag to force Clients to render
+	 */
+	function render(update) {
+		requestAnimationFrame(render);
+
+		var renderTime = new Date().getTime(),
+			event = {
+				elapsedTime: hz
+			};
+
+		while (renderTime - lastRenderTime > hzMS) {
+			update = true;
+			lastRenderTime += hzMS;
+
+			for (renderNdx = 0; renderNdx < renderListeners.length; ++renderNdx) {
+				renderListeners[renderNdx].onRender(event);
 			}
 		}
-	};
-	
-	return hemi;
-})(hemi || {});
-/* 
- * Kuda includes a library and editor for authoring interactive 3D content for the web.
- * Copyright (C) 2011 SRI International.
- *
- * This program is free software; you can redistribute it and/or modify it under the terms
- * of the GNU General Public License as published by the Free Software Foundation; either 
- * version 2 of the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
- * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
- * See the GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License along with this program; 
- * if not, write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, 
- * Boston, MA 02110-1301 USA.
+
+		renderNdx = -1;
+
+		if (update) {
+			for (var i = 0, il = hemi.clients.length; i < il; ++i) {
+				hemi.clients[i].onRender(event);
+			}
+		}
+	}
+
+	/*
+	 * Window resize handler function.
+	 */
+	function resize() {
+		for (var i = 0; i < hemi.clients.length; ++i) {
+			hemi.clients[i]._resize();
+		}
+	}
+
+})();
+/*
+ * Licensed under the MIT license: http://www.opensource.org/licenses/mit-license.php
+ * The MIT License (MIT)
+ * 
+ * Copyright (c) 2011 SRI International
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+ * associated  documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the  Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-/* Simple JavaScript Inheritance
- * By John Resig http://ejohn.org/
- * MIT Licensed.
- */
-// Inspired by base2 and Prototype
-var hemi = (function(hemi){
-    var initializing = false, 
-		fnTest = /xyz/.test(function(){
-	        xyz;
-	    }) ? /\b_super\b/ : /.*/;
-    
-    // The base Class implementation (does nothing)
-    hemi.Class = function(){};
-    
-    // Create a new Class that inherits from this class
-    hemi.Class.extend = function(prop){
-        var _super = this.prototype;
-        
-        // Instantiate a base class (but only create the instance,
-        // don't run the init constructor)
-        initializing = true;
-        var prototype = new this();
-        initializing = false;
-        
-        // Copy the properties over onto the new prototype
-        for (var name in prop) {
-            // Check if we're overwriting an existing function
-            prototype[name] = typeof prop[name] == "function" &&
-            typeof _super[name] == "function" &&
-            fnTest.test(prop[name]) ? (function(name, fn){
-                return function(){
-                    var tmp = this._super;
-                    
-                    // Add a new ._super() method that is the same method
-                    // but on the super-class
-                    this._super = _super[name];
-                    
-                    // The method only need to be bound temporarily, so we
-                    // remove it when we're done executing
-                    var ret = fn.apply(this, arguments);
-                    this._super = tmp;
-                    
-                    return ret;
-                };
-            })(name, prop[name]) : prop[name];
-        }
-        
-        // The dummy class constructor
-        function Class(){
-            // All construction is actually done in the init method
-            if (!initializing && this.init) 
-                this.init.apply(this, arguments);
-        }
-        
-        // Populate our constructed prototype object
-        Class.prototype = prototype;
-        
-        // Enforce the constructor to be what we expect
-        Class.constructor = Class;
-        
-        // And make this class extendable
-        Class.extend = arguments.callee;
-        
-        return Class;
-    };
-	
-	return hemi;
-})(hemi || {});
-/* 
- * Kuda includes a library and editor for authoring interactive 3D content for the web.
- * Copyright (C) 2011 SRI International.
- *
- * This program is free software; you can redistribute it and/or modify it under the terms
- * of the GNU General Public License as published by the Free Software Foundation; either 
- * version 2 of the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
- * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
- * See the GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License along with this program; 
- * if not, write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, 
- * Boston, MA 02110-1301 USA.
- */
+(function() {
 
-var hemi = (function(hemi) {
 	/**
 	 * @namespace A module to provide various utilities for Hemi.
 	 */
 	hemi.utils = hemi.utils || {};
-	
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Hashtable class
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
 	/*
-	 * Here we extend Hashtable to allow it to be queried for Object attributes
-	 * that are not the Hash key.
+	 * Here we extend Hashtable to allow it to be queried for Object attributes that are not the
+	 * Hash key.
 	 */
 	hemi.utils.Hashtable = Hashtable;
-	
+
 	/**
-	 * Search the Hashtable for values with attributes that match the given
-	 * set of attributes. The attributes may be single values or arrays of
-	 * values which are alternatives.
+	 * Search the Hashtable for values with attributes that match the given set of attributes. The
+	 * attributes may be single values or arrays of values which are alternatives.
 	 * @example
 	 * query({
 	 *     a: 1
@@ -350,30 +2071,30 @@ var hemi = (function(hemi) {
 			aN,
 			aL,
 			match;
-		
-		// Copy the property names out of the attributes object just once
-		// since this is less efficient than a simple array.
-		for (x in attributes) {
+
+		// Copy the property names out of the attributes object just once since this is less
+		// efficient than a simple array.
+		for (var x in attributes) {
 			if (hemi.utils.isArray(attributes[x])) {
 				arrProps.push(x);
 			} else {
 				props.push(x);
 			}
 		}
-		
+
 		var pLen = props.length,
 			aLen = arrProps.length;
-		
-		for (var ndx = 0, len = values.length; ndx < len; ndx++) {
-			value = values[ndx];
+
+		for (var i = 0, il = values.length; i < il; ++i) {
+			value = values[i];
 			match = true;
 			// First test the single value properties.
-			for (pN = 0; match && pN < pLen; pN++) {
+			for (pN = 0; match && pN < pLen; ++pN) {
 				propName = props[pN];
 				match = value[propName] === attributes[propName];
 			}
 			// Next test the array of value properties.
-			for (pN = 0; match && pN < aLen; pN++) {
+			for (pN = 0; match && pN < aLen; ++pN) {
 				match = false;
 				propName = arrProps[pN];
 				propVal = value[propName];
@@ -381,7 +2102,7 @@ var hemi = (function(hemi) {
 				aL = propArr.length;
 				// Search through the array until we find a match for the
 				// Hashtable value's property.
-				for (aN = 0; !match && aN < aL; aN++) {
+				for (aN = 0; !match && aN < aL; ++aN) {
 					match = propVal === propArr[aN];
 				}
 			}
@@ -390,51 +2111,57 @@ var hemi = (function(hemi) {
 				results.push(value);
 			}
 		}
-		
+
 		return results;
 	};
-	
-	return hemi;
-})(hemi || {});
-/* 
- * Kuda includes a library and editor for authoring interactive 3D content for the web.
- * Copyright (C) 2011 SRI International.
- *
- * This program is free software; you can redistribute it and/or modify it under the terms
- * of the GNU General Public License as published by the Free Software Foundation; either 
- * version 2 of the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
- * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
- * See the GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License along with this program; 
- * if not, write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, 
- * Boston, MA 02110-1301 USA.
+
+})();
+/*
+ * Licensed under the MIT license: http://www.opensource.org/licenses/mit-license.php
+ * The MIT License (MIT)
+ * 
+ * Copyright (c) 2011 SRI International
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+ * associated  documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the  Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-var hemi = (function(hemi) {
-	hemi.utils = hemi.utils || {};
-	
+(function() {
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Global functions
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
 	/**
 	 * Create a copy of the given Object (or array).
 	 * 
 	 * @param {Object} src an Object (or array) to clone
-	 * @param {boolean} opt_deep optional flag to indicate if deep copying
-	 *     should be performed (default is deep copying)
+	 * @param {boolean} opt_deep optional flag to indicate if deep copying should be performed
+	 *     (default is deep copying)
 	 * @return {Object} the created Object (or array)
 	 */
 	hemi.utils.clone = function(src, opt_deep) {
-		var dest = hemi.utils.isArray(src) ? [] : {},
-			opt_deep = opt_deep == null ? true : opt_deep;
-		
+		var dest = hemi.utils.isArray(src) ? [] : {};
+		opt_deep = opt_deep === undefined ? true : opt_deep;
+
 		hemi.utils.join(dest, src, opt_deep);
 		return dest;
 	};
-	
+
 	/**
-	 * Compare the two given arrays of numbers. The arrays should be the same
-	 * length.
+	 * Compare the two given arrays of numbers. The arrays should be the same length.
 	 * 
 	 * @param {number[]} a the first array
 	 * @param {number[]} b the second array
@@ -442,55 +2169,61 @@ var hemi = (function(hemi) {
 	 */
 	hemi.utils.compareArrays = function(a, b) {
 		var eq = a.length === b.length;
-		
-		for (var i = 0; eq && i < a.length; i++) {
-			if (a[i] instanceof Array) { 
+
+		for (var i = 0, il = a.length; eq && i < il; ++i) {
+			if (hemi.utils.isArray(a[i])) { 
 				eq = hemi.utils.compareArrays(a[i], b[i]);
 			} else {
 				eq = Math.abs(a[i] - b[i]) <= 0.001;
 			}
 		}
-		
+
 		return eq;
 	};
-	
+
 	/**
 	 * Perform an asynchronous AJAX GET for the resource at the given URL.
 	 * 
 	 * @param {string} url url of the resource to get
-	 * @param {function(string, string):void)} callback function to pass the
-	 *     data retrieved from the URL as well as the status text of the request
+	 * @param {function(string, string):void)} callback function to pass the data retrieved from the
+	 *     URL as well as the status text of the request
+	 * @param {boolean} opt_overrideMimeType optional flag indicating the XHR's mime type should be
+	 *     forced to "text/xml"
 	 */
-	hemi.utils.get = function(url, callback) {
+	hemi.utils.get = function(url, callback, opt_overrideMimeType) {
 		var xhr = new window.XMLHttpRequest();
-		
+
+		if (opt_overrideMimeType) {
+			xhr.overrideMimeType("text/xml");
+		}
+
 		xhr.onreadystatechange = function() {
 			if (this.readyState === 4) {
 				this.onreadystatechange = hemi.utils.noop;
 				var data = null;
-				
+
 				if (this.status === 200 || window.location.href.indexOf('http') === -1) {
 					var ct = this.getResponseHeader('content-type');
-					
-					if (ct && ct.indexOf('xml') >= 0) {
+
+					if (opt_overrideMimeType || ct && ct.indexOf('xml') >= 0) {
 						data = this.responseXML;
 					} else {
 						data = this.responseText;
 					}
 				}
-				
+
 				callback(data, this.statusText);
 			}
 		};
 		xhr.open('GET', url, true);
-		
+
 		try {
 			xhr.send(null);
 		} catch (err) {
 			callback(null, err.name + ': ' + err.message);
 		}
 	};
-	
+
 	/** 
 	 * The "best" way to test if a value is an array or not.
 	 *
@@ -500,18 +2233,27 @@ var hemi = (function(hemi) {
 	hemi.utils.isArray = Array.isArray || function(val) {
 		return Object.prototype.toString.call(val) === '[object Array]';
 	};
-	
+
+	/** 
+	 * The "best" way to test if a value is a function or not.
+	 *
+	 * @param {Object} val value to test
+	 * @return {boolean} true if the value is a function
+	 */
+	hemi.utils.isFunction = function(val) {
+		return Object.prototype.toString.call(val) === '[object Function]';
+	};
+
 	/**
-	 * Merge all of the properties of the given objects into the first object.
-	 * If any of the objects have properties with the same name, the later
-	 * properties will overwrite earlier ones. The exception to this is if both
-	 * properties are objects or arrays and the merge is doing a deep copy. In
-	 * that case, the properties will be merged recursively.
+	 * Merge all of the properties of the given objects into the first object. If any of the objects
+	 * have properties with the same name, the later properties will overwrite earlier ones. The
+	 * exception to this is if both properties are objects or arrays and the merge is doing a deep
+	 * copy. In that case, the properties will be merged recursively.
 	 * 
 	 * @param {Object} obj1 the first object which will receive all properties
 	 * @param {Object} objN any number of objects to copy properties from
-	 * @param {boolean} opt_deep optional flag to indicate if deep copying
-	 *     should be performed (default is deep copying)
+	 * @param {boolean} opt_deep optional flag to indicate if deep copying should be performed
+	 *     (default is deep copying)
 	 * @return {Object} the first object now merged with all other objects
 	 */
 	hemi.utils.join = function() {
@@ -519,79 +2261,90 @@ var hemi = (function(hemi) {
 			il = arguments.length,
 			lastArg = arguments[il - 1],
 			deep = true;
-		
+
 		if (typeof lastArg === 'boolean') {
 			deep = lastArg;
 			--il;
 		}
-		
+
 		for (var i = 1; i < il; i++) {
 			var obj = arguments[i];
-			
+
 			for (var j in obj) {
 				var src = obj[j];
-				
+
 				if (deep && src != null && typeof src === 'object') {
 					var dest = target[j],
 						srcArr = hemi.utils.isArray(src);
-					
+
 					if (dest == null || typeof dest !== 'object' || hemi.utils.isArray(dest) !== srcArr) {
 						dest = srcArr ? [] : {};
 					}
-					
+
 					target[j] = hemi.utils.join(dest, src);
 				} else {
 					target[j] = src;
 				}
 			}
 		}
-		
+
 		return target;
 	};
-	
+
 	/**
 	 * A no-operation function for utility use.
 	 */
 	hemi.utils.noop = function() {};
-	
-	return hemi;
-})(hemi || {});
-/* 
- * Kuda includes a library and editor for authoring interactive 3D content for the web.
- * Copyright (C) 2011 SRI International.
- *
- * This program is free software; you can redistribute it and/or modify it under the terms
- * of the GNU General Public License as published by the Free Software Foundation; either 
- * version 2 of the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
- * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
- * See the GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License along with this program; 
- * if not, write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, 
- * Boston, MA 02110-1301 USA.
+
+})();
+/*
+ * Licensed under the MIT license: http://www.opensource.org/licenses/mit-license.php
+ * The MIT License (MIT)
+ * 
+ * Copyright (c) 2011 SRI International
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+ * associated  documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the  Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-var hemi = (function(hemi) {
-	hemi.utils = hemi.utils || {};
-	
+(function() {
+
+		// Static helper vector
+	var _vector = new THREE.Vector3();
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Global functions
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
 	/** 
-	 * General function to convert from cartesian to spherical coordinates.
+	 * Convert from cartesian to spherical coordinates.
 	 *
 	 * @param {number[3]} coords XYZ cartesian coordinates
-	 * @return {number[3]} Radius, Theta, Phi
+	 * @return {number[3]} array of radius, theta, phi
 	 */
 	hemi.utils.cartesianToSpherical = function(coords) {
-		var x = coords[0];
-		var y = coords[1];
-		var z = coords[2];
-		var r = Math.sqrt(x*x + y*y + z*z);
-		var theta = Math.acos(y/r);
-		var phi = Math.atan2(x,z);
-		return [r,theta,phi];	
+		var x = coords[0],
+			y = coords[1],
+			z = coords[2],
+			r = Math.sqrt(x*x + y*y + z*z),
+			theta = Math.acos(y/r),
+			phi = Math.atan2(x,z);
+
+		return [r,theta,phi];
 	};
-	
+
 	/** 
 	 * A choose function (also called the binomial coefficient).
 	 *
@@ -600,9 +2353,9 @@ var hemi = (function(hemi) {
 	 * @return {number} choose output, (n!)/(m!*(n-m)!)
 	 */
 	hemi.utils.choose = function(n, m) {
-		return hemi.utils.factorial(n, (n-m)+1) / hemi.utils.factorial(m);
+		return hemi.utils.factorial(n, (n - m) + 1) / hemi.utils.factorial(m);
 	};
-	
+
 	/** 
 	 * Clamp the given value between the given min and max.
 	 *
@@ -612,12 +2365,32 @@ var hemi = (function(hemi) {
 	 * @return {number} the clamped value
 	 */
 	hemi.utils.clamp = function(val, min, max) {
-		return Math.min(max, Math.max(min, val));
+		return val > max ? max : (val < min ? min : val);
 	};
 
 	/**
-	 * Calculate the cubic hermite interpolation between two points with
-	 * associated tangents.
+	 * Compute the normal of the three given vertices that form a triangle.
+	 * 
+	 * @param {THREE.Vertex} a vertex a
+	 * @param {THREE.Vertex} b vertex b
+	 * @param {THREE.Vertex} c vertex c
+	 * @return {THREE.Vector3} the normal vector
+	 */
+	hemi.utils.computeNormal = function(a, b, c) {
+		var cb = new THREE.Vector3().sub(c.position, b.position),
+			ab = _vector.sub(a.position, b.position);
+
+		cb.crossSelf(ab);
+
+		if (!cb.isZero()) {
+			cb.normalize();
+		}
+
+		return cb;
+	};
+
+	/**
+	 * Calculate the cubic hermite interpolation between two points with associated tangents.
 	 *
 	 * @param {number} t time (between 0 and 1)
 	 * @param {number[3]} p0 the first waypoint
@@ -626,95 +2399,130 @@ var hemi = (function(hemi) {
 	 * @param {number[3]} m1 the tangent through the second waypoint
 	 * @return {number[3]} the interpolated point
 	 */
-	hemi.utils.cubicHermite = function(t,p0,m0,p1,m1) {;
-		var t2 = t*t,
-			t3 = t2*t,
+	hemi.utils.cubicHermite = function(t,p0,m0,p1,m1) {
+		var t2 = t * t,
+			t3 = t2 * t,
 			tp0 = 2*t3 - 3*t2 + 1,
 			tm0 = t3 - 2*t2 + t,
 			tp1 = -2*t3 + 3*t2,
 			tm1 = t3 - t2;
-		
+
 		return tp0*p0 + tm0*m0 + tp1*p1 + tm1*m1;
 	};
-	
+
 	/**
 	 * Calculate the factorial of the given number.
 	 *
 	 * @param {number} num number to factorialize
-	 * @param {number} opt_stop optional number to stop the factorial at (if it
-	 *     should be stopped before 1
+	 * @param {number} opt_stop optional number to stop the factorial at (if it should be stopped
+	 *     before 1
 	 * @return {number} (num!) or (num! - opt_stop!)
 	 */
 	hemi.utils.factorial = function(num, opt_stop) {
 		var f = 1,
 			x = opt_stop ? opt_stop : 2;
-		
+
 		while (x <= num) {
 			f *= x++;
 		}
-		
+
 		return f;
 	};
-	
+
 	/**
 	 * Calculate the intersection between a ray and a plane.
 	 * 
-	 * @param {o3d.Ray} ray Ray described by a near xyz point and a far xyz point
-	 * @param {number[3][3]} plane Array of 3 xyz coordinates defining a plane
-	 * @return {number[3]} Array [t: Time value on ray, u: U-coordinate on plane,
-	 *		v: V-coordinate on plane} of intersection point
+	 * @param {THREE.Ray} ray Ray described by a near xyz point and a far xyz point
+	 * @param {THREE.Vector3[3]} plane Array of 3 xyz coordinates defining a plane
+	 * @return {number[3]} the array [
+	 *     t: time value on ray,
+	 *     u: u-coordinate on plane,
+	 *     v: v-coordinate on plane
 	 */
 	hemi.utils.intersect = function(ray, plane) {
-		var P = plane,
-			R = [ray.near,ray.far],
-			A = hemi.core.math.inverse(
-			[[R[0][0]-R[1][0],P[1][0]-P[0][0],P[2][0]-P[0][0]],
-			 [R[0][1]-R[1][1],P[1][1]-P[0][1],P[2][1]-P[0][1]],
-			 [R[0][2]-R[1][2],P[1][2]-P[0][2],P[2][2]-P[0][2]]]),
-			B = [R[0][0]-P[0][0],R[0][1]-P[0][1],R[0][2]-P[0][2]],
-			t = A[0][0]*B[0] + A[0][1]*B[1] + A[0][2]*B[2],
-			u = A[1][0]*B[0] + A[1][1]*B[1] + A[1][2]*B[2],
-			v = A[2][0]*B[0] + A[2][1]*B[1] + A[2][2]*B[2];
-		
+		var dir = ray.direction,
+			orig = ray.origin,
+			point0 = plane[0],
+			point1 = plane[1],
+			point2 = plane[2],
+			A = hemi.utils.invertMat3([[dir.x, point1.x - point0.x, point2.x - point0.x],
+				[dir.y, point1.y - point0.y, point2.y - point0.y],
+				[dir.z, point1.z - point0.z, point2.z - point0.z]]),
+			B = [orig.x - point0.x, orig.y - point0.y, orig.z - point0.z],
+			t = A[0][0] * B[0] + A[0][1] * B[1] + A[0][2] * B[2],
+			u = A[1][0] * B[0] + A[1][1] * B[1] + A[1][2] * B[2],
+			v = A[2][0] * B[0] + A[2][1] * B[1] + A[2][2] * B[2];
+
 		return [t,u,v];
 	};
-	
+
 	/**
-	 * Convert the given linear interpolated value to a sinusoidal interpolated
-	 * value.
+	 * Compute the inverse of a 3-by-3 matrix.
 	 * 
-	 * @param {number} val the linear value
-	 * @return {number} the sinusoidal value
+	 * @param {number[3][3]} m the matrix to invert
+	 * @return {number[3][3]} the inverse of m
 	 */
-	hemi.utils.linearToSine = function(val) {
-		return (Math.sin(Math.PI * val - Math.PI / 2) + 1) / 2;
+	hemi.utils.invertMat3 = function(m) {
+		var t00 = m[1][1] * m[2][2] - m[1][2] * m[2][1],
+			t10 = m[0][1] * m[2][2] - m[0][2] * m[2][1],
+			t20 = m[0][1] * m[1][2] - m[0][2] * m[1][1],
+			d = 1 / (m[0][0] * t00 - m[1][0] * t10 + m[2][0] * t20);
+
+		return [[d * t00, -d * t10, d * t20],
+			[-d * (m[1][0] * m[2][2] - m[1][2] * m[2][0]),
+			 d * (m[0][0] * m[2][2] - m[0][2] * m[2][0]),
+			 -d * (m[0][0] * m[1][2] - m[0][2] * m[1][0])],
+			[d * (m[1][0] * m[2][1] - m[1][1] * m[2][0]),
+			 -d * (m[0][0] * m[2][1] - m[0][1] * m[2][0]),
+			 d * (m[0][0] * m[1][1] - m[0][1] * m[1][0])]];
 	};
-	
+
 	/**
-	 * Convert the given linear interpolated value to a parabolic interpolated
-	 * value.
+	 * Perform linear interpolation on the given values. Values can be numbers or arrays or even
+	 * nested arrays (as long as their lengths match).
 	 * 
-	 * @param {number} val the linear value
-	 * @return {number} the parabolic value
+	 * @param {number} start start number (or array of numbers) for interpolation
+	 * @param {number} stop stop number (or array of numbers) for interpolation
+	 * @param {number} t coefficient for interpolation (usually time)
+	 * @return {number} the interpolated number (or array of numbers)
 	 */
-	hemi.utils.linearToParabolic = function(val) {
-		return val * val;
+	hemi.utils.lerp = function(start, stop, t) {
+		var ret;
+
+		if (hemi.utils.isArray(start)) {
+			ret = [];
+
+			for (var i = 0, il = start.length; i < il; ++i) {
+				ret[i] = hemi.utils.lerp(start[i], stop[i], t);
+			}
+		} else {
+			ret = start + (stop - start) * t;
+		}
+
+		return ret;
 	};
-	
+
 	/**
-	 * Convert the given linear interpolated value to a inverse parabolic
-	 * interpolated value.
+	 * Perform linear interpolation on the given vectors.
 	 * 
-	 * @param {number} val the linear value
-	 * @return {number} the inverse parabolic value
+	 * @param {THREE.Vector3} start start vector for interpolation
+	 * @param {THREE.Vector3} stop stop vector for interpolation
+	 * @param {number} t coefficient for interpolation (usually time)
+	 * @param {THREE.Vector3} opt_vec optional vector to receive interpolated value
+	 * @return {THREE.Vector3} the interpolated vector
 	 */
-	hemi.utils.linearToParabolicInverse = function(val) {
-		return 1 - (1 - val) * (1 - val);
+	hemi.utils.lerpVec3 = function(start, stop, t, opt_vec) {
+		opt_vec = opt_vec || new THREE.Vector3();
+
+		opt_vec.x = hemi.utils.lerp(start.x, stop.x, t);
+		opt_vec.y = hemi.utils.lerp(start.y, stop.y, t);
+		opt_vec.z = hemi.utils.lerp(start.z, stop.z, t);
+
+		return opt_vec;
 	};
-	
+
 	/**
-	 * Convert the given linear interpolated value to an exponential
-	 * interpolated value.
+	 * Convert the given linear interpolated value to an exponential interpolated value.
 	 * 
 	 * @param {number} val the linear value
 	 * @param {number} x the exponent to use
@@ -723,10 +2531,9 @@ var hemi = (function(hemi) {
 	hemi.utils.linearToExponential = function(val, x) {
 		return (Math.pow(x, val) - 1) / (x - 1);
 	};
-	
+
 	/**
-	 * Convert the given linear interpolated value to an inverse exponential
-	 * interpolated value.
+	 * Convert the given linear interpolated value to an inverse exponential interpolated value.
 	 * 
 	 * @param {number} val the linear value
 	 * @param {number} x the exponent to use
@@ -735,134 +2542,164 @@ var hemi = (function(hemi) {
 	hemi.utils.linearToExponentialInverse = function(val, x) {
 		return 1 - hemi.utils.linearToExponential(1 - val, x);
 	};
-	
+
 	/**
-	 * A container for all the common penner easing equations - 
-	 * 		linear
-	 *		quadratic 
-	 *		cubic
-	 *		quartic
-	 *		quintic
-	 *		exponential
-	 *		sinusoidal
-	 *		circular
+	 * Convert the given linear interpolated value to a parabolic interpolated value.
+	 * 
+	 * @param {number} val the linear value
+	 * @return {number} the parabolic value
+	 */
+	hemi.utils.linearToParabolic = function(val) {
+		return val * val;
+	};
+
+	/**
+	 * Convert the given linear interpolated value to a inverse parabolic interpolated value.
+	 * 
+	 * @param {number} val the linear value
+	 * @return {number} the inverse parabolic value
+	 */
+	hemi.utils.linearToParabolicInverse = function(val) {
+		return 1 - (1 - val) * (1 - val);
+	};
+
+	/**
+	 * Convert the given linear interpolated value to a sinusoidal interpolated value.
+	 * 
+	 * @param {number} val the linear value
+	 * @return {number} the sinusoidal value
+	 */
+	hemi.utils.linearToSine = function(val) {
+		return (Math.sin(Math.PI * val - hemi.HALF_PI) + 1) / 2;
+	};
+
+	/**
+	 * A container for all the common penner easing equations:
+	 * linear
+	 * quadratic 
+	 * cubic
+	 * quartic
+	 * quintic
+	 * exponential
+	 * sinusoidal
+	 * circular
 	 */
 	hemi.utils.penner = {
-	
-		linearTween : function (t, b, c, d) {
+
+		linearTween: function (t, b, c, d) {
 			return c*t/d + b;
 		},
-		
-		easeInQuad : function (t, b, c, d) {
+
+		easeInQuad: function (t, b, c, d) {
 			t /= d;
 			return c*t*t + b;
 		},
-		
-		easeOutQuad : function (t, b, c, d) {
+
+		easeOutQuad: function (t, b, c, d) {
 			t /= d;
 			return -c * t*(t-2) + b;
 		},
-		
-		easeInOutQuad : function (t, b, c, d) {
+
+		easeInOutQuad: function (t, b, c, d) {
 			t /= d/2;
 			if (t < 1) return c/2*t*t + b;
 			t--;
 			return -c/2 * (t*(t-2) - 1) + b;
 		},
-	
-		easeInCubic : function (t, b, c, d) {
+
+		easeInCubic: function (t, b, c, d) {
 			t /= d;
 			return c*t*t*t + b;
 		},
-		
-		easeOutCubic : function (t, b, c, d) {
+
+		easeOutCubic: function (t, b, c, d) {
 			t /= d;
 			t--;
 			return c*(t*t*t + 1) + b;
 		},
-		
-		easeInOutCubic : function (t, b, c, d) {
+
+		easeInOutCubic: function (t, b, c, d) {
 			t /= d/2;
 			if (t < 1) return c/2*t*t*t + b;
 			t -= 2;
 			return c/2*(t*t*t + 2) + b;
 		},
-		
-		easeInQuart : function (t, b, c, d) {
+
+		easeInQuart: function (t, b, c, d) {
 			t /= d;
 			return c*t*t*t*t + b;
 		},
 		
-		easeOutQuart : function (t, b, c, d) {
+		easeOutQuart: function (t, b, c, d) {
 			t /= d;
 			t--;
 			return -c * (t*t*t*t - 1) + b;
 		},
-		
-		easeInOutQuart : function (t, b, c, d) {
+
+		easeInOutQuart: function (t, b, c, d) {
 			t /= d/2;
 			if (t < 1) return c/2*t*t*t*t + b;
 			t -= 2;
 			return -c/2 * (t*t*t*t - 2) + b;
 		},
-		
-		easeInQuint : function (t, b, c, d) {
+
+		easeInQuint: function (t, b, c, d) {
 			t /= d;
 			return c*t*t*t*t*t + b;
 		},
 		
-		easeOutQuint : function (t, b, c, d) {
+		easeOutQuint: function (t, b, c, d) {
 			t /= d;
 			t--;
 			return c*(t*t*t*t*t + 1) + b;
 		},
-		
-		easeInOutQuint : function (t, b, c, d) {
+
+		easeInOutQuint: function (t, b, c, d) {
 			t /= d/2;
 			if (t < 1) return c/2*t*t*t*t*t + b;
 			t -= 2;
 			return c/2*(t*t*t*t*t + 2) + b;
 		},
-		
-		easeInSine : function (t, b, c, d) {
-			return -c * Math.cos(t/d * (Math.PI/2)) + c + b;
+
+		easeInSine: function (t, b, c, d) {
+			return -c * Math.cos(t/d * hemi.HALF_PI) + c + b;
 		},
-		
-		easeOutSine : function (t, b, c, d) {
-			return c * Math.sin(t/d * (Math.PI/2)) + b;
+
+		easeOutSine: function (t, b, c, d) {
+			return c * Math.sin(t/d * hemi.HALF_PI) + b;
 		},
-		
-		easeInOutSine : function (t, b, c, d) {
+
+		easeInOutSine: function (t, b, c, d) {
 			return -c/2 * (Math.cos(Math.PI*t/d) - 1) + b;
 		},
-		
-		easeInExpo : function (t, b, c, d) {
+
+		easeInExpo: function (t, b, c, d) {
 			return c * Math.pow( 2, 10 * (t/d - 1) ) + b;
 		},
-		
-		easeOutExpo : function (t, b, c, d) {
+
+		easeOutExpo: function (t, b, c, d) {
 			return c * ( -Math.pow( 2, -10 * t/d ) + 1 ) + b;
 		},
-		
-		easeInOutExpo : function (t, b, c, d) {
+
+		easeInOutExpo: function (t, b, c, d) {
 			t /= d/2;
 			if (t < 1) return c/2 * Math.pow( 2, 10 * (t - 1) ) + b;
 			t--;
 			return c/2 * ( -Math.pow( 2, -10 * t) + 2 ) + b;
 		},
-		
-		easeInCirc : function (t, b, c, d) {
+
+		easeInCirc: function (t, b, c, d) {
 			t /= d;
 			return -c * (Math.sqrt(1 - t*t) - 1) + b;
 		},
-		
-		easeOutCirc : function (t, b, c, d) {
+
+		easeOutCirc: function (t, b, c, d) {
 			t /= d;
 			t--;
 			return c * Math.sqrt(1 - t*t) + b;
 		},
-		
-		easeInOutCirc : function (t, b, c, d) {
+
+		easeInOutCirc: function (t, b, c, d) {
 			t /= d/2;
 			if (t < 1) return -c/2 * (Math.sqrt(1 - t*t) - 1) + b;
 			t -= 2;
@@ -870,103 +2707,129 @@ var hemi = (function(hemi) {
 		}
 
 	};
-	
-	hemi.utils.sphericalToCartesian = function(coords) {
-		var r = coords[0];
-		var t = coords[1];
-		var p = coords[2];
-		return [r*Math.sin(t)*Math.cos(p),	// x
-				r*Math.sin(t)*Math.sin(p),  // y
-				r*Math.cos(t)];				// z
+
+	/** 
+	 * Convert from spherical to cartesian coordinates.
+	 *
+	 * @param {number[3]} rtp array of radius, theta, phi
+	 * @return {number[3]} XYZ cartesian coordinates
+	 */
+	hemi.utils.sphericalToCartesian = function(rtp) {
+		var r = rtp[0],
+			t = rtp[1],
+			p = rtp[2],
+			sinT = Math.sin(t);
+
+		return [r * sinT * Math.cos(p),	// x
+				r * sinT * Math.sin(p), // y
+				r * Math.cos(t)]; // z
 	};
-	
+
 	/**
-	 * Convert the given UV coordinates for the given plane into XYZ coordinates
-	 * in 3D space.
+	 * Convert the given UV coordinates for the given plane into XYZ coordinates in 3D space.
 	 * 
 	 * @param {number[2]} uv uv coordinates on a plane
-	 * @param {number[3][3]} plane array of 3 xyz coordinates defining the plane
-	 * @return {number[3]} xyz coordinates of the uv location on the plane
+	 * @param {THREE.Vector3[3]} plane array of 3 xyz coordinates defining the plane
+	 * @return {THREE.Vector3} xyz coordinates of the uv location on the plane
 	 */
 	hemi.utils.uvToXYZ = function(uv, plane) {
-		var hMath = hemi.core.math,
-			uf = hMath.mulScalarVector(uv[0], hMath.subVector(plane[1], plane[0])),
-			vf = hMath.mulScalarVector(uv[1], hMath.subVector(plane[2], plane[0]));
-			pos = hMath.addVector(plane[0], hMath.addVector(uf, vf));
-		return pos;
+		var point0 = plane[0],
+			point1 = plane[1],
+			point2 = plane[2],
+			uf = new THREE.Vector3().sub(point1, point0).multiplyScalar(uv[0]),
+			vf = _vector.sub(point2, point0).multiplyScalar(uv[1]);
+
+		return uf.addSelf(vf).addSelf(point0);
 	};
-	
+
 	/**
-	 * Calculate the screen coordinates from a 3d position in the world.
-	 * @param {number[3]} p XYZ point to calculate from
-	 * @return {number[2]} XY screen position of point
+	 * Convert the given XYZ point in world space to screen coordinates. Note that this function
+	 * converts the actual point passed in, not a clone of it.
+	 * 
+	 * @param {hemi.Client} the Client containing the point
+	 * @param {THREE.Vector3} point XYZ point to convert
+	 * @return {THREE.Vector2} XY screen position of point
 	 */
-	hemi.utils.worldToScreen = function(p0) {
-		var VM = hemi.view.viewInfo.drawContext.view,
-			PM = hemi.view.viewInfo.drawContext.projection,
-			w = hemi.view.clientSize.width,
-			h = hemi.view.clientSize.height,
-			m4 = hemi.core.math.matrix4,
-			v = m4.transformPoint(VM,p0),
-			z = v[2],
-			p = m4.transformPoint(PM, v);
-		
-		if (z > 0) {
-			p[0] = -p[0];
-			p[1] = -p[1];
+	hemi.utils.worldToScreen = function(client, point) {
+		var camera = client.camera.threeCamera;
+		camera.matrixWorldInverse.multiplyVector3(point);
+
+		var viewZ = point.z;
+		camera.projectionMatrix.multiplyVector3(point);
+
+		var projX = point.x,
+			projY = point.y;
+
+		if (viewZ > 0) {
+			projX = -projX;
+			projY = -projY;
 		}
-		var x = (p[0]+1.0)*0.5*w;
-		var y = (-p[1]+1.0)*0.5*h;
-		return [Math.round(x),Math.round(y)];
+
+		point.x = (1 + projX) * 0.5 * client.getWidth();
+		point.y = (1 - projY) * 0.5 * client.getHeight();
+
+		return new THREE.Vector2(Math.round(point.x), Math.round(point.y));
 	};
-	
+
 	/**
-	 * Calculate the screen coordinates from a 3d position in the world.
-	 * @param {number[3]} p XYZ point to calculate from
-	 * @return {number[3]} XY screen position of point, plus z-distance,
-	 *		where 0.0 = near clip and 1.0 = flar clip
+	 * Convert the given XYZ point in world space to screen coordinates. Note that this function
+	 * converts the actual point passed in, not a clone of it.
+	 * 
+	 * @param {hemi.Client} the Client containing the point
+	 * @param {THREE.Vector3} point XYZ point to convert
+	 * @return {THREE.Vector3} XY screen position of point plus z-distance, where 0.0 = near clip
+	 *     and 1.0 = flar clip
 	 */
-	hemi.utils.worldToScreenFloat = function(p0) {
-		var VM = hemi.view.viewInfo.drawContext.view,
-			PM = hemi.view.viewInfo.drawContext.projection,
-			w = hemi.view.clientSize.width,
-			h = hemi.view.clientSize.height,
-			m4 = hemi.core.math.matrix4,
-			v = m4.transformPoint(VM,p0),
-			z = v[2],
-			p = m4.transformPoint(PM, v);
-		
-		if (z > 0) {
-			p[0] = -p[0];
-			p[1] = -p[1];
+	hemi.utils.worldToScreenFloat = function(client, point) {
+		var camera = client.camera.threeCamera;
+		camera.matrixWorldInverse.multiplyVector3(point);
+
+		var viewZ = point.z;
+		camera.projectionMatrix.multiplyVector3(point);
+
+		var projX = point.x,
+			projY = point.y;
+
+		if (viewZ > 0) {
+			projX = -projX;
+			projY = -projY;
 		}
-		var x = (p[0]+1.0)*0.5*w;
-		var y = (-p[1]+1.0)*0.5*h;
-		return [x,y,p[2]];
+
+		point.x = (1 + projX) * 0.5 * client.getWidth();
+		point.y = (1 - projY) * 0.5 * client.getHeight();
+
+		return point;
 	};
-	
-	return hemi;
-})(hemi || {});
-/* 
- * Kuda includes a library and editor for authoring interactive 3D content for the web.
- * Copyright (C) 2011 SRI International.
- *
- * This program is free software; you can redistribute it and/or modify it under the terms
- * of the GNU General Public License as published by the Free Software Foundation; either 
- * version 2 of the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
- * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
- * See the GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License along with this program; 
- * if not, write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, 
- * Boston, MA 02110-1301 USA.
+
+})();
+/*
+ * Licensed under the MIT license: http://www.opensource.org/licenses/mit-license.php
+ * The MIT License (MIT)
+ * 
+ * Copyright (c) 2011 SRI International
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+ * associated  documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the  Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-var hemi = (function(hemi) {
-	hemi.utils = hemi.utils || {};
-	
+(function() {
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Global functions
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
 	/**
 	 * Build a shader source string from the given parsed source structure.
 	 * 
@@ -1001,13 +2864,12 @@ var hemi = (function(hemi) {
 			(parsed.glob ? parsed.glob : '') +
 			(parsed.postGlob ? parsed.postGlob : '') +
 			parsed.end;
-		
+
 		return src;
 	};
-	
+
 	/**
-	 * Combine the given strings into one cohesive fragment shader source
-	 * string.
+	 * Combine the given strings into one cohesive fragment shader source string.
 	 * 
 	 * @param {string} src the original shader source string
 	 * @param {Object} cfg configuration object for how to build the new shader:
@@ -1027,36 +2889,9 @@ var hemi = (function(hemi) {
 	 * @return {string} the new shader source string
 	 */
 	hemi.utils.combineFragSrc = function(src, cfg) {
-		return this.combineSrc(src, cfg, 'gl_FragColor');
+		return combineSrc(src, cfg, 'gl_FragColor');
 	};
-	
-	/**
-	 * Combine the given strings into one cohesive shader source string.
-	 * 
-	 * @param {string} src the original shader source string
-	 * @param {Object} cfg configuration object for how to build the new shader:
-	 *     (all fields are optional)
-	 *     preHdr: source to prepend to the existing header
-	 *     hdr: source to replace the existing header
-	 *     postHdr: source to append to the existing header
-	 *     preSprt: source to prepend to the existing support
-	 *     sprt: source to replace the existing support
-	 *     postSprt: source to append to the existing support
-	 *     preBody: source to prepend to the existing body
-	 *     body: source to replace the existing body
-	 *     postBody: source to append to the existing body
-	 *     preGlob: source to prepend to the existing global
-	 *     glob: source to replace the existing global variable assignment
-	 *     postGlob: source to append to the existing global
-	 * @param {string} globName name of the global variable to set in main()
-	 * @return {string} the new shader source string
-	 */
-	hemi.utils.combineSrc = function(src, cfg, globName) {
-		var parsed = this.parseSrc(src, globName);
-		hemi.utils.join(parsed, cfg);
-		return this.buildSrc(parsed);
-	};
-	
+
 	/**
 	 * Combine the given strings into one cohesive vertex shader source string.
 	 * 
@@ -1078,24 +2913,24 @@ var hemi = (function(hemi) {
 	 * @return {string} the new shader source string
 	 */
 	hemi.utils.combineVertSrc = function(src, cfg) {
-		return this.combineSrc(src, cfg, 'gl_Position');
+		return combineSrc(src, cfg, 'gl_Position');
 	};
-	
+
 	/**
-	 * Get the vertex and pixel shaders (as well as their source) for the given
-	 * Material.
+	 * Get the vertex and pixel shaders (as well as their source) for the given Material.
 	 * 
-	 * @param {o3d.Material} material the material to get shaders for
+	 * @param {hemi.Client} client the Client that is rendering the Material
+	 * @param {THREE.Material} material the material to get shaders for
 	 * @return {Object} object containing shaders and source strings
 	 */
-	hemi.utils.getShaders = function(material) {
-		var gl = material.gl,
-			program = material.effect.program_,
+	hemi.utils.getShaders = function(client, material) {
+		var gl = client.renderer.context,
+			program = material.program,
 			shaders = gl.getAttachedShaders(program),
 			source1 = gl.getShaderSource(shaders[0]),
 			source2 = gl.getShaderSource(shaders[1]),
 			obj;
-		
+	
 		if (source1.search('gl_FragColor') > 0) {
 			obj = {
 				fragShd: shaders[0],
@@ -1111,10 +2946,10 @@ var hemi = (function(hemi) {
 				vertSrc: source1
 			};
 		}
-		
+
 		return obj;
 	};
-	
+
 	/**
 	 * Parse the given shader source into logical groupings as follows:
 	 *   Header - uniform, attribute, and varying parameters
@@ -1152,9 +2987,9 @@ var hemi = (function(hemi) {
 		var hdrEnd = src.lastIndexOf(';', src.indexOf('{')) + 1,
 			sprtEnd = src.indexOf('void main', hdrEnd),
 			bodyStart = src.indexOf('{', sprtEnd) + 1,
-			bodyEnd = src.indexOf(global, bodyStart),
-			globEnd = src.lastIndexOf(';') + 1;
-		
+			bodyEnd = src.lastIndexOf(global),
+			globEnd = src.lastIndexOf('}');
+
 		if (src.charAt(hdrEnd) === '\n') {
 			++hdrEnd;
 		}
@@ -1167,7 +3002,7 @@ var hemi = (function(hemi) {
 		if (src.charAt(globEnd) === '\n') {
 			++globEnd;
 		}
-		
+
 		var parsedSrc = {
 			hdr: src.slice(0, hdrEnd),
 			sprt: src.slice(hdrEnd, sprtEnd),
@@ -1176,84 +3011,157 @@ var hemi = (function(hemi) {
 			glob: src.slice(bodyEnd, globEnd),
 			end: src.slice(globEnd)
 		};
-		
+
 		return parsedSrc;
 	};
-	
-	return hemi;
-})(hemi || {});
-/* 
- * Kuda includes a library and editor for authoring interactive 3D content for the web.
- * Copyright (C) 2011 SRI International.
- *
- * This program is free software; you can redistribute it and/or modify it under the terms
- * of the GNU General Public License as published by the Free Software Foundation; either 
- * version 2 of the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
- * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
- * See the GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License along with this program; 
- * if not, write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, 
- * Boston, MA 02110-1301 USA.
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Global functions
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	/**
+	 * Combine the given strings into one cohesive shader source string.
+	 * 
+	 * @param {string} src the original shader source string
+	 * @param {Object} cfg configuration object for how to build the new shader:
+	 *     (all fields are optional)
+	 *     preHdr: source to prepend to the existing header
+	 *     hdr: source to replace the existing header
+	 *     postHdr: source to append to the existing header
+	 *     preSprt: source to prepend to the existing support
+	 *     sprt: source to replace the existing support
+	 *     postSprt: source to append to the existing support
+	 *     preBody: source to prepend to the existing body
+	 *     body: source to replace the existing body
+	 *     postBody: source to append to the existing body
+	 *     preGlob: source to prepend to the existing global
+	 *     glob: source to replace the existing global variable assignment
+	 *     postGlob: source to append to the existing global
+	 * @param {string} globName name of the global variable to set in main()
+	 * @return {string} the new shader source string
+	 */
+	function combineSrc(src, cfg, globName) {
+		var parsed = hemi.utils.parseSrc(src, globName);
+		hemi.utils.join(parsed, cfg);
+		return hemi.utils.buildSrc(parsed);
+	}
+
+})();
+/*
+ * Licensed under the MIT license: http://www.opensource.org/licenses/mit-license.php
+ * The MIT License (MIT)
+ * 
+ * Copyright (c) 2011 SRI International
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+ * associated  documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the  Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-var hemi = (function(hemi) {
-	hemi.utils = hemi.utils || {};
-	
-	/*
-	 * Add a function to the Javascript string to remove whitespace from the
-	 * beginning and end.
+(function() {
+
+		/*
+		 * A table of characters to break a line on (for text wrapping), weighted by preference.
+		 */
+	var breakable = {
+			' ': 10,
+			',': 20,
+			';': 30,
+			'.': 10,
+			'!': 40,
+			'?': 40
+		};
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Global functions
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	/**
+	 * Capitalize the first letter of the given string.
+	 * 
+	 * @param {string} str the string to capitalize
+	 * @return {string} the capitalized string
 	 */
-	String.prototype.trim = function() {
-		return this.replace(/^\s*/, "").replace(/\s*$/, "");
+	hemi.utils.capitalize = function(str) {
+		return str.charAt(0).toUpperCase() + str.slice(1);
 	};
-	
-	/*
-	 * Adds a method to the Javascript string to capitalize the first letter 
-	 */
-	String.prototype.capitalize = function() {
-		return this.charAt(0).toUpperCase() + this.slice(1);
-	};
-	
+
 	/**
 	 * Test if the given string is numeric.
-	 *  
+	 * 
 	 * @param {string} str the string to test
 	 * @return {boolean} true if the string can be converted directly to a number
 	 */
 	hemi.utils.isNumeric = function(str) {
 		return !(str === null || isNaN(str) || str.length === 0);
 	};
-	
-	
-	/*
-	 * A table of characters to break a line on (for text wrapping), weighted
-	 * by preference.
-	 */
-	var breakable = new Hashtable();
-	breakable.put(' ', 10);
-	breakable.put(',', 20);
-	breakable.put(';', 30);
-	breakable.put('.', 10);
-	breakable.put('!', 40);
-	breakable.put('?', 40);
-	
+
 	/**
-	 * Perform strict text wrapping on the given text. The returned text is
-	 * guaranteed to be no wider than the specified target width, though it may
-	 * be farther from that width than with loose text wrapping.
+	 * Remove any whitespace from the beginning and end of the given string.
+	 * 
+	 * @param {string} str the string to trim
+	 * @return {string} the trimmed string
+	 */
+	hemi.utils.trim = function(str) {
+		return str.replace(/^\s*/, "").replace(/\s*$/, "");
+	};
+
+	/**
+	 * Perform loose text wrapping on the given text. The returned text will be close to the
+	 * specified target width, but may be a little wider.
+	 * 
+	 * @param {string} text the string to perform text wrapping on
+	 * @param {number} targetWidth desired width for text in pixels
+	 * @param {number} charWidth average width of a character of the text in pixels
+	 * @return {string[]} array of wrapped text
+	 */
+	hemi.utils.wrapText = function(text, targetWidth, charWidth) {
+		text = cleanseText(text);
+
+		var wrapLines = [],
+			textLength = text.length,
+			cols = parseInt(targetWidth / charWidth, 10),
+			rows = Math.ceil(textLength / cols),
+			start = cols,
+			index = 0,
+			last;
+
+		for (var i = 0; i < rows - 1; ++i) {
+			last = index;
+			index = bestBreak(text, start, 10);
+			wrapLines.push(hemi.utils.trim(text.substring(last, index)));
+			start = index + cols;
+		}
+
+		wrapLines.push(text.substring(index, textLength));
+		return wrapLines;
+	};
+
+	/**
+	 * Perform strict text wrapping on the given text. The returned text is guaranteed to be no
+	 * wider than the specified target width, though it may be farther from that width than with
+	 * loose text wrapping.
 	 * 
 	 * @param {string} text the string to perform text wrapping on
 	 * @param {number} targetWidth maximum desired width for text in pixels
-	 * @param {CanvasRenderingContext2D} canvas object used to measure text's
-	 *     on-screen size
+	 * @param {CanvasRenderingContext2D} canvas object used to measure text's on-screen size
 	 * @return {string[]} array of wrapped text
 	 */
 	hemi.utils.wrapTextStrict = function(text, targetWidth, canvas) {
+		text = cleanseText(text);
+
 		var wrapLines = [],
-			text = hemi.utils.cleanseText(text),
 			textLength = text.length,
 			metric = canvas.measureText(text),
 			charWidth = metric.width / textLength,
@@ -1262,108 +3170,70 @@ var hemi = (function(hemi) {
 			start = 0,
 			end = chars,
 			line, width;
-		
+
 		while (end < textLength) {
-			line = text.substring(start, end).trim();
+			line = hemi.utils.trim(text.substring(start, end));
 			metric = canvas.measureText(line);
 			width = metric.width;
-			
+
 			while (width < targetWidth && end < textLength) {
 				end += increment;
-				
+
 				if (end > textLength) {
 					end = textLength;
 				}
-				
-				line = text.substring(start, end).trim();
+
+				line = hemi.utils.trim(text.substring(start, end));
 				metric = canvas.measureText(line);
 				width = metric.width;
 			}
-			
+
 			while (width > targetWidth) {
 				end--;
-				line = text.substring(start, end).trim();
+				line = hemi.utils.trim(text.substring(start, end));
 				metric = canvas.measureText(line);
 				width = metric.width;
 			}
-			
+
 			var breakNdx = end - 1,
 				ch = text.charAt(breakNdx);
-			
-			while (!breakable.containsKey(ch) && breakNdx > start) {
+
+			while (breakable[ch] === undefined && breakNdx > start) {
 				breakNdx--;
 				ch = text.charAt(breakNdx);
 			}
-			
+
 			if (breakNdx > start) {
 				end = breakNdx + 1;
 			}
-			
-			line = text.substring(start, end).trim();
+
+			line = hemi.utils.trim(text.substring(start, end));
 			wrapLines.push(line);
 			start = end;
 			end += chars;
 		}
-			
-		if (start != textLength || wrapLines.length === 0) {
-			line = text.substring(start, textLength).trim();
+
+		if (start !== textLength || wrapLines.length === 0) {
+			line = hemi.utils.trim(text.substring(start, textLength));
 			wrapLines.push(line);
 		}
-		
+
 		return wrapLines;
 	};
-	
-	/**
-	 * Perform loose text wrapping on the given text. The returned text will be
-	 * close to the specified target width, but may be a little wider.
-	 * 
-	 * @param {string} text the string to perform text wrapping on
-	 * @param {number} targetWidth desired width for text in pixels
-	 * @param {number} charWidth average width of a character of the text in
-	 *     pixels
-	 * @return {string[]} array of wrapped text
-	 */
-	hemi.utils.wrapText = function(text, targetWidth, charWidth) {
-		var wrapLines = [],
-			text = hemi.utils.cleanseText(text),
-			textLength = text.length,
-			cols = parseInt(targetWidth / charWidth),
-        	rows = Math.ceil(textLength / cols),
-			start = cols,
-			index = 0,
-			last;
-		
-		for (var i = 0; i < rows - 1; i++) {
-			last = index;
-			index = bestBreak(text, start, 10);
-			wrapLines.push(text.substring(last, index).trim());
-			start = index + cols;
-		}
-		
-		wrapLines.push(text.substring(index, textLength));
-		return wrapLines;
-	};
-	
-	/**
-	 * Replace any newline characters in the text with spaces. This is used to
-	 * prepare text for text wrapping.
-	 * 
-	 * @param {string} text string to clean
-	 * @return {string} string with all newline characters replaced
-	 */
-	hemi.utils.cleanseText = function(text) {
-		text = text.replace('\n', ' ');
-		return text;
-	};
-	
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Utility functions
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
 	/*
-	 * Internal function to calculate the "best" index to break a line of
-	 * text at, given a certain weighted preference for characters to break on.
+	 * Calculate the "best" index to break a line of text at, given a certain weighted preference
+	 * for characters to break on.
 	 * 
 	 * @param {string} text string of text to break into two lines
 	 * @param {number} start estimated index the user would like to break at
-	 * @param {number} radius maximum distance before and after the start index
-	 *     to search for a "best" break
+	 * @param {number} radius maximum distance before and after the start index to search for a
+	 *     "best" break
+	 * @return {number} the calculated break index
 	 */
 	function bestBreak(text, start, radius) {
 		var bestIndex = start,
@@ -1372,255 +3242,708 @@ var hemi = (function(hemi) {
 			beginRadius = start - Math.max(start - radius, 0),
 			endRadius = Math.min(start + radius, textLength - 1) - start,
 			examWeight, weight;
-		
-		for (var i = parseInt(start - beginRadius); i <= start + endRadius; i++) {
-			weight = breakable.get(text.charAt(i));
-			if (weight === null) 
+
+		for (var i = parseInt(start - beginRadius, 10); i <= start + endRadius; ++i) {
+			weight = breakable[text.charAt(i)];
+
+			if (weight === undefined) 
 				continue;
-			
+
 			examWeight = weight / Math.abs(start - i);
+
 			if (examWeight > bestWeight) {
 				bestIndex = i;
 				bestWeight = examWeight;
 			}
 		}
-		
+
 		return Math.min(bestIndex + 1, textLength - 1);
-	};
-	
-	return hemi;
-})(hemi || {});
-/* 
- * Kuda includes a library and editor for authoring interactive 3D content for the web.
- * Copyright (C) 2011 SRI International.
- *
- * This program is free software; you can redistribute it and/or modify it under the terms
- * of the GNU General Public License as published by the Free Software Foundation; either 
- * version 2 of the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
- * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
- * See the GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License along with this program; 
- * if not, write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, 
- * Boston, MA 02110-1301 USA.
+	}
+
+	/*
+	 * Replace any newline characters in the text with spaces.
+	 * 
+	 * @param {string} text string to clean
+	 * @return {string} string with all newline characters replaced
+	 */
+	function cleanseText(text) {
+		return text.replace('\n', ' ');
+	}
+
+})();
+/*
+ * Licensed under the MIT license: http://www.opensource.org/licenses/mit-license.php
+ * The MIT License (MIT)
+ * 
+ * Copyright (c) 2011 SRI International
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+ * associated  documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the  Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-var hemi = (function(hemi) {
-	hemi.utils = hemi.utils || {};
-	
+(function() {
+
+		// Static helper objects
+	var _matrix = new THREE.Matrix4(),
+		_quaternion = new THREE.Quaternion(),
+		_vector = new THREE.Vector3();
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Global functions
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
 	/**
-	 * Check to see if the given Transform has key frame animations bound to it.
+	 * Rotate the given Transform about the given axis by the given amount.
 	 * 
-	 * @param {o3d.Transform} transform the Transform to check
-	 * @return {boolean} true if Transform has key frame animations
+	 * @param {THREE.Vector3} axis rotation axis defined as an XYZ vector
+	 * @param {number} angle amount to rotate by in radians
+	 * @param {hemi.Transform} transform the transform to rotate
+	*/
+	hemi.utils.axisRotate = function(axis, angle, transform) {
+		if (transform.useQuaternion) {
+			_quaternion.setFromAxisAngle(axis, angle);
+			transform.quaternion.multiplySelf(_quaternion);
+		} else {
+			_vector.copy(axis).multiplyScalar(angle);
+			transform.rotation.addSelf(_vector);
+		}
+
+		transform.updateMatrix();
+		transform.updateMatrixWorld(true);
+	};
+
+	/**
+	 * Center the given Mesh's geometry about its local origin and update the Mesh so that the
+	 * geometry stays in the same world position.
+	 * 
+	 * @param {hemi.Mesh} mesh the Mesh to center geometry for
 	 */
-	hemi.utils.isAnimated = function(transform) {
-		var lm = transform.getParam('o3d.localMatrix');
-		
-		return lm.inputConnection != null;
+	hemi.utils.centerGeometry = function(mesh) {
+		var delta = THREE.GeometryUtils.center(mesh.geometry);
+		delta.multiplySelf(mesh.scale);
+
+		if (mesh.useQuaternion) {
+			mesh.quaternion.multiplyVector3(delta);
+		} else {
+			_matrix.setRotationFromEuler(mesh.rotation, mesh.eulerOrder);
+			delta = transformVector(_matrix, delta);
+		}
+
+		mesh.position.subSelf(delta);
+		mesh.updateMatrix();
+		mesh.updateMatrixWorld(true);
+		// Do some magic since Three.js doesn't currently have a way to flush cached vertices
+		updateVertices(mesh);
 	};
 	
 	/**
-	 * Create a new child Transform for the given Transform and move all of its
-	 * current children and shapes onto the new child.
+	 * Clones the given material and returns the clone. Every prop is copied by reference.
 	 * 
-	 * @param {o3d.Transform} transform the Transform to foster from
-	 * @return {o3d.Transform} the created child Transform
+	 * @param {THREE.Material} material the material to clone
 	 */
-	hemi.utils.fosterTransform = function(transform) {
-		var children = transform.children,
-			shapes = transform.shapes,
-			newTran = hemi.core.mainPack.createObject('Transform');
-		
-		while (children.length > 0) {
-			children[0].parent = newTran;
-		};
-		
-		newTran.parent = transform;
-		
-		while (shapes.length > 0) {
-			var shape = shapes[0];
-			newTran.addShape(shape);
-			transform.removeShape(shape);
+	hemi.utils.cloneMaterial = function(material) {
+		var newMat = new material.constructor(),
+			offLimits = ['fragmentShader', 'id', 'program', 'uniforms', 'uniformsList', 
+				'vertexShader'];
+				
+		for (var prop in material) {
+			var p = material[prop];
+			if (!hemi.utils.isFunction(p) && offLimits.indexOf(prop) === -1) {
+				newMat[prop] = p;
+			}
 		}
 		
-		return newTran;
+		newMat.name = newMat.name + '_clone';
+		
+		return newMat;
 	};
-	
+
 	/**
-	 * Interprets a point in world space into local space.
+	 * Interpret the given point from world space to local space. Note that this function converts
+	 * the actual point passed in, not a clone of it.
+	 * 
+	 * @param {hemi.Transform} transform the Transform whose local space the point will be in
+	 * @param {THREE.Vector3} point the point to convert to local space
+	 * @return {THREE.Vector3} the given point, now in local space
 	 */
-	hemi.utils.pointAsLocal = function(transform,point) {
-		var m4 = hemi.core.math.matrix4;
-		var W = m4.inverse(transform.getUpdatedWorldMatrix());
-		return m4.transformPoint(W,point);
+	hemi.utils.pointAsLocal = function(transform, point) {
+		var inv = new THREE.Matrix4().getInverse(transform.matrixWorld);
+	    return inv.multiplyVector3(point);
 	};
-	
+
 	/**
-	 * Interprets a point in local space into world space.
+	 * Interpret the given point from local space to world space. Note that this function converts
+	 * the actual point passed in, not a clone of it.
+	 * 
+	 * @param {hemi.Transform} transform the Transform whose local space the point is in
+	 * @param {THREE.Vector3} point the point to convert to world space
+	 * @return {THREE.Vector3} the given point, now in world space
 	 */
 	hemi.utils.pointAsWorld = function(transform, point) {
-		var m4 = hemi.core.math.matrix4;
-		return m4.transformPoint(transform.getUpdatedWorldMatrix(),point);
+		return transform.matrixWorld.multiplyVector3(point);
 	};
-	
+
 	/**
-	 * Point the y axis of the given transform/matrix toward the given point.
+	 * Point the y axis of the given Transform toward the given point.
 	 *
-	 * @param {o3d.Transform|number[4][4]} tran the transform/matrix to rotate
-	 * @param {number[]} eye XYZ point from which to look (may be the origin)
-	 * @param {number[]} target XYZ point at which to aim the y axis
-	 * @return {o3d.Transform|number[4][4]} the rotated transform/matrix
+	 * @param {hemi.Transform} tran the Transform to rotate
+	 * @param {THREE.Vector3} eye XYZ point from which to look (may be the origin)
+	 * @param {THREE.Vector3} target XYZ point at which to aim the y axis
+	 * @return {hemi.Transform} the rotated Transform
 	 */
 	hemi.utils.pointYAt = function(tran, eye, target) {
-		var dx = target[0] - eye[0],
-			dy = target[1] - eye[1],
-			dz = target[2] - eye[2],
+		var dx = target.x - eye.x,
+			dy = target.y - eye.y,
+			dz = target.z - eye.z,
 			dxz = Math.sqrt(dx*dx + dz*dz),
 			rotY = Math.atan2(dx,dz),
 			rotX = Math.atan2(dxz,dy);
-		
-		if (tran.rotateY) {
-			tran.rotateY(rotY);
-			tran.rotateX(rotX);
-		} else {
-			hemi.core.math.matrix4.rotateY(tran, rotY);
-			hemi.core.math.matrix4.rotateX(tran, rotX);
-		}
-		
+
+		tran.rotation.y += rotY;
+		tran.rotation.x += rotX;
+		tran.updateMatrix();
+		tran.updateMatrixWorld(true);
+
 		return tran;
 	};
-	
+
 	/**
-	 * Point the z axis of the given transform/matrix toward the given point.
+	 * Point the z axis of the given Transform toward the given point.
 	 *
-	 * @param {o3d.Transform|number[4][4]} tran the transform/matrix to rotate
-	 * @param {number[]} eye XYZ point from which to look (may be the origin)
-	 * @param {number[]} target XYZ point at which to aim the z axis
-	 * @return {o3d.Transform|number[4][4]} the rotated transform/matrix
+	 * @param {hemi.Transform} tran the Transform to rotate
+	 * @param {THREE.Vector3} eye XYZ point from which to look (may be the origin)
+	 * @param {THREE.Vector3} target XYZ point at which to aim the z axis
+	 * @return {hemi.Transform} the rotated Transform
 	 */
 	hemi.utils.pointZAt = function(tran, eye, target) {
-		var delta = hemi.core.math.subVector(target, eye),
-			rotY = Math.atan2(delta[0], delta[2]),
-			rotX = -Math.asin(delta[1] / hemi.core.math.length(delta));
-		
-		if (tran.rotateY) {
-			tran.rotateY(rotY);
-			tran.rotateX(rotX);
-		} else {
-			hemi.core.math.matrix4.rotateY(tran, rotY);
-			hemi.core.math.matrix4.rotateX(tran, rotX);
-		}
-		
+		var delta = _vector.sub(target, eye),
+			rotY = Math.atan2(delta.x, delta.z),
+			rotX = -Math.asin(delta.y / delta.length());
+
+		tran.rotation.y += rotY;
+		tran.rotation.x += rotX;
+		tran.updateMatrix();
+		tran.updateMatrixWorld(true);
+
 		return tran;
 	};
-	
+
 	/**
-	 * Move all of the children and shapes off of the given foster Transform and
-	 * back to the original parent Transform. Destroy the foster Transform
+	 * Rotate the texture UV coordinates of the given Geometry.
 	 * 
-	 * @param {o3d.Transform} transform the foster Transform previously created
-	 * @return {o3d.Transform} the original parent Transform
+	 * @param {THREE.Geometry} geometry the Geometry to translate the texture for
+	 * @param {number} theta amount to rotate the UV coordinates (in radians)
 	 */
-	hemi.utils.unfosterTransform = function(transform) {
-		var children = transform.children,
-			shapes = transform.shapes,
-			tParent = transform.parent;
-		
-		while (children.length > 0) {
-			children[0].parent = tParent;
-		};
-	
-		while (shapes.length > 0) {
-			var shape = shapes[0];
-			tParent.addShape(shape);
-			transform.removeShape(shape);
+	hemi.utils.rotateUVs = function(geometry, theta) {
+		var uvSet = geometry.faceVertexUvs[0],
+			cosT = Math.cos(theta),
+			sinT = Math.sin(theta);
+
+		for (var i = 0, il = uvSet.length; i < il; ++i) {
+			var uvs = uvSet[i];
+
+			for (var j = 0, jl = uvs.length; j < jl; ++j) {
+				var uv = uvs[j],
+					u = uv.u,
+					v = uv.v;
+
+				uv.u = u * cosT - v * sinT;
+				uv.v = u * sinT + v * cosT;
+			}
 		}
-		
-		transform.parent = null;
-		hemi.core.mainPack.removeObject(transform);
-		return tParent;
+
+		// Magic to get the WebGLRenderer to update the vertex buffer
+		updateUVs(geometry);
 	};
-	
+
 	/**
-	 * Rotate the transform by the given angle along the given world space axis.
+	 * Scale the texture UV coordinates of the given Geometry.
+	 * 
+	 * @param {THREE.Geometry} geometry the Geometry to translate the texture for
+	 * @param {number} uScale amount to scale the U coordinate
+	 * @param {number} vScale amount to scale the V coordinate
+	 */
+	hemi.utils.scaleUVs = function(geometry, uScale, vScale) {
+		var uvSet = geometry.faceVertexUvs[0];
+
+		for (var i = 0, il = uvSet.length; i < il; ++i) {
+			var uvs = uvSet[i];
+
+			for (var j = 0, jl = uvs.length; j < jl; ++j) {
+				uvs[j].u *= uScale;
+				uvs[j].v *= vScale;
+			}
+		}
+
+		// Magic to get the WebGLRenderer to update the vertex buffer
+		updateUVs(geometry);
+	};
+
+	/** 
+	 * Check for degenerate triangles (all three points are collinear) in the faces of the geometry
+	 * of the given Transform and its children and remove those triangles.
 	 *
-	 * @param {number[]} axis rotation axis defined as an XYZ vector
+	 * @param {hemi.Transform} transform Transform to begin scrubbing faces at
+	 * @param {number} opt_precision the precision to use for floating point numbers
+	 */
+	hemi.utils.scrubTriangles = function(transform, opt_precision) {
+		if (opt_precision === undefined) opt_precision = 0.00001;
+
+		if (transform.geometry) {
+			var geom = transform.geometry,
+				vertices = geom.vertices,
+				faces = geom.faces;
+
+			for (var i = faces.length - 1; i >= 0; --i) {
+				var face = faces[i];
+
+				if (face instanceof THREE.Face3) {
+					var a = vertices[face.a].position,
+						b = vertices[face.b].position,
+						c = vertices[face.c].position,
+						area = THREE.GeometryUtils.triangleArea(a, b, c);
+
+					if (area < opt_precision) {
+						faces.splice(i, 1);
+
+						for (var j = 0, jl = geom.faceUvs.length; j < jl; ++j) {
+							var uvs = geom.faceUvs[j];
+
+							if (i < uvs.length) {
+								uvs.splice(i, 1);
+							}
+						}
+
+						for (var j = 0, jl = geom.faceVertexUvs.length; j < jl; ++j) {
+							var uvs = geom.faceVertexUvs[j];
+
+							if (i < uvs.length) {
+								uvs.splice(i, 1);
+							}
+						}
+					}
+				} else if (face instanceof THREE.Face4) {
+					var a = vertices[face.a].position,
+						b = vertices[face.b].position,
+						c = vertices[face.c].position,
+						d = vertices[face.d].position,
+						area1 = THREE.GeometryUtils.triangleArea(a, b, d),
+						area2 = THREE.GeometryUtils.triangleArea(b, c, d);
+
+					if (area1 <= opt_precision) {
+						if (area2 <= opt_precision) {
+							// Remove the whole face
+							faces.splice(i, 1);
+
+							for (var j = 0, jl = geom.faceUvs.length; j < jl; ++j) {
+								var uvs = geom.faceUvs[j];
+
+								if (i < uvs.length) {
+									uvs.splice(i, 1);
+								}
+							}
+
+							for (var j = 0, jl = geom.faceVertexUvs.length; j < jl; ++j) {
+								var uvs = geom.faceVertexUvs[j];
+
+								if (i < uvs.length) {
+									uvs.splice(i, 1);
+								}
+							}
+						} else {
+							// Remove the first triangle
+							var newFace = new THREE.Face3(face.b, face.c, face.d, face.normal,
+								face.color, face.materialIndex);
+
+							if (face.vertexNormals.length > 0) {
+								newFace.vertexNormals[0] = face.vertexNormals[1];
+								newFace.vertexNormals[1] = face.vertexNormals[2];
+								newFace.vertexNormals[2] = face.vertexNormals[3];
+							}
+							
+							if (face.vertexColors.length > 0) {
+								newFace.vertexColors[0] = face.vertexColors[1];
+								newFace.vertexColors[1] = face.vertexColors[2];
+								newFace.vertexColors[2] = face.vertexColors[3];
+							}
+
+							faces[i] = newFace;
+
+							for (var j = 0, jl = geom.faceUvs.length; j < jl; ++j) {
+								var uvs = geom.faceUvs[j];
+
+								if (i < uvs.length) {
+									uvs[i].shift();
+								}
+							}
+
+							for (var j = 0, jl = geom.faceVertexUvs.length; j < jl; ++j) {
+								var uvs = geom.faceVertexUvs[j];
+
+								if (i < uvs.length) {
+									uvs[i].shift();
+								}
+							}
+						}
+					} else if (area2 <= opt_precision) {
+						// Remove the second triangle
+						var newFace = new THREE.Face3(face.a, face.b, face.d, face.normal,
+							face.color, face.materialIndex);
+						
+						if (face.vertexNormals.length > 0) {
+							newFace.vertexNormals[0] = face.vertexNormals[0];
+							newFace.vertexNormals[1] = face.vertexNormals[1];
+							newFace.vertexNormals[2] = face.vertexNormals[3];
+						}
+						
+						if (face.vertexColors.length > 0) {
+							newFace.vertexColors[0] = face.vertexColors[0];
+							newFace.vertexColors[1] = face.vertexColors[1];
+							newFace.vertexColors[2] = face.vertexColors[3];
+						}
+
+						faces[i] = newFace;
+
+						for (var j = 0, jl = geom.faceUvs.length; j < jl; ++j) {
+							var uvs = geom.faceUvs[j];
+
+							if (i < uvs.length) {
+								uvs[i].splice(2, 1);
+							}
+						}
+
+						for (var j = 0, jl = geom.faceVertexUvs.length; j < jl; ++j) {
+							var uvs = geom.faceVertexUvs[j];
+
+							if (i < uvs.length) {
+								uvs[i].splice(2, 1);
+							}
+						}
+					}
+				}
+			}
+		}
+
+		var children = transform.children;
+
+		for (var i = 0, il = children.length; i < il; ++i) {
+			this.scrubTriangles(children[i], opt_precision);
+		}
+	};
+
+	/**
+	 * Translate the vertices of the given Mesh's geometry by the given amount and update the Mesh
+	 * Mesh so that the geometry stays in the same world position.
+	 * 
+	 * @param {hemi.Mesh} mesh the Mesh to shift geometry for
+	 * @param {THREE.Vector3} delta the XYZ amount to shift the geometry by
+	 */
+	hemi.utils.translateGeometry = function(mesh, delta) {
+		// Shift geometry
+		mesh.geometry.applyMatrix(_matrix.setTranslation(delta.x, delta.y, delta.z));
+		mesh.geometry.computeBoundingBox();
+
+		// Update mesh transform matrix
+		delta.multiplySelf(mesh.scale);
+
+		if (mesh.useQuaternion) {
+			mesh.quaternion.multiplyVector3(delta);
+		} else {
+			_matrix.setRotationFromEuler(transform.rotation, transform.eulerOrder);
+			delta = transformVector(_matrix, delta);
+		}
+
+		mesh.position.subSelf(delta);
+		mesh.updateMatrix();
+		mesh.updateMatrixWorld(true);
+
+		// Do some magic since Three.js doesn't currently have a way to flush cached vertices
+		updateVertices(mesh);
+	};
+
+	/**
+	 * Translate the texture UV coordinates of the given Geometry.
+	 * 
+	 * @param {THREE.Geometry} geometry the Geometry to translate the texture for
+	 * @param {number} uDelta amount to translate the U coordinate
+	 * @param {number} vDelta amount to translate the V coordinate
+	 */
+	hemi.utils.translateUVs = function(geometry, uDelta, vDelta) {
+		var uvSet = geometry.faceVertexUvs[0];
+
+		for (var i = 0, il = uvSet.length; i < il; ++i) {
+			var uvs = uvSet[i];
+
+			for (var j = 0, jl = uvs.length; j < jl; ++j) {
+				uvs[j].u += uDelta;
+				uvs[j].v += vDelta;
+			}
+		}
+
+		// Magic to get the WebGLRenderer to update the vertex buffer
+		updateUVs(geometry);
+	};
+
+	/**
+	 * Convert the transform from using quaternions to manage its rotation to using Euler angles.
+	 * 
+	 * @param {hemi.Transform} transform the Transform to convert
+	 */
+	hemi.utils.useEuler = function(transform) {
+		if (transform.useQuaternion) {
+			_matrix.setRotationFromQuaternion(transform.quaternion);
+			transform.rotation.setRotationFromMatrix(_matrix);
+			transform.useQuaternion = false;
+		}
+	};
+
+	/** 
+	 * Check for degenerate triangles (all three points are collinear) in the faces of the geometry
+	 * of the given Transform and its children.
+	 *
+	 * @param {hemi.Transform} transform Transform to begin checking faces at
+	 */
+	hemi.utils.validateTriangles = function(transform) {
+		function toString(vec) {
+			return '[' + vec.x + ', ' + vec.y + ', ' + vec.z + ']';
+		}
+
+		if (transform.geometry) {
+			var vertices = transform.geometry.vertices,
+				faces = transform.geometry.faces;
+
+			for (var i = 0, il = faces.length; i < il; ++i) {
+				var face = faces[i];
+
+				if (face instanceof THREE.Face3) {
+					var a = vertices[face.a].position,
+						b = vertices[face.b].position,
+						c = vertices[face.c].position,
+						area = THREE.GeometryUtils.triangleArea(a, b, c);
+
+					if (area < 0.0001) {
+						console.log('Zero area triangle: face ' + i + ' of ' + transform.name);
+						console.log('Verts: ' + toString(a) + ', ' + toString(b) + ', ' + toString(c));
+					}
+				} else if (face instanceof THREE.Face4) {
+					var a = vertices[face.a].position,
+						b = vertices[face.b].position,
+						c = vertices[face.c].position,
+						d = vertices[face.d].position,
+						area = THREE.GeometryUtils.triangleArea(a, b, d);
+
+					if (area < 0.0001) {
+						console.log('Zero area triangle (in quad): face ' + i + ' of ' + transform.name);
+						console.log('Verts: ' + toString(a) + ', ' + toString(b) + ', ' + toString(d));
+					}
+
+					area = THREE.GeometryUtils.triangleArea(b, c, d);
+
+					if (area < 0.0001) {
+						console.log('Zero area triangle (in quad): face ' + i + ' of ' + transform.name);
+						console.log('Verts: ' + toString(b) + ', ' + toString(c) + ', ' + toString(d));
+					}
+				}
+			}
+		}
+
+		var children = transform.children;
+
+		for (var i = 0, il = children.length; i < il; ++i) {
+			this.validateTriangles(children[i]);
+		}
+	};
+
+	/*
+	 * Determine if two vectors are equal.
+	 * 
+	 * @param {THREE.Vector3} vec1 the first vector
+	 * @param {THREE.Vector3} vec2 the second vector
+	 * @param {number} opt_precision optional precision float (default is 0)
+	 * @return {boolean} true if the vectors are equal to the given precision, otherwise false
+	 */
+	hemi.utils.vector3Equals = function(vec1, vec2, opt_precision) {
+		if (!opt_precision) {
+			opt_precision = 0;
+		}
+
+		return Math.abs(vec1.x - vec2.x) <= opt_precision &&
+			Math.abs(vec1.y - vec2.y) <= opt_precision &&
+			Math.abs(vec1.z - vec2.z) <= opt_precision;
+	};
+
+	/**
+	 * Rotate the Transform by the given angle along the given world space axis.
+	 *
+	 * @param {THREE.Vector3} axis rotation axis defined as an XYZ vector
 	 * @param {number} angle amount to rotate by in radians
-	 * @param {o3d.Transform} transform the transform to rotate
+	 * @param {hemi.Transform} transform the Transform to rotate
 	 */
 	hemi.utils.worldRotate = function(axis, angle, transform) {
-		var m4 = hemi.core.math.matrix4,
-			iW = m4.inverse(transform.getUpdatedWorldMatrix()),
-			lA = m4.transformDirection(iW, axis);
-		transform.axisRotate(lA, angle);
+		var invWorld = _matrix.getInverse(transform.parent.matrixWorld),
+			localAxis = transformVector(invWorld, axis);
+
+		hemi.utils.axisRotate(localAxis, angle, transform);
 	};
-	
+
 	/**
-	 * Scale the transform by the given scale amounts in world space.
+	 * Scale the Transform by the given scale amounts in world space.
 	 *
-	 * @param {number[]} scale scale factors defined as an XYZ vector
-	 * @param {o3d.Transform} transform the transform to scale
+	 * @param {THREE.Vector3} scale scale factors defined as an XYZ vector
+	 * @param {hemi.Transform} transform the Transform to scale
 	 */
 	hemi.utils.worldScale = function(scale, transform) {
-		var m4 = hemi.core.math.matrix4,
-			newMatrix = m4.mul(
-				m4.mul(
-					m4.mul(
-						transform.getUpdatedWorldMatrix(),
-						m4.scaling(scale)),
-					m4.inverse(transform.getUpdatedWorldMatrix())),
-				transform.localMatrix);
-		transform.localMatrix = newMatrix;
+		var invMat = THREE.Matrix4.makeInvert3x3(transform.parent.matrixWorld);
+
+		_vector.copy(scale);
+		transform.scale.multiplySelf(multiplyMat3(invMat, _vector));
+		transform.updateMatrix();
+		transform.updateMatrixWorld(true);
 	};
-	
+
 	/**
-	 * Translate the transform by the given world space vector.
+	 * Translate the Transform by the given world space vector.
 	 *
-	 * @param {number[]} v XYZ vector to translate by
-	 * @param {o3d.Transform} transform the transform to translate
+	 * @param {THREE.Vector3} delta XYZ vector to translate by
+	 * @param {hemi.Transform} transform the Transform to translate
 	 */
-	hemi.utils.worldTranslate = function(v, transform) {
-		var m4 = hemi.core.math.matrix4,
-			iW = m4.inverse(transform.getUpdatedWorldMatrix()),
-			lV = m4.transformDirection(iW, v);
-		transform.translate(lV);
+	hemi.utils.worldTranslate = function(delta, transform) {
+		var invWorld = _matrix.getInverse(transform.parent.matrixWorld),
+			localDelta = transformVector(invWorld, delta);
+
+		transform.position.addSelf(localDelta);
+		transform.updateMatrix();
+		transform.updateMatrixWorld(true);
 	};
-	
-	return hemi;
-})(hemi || {});
-/* 
- * Kuda includes a library and editor for authoring interactive 3D content for the web.
- * Copyright (C) 2011 SRI International.
- *
- * This program is free software; you can redistribute it and/or modify it under the terms
- * of the GNU General Public License as published by the Free Software Foundation; either 
- * version 2 of the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
- * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
- * See the GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License along with this program; 
- * if not, write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, 
- * Boston, MA 02110-1301 USA.
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Utility functions
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	/*
+	 * Transform the given vector by the given 3x3 matrix.
+	 * 
+	 * @param {THREE.Matrix3} m the matrix
+	 * @param {THREE.Vector3} v the vector
+	 * @return {THREE.Vector3} the transformed vector
+	 */
+	function multiplyMat3(matrix, vector) {
+		var vX = vector.x,
+			vY = vector.y,
+			vZ = vector.z;
+
+		vector.x = matrix.m[0] * vX + matrix.m[3] * vY + matrix.m[6] * vZ;
+		vector.y = matrix.m[1] * vX + matrix.m[4] * vY + matrix.m[7] * vZ;
+		vector.z = matrix.m[2] * vX + matrix.m[5] * vY + matrix.m[8] * vZ;
+
+		return vector;
+	}
+
+	/*
+	 * Transform the given vector by the rotation and scale of the given matrix.
+	 * 
+	 * @param {THREE.Matrix4} matrix the matrix
+	 * @param {THREE.Vector3} vector the vector
+	 * @return {THREE.Vector3} the transformed vector
+	 */
+	function transformVector(matrix, vector) {
+		var vX = vector.x,
+			vY = vector.y,
+			vZ = vector.z;
+
+		return _vector.set(vX * matrix.n11 + vY * matrix.n21 + vZ * matrix.n31,
+			vX * matrix.n12 + vY * matrix.n22 + vZ * matrix.n32,
+			vX * matrix.n13 + vY * matrix.n23 + vZ * matrix.n33);
+	}
+
+	/*
+	 * Perform magic to get the WebGLRenderer to update the geometry's UV buffer.
+	 * 
+	 * @param {THREE.Geometry} geometry geometry to update UVs for
+	 */
+	function updateUVs(geometry) {
+		var groupList = geometry.geometryGroupsList;
+
+		for (var i = 0, il = groupList.length; i < il; ++i) {
+			var group = groupList[i],
+				verts = group.faces3.length * 3 + group.faces4.length * 4;
+
+			group.__uvArray = new Float32Array(verts * 2);
+			group.__inittedArrays = true;
+		}
+
+		geometry.__dirtyUvs = true;
+	}
+
+	/*
+	 * Perform magic to get the WebGLRenderer to update the mesh geometry's vertex buffer.
+	 * 
+	 * @param {hemi.Mesh} mesh Mesh containing geometry to update vertices for
+	 */
+	function updateVertices(mesh) {
+		if (mesh.__webglInit) {
+			var geometry = mesh.geometry,
+				scene = mesh.parent;
+
+			while (scene.parent !== undefined) {
+				scene = scene.parent;
+			}
+
+			geometry.dynamic = true;
+			delete geometry.geometryGroupsList[0].__webglVertexBuffer;
+			mesh.__webglInit = false;
+			scene.__objectsAdded.push(mesh);
+		}
+	}
+
+})();
+/*
+ * Licensed under the MIT license: http://www.opensource.org/licenses/mit-license.php
+ * The MIT License (MIT)
+ * 
+ * Copyright (c) 2011 SRI International
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+ * associated  documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the  Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-var hemi = (function(hemi) {
+(function() {
 	/**
 	 * @namespace A module for managing the string literals for Message types.
 	 * @example
-	 * The documentation for each Message type has an example of a typical
-	 * Message body for that type (the 'data' property of a Message).
+	 * The documentation for each Message type has an example of a typical Message body for that
+	 * type (the 'data' property of a Message).
 	 */
 	hemi.msg = {
 		/**
 		 * @type string
 		 * @constant
 		 * @example
-		 * hemi.model.Model - the Model's animation time changes
+		 * hemi.Model - the Model's animation time changes
 		 * data = {
 		 *     previous: (number) the previous animation time for the Model
 		 *     time: (number) the new animation time for the Model
@@ -1631,9 +3954,9 @@ var hemi = (function(hemi) {
 		 * @type string
 		 * @constant
 		 * @example
-		 * hemi.effect.Burst - the Burst effect is triggered
+		 * hemi.ParticleBurst - the ParticleBurst effect is triggered
 		 * data = {
-		 *     position: (number[3]) the XYZ position the Burst was triggered at
+		 *     position: (number[3]) the XYZ position the ParticleBurst was triggered at
 		 * }
 		 */
 		burst: 'hemi.burst',
@@ -1641,23 +3964,10 @@ var hemi = (function(hemi) {
 		 * @type string
 		 * @constant
 		 * @example
-		 * hemi.world - the World is being cleaned up and emptied
-		 * data = { }
-		 * @example
-		 * hemi.world.Citizen - the Citizen is being removed from the World
+		 * hemi.Citizen - the Citizen is being removed from the World
 		 * data = { }
 		 */
 		cleanup: 'hemi.cleanup',
-		/**
-		 * @type string
-		 * @constant
-		 * @example
-		 * hemi.manip.Draggable - the Draggable has been dragged
-		 * data = {
-		 *     drag: (number[3]) the change in XYZ position caused by the drag
-		 * }
-		 */
-		drag: 'hemi.drag',
 		/**
 		 * @type string
 		 * @constant
@@ -1672,23 +3982,23 @@ var hemi = (function(hemi) {
 		 * @type string
 		 * @constant
 		 * @example
-		 * hemi.audio.Audio - the Audio's media content is loaded
+		 * hemi.Audio - the Audio's media content is loaded
 		 * data = {
 		 *     src: (string) the URL of the audio file loaded
 		 * }
 		 * @example
-		 * hemi.hud.HudImage - the HudImage's image data is loaded
+		 * hemi.HudImage - the HudImage's image data is loaded
 		 * data = { }
 		 * @example
-		 * hemi.hud.HudVideo - the HudVideo's media content is loaded
+		 * hemi.HudVideo - the HudVideo's media content is loaded
 		 * data = {
 		 *     src: (string) the URL of the video file loaded
 		 * }
 		 * @example
-		 * hemi.model.Model - the Model's 3D data is loaded
+		 * hemi.Model - the Model's 3D data is loaded
 		 * data = { }
 		 * @example
-		 * hemi.scene.Scene - the Scene is set as the "current" Scene
+		 * hemi.State - the State is set as the "current" State
 		 * data = { }
 		 */
 		load: 'hemi.load',
@@ -1696,10 +4006,26 @@ var hemi = (function(hemi) {
 		 * @type string
 		 * @constant
 		 * @example
-		 * hemi.world - a shape is picked by a mouse click
+		 * hemi.Mesh - the Mesh has been moved
 		 * data = {
-		 *     mouseEvent: (o3d.Event) the event generated by the mouse click
-		 *     pickInfo: (o3djs.picking.PickInfo) the info generated by the pick
+		 *     delta: (THREE.Vector3) the change in XYZ position caused by the move
+		 * }
+		 * @example
+		 * hemi.Transform - the Transform has been moved
+		 * data = {
+		 *     delta: (THREE.Vector3) the change in XYZ position caused by the move
+		 * }
+		 */
+		move: 'hemi.move',
+		/**
+		 * @type string
+		 * @constant
+		 * @example
+		 * hemi - a shape is picked by a mouse click
+		 * data = {
+		 *     mouseEvent: (Object) the mouse down event
+		 *     pickedMesh: (hemi.Mesh) the Mesh picked by the mouse click
+		 *     worldIntersectionPosition: (THREE.Vector3) the XYZ position of the pick (world space)
 		 * }
 		 */
 		pick: 'hemi.pick',
@@ -1707,10 +4033,10 @@ var hemi = (function(hemi) {
 		 * @type string
 		 * @constant
 		 * @example
-		 * hemi.world - a task's progress data has been updated
+		 * hemi - a task's progress data has been updated
 		 * data = {
-		 *     isTotal: (boolean) a flag indicating if percent is for a specific
-		 *                        task or a total of all current tasks
+		 *     isTotal: (boolean) a flag indicating if percent is for a specific task or a total of
+		 *                        all current tasks
 		 *     percent: (number) the task's percentage complete, 0-100
 		 *     task: (string) an id for the task, ex: url of a file being loaded
 		 * }
@@ -1720,93 +4046,96 @@ var hemi = (function(hemi) {
 		 * @type string
 		 * @constant
 		 * @example
-		 * hemi.world - the World's resources are loaded and ready
+		 * hemi - the World's resources are loaded and ready
 		 * data = { }
 		 */
-        ready: 'hemi.ready',
+		ready: 'hemi.ready',
 		/**
 		 * @type string
 		 * @constant
 		 * @example
-		 * hemi.manip.Scalable - the Scalable has been scaled
+		 * hemi.Mesh - the Mesh has been resized
+		 * data = {
+		 *     scale: (number) the new scale
+		 * }
+		 * @example
+		 * hemi.Transform - the Transform has been resized
 		 * data = {
 		 *     scale: (number) the new scale
 		 * }
 		 */
-        scale: 'hemi.scale',
+		resize: 'hemi.resize',
 		/**
 		 * @type string
 		 * @constant
 		 * @example
-		 * hemi.animation.Animation - the Animation starts
+		 * hemi.AnimationGroup - the AnimationGroup starts
 		 * data = { }
 		 * @example
-		 * hemi.audio.Audio - the Audio starts playing
+		 * hemi.Audio - the Audio starts playing
 		 * data = { }
 		 * @example
-		 * hemi.effect.Trail - the Trail effect starts generating particles
+		 * hemi.Camera - the Camera starts moving to a Viewpoint
+		 * data = {
+		 *     viewpoint: (hemi.view.Viewpoint) the Viewpoint the Camera is moving to
+		 * }
+		 * @example
+		 * hemi.Mesh - the Mesh starts a motion
 		 * data = { }
 		 * @example
-		 * hemi.motion.Rotator - the Rotator starts rotating
+		 * hemi.ParticleTrail - the ParticleTrail effect starts generating particles
 		 * data = { }
 		 * @example
-		 * hemi.motion.Translator - the Translator starts translating
-		 * data = { }
-		 * @example
-		 * hemi.time.Timer - the Timer starts counting down
+		 * hemi.Timer - the Timer starts counting down
 		 * data = {
 		 *     time: (number) the milliseconds the Timer will count down for
 		 * }
 		 * @example
-		 * hemi.view.Camera - the Camera starts moving to a Viewpoint
-		 * data = {
-		 *     viewpoint: (hemi.view.Viewpoint) the Viewpoint the Camera is
-		 *                                      moving to
-		 * }
+		 * hemi.Transform - the Transform starts a motion
+		 * data = { }
 		 */
 		start: 'hemi.start',
 		/**
 		 * @type string
 		 * @constant
 		 * @example
-		 * hemi.animation.Animation - the Animation finishes or is stopped
+		 * hemi.AnimationGroup - the AnimationGroup finishes or is stopped
 		 * data = { }
 		 * @example
-		 * hemi.audio.Audio - the Audio finishes playing
+		 * hemi.Audio - the Audio finishes playing
 		 * data = { }
 		 * @example
-		 * hemi.effect.Trail - the Trail effect stops generating particles
+		 * hemi.Camera - the Camera arrives at a Viewpoint
+		 * data = {
+		 *     viewpoint: (hemi.view.Viewpoint) the Viewpoint the Camera moved to
+		 * }
+		 * @example
+		 * hemi.Mesh - the Mesh finishes a motion
 		 * data = { }
 		 * @example
-		 * hemi.motion.Rotator - the Rotator stops rotating
+		 * hemi.ParticleTrail - the ParticleTrail effect stops generating particles
 		 * data = { }
 		 * @example
-		 * hemi.motion.Translator - the Translator stops translating
-		 * data = { }
-		 * @example
-		 * hemi.time.Timer - the Timer stops counting down
+		 * hemi.Timer - the Timer stops counting down
 		 * data = {
 		 *     time: (number) the milliseconds the Timer counted down
 		 * }
 		 * @example
-		 * hemi.view.Camera - the Camera arrives at a Viewpoint
-		 * data = {
-		 *     viewpoint: (hemi.view.Viewpoint) the Viewpoint the Camera moved
-		 *                                      to
-		 * }
+		 * hemi.Transform - the Transform finishes a motion
+		 * data = { }
 		 */
 		stop: 'hemi.stop',
 		/**
 		 * @type string
 		 * @constant
 		 * @example
-		 * hemi.audio.Audio - the Audio's media content is unloaded
+		 * hemi.Audio - the Audio's media content is unloaded
 		 * data = { }
 		 * @example
-		 * hemi.model.Model - the Model's 3D data is unloaded
+		 * hemi.Model - the Model's 3D data is unloaded
 		 * data = { }
 		 * @example
-		 * hemi.scene.Scene - the Scene is set to not be the "current" Scene
+		 * hemi.State - the State is set to not be the "current" State
 		 * data = { }
 		 */
 		unload: 'hemi.unload',
@@ -1814,15 +4143,14 @@ var hemi = (function(hemi) {
 		 * @type string
 		 * @constant
 		 * @example
-		 * hemi.effect.Emitter - the Emitter is shown or hidden
+		 * hemi.ParticleEmitter - the ParticleEmitter is shown or hidden
 		 * data = {
 		 *     visible: (boolean) a flag indicating if the Emitter is visible
 		 * }
 		 * @example
-		 * hemi.hud.HudDisplay - the HudDisplay shows a page or is hidden
+		 * hemi.HudDisplay - the HudDisplay shows a page or is hidden
 		 * data = {
-		 *     page: (number) the page number being shown or 0 if the HudDisplay
-		 *                    is hidden
+		 *     page: (number) the page number being shown or 0 if the HudDisplay is hidden
 		 * }
 		 * @example
 		 * hext.tools.BaseTool - the tool is shown or hidden
@@ -1831,467 +4159,87 @@ var hemi = (function(hemi) {
 		 * }
 		 */
 		visible: 'hemi.visible',
-		
-		// Wildcard functions
 		/**
-		 * Register the given handler to receive Messages of the specified type
-		 * from any source. This creates a MessageTarget.
-		 * 
-		 * @param {string} type type of Message to handle
-		 * @param {Object} handler either a function or an object
-		 * @param {string} opt_func name of the function to call if handler is
-		 *     an object
-		 * @param {string[]} opt_args optional array of names of arguments to
-		 *     pass to the handler. Otherwise the entire Message is just passed
-		 *     in.
-		 * @return {hemi.dispatch.MessageTarget} the created MessageTarget
+		 * @type string
+		 * @constant
+		 * @example
+		 * hemi - the World is being cleaned up and emptied.
 		 */
-		subscribe: function(type, handler, opt_func, opt_args) {
-			return hemi.dispatch.registerTarget(hemi.dispatch.WILDCARD, type,
-				handler, opt_func, opt_args);
-		},
-		
-		/**
-		 * Remove the given MessageTarget for the specified Message type. Note
-		 * that this removes a MessageTarget registered with the wildcard as the
-		 * source id. It does not remove the MessageTarget from any Citizens it
-		 * may be directly registered with.
-		 * 
-		 * @param {hemi.dispatch.MessageTarget} target the MessageTarget to
-		 *     remove from the Dispatch
-		 * @param {string} opt_type Message type the MessageTarget was
-		 *     registered for
-		 * @return {hemi.dispatch.MessageTarget} the removed MessageTarget or
-		 *     null
-		 */
-		unsubscribe: function(target, opt_type) {
-			return hemi.dispatch.removeTarget(target, {
-				src: hemi.dispatch.WILDCARD,
-				msg: opt_type
-			});
-		}
+		worldCleanup: 'hemi.worldCleanup'
 	};
 
-	return hemi;
-})(hemi || {});
-/* 
- * Kuda includes a library and editor for authoring interactive 3D content for the web.
- * Copyright (C) 2011 SRI International.
- *
- * This program is free software; you can redistribute it and/or modify it under the terms
- * of the GNU General Public License as published by the Free Software Foundation; either 
- * version 2 of the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
- * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
- * See the GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License along with this program; 
- * if not, write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, 
- * Boston, MA 02110-1301 USA.
+})();
+/*
+ * Licensed under the MIT license: http://www.opensource.org/licenses/mit-license.php
+ * The MIT License (MIT)
+ * 
+ * Copyright (c) 2011 SRI International
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+ * associated  documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the  Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-var hemi = (function(hemi) {
-	/**
-	 * @namespace A module for displaying log, warning, and error messages to a
-	 * console element on a webpage.
-	 */
-	hemi.console = hemi.console || {};
-	
-	/**
-	 * The priority level for an error message.
-	 * @type string
-	 * @constant
-	 */
-	hemi.console.ERR = 'ERR';
-	
-	/**
-	 * The priority level for a warning message.
-	 * @type string
-	 * @constant
-	 */
-	hemi.console.WARN = 'WARN';
-	
-	/**
-	 * The priority level for a log message.
-	 * @type string
-	 * @constant
-	 */
-	hemi.console.LOG = 'LOG';
-	
-	/* Flag indicating if the console should display log messages */
-	var enabled = false;
-	/* Flag indicating if timestamps should be added to log messages */
-	var showTime = true;
-	
-	/*
-	 * The actual function for logging a message.
-	 * 
-	 * @param {string} msg the message to log
-	 * @param {string} level the priority level of the message
-	 */
-	var logMessage = function(msg, level) {
-		level = level || hemi.console.LOG;
-		
-		if (testPriority(level)) {
-			var fullMsg = level + ':\t' + msg;
-			
-			if (showTime) {
-				var time = getTime();
-				fullMsg = time + '\t' + fullMsg;
-			}
-			
-			output(fullMsg);
-		}
-	};
-	
-	/*
-	 * The default method for displaying a log message.
-	 * 
-	 * @param {string} msg the full log message to display
-	 */
-	var output = function(msg) {
-		try {
-			console.log(msg);
-		} catch(e) { }
-	};
-	
-	/*
-	 * Get a timestamp for the current time.
-	 * 
-	 * @return {string} the current timestamp
-	 */
-	var getTime = function() {
-		var currentTime = new Date();
-		var hours = currentTime.getHours();
-		hours = hours < 10 ? '0' + hours : '' + hours;
-		var minutes = currentTime.getMinutes();
-		minutes = minutes < 10 ? ':0' + minutes : ':' + minutes;
-		var seconds = currentTime.getSeconds();
-		seconds = seconds < 10 ? ':0' + seconds : ':' + seconds;
-		
-		return hours + minutes + seconds;
-	};
-	
-	/*
-	 * Test if the given priority level for a message is high enough to display
-	 * when the console is set to LOG priority.
-	 * 
-	 * @param {string} level the priority level to check
-	 * @return {boolean} true if the level is high enough to display
-	 */
-	var logTest = function(level) {
-		return level === hemi.console.LOG ||
-		       level === hemi.console.WARN ||
-		       level === hemi.console.ERR;
-	};
-	
-	/*
-	 * Test if the given priority level for a message is high enough to display
-	 * when the console is set to WARN priority.
-	 * 
-	 * @param {string} level the priority level to check
-	 * @return {boolean} true if the level is high enough to display
-	 */
-	var warnTest = function(level) {
-		return level === hemi.console.WARN ||
-		       level === hemi.console.ERR;
-	};
-	
-	/*
-	 * Test if the given priority level for a message is high enough to display
-	 * when the console is set to ERR priority.
-	 * 
-	 * @param {string} level the priority level to check
-	 * @return {boolean} true if the level is high enough to display
-	 */
-	var errTest = function(level) {
-		return level === hemi.console.ERR;
-	};
-	
-	/*
-	 * This function is aliased to the proper test function for the console's
-	 * current priority level.
-	 */
-	var testPriority = logTest;
-	
-	/**
-	 * Log the given message if the console is enabled or ignore the message if
-	 * the console is disabled.
-	 * 
-	 * @param {string} msg the message to display
-	 * @param {string} level the priority level of the message
-	 */
-	hemi.console.log = hemi.utils.noop;
-	
-	/**
-	 * Enable or disable the console to receive log messages.
-	 * 
-	 * @param {boolean} en flag indicating if the console should be enabled
-	 */
-	hemi.console.setEnabled = function(en) {
-		if (en == enabled) {
-			return;
-		}
-		
-		enabled = en;
-		
-		if (enabled) {
-			hemi.console.log = logMessage;
-		} else {
-			hemi.console.log = hemi.utils.noop;
-		}
-	};
-	
-	/**
-	 * Set the function that will be used to display log messages.
-	 * 
-	 * @param {function(string):void} outFunc
-	 */
-	hemi.console.setOutput = function(outFunc) {
-		output = outFunc;
-	};
-	
-	/**
-	 * Set the current priority level of the console. Log messages at the given
-	 * priority level or higher will be displayed. Log messages below the
-	 * priority level will be ignored.
-	 * 
-	 * @param {string} priority the priority level to set the console to
-	 */
-	hemi.console.setPriority = function(priority) {
-		switch (priority) {
-			case hemi.console.LOG:
-				testPriority = logTest;
-				break;
-			case hemi.console.WARN:
-				testPriority = warnTest;
-				break;
-			case hemi.console.ERR:
-				testPriority = errTest;
-				break;
-		}
-	};
-	
-	/**
-	 * Enable or disable timestamping for received log messages.
-	 * 
-	 * @param {boolean} show flag indicating if messages should be timestamped
-	 */
-	hemi.console.setShowTime = function(show) {
-		showTime = show;
-	};
-	
-	return hemi;
-})(hemi || {});/* 
- * Kuda includes a library and editor for authoring interactive 3D content for the web.
- * Copyright (C) 2011 SRI International.
- *
- * This program is free software; you can redistribute it and/or modify it under the terms
- * of the GNU General Public License as published by the Free Software Foundation; either 
- * version 2 of the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
- * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
- * See the GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License along with this program; 
- * if not, write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, 
- * Boston, MA 02110-1301 USA.
- */
+(function() {
 
-var hemi = (function(hemi) {
-	/**
-	 * @namespace A module for picking shapes in a 3D space from a mouse click.
-	 */
-	hemi.picking = hemi.picking || {};
-	
-	/**
-	 * The name of the root Transform that all picking is performed on. If a
-	 * Transform should be pickable, it must be a child or grandchild of the
-	 * pickRoot.
-	 * @type string
-	 * @constant
-	 */
-	hemi.picking.PICK_ROOT = 'PickRoot';
-	
-	/**
-	 * Calculate the pick information to describe what shape was clicked in the
-	 * 3D scene.
-	 *  
-	 * @param {o3d.Event} mouseEvent the "mouse down" event to pick with
-	 * @return {o3djs.picking.PickInfo} information about the pick that was
-	 *     calculated
-	 */
-	hemi.picking.getPickInfo = function(mouseEvent) {
-		var worldRay = hemi.core.picking.clientPositionToWorldRay(
-			mouseEvent.x,
-			mouseEvent.y,
-			hemi.view.viewInfo.drawContext,
-			hemi.core.client.width,
-			hemi.core.client.height);
-		
-		this.pickManager.update();
-		return this.pickManager.pick(worldRay);
-	};
-	
-	/**
-	 * Find the TransformInfo for the given Transform and set its pickable
-	 * property.
-	 * 
-	 * @param {o3d.Transform} transform the Transform to set pickable for
-	 * @param {boolean} pickable true to allow picks
-	 * @param {boolean} recurse true to apply the change to any child
-	 *     Transforms as well
-	 */
-	hemi.picking.setPickable = function(transform, pickable, recurse) {
-		var info = this.pickManager.getTransformInfo(transform);
-		
-		if (info) {
-			info.setPickable(pickable, recurse);
-		}
-	};
-	
-	/**
-	 * Set up the pickRoot, the transform root that all pickable Transforms
-	 * need to be children of.
-	 */
-	hemi.picking.init = function() {
-		// A transform parent to hold pickable transform roots
-		this.pickRoot = hemi.core.mainPack.createObject('Transform');
-		this.pickRoot.name = hemi.picking.PICK_ROOT;
-		this.pickRoot.parent = hemi.core.client.root;
-		
-		this.pickManager = hemi.core.picking.createPickManager(this.pickRoot);
-		/*
-		 * Override PickManager's createTransformInfo function so that it will
-		 * construct our extended TransformInfo instead. Allows the user to
-		 * specify if the referenced Transform should be pickable or not. 
-		 */
-		this.pickManager.createTransformInfo = function(transform, parent) {
-			var info = new o3djs.picking.TransformInfo(transform, parent, this);
-			// Add the pickable property
-			info.pickable = true;
-			// Override the default value for this TransformInfo property
-			info.pickableEvenIfInvisible = true;
-			
-			this.addTransformInfo(info);
-			return info;
-		};
-	};
-	
-	/**
-	 * Set the pickable property for the TransformInfo.
-	 * 
-	 * @param {boolean} pickable true to allow picks
-	 * @param {boolean} recurse true to apply the change to any child
-	 *     Transforms as well
-	 */
-	o3djs.picking.TransformInfo.prototype.setPickable = function(pickable, recurse) {
-		this.pickable = pickable;
-		
-		if (recurse) {
-			for (var key in this.childTransformInfos) {
-				this.childTransformInfos[key].setPickable(pickable, recurse);
-			}
-		}
-	};
-	
-	var pickFunc = o3djs.picking.TransformInfo.prototype.pick;
-	
-	/**
-	 * Override TransformInfo's pick function so that we can temporarily
-	 * hide the TransformInfo's shapes if it is not pickable.
-	 * 
-	 * @param {o3djs.picking.Ray} worldRay A ray in world space to pick
-	 *     against
-	 * @return {o3djs.picking.PickInfo} Information about the picking.
-	 *     null if the ray did not intersect any triangles.
-	 */
-	o3djs.picking.TransformInfo.prototype.pick = function(worldRay) {
-		var hiddenShapeInfos = null;
-		
-		if (!this.pickable) {
-			hiddenShapeInfos = this.shapeInfos;
-			this.shapeInfos = {};
-		}
-		
-		var pickInfo = pickFunc.call(this, worldRay);
-		
-		if (!this.pickable) {
-			this.shapeInfos = hiddenShapeInfos;
-		}
-		
-		return pickInfo;
-	};
-	
-	return hemi;
-})(hemi || {});
-/* 
- * Kuda includes a library and editor for authoring interactive 3D content for the web.
- * Copyright (C) 2011 SRI International.
- *
- * This program is free software; you can redistribute it and/or modify it under the terms
- * of the GNU General Public License as published by the Free Software Foundation; either 
- * version 2 of the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
- * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
- * See the GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License along with this program; 
- * if not, write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, 
- * Boston, MA 02110-1301 USA.
- */
 
-var hemi = (function(hemi) {
-	/**
-	 * @namespace A module for loading resources (Octane, models, images, etc).
-	 */
-	hemi.loader = hemi.loader || {};
-	
+	var progressTable = new Hashtable(),
+		resetCB = null,
+		taskCount = 1;
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Constants
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
 	/**
 	 * The relative path from the referencing HTML file to the Kuda directory.
 	 * @type string
 	 * @default ''
 	 */
-	hemi.loader.loadPath = '';
-	
-	var progressTable = new Hashtable();
-	
-	var syncedIntervalFcn = function(url, loadInfo) {
-		var created = hemi.loader.createTask(url, loadInfo);
-		
-		if (created) {
-			attachProgressListener(url, loadInfo);
+	hemi.loadPath = '';
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Global functions
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	/*
+	 * Get the correct path for the given URL. If the URL is absolute, then leave it alone.
+	 * Otherwise prepend it with the load path.
+	 * 
+	 * @param {string} url the url to update
+	 * @return {string} the udpated url
+	 */
+	hemi.getLoadPath = function(url) {
+		if (url.substr(0, 4) === 'http') {
+			return url;
+		} else {
+			return hemi.loadPath + url;
 		}
 	};
-	
-	var attachProgressListener = function(url, loadInfo) {
-		loadInfo.request_.addProgressListener(function(evt) {
-			if (evt.lengthComputable) {
-				var pct = evt.loaded / evt.total * 100;
-				hemi.loader.updateTask(url, pct);
-			}
-		});
-	};
-	
+
 	/**
-	 * Load the HTML (or HTM) file at the given URL. If an error occurs, an
-	 * alert is thrown. Otherwise the given callback is executed and passed the
-	 * loaded data.
+	 * Load the HTML file at the given url and pass it to the given callback
 	 * 
-	 * @param {string} url the url of the file to load relative to the Kuda
-	 *     directory
-	 * @param {function(string):void} callback a function to pass the string of
-	 *     data that was loaded
+	 * @param {string} url the url of the file to load relative to the Kuda directory
+	 * @param {function(string):void} callback a function to pass the loaded HTML data
 	 */
-	hemi.loader.loadHtml = function(url, callback) {
-		url = hemi.loader.getPath(url);
-		
+	hemi.loadHtml = function(url, callback) {
+		url = hemi.getLoadPath(url);
+
 		hemi.utils.get(url, function(data, status) {
-			if (data == null) {
-				hemi.core.error(status);
+			if (data === null) {
+				hemi.error(status);
 			} else {
 				callback(data);
 			}
@@ -2299,268 +4247,251 @@ var hemi = (function(hemi) {
 	};
 
 	/**
-	 * Load the bitmap file at the given URL into the given Pack. If an error
-	 * occurs, an alert is thrown. Otherwise the given callback is executed and
-	 * passed an array of the loaded bitmaps.
+	 * Load the COLLADA file at the given url and pass it to the given callback
 	 * 
-	 * @param {string} url the url of the file to load relative to the Kuda
-	 *     directory
-	 * @param {o3d.Pack} pack the Pack to load bitmaps into
-	 * @param {function(o3d.Bitmap[]):void} callback a function to pass an array
-	 *     of the loaded bitmaps
+	 * @param {string} url the url of the file to load relative to the Kuda directory
+	 * @param {function(Object):void} callback a function to pass the loaded COLLADA data
 	 */
-	hemi.loader.loadBitmap = function(url, pack, callback) {
-		url = hemi.loader.getPath(url);
+	hemi.loadCollada = function(url, callback) {
+		var loader = new THREE.ColladaLoader();
 
-		hemi.world.loader.loadBitmaps(pack, url,
-			function(bitmaps, exception){
-				hemi.loader.updateTask(url, 100);
-				
-				if (exception) {
-					hemi.core.error(exception);
-				} else {
-					callback(bitmaps);
-				}
-			});
-		
-		var list = hemi.world.loader.loadInfo.children_,
-			loadInfo = list[list.length - 1];
-		
-		syncedIntervalFcn(url, loadInfo);
+		url = hemi.getLoadPath(url);
+		++taskCount;
+		createTask(url);
+
+		loader.load(url, function (collada) {
+			if (callback) {
+				callback(collada);
+			}
+			updateTask(url, 100);
+			decrementTaskCount();
+		}, function(progress) {
+			if (progress.loaded !== null && progress.total !== null) {
+				updateTask(url, (progress.loaded / progress.total) * 100);
+			}
+		});
 	};
 
 	/**
-	 * Load the image file at the given URL. If an error occurs, it is logged.
-	 * Otherwise the given callback is executed and passed the loaded image.
+	 * Load the image file at the given URL. If an error occurs, it is logged. Otherwise the given
+	 * callback is executed and passed the loaded image.
 	 * 
-	 * @param {string} url the url of the file to load relative to the Kuda
-	 *     directory
-	 * @param {function(Image):void} callback a function to pass the loaded
-	 *     image
+	 * @param {string} url the url of the file to load relative to the Kuda directory
+	 * @param {function(Image):void} callback a function to pass the loaded image
 	 */
-	hemi.loader.loadImage = function(url, callback) {
-		++hemi.world.loader.count_;
+	hemi.loadImage = function(url, callback) {
 		var img = new Image();
-		
+		++taskCount;
+
 		img.onabort = function() {
-			hemi.core.error('Aborted loading: ' + url);
-			hemi.world.loader.countDown_();
+			hemi.error('Aborted loading: ' + url);
+			decrementTaskCount();
 		};
 		img.onerror = function() {
-			hemi.core.error('Error loading: ' + url);
-			hemi.world.loader.countDown_();
+			hemi.error('Error loading: ' + url);
+			decrementTaskCount();
 		};
 		img.onload = function() {
 			callback(img);
-			hemi.world.loader.countDown_();
+			decrementTaskCount();
 		};
-		
-		img.src = hemi.loader.getPath(url);
+
+		img.src = hemi.getLoadPath(url);
 	};
 
 	/**
-	 * Load the texture at the given URL. If an error occurs, an alert is
-	 * thrown. Otherwise the given callback is executed and passed the texture.
+	 * Load the Octane file at the given URL. If an error occurs, an alert is  thrown. Otherwise the
+	 * loaded data is decoded into JSON and passed to the Octane module. If the Octane is for an
+	 * object, it is created and passed to the given optional callback. If the Octane is for a
+	 * World, the current World is cleaned up and the new World is created. The given optional
+	 * callback is then executed after hemi.ready().
 	 * 
-	 * @param {string} url the url of the file to load relative to the Kuda
-	 *     directory
-	 * @param {function(o3d.Texture):void} onLoadTexture a function to pass the
-	 *     loaded texture
-	 * @param {thisArg} opt_this the value for this inside the onLoadTexture
-	 *     function 
-	 * @param {o3d.Pack} opt_pack the Pack to load bitmaps into
+	 * @param {string} url the url of the file to load relative to the Kuda directory
+	 * @param {function([Object]):void} opt_callback an optional function to either pass the Object
+	 *     created or execute after the created World's ready function is called
 	 */
-	hemi.loader.loadTexture = function(url, onLoadTexture, opt_this, opt_pack) {
-		url = hemi.loader.getPath(url);
-		var pack = opt_pack || hemi.core.mainPack;
-
-		hemi.world.loader.loadTexture(pack, url,
-			function(texture, exception) {
-				hemi.loader.updateTask(url, 100);
-				
-				if (exception) {
-					hemi.core.error(exception);
-				} else {
-					onLoadTexture.call(opt_this, texture);
-				}
-			});
-		
-		var list = hemi.world.loader.loadInfo.children_,
-			loadInfo = list[list.length - 1];
-		
-		syncedIntervalFcn(url, loadInfo);
-	};
-
-	/**
-	 * Load the model file at the given URL into the given Pack and set the
-	 * given Transform as the parent of the loaded Transforms. If an error
-	 * occurs, an alert is thrown. Otherwise the given optional callback is
-	 * executed and passed the pack and parent Transform loaded with data from
-	 * the file.
-	 * 
-	 * @param {string} url the url of the file to load relative to the Kuda
-	 *     directory
-	 * @param {o3d.Pack} pack the Pack to load textures, shapes, etc into
-	 * @param {o3d.Transform} parent the Transform to parent the Model under
-	 * @param {function(o3d.Pack, o3d.Transform):void} opt_callback a function
-	 *     to pass the Pack and Transform loaded with data from the file
-	 * @param {o3djs.serialization.Options} opt_options options for the loader
-	 * @param {function(string):void} opt_errFnc optional error callback
-	 */
-	hemi.loader.loadModel = function(url, pack, parent, opt_callback,
-			opt_options, opt_errFnc) {
-		url = hemi.loader.getPath(url);
-		opt_options = opt_options || {};
-		opt_errFnc = opt_errFnc || hemi.core.error;
-		
-		try {
-			hemi.world.loader.loadScene(hemi.core.client, pack, parent, url,
-				function(pack, parent, exception) {
-					hemi.loader.updateTask(url, 100);
-					
-					if (exception) {
-						opt_errFnc(exception);
-					} else if (opt_callback) {
-						opt_callback(pack, parent);
-					}
-				}, opt_options);
-			
-			var list = hemi.world.loader.loadInfo.children_,
-				loadInfo = list[list.length - 1];
-			
-			syncedIntervalFcn(url, loadInfo);
-		} catch (err) {
-			opt_errFnc(err);
-		}
-	};
-
-	/**
-	 * Load the Octane file at the given URL. If an error occurs, an alert is
-	 * thrown. Otherwise the loaded data is decoded into JSON and passed to the
-	 * Octane module. If the Octane is for an object, it is created and passed
-	 * to the given optional callback. If the Octane is for a World, the current
-	 * World is cleaned up and the new World is created. The given optional
-	 * callback is then executed, followed by hemi.world.ready().
-	 * 
-	 * @param {string} url the url of the file to load relative to the Kuda
-	 *     directory
-	 * @param {function([Object]):void} opt_callback an optional function to
-	 *     either pass the Object created or execute before the created World's
-	 *     ready function is called
-	 */
-	hemi.loader.loadOctane = function(url, opt_callback) {
-		url = hemi.loader.getPath(url);
+	hemi.loadOctane = function(url, opt_callback) {
+		url = hemi.getLoadPath(url);
+		++taskCount;
 
 		hemi.utils.get(url, function(data, status) {
-			if (data == null) {
-				hemi.core.error(status);
+			decrementTaskCount();
+
+			if (data === null) {
+				hemi.error(status);
 			} else {
 				if (typeof data === 'string') {
 					data = JSON.parse(data);
 				}
-				
-				if (data.type) {
-					var obj = hemi.octane.createObject(data);
-					
-					if (opt_callback) {
-						opt_callback(obj);
-					}
-				} else {
-					hemi.octane.createWorld(data);
-				
-					if (opt_callback) {
-						opt_callback();
-					}
-					
-					hemi.world.ready();
+
+				if (!data.type) {
+					// Assume we are loading a full world from Octane
+					hemi._makeRenderers();
+					hemi.init();
+				}
+
+				var obj = hemi.fromOctane(data);
+
+				if (!data.type) {
+					hemi.ready();
+				}
+
+				if (opt_callback) {
+					opt_callback(obj);
 				}
 			}
 		});
 	};
-	
+
 	/**
-	 * Get the correct path for the given URL. If the URL is absolute, then
-	 * leave it alone. Otherwise prepend it with the load path.
+	 * Load the texture at the given URL. If an error occurs, an alert is thrown. Otherwise the
+	 * given callback is executed and passed the texture.
 	 * 
-	 * @param {string} url the url to update
-	 * @return {string} the udpated url
+	 * @param {string} url the url of the file to load relative to the Kuda directory
+	 * @param {function(THREE.Texture):void} callback a function to pass the loaded texture
 	 */
-	hemi.loader.getPath = function(url) {
-		if (url.substr(0, 4) === 'http') {
-			return url;
-		} else {
-			return hemi.loader.loadPath + url;
-		}
+	hemi.loadTexture = function(url, callback) {
+		hemi.loadImage(url, function(image) {
+			updateTask(url, 100);
+			var texture = new THREE.Texture(image);
+			texture.needsUpdate = true;
+			callback(texture);
+		});
+
+		createTask(url);
 	};
-	
+
 	/**
-	 * Create a new progress task with the given name and data. Initialize its
+	 * Load the texture at the given URL. If an error occurs, an alert is thrown. Otherwise the
+	 * given callback is executed and passed the texture. This function return a created (but not
+	 * yet loaded) texture synchronously.
+	 * 
+	 * @param {string} url the url of the file to load relative to the Kuda directory
+	 * @param {function(THREE.Texture):void} callback a function to pass the loaded texture
+	 * @return {THREE.Texture} the created (but not yet loaded) texture
+	 */
+	hemi.loadTextureSync = function(url, callback) {
+		var img = new Image(),
+			texture = new THREE.Texture(img);
+
+		++taskCount;
+
+		img.onabort = function() {
+			hemi.error('Aborted loading: ' + url);
+			decrementTaskCount();
+		};
+		img.onerror = function() {
+			hemi.error('Error loading: ' + url);
+			decrementTaskCount();
+		};
+		img.onload = function() {
+			texture.needsUpdate = true;
+			callback(texture);
+			decrementTaskCount();
+		};
+
+		img.src = hemi.getLoadPath(url);
+		return texture;
+	};
+
+	/**
+	 * Activate the World once all resources are loaded. This function should
+	 * only be called after all scripting and setup is complete.
+	 */
+	hemi.ready = decrementTaskCount;
+
+	/**
+	 * Make sure all outstanding load tasks are completed and then reset the
+	 * load task count.
+	 *
+	 * @param {function():void} opt_callback an optional function to call when
+	 *     the load tasks have been reset
+	 */
+	hemi.resetLoadTasks = function(opt_callback) {
+		resetCB = opt_callback;
+		taskCount = 1;
+	};
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Utility functions
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	/*
+	 * Create a new progress task with the given name. Initialize its
 	 * progress to 0.
 	 * 
 	 * @param {string} name the unique name of the task
-	 * @param {Object} data any data updated by the task
 	 * @return {boolean} true if the task was created successfully, false if
 	 *      another task with the given name already exists
 	 */
-	hemi.loader.createTask = function(name, data) {
+	function createTask(name) {
 		if (progressTable.get(name) !== null) {
 			return false;
 		}
 		
 		var obj = {
-			percent: 0,
-			data: data
+			percent: 0
 		};
 		
 		progressTable.put(name, obj);
-		this.updateTotal();
+		updateTotal();
 		return true;
-	};
-	
-	/**
+	}
+
+	function decrementTaskCount() {
+		if (--taskCount === 0) {
+			taskCount = 1;
+			hemi.send(hemi.msg.ready, {});
+
+			if (resetCB) {
+				resetCB();
+				resetCB = null;
+			}
+		}
+	}
+
+	/*
 	 * Update the progress of the task with the given name to the given percent.
 	 * 
 	 * @param {string} name name of the task to update
 	 * @param {number} percent percent to set the task's progress to (0-100)
 	 * @return {boolean} true if the task was found and updated
 	 */
-	hemi.loader.updateTask = function(name, percent) {
+	function updateTask(name, percent) {
 		var task = progressTable.get(name),
 			update = task !== null;
 		
 		if (update) {
 			task.percent = percent;
 			
-			hemi.world.send(hemi.msg.progress, {
+			hemi.send(hemi.msg.progress, {
 				task: name,
 				percent: percent,
 				isTotal: false
 			});
 			
-			hemi.loader.updateTotal();
+			updateTotal();
 		}
 		
 		return update;
-	};
+	}
 	
-	/**
+	/*
 	 * Send an update on the total progress of all loading activities, and clear
 	 * the progress table if they are all finished.
 	 */
-	hemi.loader.updateTotal = function() {
+	function updateTotal() {
 		var total = progressTable.size(),
 			values = progressTable.values(),
 			percent = 0;
 			
 		for (var ndx = 0; ndx < total; ndx++) {
-			percent += values[ndx].percent;
+			var fileObj = values[ndx];
+			
+			percent += fileObj.percent / total;
 		}
 		
-		if (total > 0) {
-			percent /= total;
-		}
-		
-		hemi.world.send(hemi.msg.progress, {
+		hemi.send(hemi.msg.progress, {
 			task: 'Total Progress',
 			isTotal: true,
 			percent: percent
@@ -2571,707 +4502,427 @@ var hemi = (function(hemi) {
 		}
 		
 		return percent;
-	};
-	
-	return hemi;
-})(hemi || {});
-/* 
- * Kuda includes a library and editor for authoring interactive 3D content for the web.
- * Copyright (C) 2011 SRI International.
- *
- * This program is free software; you can redistribute it and/or modify it under the terms
- * of the GNU General Public License as published by the Free Software Foundation; either 
- * version 2 of the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
- * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
- * See the GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License along with this program; 
- * if not, write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, 
- * Boston, MA 02110-1301 USA.
+	}
+
+})();
+/*
+ * Licensed under the MIT license: http://www.opensource.org/licenses/mit-license.php
+ * The MIT License (MIT)
+ * 
+ * Copyright (c) 2011 SRI International
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+ * associated  documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the  Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-var hemi = (function(hemi) {
+(function() {
 
-	/**
-	 * @class A object that allows the assigning of keys to functions in the code, and a tab list, so that elements can be selected without a mouse.
-	 */
-	hemi.Accessibility = function() {
-		this.init();
-	};
-	
-	hemi.Accessibility.prototype = {
-		currentSelectionItem: 0,
-		selectionList: new Array(),
-		selectionTrigger: null,
-		mapKey: function(keyNum, obj){
-			hemi.input.addKeyDownListener({
-				onKeyDown : function(e) {
-				if (e.keyCode == keyNum) {
-					obj.down();
-				}
-			}});
-			hemi.input.addKeyUpListener({
-				onKeyUp : function(e) {
-				if (e.keyCode == keyNum) {
-					obj.up();
-				}
-			}});
-			
-		},
-		init: function(){
-			hemi.input.addKeyDownListener(this); 
-			hemi.input.addKeyUpListener(this);
-		},
-		onKeyUp : function(e) {
-			//ENTER Key
-			if (e.keyCode == 13) {
-				this.selectionList[this.currentSelectionItem].up();
-			}
-		},
-		onKeyDown : function(e) {
-			//Trigger
-			if (e.keyCode == this.selectionTrigger) {
-				this.cycleSelectionItems();
-			}
-			//ENTER Key
-			if (e.keyCode == 13) {
-				this.selectionList[this.currentSelectionItem].down();
-			}
-		},
-		setCycleTrigger: function(trigger){
-			this.selectionTrigger = trigger;
-		},
-		cycleSelectionItems: function(){
-			if (this.currentSelectionItem < this.selectionList.length - 1) {
-				this.currentSelectionItem++;
-			} else {
-				this.selectionList[this.selectionList.length - 1].deselect();
-				this.currentSelectionItem = 0;
-			}
-			if(this.selectionList[this.currentSelectionItem - 1]) this.selectionList[this.currentSelectionItem - 1].deselect();
-			this.selectionList[this.currentSelectionItem].select();
-		},
-		addSelectionItem: function(selectionItem){
-			this.selectionList.push(selectionItem);
-		},
-		removeSelectionItem: function(idx){
-			this.selectionList.splice(idx, 1);			
-		}
-	};
-	
-	return hemi;
-})(hemi || {});/* 
- * Kuda includes a library and editor for authoring interactive 3D content for the web.
- * Copyright (C) 2011 SRI International.
- *
- * This program is free software; you can redistribute it and/or modify it under the terms
- * of the GNU General Public License as published by the Free Software Foundation; either 
- * version 2 of the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
- * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
- * See the GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License along with this program; 
- * if not, write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, 
- * Boston, MA 02110-1301 USA.
- */
+		/*
+		 * Storage for the base classes that new Citizen classes were created from.
+		 */
+	var baseClasses = {},
 
-var hemi = (function(hemi) {
-	/**
-	 * @namespace A module for managing all elements of a 3D world. The World
-	 * manages a set of Citizens and provides look up services for them.
-	 */
-	hemi.world = hemi.world || {};
-	
-	/* The reserve ids, which belong to Hemi library modules */
-	var reserveIds = 50;
-	hemi.world.WORLD_ID = 0;
-	
-	/* The next id to assign to a Citizen requesting a world id */
-	var nextId = reserveIds;
-	
+		/*
+		 * All of the Citizens of the World.
+		 */
+		citizens = new hemi.utils.Hashtable(),
+
+		/*
+		 * The next id to assign to a Citizen requesting a world id.
+		 */
+		nextId = 1;
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Shared functions
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
 	/*
-	 * Create a loader that will:
-	 * 1) Send out a ready message once all resources are loaded.
-	 * 2) Replace itself with a loader that will call this function again when
-	 *    the World is cleaned up.
-	 */
-	var createWorldLoader = function() {
-		return hemi.core.loader.createLoader(function() {
-			// Reset the loader so that the other modules can continue
-			// loading things after the World has been initialized.
-			hemi.world.loader = hemi.core.loader.createLoader(function() {
-				hemi.console.log('Backup world loader is finished.');
-			});
-			
-			hemi.world.send(hemi.msg.ready, {});
-		});
-	};
-	
-	/*
-	 * Get the library module with the given reserve id.
+	 * Get the Citizen's id.
 	 * 
-	 * @param {number} id the id of the module to get
-	 * @return {Object} the matching module or null
+	 * @return {number} the id
 	 */
-	var getReserve = function(id) {
-		var reserve;
-		
-		switch(id) {
-			case hemi.world.WORLD_ID:
-				reserve = hemi.world;
-				break;
-			default:
-				reserve = null;
+	function _getId() {
+		return this._worldId;
+	}
+
+	/*
+	 * Set the Citizen's id.
+	 * 
+	 * @param {number} id the id to set
+	 */
+	function _setId(id) {
+		var oldId = this._worldId;
+		this._worldId = id;
+
+		if (oldId !== null) {
+			citizens.remove(oldId);
+			citizens.put(id, this);
 		}
-		
-		return reserve;
-	};
-	
-	/**
-	 * @class A Citizen is a uniquely identifiable member of a World that is
-	 * able to send Messages through the World's dispatch. The Citizen's id is
-	 * all that is necessary to retrieve the Citizen from its World, regardless
-	 * of its type.
-	 * @extends hemi.Class
+	}
+
+	/*
+	 * Send a Message with the given attributes from the Citizen to any registered MessageTargets.
+	 * 
+	 * @param {string} type type of Message
+	 * @param {Object} data container for any and all information relevant to the Message
 	 */
-	hemi.world.Citizen = hemi.Class.extend({
-		init: function() {
-			/**
+	function send(type, data) {
+		hemi.dispatch.postMessage(this, type, data);
+	}
+
+	/*
+	 * Register the given handler to receive Messages of the specified type from the Citizen. This
+	 * creates a MessageTarget.
+	 * 
+	 * @param {string} type type of Message to handle
+	 * @param {Object} handler either a function or an object
+	 * @param {string} opt_func name of the function to call if handler is an object
+	 * @param {string[]} opt_args optional array of names of arguments to pass to the handler.
+	 *     Otherwise the entire Message is just passed in.
+	 * @return {hemi.dispatch.MessageTarget} the created MessageTarget
+	 */
+	function subscribe(type, handler, opt_func, opt_args) {
+		return hemi.dispatch.registerTarget(this._worldId, type, handler, opt_func, opt_args);
+	}
+
+	/*
+	 * Register the given handler to receive Messages of all types from the Citizen. This creates a
+	 * MessageTarget.
+	 * 
+	 * @param {Object} handler either a function or an object
+	 * @param {string} opt_func name of the function to call if handler is an object
+	 * @param {string[]} opt_args optional array of names of arguments to pass to the handler.
+	 *     Otherwise the entire Message is just passed in.
+	 * @return {hemi.dispatch.MessageTarget} the created MessageTarget
+	 */
+	function subscribeAll(handler, opt_func, opt_args) {
+		return hemi.dispatch.registerTarget(this._worldId, hemi.dispatch.WILDCARD, handler,
+			opt_func, opt_args);
+	}
+
+	/*
+	 * Remove the given MessageTarget for Messages of the specified type for the Citizen.
+	 * 
+	 * @param {hemi.dispatch.MessageTarget} target the MessageTarget to remove from the Dispatch
+	 * @param {string} opt_type optional message type the MessageTarget was registered for
+	 * @return {hemi.dispatch.MessageTarget} the removed MessageTarget or null
+	 */
+	function unsubscribe(target, opt_type) {
+		return hemi.dispatch.removeTarget(target, {
+			src: this._worldId,
+			msg: opt_type
+		});
+	}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Global functions
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	/**
+	 * Utility function to reset the Citizens of the world. This should typically not be used.
+	 * 
+	 * @param {hemi.utils.Hashtable} opt_citizens optional set of new Citizens for the world
+	 * @return {hemi.utils.Hashtable} the previous set of Citizens in the world
+	 */
+	hemi._resetCitizens = function(opt_citizens) {
+		var oldCitizens = citizens;
+		citizens = opt_citizens || new hemi.utils.Hashtable();
+		return oldCitizens;
+	};
+
+	/**
+	 * Get the base class that the specified Citizen class was created from. This can be useful if
+	 * you want to extend functionality and create a new Citizen class yourself.
+	 * 
+	 * @param {string} clsName name of the Citizen class
+	 * @return {function} the base class constructor or undefined
+	 */
+	hemi.getBaseClass = function(clsName) {
+		return baseClasses[clsName];
+	};
+
+	/**
+	 * Take the given base class constructor and create a new class from it that has all of the
+	 * required functionality of a Citizen.
+	 *  
+	 * @param {function} clsCon constructor function for the base class
+	 * @param {string} clsName name for the new Citizen class
+	 * @param {Object} opts options including:
+	 *     cleanup - function to execute for cleanup
+	 *     toOctane - array of properties for octaning or function to execute
+	 * @return {function} the constructor for the new Citizen class
+	 */
+	hemi.makeCitizen = function(clsCon, clsName, opts) {
+		opts = opts || {};
+		baseClasses[clsName] = clsCon;
+
+		var cleanFunc = opts.cleanup;
+
+		/*
+		 * A Citizen is a uniquely identifiable member of a World that is able to send Messages
+		 * through the World's dispatch. The Citizen's id is all that is necessary to retrieve the
+		 * Citizen from its World, regardless of its type.
+		 */
+		function Citizen() {
+			clsCon.apply(this, arguments);
+
+			/*
 			 * The name of the Citizen.
 			 * @type string
 			 * @default ''
 			 */
-			this.name = '';
+			this.name = this.name || '';
 			/* The unique identifier for any Citizen of the World */
-			this.worldId = null;
+			this._worldId = null;
 			hemi.world.addCitizen(this);
-		},
-		
-        /**
-         * Essentially a class name for Citizens.
-         * @type string
-         */
-        citizenType: 'hemi.world.Citizen',
-		
-		/**
-		 * Array of Hemi Messages that the Citizen is known to send.
-		 * @type string[]
+		}
+
+		// Populate our constructed prototype object
+		Citizen.prototype = clsCon.prototype;
+
+        /*
+		 * Send a cleanup Message and remove the Citizen from the World. Base classes should extend
+		 * this so that it removes all references to the Citizen.
 		 */
-		msgSent: [
-			hemi.msg.cleanup
-		],
-		
-		/**
-		 * Get the Citizen's type (similar to class in Java).
-		 * 
-		 * @return {string} the type
-		 */
-		getCitizenType: function() {
-			return this.citizenType;
-		},
-		
-		/**
-		 * Set the Citizen's type (similar to class in Java).
-		 * 
-		 * @param {string} type the type to set
-		 */
-		setCitizenType: function(type) {
-			this.citizenType = type;
-		},
-		
-		/**
-		 * Get the Citizen's id.
-		 * 
-		 * @return {number} the id
-		 */
-		getId: function() {
-			return this.worldId;
-		},
-		
-		/**
-		 * Set the Citizen's id.
-		 * 
-		 * @param {number} id the id to set
-		 */
-		setId: function(id) {
-			var oldId = this.worldId;
-			this.worldId = id;
-			
-			if (oldId !== null) {
-				hemi.world.citizens.remove(oldId);
-				hemi.world.citizens.put(id, this);
-			}
-		},
-		
-		/**
-		 * Send a cleanup Message and remove the Citizen from the World.
-		 * Subclasses should extend this so that it removes all references to
-		 * the Citizen.
-		 */
-		cleanup: function() {
+		Citizen.prototype.cleanup = function() {
 			this.send(hemi.msg.cleanup, {});
+
+			if (cleanFunc) {
+				cleanFunc.apply(this, arguments);
+			}
+
+			hemi.dispatch.removeSpecs({
+				src: this._worldId
+			}, false);
+			hemi.dispatch.removeTargets({
+				handler: this
+			}, false);
 			hemi.world.removeCitizen(this);
-		},
-		
-		/**
-		 * Receive the given Transform from the TransformRegistry.
-		 * 
-		 * @param {o3d.Transform} transform the Transform
-		 */
-		receiveTransform: function(transform) {
-			hemi.console.log('Transform ignored by Citizen with id ' + this.worldId, hemi.console.WARN);
-		},
-		
-		/**
-		 * Register the given handler to receive Messages of the specified type
-		 * from the Citizen. This creates a MessageTarget.
-		 * 
-		 * @param {string} type type of Message to handle
-		 * @param {Object} handler either a function or an object
-		 * @param {string} opt_func name of the function to call if handler is
-		 *     an object
-		 * @param {string[]} opt_args optional array of names of arguments to
-		 *     pass to the handler. Otherwise the entire Message is just passed
-		 *     in.
-		 * @return {hemi.dispatch.MessageTarget} the created MessageTarget
-		 */
-		subscribe: function(type, handler, opt_func, opt_args) {
-			return hemi.dispatch.registerTarget(this.worldId, type, handler,
-				opt_func, opt_args);
-		},
-		
-		/**
-		 * Register the given handler to receive Messages of all types from the
-		 * Citizen. This creates a MessageTarget.
-		 * 
-		 * @param {Object} handler either a function or an object
-		 * @param {string} opt_func name of the function to call if handler is
-		 *     an object
-		 * @param {string[]} opt_args optional array of names of arguments to
-		 *     pass to the handler. Otherwise the entire Message is just passed
-		 *     in.
-		 * @return {hemi.dispatch.MessageTarget} the created MessageTarget
-		 */
-		subscribeAll: function(handler, opt_func, opt_args) {
-			return hemi.dispatch.registerTarget(this.worldId, hemi.dispatch.WILDCARD,
-				handler, opt_func, opt_args);
-		},
-		
-		/**
-		 * Remove the given MessageTarget for Messages of the specified type for
-		 * the Citizen.
-		 * 
-		 * @param {hemi.dispatch.MessageTarget} target the MessageTarget to
-		 *     remove from the Dispatch
-		 * @param {string} opt_type Message type the MessageTarget was
-		 *     registered for
-		 * @return {hemi.dispatch.MessageTarget} the removed MessageTarget or
-		 *     null
-		 */
-		unsubscribe: function(target, opt_type) {
-			return hemi.dispatch.removeTarget(target, {
-				src: this.worldId,
-				msg: opt_type
-			});
-		},
-		
-		/**
-		 * Send a Message with the given attributes from the Citizen to any
-		 * registered MessageTargets.
-		 * 
-		 * @param {string} type type of Message
-		 * @param {Object} data container for any and all information relevant
-		 *        to the Message
-		 */
-		send: function(type, data) {
-			hemi.dispatch.postMessage(this, type, data);
-		},
-		
-	    /**
-	     * Get the Octane structure for the Citizen. The structure returned is:
-	     * <pre>
-	     * {
-	     *     id: the Citizen's world id
-	     *     type: the Citizen's type
-	     *     props: the Citizen's properties (name and id/value)
-	     *     init: a function of the Citizen to execute after it is loaded 
-	     * }
-	     * </pre>
-	     *
-	     * @return {Object} the Octane structure representing the Citizen
-	     */
-		toOctane: function() {
-			var octane = {
-				id: this.worldId,
-				type: this.citizenType,
-				props: []
-			};
-			
-			if (this.name.length > 0) {
-	            octane.props.push({
-	                name: 'name',
-	                val: this.name
-	            });
-			}
-			
-			return octane;
+		};
+
+        Citizen.prototype._getId = _getId;
+        Citizen.prototype._setId = _setId;
+        Citizen.prototype.send = send;
+        Citizen.prototype.subscribe = subscribe;
+        Citizen.prototype.subscribeAll = subscribeAll;
+        Citizen.prototype.unsubscribe = unsubscribe;
+
+        // Enforce the constructor to be what we expect
+        Citizen.constructor = Citizen;
+
+		if (Citizen.prototype._msgSent) {
+			Citizen.prototype._msgSent.push(hemi.msg.cleanup);
 		}
-	});
-	
-	/**
-	 * @class A TransformOwner contains a Citizen that owns at least one
-	 * Transform and entries of other Citizens that need to be given any of
-	 * those Transforms as they become available during Octane loading.
-	 * @extends hemi.Class
-	 */
-	hemi.world.TransformOwner = hemi.Class.extend({
-		init: function() {
-			this.citizen = null;
-			this.entries = new Hashtable();
-			this.toLoad = null;
-		},
-		
-		/**
-		 * Distribute the Transforms of the owning Citizen to any other Citizens
-		 * that have registered interest in those Transforms.
-		 */
-		distribute: function() {
-			if (this.toLoad !== null) {
-				this.load();
-			}
-			
-			this.entries.each(function(key, value) {
-				var tran = value.transform,
-					targets = value.targets;
-				
-				for (var i = 0, il = targets.length; i < il; i++) {
-					targets[i].receiveTransform(tran);
-				}
-			});
-		},
-		
-		/**
-		 * Get the entry for the given Transform or create one if it does not
-		 * already exist.
-		 * 
-		 * @param {o3d.Transform} transform the Transform to get the entry for
-		 * @return {Object} the fetched or created entry
-		 */
-		getEntry: function(transform) {
-			var entry = this.entries.get(transform.name);
-			
-			if (entry === null) {
-				entry = {
-					transform: transform,
-					targets: []
-				};
-				this.entries.put(transform.name, entry);
-			}
-			
-			return entry;
-		},
-		
-		/**
-		 * Load the entries restored from Octane into the TransformOwner.
-		 */
-		load: function() {
-			var citizen = this.citizen,
-				toLoad = this.toLoad;
-			
-			for (var i = 0, il = toLoad.length; i < il; i++) {
-				var ent = toLoad[i],
-					transform = null;
-				
-				if (citizen.getTransform != null) {
-					transform = citizen.getTransform();
-				} else if (citizen.getTransforms != null) {
-					var tforms = citizen.getTransforms(ent.name);
-					
-					if (tforms.length === 1) {
-						transform = tforms[0];
-					}
-				}
-				
-				if (transform != null) {
-					var entry = this.getEntry(transform),
-						tIds = ent.tIds;
-					
-					for (var j = 0, jl = tIds.length; j < jl; j++) {
-						var target = hemi.world.getCitizenById(tIds[j]);
-						
-						if (target != null) {
-							entry.targets.push(target);
-						} else {
-							hemi.console.log('Unable to locate Citizen with id ' +
-								tIds[j], hemi.console.WARN);
-						}
-					}
-				} else {
-					hemi.console.log('Unable to load entry with name ' +
-						ent.name + ' for TransformOwner with name ' +
-						this.citizen.name, hemi.console.ERR);
-				}
-			}
-			
-			this.toLoad = null;
-		},
-		
-		/**
-		 * Register the given Citizen to receive the given Transform when it
-		 * becomes available during Octane loading.
-		 * 
-		 * @param {o3d.Transform} transform the Transform to give
-		 * @param {hemi.world.Citizen} target the Citizen to receive it
-		 */
-		register: function(transform, target) {
-			var entry = this.getEntry(transform),
-				ndx = entry.targets.indexOf(target);
-			
-			if (ndx === -1) {
-				entry.targets.push(target);
-			}
-		},
-		
-	    /**
-	     * Get the Octane structure for the TransformOwner.
-	     *
-	     * @return {Object} the Octane structure representing the TransformOwner
-	     */
-		toOctane: function() {
-			var octane = {
-					type: 'hemi.world.TransformOwner',
-					props: [{
-						name: 'citizen',
-						id: this.citizen.getId()
-					}]
-				},
-				ents = [];
-			
-			this.entries.each(function(key, value) {
-				var targets = value.targets,
-					targs = [];
-				
-				for (var i = 0, il = targets.length; i < il; i++) {
-					targs.push(targets[i].getId());
-				}
-				
-				ents.push({
-					name: key,
-					tIds: targs
-				});
-			});
-			
-			octane.props.push({
-				name: 'toLoad',
-				val: ents
-			});
-			
-			return octane;
-		},
-		
-		/**
-		 * Remove the entry for the given Citizen and Transform.
-		 * 
-		 * @param {o3d.Transform} transform the Transform in the entry
-		 * @param {hemi.world.Citizen} target the Citizen in the entry
-		 */
-		unregister: function(transform, target) {
-			var entry = this.getEntry(transform),
-				ndx = entry.targets.indexOf(target);
-			
-			if (ndx !== -1) {
-				entry.targets.splice(ndx, 1);
-				
-				if (entry.targets.length === 0) {
-					this.entries.remove(transform.name);
-				}
-			}
-		}
-	});
-	
-	/**
-	 * @class A TransformRegistry maintains listings of which Transforms to
-	 * distribute to which Citizens as they become available during Octane
-	 * loading. This is necessary because Transforms are not proper Citizens.
-	 * @extends hemi.Class
-	 */
-	hemi.world.TransformRegistry = hemi.Class.extend({
-		init: function() {
-			this.owners = new Hashtable();
-			this.toLoad = null;
-		},
-		
-		/**
-		 * Distribute the Transforms of the given Citizen to any other Citizens
-		 * that have registered interest in those Transforms.
-		 * 
-		 * @param {hemi.world.Citizen} citizen the Citizen to distribute
-		 *     Transforms for
-		 */
-		distribute: function(citizen) {
-			if (this.toLoad !== null) {
-				this.load();
-			}
-			
-			var owner = this.owners.get(citizen.getId());
-			
-			if (owner !== null) {
-				owner.distribute();
-			}
-		},
-		
-		/**
-		 * Get the TransformOwner entry for the given Citizen or create one if
-		 * it does not already exist.
-		 * 
-		 * @param {hemi.world.Citizen} citizen the Citizen to get the entry for
-		 * @return {hemi.world.TransformOwner} the fetched or created entry
-		 */
-		getOwner: function(citizen) {
-			var id = citizen.getId(),
-				owner = this.owners.get(id);
-			
-			if (owner === null) {
-				owner = new hemi.world.TransformOwner();
-				owner.citizen = citizen;
-				this.owners.put(id, owner);
-			}
-			
-			return owner;
-		},
-		
-		/**
-		 * Load the entries restored from Octane into the TransformRegistry.
-		 */
-		load: function() {
-			var toLoad = this.toLoad;
-			
-			for (var i = 0, il = toLoad.length; i < il; i++) {
-				var owner = toLoad[i],
-					cit = owner.citizen;
-				
-				if (cit) {
-					this.owners.put(owner.citizen.getId(), owner);
-				} else {
-					hemi.console.log('TransformOwner has null citizen.', hemi.console.ERR);
-				}
-			}
-			
-			this.toLoad = null;
-		},
-		
-		/**
-		 * Register the given Citizen to receive the given Transform when it
-		 * becomes available during Octane loading.
-		 * 
-		 * @param {o3d.Transform} transform the Transform to give
-		 * @param {hemi.world.Citizen} target the Citizen to receive it
-		 */
-		register: function(transform, target) {
-			var param = transform.getParam('ownerId');
-			
-			if (param !== null) {
-				var citizen = hemi.world.getCitizenById(param.value),
-					owner = this.getOwner(citizen);
-				
-				owner.register(transform, target);
-			}
-		},
-		
-	    /**
-	     * Get the Octane structure for the TransformRegistry.
-	     *
-	     * @return {Object} the Octane structure representing the TransformRegistry
-	     */
-		toOctane: function() {
-			var octane = {
-					type: 'hemi.world.TransformRegistry',
-					props: []
-				},
-				oct = [];
-			
-			this.owners.each(function(key, value) {
-				oct.push(value.toOctane());
-			});
-			
-			octane.props.push({
-				name: 'toLoad',
-				oct: oct
-			});
-			
-			return octane;
-		},
-		
-		/**
-		 * Remove the entry for the given Citizen and Transform.
-		 * 
-		 * @param {o3d.Transform} transform the Transform in the entry
-		 * @param {hemi.world.Citizen} target the Citizen in the entry
-		 */
-		unregister: function(transform, target) {
-			var param = transform.getParam('ownerId'),
-				owner = null;
-			
-			if (param !== null) {
-				var citizen = hemi.world.getCitizenById(param.value);
-				
-				if (citizen !== null) {
-					owner = this.getOwner(citizen);
-				}
-			}
-			
-			if (owner !== null) {
-				owner.unregister(transform, target);
-				
-				if (owner.entries.length === 0) {
-					this.owners.remove(param.value);
-				}
-			}
-		}
-	});
-	
-	/* All of the Citizens of the World */
-	hemi.world.citizens = new hemi.utils.Hashtable();
-	/* The loader used to load resources */
-	hemi.world.loader = null;
-	/* Array of callbacks for when a new World Camera is set */
-	hemi.world.camCallbacks = [];
-	/* A handler that consumes pick Messages rather than passing them on */
-	hemi.world.pickGrabber = null;
-	/* The registry of transforms to distribute to Citizens at Octane loading */
-	hemi.world.tranReg = new hemi.world.TransformRegistry();
-	/* Fog properties for the World */
-	hemi.world.fog = null;
-	
-	/**
-	 * Array of Hemi Messages that the World is known to send.
-	 * @type string[]
-	 */
-	hemi.world.msgSent = [
-		hemi.msg.cleanup,
-		hemi.msg.pick,
-		hemi.msg.ready
-	];
-	
-	/**
-	 * The Camera that provides a view of the World.
-	 * @type hemi.view.Camera
-	 */
-	hemi.world.camera = null;
-	
-	/**
-	 * Set the id for the World to assign to the next Citizen.
-	 * 
-	 * @param {number} id the next id to assign
-	 */
-	hemi.world.setNextId = function(id) {
-		nextId = id;
+
+        hemi.makeOctanable(Citizen, clsName, opts.toOctane || []);
+        createClass(Citizen, clsName);
+
+        return Citizen;
 	};
-	
+
+	/**
+	 * @namespace A module for managing all elements of a 3D world. The World manages a set of
+	 * Citizens and provides look up services for them.
+	 */
+	hemi.world = hemi.world || {};
+
+	/**
+	 * Add the given Citizen to the World and give it a world id if it does not already have one.
+	 * 
+	 * @param {Citizen} citizen the Citizen to add
+	 */
+	hemi.world.addCitizen = function(citizen) {
+		var id = citizen._getId();
+
+		if (id === null) {
+			id = this.getNextId();
+			citizen._setId(id);
+		} else if (id >= nextId) {
+			nextId = id + 1;
+		}
+
+		var toRemove = citizens.get(id);
+
+		if (toRemove !== null) {
+			console.log('Citizen with id ' + id + ' already exists.');
+			toRemove.cleanup();
+		}
+
+		citizens.put(id, citizen);
+	};
+
+	/**
+	 * Check the next id that will be assigned without incrementing the World's nextId token.
+	 * 
+	 * @return {number} the next id that will be assigned to a Citizen
+	 */
+	hemi.world.checkNextId = function() {
+		return nextId;
+	};
+
+	/**
+	 * Perform cleanup on the World and release all resources. This effectively resets the World.
+	 */
+	hemi.world.cleanup = function() {
+		hemi.resetLoadTasks();
+		hemi.send(hemi.msg.worldCleanup, {});
+
+		citizens.each(function(key, value) {
+			value.cleanup();
+		});
+
+		if (citizens.size() > 0) {
+			console.log('World cleanup did not remove all citizens.');
+		}
+
+		nextId = 1;
+	};
+
+	/**
+	 * Get any AnimationGroups with the given attributes. If no attributes are given, all
+	 * AnimationGroups will be returned.
+	 * 
+	 * @param {Object} attributes optional structure with the attributes to search for
+	 * @param {function(hemi.AnimationGroup): boolean} opt_filter optional filter function that
+	 *     takes a AnimationGroup and returns true if the AnimationGroup should be included in the
+	 *     returned array
+	 * @return {hemi.AnimationGroup[]} an array of AnimationGroups with matching attributes
+	 */
+	hemi.world.getAnimationGroups = function(attributes, opt_filter) {
+		attributes = attributes || {};
+		attributes._octaneType = hemi.AnimationGroup.prototype._octaneType;
+		return this.getCitizens(attributes, opt_filter);
+	};
+
+	/**
+	 * Get any Audio with the given attributes. If no attributes are given, all Audio will be
+	 * returned.
+	 * 
+	 * @param {Object} attributes optional structure with the attributes to search for
+	 * @param {function(hemi.Audio): boolean} opt_filter optional filter function that takes an
+	 *     Audio and returns true if the Audio should be included in the returned array
+	 * @return {hemi.Audio[]} an array of Audio with matching attributes
+	 */
+	hemi.world.getAudio = function(attributes, opt_filter) {
+		attributes = attributes || {};
+		attributes._octaneType = hemi.Audio.prototype._octaneType;
+		return this.getCitizens(attributes, opt_filter);
+	};
+
+	/**
+	 * Get any CameraCurves with the given attributes. If no attributes are given, all CameraCurves
+	 * will be returned.
+	 * 
+	 * @param {Object} attributes optional structure with the attributes to search for
+	 * @param {function(hemi.CameraCurve): boolean} opt_filter optional filter function that takes a
+	 *     CameraCurve and returns true if the CameraCurve should be included in the returned array
+	 * @return {hemi.CameraCurve[]} an array of CameraCurves with matching attributes
+	 */
+	hemi.world.getCamCurves = function(attributes, opt_filter) {
+		attributes = attributes || {};
+		attributes._octaneType = hemi.CameraCurve.prototype._octaneType;
+		return this.getCitizens(attributes, opt_filter);
+	};
+
+	/**
+	 * Get the Citizen with the given id and log an error if exactly one result is not returned.
+	 * 
+	 * @param {number} id world id of the Citizen to get
+	 * @return {Citizen} the found Citizen or null
+	 */
+	hemi.world.getCitizenById = function(id) {
+		var cit = citizens.get(id);
+
+		if (cit === null) {
+			console.log('Tried to get Citizen with id ' + id + ', returned null.');
+		}
+
+		return cit;
+	};
+
+	/**
+	 * Get any Citizens with the given attributes. If no attributes are given, all Citizens will be
+	 * returned. Note that you can give an array of values for an attribute and it will search for
+	 * Citizens with attributes that match any one of those values.
+	 * 
+	 * @param {Object} attributes optional structure with the attributes to search for
+	 * @param {function(Citizen): boolean} opt_filter optional filter function that takes a Citizen
+	 *     and returns true if the Citizen should be included in the returned array
+	 * @return {Citizen[]} an array of Citizens with matching attributes
+	 */
+	hemi.world.getCitizens = function(attributes, opt_filter) {
+		var matches = citizens.query(attributes || {});
+
+		if (opt_filter) {
+			for (var i = 0, il = matches.length; i < il; ++i) {
+				if (!opt_filter(matches[i])) {
+					matches.splice(i, 1);
+					--i;
+					--il;
+				}
+			}
+		}
+
+		return matches;
+	};
+
+	/**
+	 * Get any HudDisplays with the given attributes. If no attributes are given, all HudDisplays
+	 * will be returned.
+	 * 
+	 * @param {Object} attributes optional structure with the attributes to search for
+	 * @param {function(hemi.HudDisplay): boolean} opt_filter optional filter function that takes a
+	 *     HudDisplay and returns true if the HudDisplay should be included in the returned array
+	 * @return {hemi.HudDisplay[]} an array of HudDisplays with matching attributes
+	 */
+	hemi.world.getHudDisplays = function(attributes, opt_filter) {
+		attributes = attributes || {};
+		attributes._octaneType = hemi.HudDisplay.prototype._octaneType;
+		return this.getCitizens(attributes, opt_filter);
+	};
+
+	/**
+	 * Get any Meshes with the given attributes. If no attributes are given, all Meshes will be
+	 * returned.
+	 * 
+	 * @param {Object} attributes optional structure with the attributes to search for
+	 * @param {function(hemi.Mesh): boolean} opt_filter optional filter function that takes a Mesh
+	 *     and returns true if the Mesh should be included in the returned array
+	 * @return {hemi.Mesh[]} an array of Meshes with matching attributes
+	 */
+	hemi.world.getMeshes = function(attributes, opt_filter) {
+		attributes = attributes || {};
+		attributes._octaneType = hemi.Mesh.prototype._octaneType;
+		return this.getCitizens(attributes, opt_filter);
+	};
+
+	/**
+	 * Get any Models with the given attributes. If no attributes are given, all Models will be
+	 * returned.
+	 * 
+	 * @param {Object} attributes optional structure with the attributes to search for
+	 * @param {function(hemi.Model): boolean} opt_filter optional filter function that takes a Model
+	 *     and returns true if the Model should be included in the returned array
+	 * @return {hemi.Model[]} an array of Models with matching attributes
+	 */
+	hemi.world.getModels = function(attributes, opt_filter) {
+		attributes = attributes || {};
+		attributes._octaneType = hemi.Model.prototype._octaneType;
+		return this.getCitizens(attributes, opt_filter);
+	};
+
 	/**
 	 * Get the next id to assign and increment the World's nextId token.
 	 * 
@@ -3280,1481 +4931,869 @@ var hemi = (function(hemi) {
 	hemi.world.getNextId = function() {
 		return nextId++;
 	};
-	
+
 	/**
-	 * Check to see what the next id to assign will be without incrementing the
-	 * World's nextId token.
+	 * Get any particle effects with the given attributes. If no attributes are given, all particle
+	 * effects will be returned.
 	 * 
-	 * @return {number} the next id that will be assigned to a Citizen
+	 * @param {Object} attributes optional structure with the attributes to search for
+	 * @param {function(hemi.ParticleEmitter): boolean} opt_filter optional filter function that
+	 *     takes a particle effect and returns true if the particle effect should be included in the
+	 *     returned array
+	 * @return {hemi.ParticleEmitter[]} an array of particle effects with matching attributes
 	 */
-	hemi.world.checkNextId = function() {
-		return nextId;
+	hemi.world.getParticleEffects = function(attributes, opt_filter) {
+		attributes = attributes || {};
+		attributes._octaneType = hemi.ParticleEmitter.prototype._octaneType;
+		var retVal = this.getCitizens(attributes, opt_filter);
+
+		attributes._octaneType = hemi.ParticleBurst.prototype._octaneType;
+		retVal = retVal.concat(this.getCitizens(attributes, opt_filter));
+
+		attributes._octaneType = hemi.ParticleTrail.prototype._octaneType;
+		retVal = retVal.concat(this.getCitizens(attributes, opt_filter));
+
+		return retVal; 
 	};
-	
+
 	/**
-	 * Get the id for the World.
+	 * Get any Shapes with the given attributes. If no attributes are given, all Shapes will be
+	 * returned.
 	 * 
-	 * @return {number} the id of the World
+	 * @param {Object} attributes optional structure with the attributes to search for
+	 * @param {function(hemi.Shape): boolean} opt_filter optional filter function that takes a Shape
+	 *     and returns true if the Shape should be included in the returned array
+	 * @return {hemi.Shape[]} an array of Shapes with matching attributes
 	 */
-	hemi.world.getId = function() {
-		return hemi.world.WORLD_ID;
+	hemi.world.getShapes = function(attributes, opt_filter) {
+		attributes = attributes || {};
+		attributes._octaneType = hemi.Shape.prototype._octaneType;
+		return this.getCitizens(attributes, opt_filter);
 	};
-	
+
+	/**
+	 * Get any States with the given attributes. If no attributes are given, all States will be
+	 * returned.
+	 * 
+	 * @param {Object} attributes optional structure with the attributes to search for
+	 * @param {function(hemi.State): boolean} opt_filter optional filter function that takes a State
+	 *     and returns true if the State should be included in the returned array
+	 * @return {hemi.State[]} an array of States with matching attributes
+	 */
+	hemi.world.getStates = function(attributes, opt_filter) {
+		attributes = attributes || {};
+		attributes._octaneType = hemi.State.prototype._octaneType;
+		return this.getCitizens(attributes, opt_filter);
+	};
+
+	/**
+	 * Get any Timers with the given attributes. If no attributes are given, all Timers will be
+	 * returned.
+	 * 
+	 * @param {Object} attributes optional structure with the attributes to search for
+	 * @param {function(hemi.Timer): boolean} opt_filter optional filter function that takes a Timer
+	 *     and returns true if the Timer should be included in the returned array
+	 * @return {hemi.Timer[]} an array of Timers with matching attributes
+	 */
+	hemi.world.getTimers = function(attributes, opt_filter) {
+		attributes = attributes || {};
+		attributes._octaneType = hemi.Timer.prototype._octaneType;
+		return this.getCitizens(attributes, opt_filter);
+	};
+
+	/**
+	 * Get any Transforms with the given attributes. If no attributes are given, all Transforms will
+	 * be returned.
+	 * 
+	 * @param {Object} attributes optional structure with the attributes to search for
+	 * @param {function(hemi.Transform): boolean} opt_filter optional filter function that takes a
+	 *     Transform and returns true if the Transform should be included in the returned array
+	 * @return {hemi.Transform[]} an array of Transforms with matching attributes
+	 */
+	hemi.world.getTransforms = function(attributes, opt_filter) {
+		attributes = attributes || {};
+		attributes._octaneType = hemi.Transform.prototype._octaneType;
+		return this.getCitizens(attributes, opt_filter);
+	};
+
+	/**
+	 * Get any Viewpoints with the given attributes. If no attributes are given, all Viewpoints will
+	 * be returned.
+	 * 
+	 * @param {Object} attributes optional structure with the attributes to search for
+	 * @param {function(hemi.Viewpoint): boolean} opt_filter optional filter function that takes a
+	 *     Viewpoint and returns true if the Viewpoint should be included in the returned array
+	 * @return {hemi.Viewpoint[]} an array of Viewpoints with matching attributes
+	 */
+	hemi.world.getViewpoints = function(attributes, opt_filter) {
+		attributes = attributes || {};
+		attributes._octaneType = hemi.Viewpoint.prototype._octaneType;
+		return this.getCitizens(attributes, opt_filter);
+	};
+
+	/**
+	 * Remove the given Citizen from the World.
+	 * 
+	 * @param {Citizen} citizen the Citizen to remove
+	 * @return {boolean} true if the Citizen was found and removed
+	 */
+	hemi.world.removeCitizen = function(citizen) {
+		var id = citizen._getId(),
+			removed = citizens.remove(id);
+
+		if (removed === null) {
+			console.log('Unable to remove Citizen with id ' + id);
+		}
+
+		return removed !== null;
+	};
+
+	/**
+	 * Set the id for the World to assign to the next Citizen.
+	 * 
+	 * @param {number} id the next id to assign
+	 */
+	hemi.world.setNextId = function(id) {
+		nextId = id;
+	};
+
 	/**
 	 * Get the Octane structure for the World.
      * 
-	 * @param {function(Citizen): boolean} opt_filter optional filter function
-	 *     that takes a Citizen and returns true if the Citizen should be
-	 *     included in the returned Octane
+	 * @param {function(Citizen): boolean} opt_filter optional filter function that takes a Citizen
+	 *     and returns true if the Citizen should be included in the returned Octane
      * @return {Object} the Octane structure representing the World
 	 */
 	hemi.world.toOctane = function(opt_filter) {
 		var octane = {
 			version: hemi.version,
 			nextId: nextId,
-			camera: this.camera.getId(),
-			citizens: [],
-			fog: this.fog
+			citizens: []
 		};
-		
-		this.citizens.each(function(key, value) {
+
+		citizens.each(function(key, value) {
 			var accept = opt_filter ? opt_filter(value) : true;
-			
+
 			if (accept) {
-				var oct = value.toOctane();
-				
+				var oct = value._toOctane();
+
 				if (oct !== null) {
 					octane.citizens.push(oct);
 				} else {
-					hemi.console.log('Null Octane returned by Citizen with id ' + value.getId(), hemi.console.WARN);
+					console.log('Null Octane returned by Citizen with id ' + value._getId());
 				}
 			}
 		});
-		
-		octane.dispatch = hemi.dispatch.toOctane();
-		octane.tranReg = this.tranReg.toOctane();
-		
+
+		octane.dispatch = hemi.dispatch._toOctane();
 		return octane;
 	};
-	
-	/**
-	 * Activate the World once all resources are loaded. This function should
-	 * only be called after all scripting and setup is complete.
-	 */
-	hemi.world.ready = function() {
-		// Allow any potential loading to finish, then send an Init message
-		this.loader.finish();
-	};
-	
-	/**
-	 * Perform cleanup on the World and release all resources. This effectively
-	 * resets the World.
-	 */
-	hemi.world.cleanup = function() {
-		this.send(hemi.msg.cleanup, {});
-		this.loader.finish();
-		this.loader = createWorldLoader();
-		
-		if (this.fog !== null) {
-			this.clearFog();
-		}
-		
-		this.citizens.each(function(key, value) {
-			value.cleanup();
-		});
-		
-		if (this.citizens.size() > 0) {
-			hemi.console.log('World cleanup did not remove all citizens.', hemi.console.ERR);
-		}
-		
-		// Set the World's attributes back to their initial values.
-		nextId = reserveIds;
-		this.camera = null;
-		this.setCamera(new hemi.view.Camera());
-		this.pickGrabber = null;
-	};
-	
-	/**
-	 * Try to perform a pick when there is a 'mouse down' event.
-	 * 
-	 * @param {o3d.Event} mouseEvent the 'mouse down' event
-	 */
-	hemi.world.onMouseDown = function(mouseEvent) {
-		var pickInfo = hemi.picking.getPickInfo(mouseEvent);
-		
-		if (pickInfo) {				
-			if (this.pickGrabber != null) {
-				this.pickGrabber.onPick(pickInfo);
-			} else {
-		        this.send(
-					hemi.msg.pick,
-					{
-						mouseEvent: mouseEvent,
-						pickInfo: pickInfo
-					});
-			}
-		}
-	};
-	
-	/**
-	 * Add the given function to the list of callbacks for when a new Camera is
-	 * set for the World.
-	 * 
-	 * @param {function(hemi.view.Camera):void} callback function to execute
-	 */
-	hemi.world.addCamCallback = function(callback) {
-		if (this.camCallbacks.indexOf(callback) === -1) {
-			this.camCallbacks.push(callback);
-		}
-	};
-	
-	/**
-	 * Remove the given function from the list of callbacks for when a new
-	 * Camera is set for the World.
-	 * 
-	 * @param {function(hemi.view.Camera):void} callback function to remove
-	 */
-	hemi.world.removeCamCallback = function(callback) {
-		var ndx = this.camCallbacks.indexOf(callback);
-		
-		if (ndx !== -1) {
-			this.camCallbacks.splice(ndx, 1);
-		}
-	};
-	
-	/**
-	 * Register the given handler as the 'pick grabber'. The pick grabber
-	 * intercepts pick messages and prevents them from being passed to other
-	 * handlers. It should be used if the user enters an 'interaction mode' that
-	 * overrides default behavior.
-	 * 
-	 * @param {Object} grabber an object that implements onPick()
-	 */
-	hemi.world.setPickGrabber = function(grabber) {
-		this.pickGrabber = grabber;
-	};
-	
-	/**
-	 * Remove the current 'pick grabber'. Allow pick messages to continue being
-	 * passed to the other registered handlers.
-	 * 
-	 * @return {Object} the removed grabber or null
-	 */
-	hemi.world.removePickGrabber = function() {
-		var grabber = this.pickGrabber;
-		this.pickGrabber = null;
 
-		return grabber;
-	};
-	
-	/**
-	 * Set the Camera for the World.
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Utility functions
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	/*
+	 * Set the given class constructor function to the given namespace. For example:
+	 * createClass(myClass, 'my.new.Class');
+	 * will make my.new.Class equal myClass
 	 * 
-	 * @param {hemi.view.Camera} camera the Camera to use
+	 * @param {function():void} clsCon class constructor function
+	 * @param {string} clsName fully qualified class name
 	 */
-	hemi.world.setCamera = function(camera) {
-		if (this.camera) {
-			this.camera.cleanup();
-		}
-		
-		this.camera = camera;
-		
-		if (camera !== null) {
-			camera.name = 'World Cam';
-			
-			for (var i = 0, il = this.camCallbacks.length; i < il; i++) {
-				this.camCallbacks[i](camera);
+	function createClass(clsCon, clsName) {
+		var names = clsName.split('.'),
+			il = names.length - 1,
+			scope = window;
+
+		for (var i = 0; i < il; ++i) {
+			var name = names[i];
+
+			if (!scope[name]) {
+				scope[name] = {};
 			}
+
+			scope = scope[name];
 		}
-	};
-	
-	/**
-	 * Add the given Citizen to the World and give it a world id if it does not
-	 * already have one.
-	 * 
-	 * @param {hemi.world.Citizen} citizen the Citizen to add
-	 */
-	hemi.world.addCitizen = function(citizen) {
-		var id = citizen.getId();
-		
-		if (id == null) {
-			id = this.getNextId();
-			citizen.setId(id);
-		}
-		
-		var toRemove = this.citizens.get(id);
-		
-		if (toRemove !== null) {
-			hemi.console.log('Citizen with id ' + id + ' already exists.', hemi.console.ERR);
-			toRemove.cleanup();
-		}
-		
-		this.citizens.put(id, citizen);
-	};
-	
-	/**
-	 * Remove the given Citizen from the World.
-	 * 
-	 * @param {hemi.world.Citizen} citizen the Citizen to remove
-	 * @return {boolean} true if the Citizen was found and removed
-	 */
-	hemi.world.removeCitizen = function(citizen) {
-		var id = citizen.getId();
-		var removed = this.citizens.remove(id);
-		
-		if (removed === null) {
-			hemi.console.log('Unable to remove Citizen with id ' + id, hemi.console.WARN);
-		}
-		
-		return removed !== null;
-	};
-	
-	/**
-	 * Get any Citizens with the given attributes. If no attributes are given,
-	 * all Citizens will be returned. Valid attributes are:
-	 * - name
-	 * - citizenType
-	 * - worldId
-	 * 
-	 * @param {Object} attributes optional structure with the attributes to
-	 *     search for
-	 * @param {function(Citizen): boolean} opt_filter optional filter function
-	 *     that takes a Citizen and returns true if the Citizen should be
-	 *     included in the returned array
-	 * @return {hemi.world.Citizen[]} an array of Citizens with matching
-	 *     attributes
-	 */
-	hemi.world.getCitizens = function(attributes, opt_filter) {
-		var atts = {};
-		
-		if (attributes != undefined) {
-			if (attributes.worldId !== undefined) {
-				if (attributes.worldId < reserveIds) {
-					// They are looking for a reserve, not a Citizen.
-					return getReserve(attributes.worldId);
-				}
-				
-				atts.worldId = attributes.worldId;
-			}
-			if (attributes.name !== undefined) {
-				atts.name = attributes.name;
-			}
-			if (attributes.citizenType !== undefined) {
-				atts.citizenType = attributes.citizenType;
-			}
-		}
-		
-		var matches = this.citizens.query(atts);
-		
-		if (opt_filter) {
-			for (var ndx = 0, len = matches.length; ndx < len; ndx++) {
-				if (!opt_filter(matches[ndx])) {
-					matches.splice(ndx, 1);
-					ndx--;
-					len--;
-				}
-			}
-		}
-		
-		return matches;
-	};
-	
-	/**
-	 * Get the Citizen with the given id and log an error if exactly one result
-	 * is not returned.
-	 * 
-	 * @param {number} id world id of the Citizen to get
-	 * @return {hemi.world.Citizen} the found Citizen or null
-	 */
-	hemi.world.getCitizenById = function(id) {
-		var cit;
-		
-		if (id < reserveIds) {
-			cit = getReserve(id);
-		} else {
-			cit = this.citizens.get(id);
-		}
-		
-		if (cit === null) {
-			hemi.console.log('Tried to get Citizen with id ' + id + ', returned null.', hemi.console.ERR);
-		}
-		
-		return cit;
-	};
-	
-	/**
-	 * Get any Audio with the given attributes. If no attributes are given, all
-	 * Audio will be returned. Valid attributes are:
-	 * - name
-	 * - worldId
-	 * 
-	 * @param {Object} attributes optional structure with the attributes to
-	 *     search for
-	 * @param {function(Audio): boolean} opt_filter optional filter function
-	 *     that takes an Audio and returns true if the Audio should be included
-	 *     in the returned array
-	 * @return {hemi.audio.Audio[]} an array of Audio with matching attributes
-	 */
-	hemi.world.getAudio = function(attributes, opt_filter) {
-		attributes = attributes || {};
-		attributes.citizenType = hemi.audio.Audio.prototype.citizenType;
-		return this.getCitizens(attributes, opt_filter);
-	};
-	
-	/**
-	 * Get any CameraCurves with the given attributes. If no attributes are
-	 * given, all CameraCurves will be returned. Valid attributes are:
-	 * - name
-	 * - worldId
-	 * 
-	 * @param {Object} attributes optional structure with the attributes to
-	 *     search for
-	 * @param {function(CameraCurve): boolean} opt_filter optional filter
-	 *     function that takes a CameraCurve and returns true if the CameraCurve
-	 *     should be included in the returned array
-	 * @return {hemi.view.CameraCurve[]} an array of CameraCurves with matching
-	 *     attributes
-	 */
-	hemi.world.getCamCurves = function(attributes, opt_filter) {
-		attributes = attributes || {};
-		attributes.citizenType = hemi.view.CameraCurve.prototype.citizenType;
-		return this.getCitizens(attributes, opt_filter);
-	};
-	
-	/**
-	 * Get any HudDisplays with the given attributes. If no attributes are
-	 * given, all HudDisplays will be returned. Valid attributes are:
-	 * - name
-	 * - worldId
-	 * 
-	 * @param {Object} attributes optional structure with the attributes to
-	 *     search for
-	 * @param {function(HudDisplay): boolean} opt_filter optional filter
-	 *     function that takes a HudDisplay and returns true if the HudDisplay
-	 *     should be included in the returned array
-	 * @return {hemi.hud.HudDisplay[]} an array of HudDisplays with matching
-	 *     attributes
-	 */
-	hemi.world.getHudDisplays = function(attributes, opt_filter) {
-		attributes = attributes || {};
-		attributes.citizenType = hemi.hud.HudDisplay.prototype.citizenType;
-		return this.getCitizens(attributes, opt_filter);
-	};
-	
-	/**
-	 * Get any HudElements with the given attributes. If no attributes are
-	 * given, all HudElements will be returned. Valid attributes are:
-	 * - name
-	 * - worldId
-	 * 
-	 * @param {Object} attributes optional structure with the attributes to
-	 *     search for
-	 * @param {function(HudElement): boolean} opt_filter optional filter
-	 *     function that takes a HudElement and returns true if the HudElement
-	 *     should be included in the returned array
-	 * @return {hemi.hud.HudElement[]} an array of HudElements with matching
-	 *     attributes
-	 */
-	hemi.world.getHudElements = function(attributes, opt_filter) {
-		attributes = attributes || {};
-		attributes.citizenType = hemi.hud.HudElement.prototype.citizenType;
-		return this.getCitizens(attributes, opt_filter);
-	};
-	
-	/**
-	 * Get any Models with the given attributes. If no attributes are given, all
-	 * Models will be returned. Valid attributes are:
-	 * - name
-	 * - worldId
-	 * 
-	 * @param {Object} attributes optional structure with the attributes to
-	 *     search for
-	 * @param {function(Model): boolean} opt_filter optional filter function
-	 *     that takes a Model and returns true if the Model should be included
-	 *     in the returned array
-	 * @return {hemi.model.Model[]} an array of Models with matching attributes
-	 */
-	hemi.world.getModels = function(attributes, opt_filter) {
-		attributes = attributes || {};
-		attributes.citizenType = hemi.model.Model.prototype.citizenType;
-		return this.getCitizens(attributes, opt_filter);
-	};
-    
-	/**
-	 * Get any Animations with the given attributes. If no attributes are given,
-	 * all Animations will be returned. Valid attributes are:
-	 * - name
-	 * - worldId
-	 * 
-	 * @param {Object} attributes optional structure with the attributes to
-	 *     search for
-	 * @param {function(Animation): boolean} opt_filter optional filter function
-	 *     that takes a Animation and returns true if the Animation should be
-	 *     included in the returned array
-	 * @return {hemi.animation.Animation[]} an array of Animations with matching
-	 *     attributes
-	 */
-    hemi.world.getAnimations = function(attributes, opt_filter) {
-		attributes = attributes || {};
-		attributes.citizenType = hemi.animation.Animation.prototype.citizenType;
-		return this.getCitizens(attributes, opt_filter);
-	};
-    
-	/**
-	 * Get any Effects with the given attributes. If no attributes are given,
-	 * all Effects will be returned. Valid attributes are:
-	 * - name
-	 * - worldId
-	 * 
-	 * @param {Object} attributes optional structure with the attributes to
-	 *     search for
-	 * @param {function(Effect): boolean} opt_filter optional filter function
-	 *     that takes a Effect and returns true if the Effect should be
-	 *     included in the returned array
-	 * @return {hemi.effect.Effect[]} an array of Effect with matching
-	 *     attributes
-	 */
-    hemi.world.getEffects = function(attributes, opt_filter) {
-		var retVal = [];
-		
-		attributes = attributes || {};
-		attributes.citizenType = hemi.effect.Emitter.prototype.citizenType;
-		retVal = retVal.concat(this.getCitizens(attributes, opt_filter));
-		
-		attributes.citizenType = hemi.effect.Burst.prototype.citizenType;
-		retVal = retVal.concat(this.getCitizens(attributes, opt_filter));
-		
-		attributes.citizenType = hemi.effect.Trail.prototype.citizenType;
-		retVal = retVal.concat(this.getCitizens(attributes, opt_filter));
-		
-		return retVal; 
-	};
-	
-	/**
-	 * Get any Viewpoints with the given attributes. If no attributes are given,
-	 * all Viewpoints will be returned. Valid attributes are:
-	 * - name
-	 * - worldId
-	 * 
-	 * @param {Object} attributes optional structure with the attributes to
-	 *     search for
-	 * @param {function(Viewpoint): boolean} opt_filter optional filter function
-	 *     that takes a Viewpoint and returns true if the Viewpoint should be
-	 *     included in the returned array
-	 * @return {hemi.view.Viewpoint[]} an array of Viewpoints with matching
-	 *     attributes
-	 */
-	hemi.world.getViewpoints = function(attributes, opt_filter) {
-		attributes = attributes || {};
-		attributes.citizenType = hemi.view.Viewpoint.prototype.citizenType;
-		return this.getCitizens(attributes, opt_filter);
-	};
-	
-	/**
-	 * Get any PressureEngines with the given attributes. If no attributes are
-	 * given, all PressureEngines will be returned. Valid attributes are:
-	 * - name
-	 * - worldId
-	 * 
-	 * @param {Object} attributes optional structure with the attributes to
-	 *     search for
-	 * @param {function(PressureEngine): boolean} opt_filter optional filter
-	 *     function that takes a PressureEngine and returns true if the
-	 *     PressureEngine should be included in the returned array
-	 * @return {hext.engines.PressureEngine[]} an array of PressureEngines with
-	 *     matching attributes
-	 */
-	hemi.world.getPressureEngines = function(attributes, opt_filter) {
-		attributes = attributes || {};
-		attributes.citizenType = hext.engines.PressureEngine.prototype.citizenType;
-		return this.getCitizens(attributes, opt_filter);
-	};
-	
-	/**
-	 * Get any Draggables with the given attributes. If no attributes are given,
-	 * all Draggables will be returned. Valid attributes are:
-	 * - name
-	 * - worldId
-	 * 
-	 * @param {Object} attributes optional structure with the attributes to
-	 *     search for
-	 * @param {function(Draggable): boolean} opt_filter optional filter function
-	 *     that takes a Draggable and returns true if the Draggable should be
-	 *     included in the returned array
-	 * @return {hemi.manip.Draggable[]} an array of Draggables with matching
-	 *     attributes
-	 */
-	hemi.world.getDraggables = function(attributes, opt_filter) {
-		attributes = attributes || {};
-		attributes.citizenType = hemi.manip.Draggable.prototype.citizenType;
-		return this.getCitizens(attributes, opt_filter);
-	};
-	
-	/**
-	 * Get any Turnables with the given attributes. If no attributes are given,
-	 * all Turnables will be returned. Valid attributes are:
-	 * - name
-	 * - worldId
-	 * 
-	 * @param {Object} attributes optional structure with the attributes to
-	 *     search for
-	 * @param {function(Turnable): boolean} opt_filter optional filter function
-	 *     that takes a Turnable and returns true if the Turnable should be
-	 *     included in the returned array
-	 * @return {hemi.manip.Turnable[]} an array of Turnables with matching
-	 *     attributes
-	 */
-	hemi.world.getTurnables = function(attributes, opt_filter) {
-		attributes = attributes || {};
-		attributes.citizenType = hemi.manip.Turnable.prototype.citizenType;
-		return this.getCitizens(attributes, opt_filter);
-	};
-	
-	/**
-	 * Get any Rotators with the given attributes. If no attributes are given,
-	 * all Rotators will be returned. Valid attributes are:
-	 * - name
-	 * - worldId
-	 * 
-	 * @param {Object} attributes optional structure with the attributes to
-	 *     search for
-	 * @param {function(Rotator): boolean} opt_filter optional filter function
-	 *     that takes a Rotator and returns true if the Rotator should be
-	 *     included in the returned array
-	 * @return {hemi.motion.Rotator[]} an array of Rotators with matching
-	 *     attributes
-	 */
-	hemi.world.getRotators = function(attributes, opt_filter) {
-		attributes = attributes || {};
-		attributes.citizenType = hemi.motion.Rotator.prototype.citizenType;
-		return this.getCitizens(attributes, opt_filter);
-	};
-	
-	/**
-	 * Get any Scenes with the given attributes. If no attributes are given, all
-	 * Scenes will be returned. Valid attributes are:
-	 * - name
-	 * - worldId
-	 * 
-	 * @param {Object} attributes optional structure with the attributes to
-	 *     search for
-	 * @param {function(Scene): boolean} opt_filter optional filter function
-	 *     that takes a Scene and returns true if the Scene should be included
-	 *     in the returned array
-	 * @return {hemi.scene.Scene[]} an array of Scenes with matching attributes
-	 */
-	hemi.world.getScenes = function(attributes, opt_filter) {
-		attributes = attributes || {};
-		attributes.citizenType = hemi.scene.Scene.prototype.citizenType;
-		return this.getCitizens(attributes, opt_filter);
-	};
-	
-	/**
-	 * Get any Timers with the given attributes. If no attributes are given, all
-	 * Timers will be returned. Valid attributes are:
-	 * - name
-	 * - worldId
-	 * 
-	 * @param {Object} attributes optional structure with the attributes to
-	 *     search for
-	 * @param {function(Timer): boolean} opt_filter optional filter function
-	 *     that takes a Timer and returns true if the Timer should be included
-	 *     in the returned array
-	 * @return {hemi.time.Timer[]} an array of Timers with matching attributes
-	 */
-	hemi.world.getTimers = function(attributes, opt_filter) {
-		attributes = attributes || {};
-		attributes.citizenType = hemi.time.Timer.prototype.citizenType;
-		return this.getCitizens(attributes, opt_filter);
-	};
-	
-	/**
-	 * Get any Translators with the given attributes. If no attributes are
-	 * given, all Translators will be returned. Valid attributes are:
-	 * - name
-	 * - worldId
-	 * 
-	 * @param {Object} attributes optional structure with the attributes to
-	 *     search for
-	 * @param {function(Translator): boolean} opt_filter optional filter
-	 *     function that takes a Translator and returns true if the Translator
-	 *     should be included in the returned array
-	 * @return {hemi.motion.Translator[]} an array of Translators with matching
-	 *     attributes
-	 */
-	hemi.world.getTranslators = function(attributes, opt_filter) {
-		attributes = attributes || {};
-		attributes.citizenType = hemi.motion.Translator.prototype.citizenType;
-		return this.getCitizens(attributes, opt_filter);
-	};
-	
-	/**
-	 * Get any Shapes with the given attributes. If no attributes are given, all
-	 * Shapes will be returned. Valid attributes are:
-	 * - name
-	 * - worldId
-	 * 
-	 * @param {Object} attributes optional structure with the attributes to
-	 *     search for
-	 * @param {function(Shape): boolean} opt_filter optional filter function
-	 *     that takes a Shape and returns true if the Shape should be included
-	 *     in the returned array
-	 * @return {hemi.shape.Shape[]} an array of Shapes with matching attributes
-	 */
-	hemi.world.getShapes = function(attributes, opt_filter) {
-		attributes = attributes || {};
-		attributes.citizenType = hemi.shape.Shape.prototype.citizenType;
-		return this.getCitizens(attributes, opt_filter);
-	};
-	
-	/**
-	 * Get the owning Citizen that the given transform is a part of.
-	 * 
-	 * @param {o3d.Transform} transform the transform to get the owner for
-	 * @return {hemi.world.Citizen} the containing Citizen or null
-	 */
-	hemi.world.getTranOwner = function(transform) {
-		var param = transform.getParam('ownerId'),
-			owner = null;
-		
-		if (param !== null) {
-			owner = this.getCitizenById(param.value);
-		}
-		
-		return owner;
-	};
-	
-	/**
-	 * Send a Message with the given attributes from the World to any registered
-	 * MessageTargets.
-	 * 
-	 * @param {string} type type of Message
-	 * @param {Object} data container for any and all information relevant to
-	 *     the Message
-	 */
-	hemi.world.send = function(type, data) {
-		hemi.dispatch.postMessage(hemi.world, type, data);
-	};
-	
-	/**
-	 * Register the given handler to receive Messages of the specified type
-	 * from the World. This creates a MessageTarget.
-	 * 
-	 * @param {string} type type of Message to handle
-	 * @param {Object} handler either a function or an object
-	 * @param {string} opt_func name of the function to call if handler is an
-	 *     object
-	 * @param {string[]} opt_args optional array of names of arguments to pass
-	 *     to the handler. Otherwise the entire Message is just passed in.
-	 * @return {hemi.dispatch.MessageTarget} the created MessageTarget
-	 */
-	hemi.world.subscribe = function(type, handler, opt_func, opt_args) {
-		return hemi.dispatch.registerTarget(hemi.world.WORLD_ID, type, handler,
-			opt_func, opt_args);
-	};
-	
-	/**
-	 * Remove the given MessageTarget for Messages of the specified type for the
-	 * World.
-	 * 
-	 * @param {hemi.dispatch.MessageTarget} target the MessageTarget to remove
-	 *     from the Dispatch
-	 * @param {string} opt_type Message type the MessageTarget was registered
-	 *     for
-	 * @return {hemi.dispatch.MessageTarget} the removed MessageTarget or
-	 *     null
-	 */
-	hemi.world.unsubscribe = function(target, opt_type) {
-		return hemi.dispatch.removeTarget(target, {
-			src: hemi.world.WORLD_ID,
-			msg: opt_type
-		});
-	};
-	
-	/** 
-	 * Clear fog from this world.
-	 */
-	hemi.world.clearFog = function() {
-		var color = hemi.view.defaultBG;
-			start = this.camera.clip.far;
-			end = start + 10;
-		
-		this.setFog(color, start, end);
-		this.fog = null;
-	};
-	
-	/** 
-	 * Add fog to this world.
-	 *
-	 * @param {number[4]} color The rgba color of the fog
-	 * @param {number} start The distance at which the fog starts
-	 * @param {number} end The distance at which the fog is fully opaque
-	 */
-	hemi.world.setFog = function(color,start,end) {
-		var mats = [];
-		var models = hemi.world.getModels();
-		for (var i = 0; i < models.length; i++) {
-			mats = mats.concat(models[i].materials);
-		}
-		mats= mats.concat(hemi.core.mainPack.getObjectsByClassName('o3d.Material'));
-		for (i = 0; i < mats.length; i++) {
-			var fogPrms = hemi.fx.addFog(mats[i]);
-			fogPrms.start.value = start;
-			fogPrms.end.value = end;
-			fogPrms.color.value = color;
-		}
-		hemi.view.setBGColor(color);
-		
-		this.fog = {
-			color: color,
-			start: start,
-			end: end
-		};
-	};
-	
-	/**
-	 * Setup the initial World.
-	 */
-	hemi.world.init = function() {
-		nextId = reserveIds;
-		hemi.world.loader = createWorldLoader();
-		hemi.world.setCamera(new hemi.view.Camera());
-		hemi.input.addMouseDownListener(this);
-	};
-	
-	return hemi;
-})(hemi || {});
-/* 
- * Kuda includes a library and editor for authoring interactive 3D content for the web.
- * Copyright (C) 2011 SRI International.
- *
- * This program is free software; you can redistribute it and/or modify it under the terms
- * of the GNU General Public License as published by the Free Software Foundation; either 
- * version 2 of the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
- * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
- * See the GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License along with this program; 
- * if not, write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, 
- * Boston, MA 02110-1301 USA.
+
+		scope[names[il]] = clsCon;
+	}
+
+})();
+/*
+ * Licensed under the MIT license: http://www.opensource.org/licenses/mit-license.php
+ * The MIT License (MIT)
+ * 
+ * Copyright (c) 2011 SRI International
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+ * associated  documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the  Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-var hemi = (function(hemi) {
-	/**
-	 * @namespace A module for creating objects (including Worlds) from Octane.
+(function() {
+
+	/*
+	 * Map of class names to stored class constructor functions.
 	 */
-	hemi.octane = hemi.octane || {};
-	
+	var constructors = {};
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Global functions
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
 	/**
-	 * Create the World and Dispatch from the given Octane.
+	 * Restore the original object from the given Octane.
 	 * 
-	 * @param {Object} octane the structure containing information for setting
-	 *     up the World and Dispatch
+	 * @param {Object} octane the structure containing information for creating the original object
+	 * @return {Object} the created object
 	 */
-	hemi.octane.createWorld = function(octane) {
-		hemi.world.cleanup();
-		var citizenCount = octane.citizens.length;
-		// Set the nextId value to a negative number so that we don't have to
-		// worry about overlapping world ids between the constructed Citizens
-		// and their actual ids that are restored from Octane.
-		var fakeId = citizenCount * -2;
-		hemi.world.setNextId(fakeId);
-		
-		// Do the bare minimum: create Citizens and set their ids
-		for (var ndx = 0; ndx < citizenCount; ndx++) {
-			var citOctane = octane.citizens[ndx];
-			
-			if (citOctane.id === octane.camera) {
-				// Get rid of the old one first
-				hemi.world.setCamera(null);
+	hemi.fromOctane = function(octane) {
+		var created = null;
+
+		if (octane.type) {
+			created = createObject(octane);
+			setProperties(created, octane);
+		} else {
+			hemi.world.cleanup();
+
+			var citizenCount = octane.citizens.length;
+
+			// Set the nextId value to a negative number so that we don't have to worry about
+			// overlapping world ids between the constructed Citizens and their actual ids that are
+			// restored from Octane.
+			hemi.world.setNextId(citizenCount * -2);
+
+			// Do the bare minimum: create Citizens and set their ids
+			for (var i = 0; i < citizenCount; ++i) {
+				createObject(octane.citizens[i]);
 			}
-			
-			var obj = hemi.octane.createObject(citOctane);
-			
-			if (citOctane.id === octane.camera) {
-				hemi.world.setCamera(obj);
+
+			// Now set the World nextId to its proper value.
+			hemi.world.setNextId(octane.nextId);
+
+			// Next set up the message dispatch
+			var entryOctane = octane.dispatch.ents,
+				entries = [];
+
+			for (var i = 0, il = entryOctane.length; i < il; ++i) {
+				var entry = createObject(entryOctane[i]);
+				setProperties(entry, entryOctane[i]);
+				entries.push(entry);
+			}
+
+			hemi.dispatch.loadEntries(entries);
+			hemi.dispatch.setNextId(octane.dispatch.nextId);
+
+			// Now set Citizen properties and resolve references to other Citizens
+			for (var i = 0; i < citizenCount; ++i) {
+				var citOctane = octane.citizens[i];
+				setProperties(hemi.world.getCitizenById(citOctane.id), citOctane);
 			}
 		}
-		
-		// Now set the World nextId to its proper value.
-		hemi.world.setNextId(octane.nextId);
-		
-		if (octane.fog != null) {
-			var f = octane.fog;
-			hemi.world.setFog(f.color, f.start, f.end);
-		}
-		
-		// Next set up the message dispatch
-		var entryOctane = octane.dispatch.ents;
-		var entries = [];
-		
-		for (var ndx = 0, len = entryOctane.length; ndx < len; ndx++) {
-			var entry = hemi.octane.createObject(entryOctane[ndx]);
-			hemi.octane.setProperties(entry, entryOctane[ndx]);
-			entries.push(entry);
-		}
-		
-		hemi.dispatch.loadEntries(entries);
-		hemi.dispatch.setNextId(octane.dispatch.nextId);
-		
-		// Now rebuild the transform registry
-		hemi.world.tranReg = hemi.octane.createObject(octane.tranReg);
-		hemi.octane.setProperties(hemi.world.tranReg, octane.tranReg);
-		
-		// Now set Citizen properties and resolve references to other Citizens
-		for (var ndx = 0; ndx < citizenCount; ndx++) {
-			var citOctane = octane.citizens[ndx];
-			hemi.octane.setProperties(hemi.world.getCitizenById(citOctane.id), citOctane);
-		}
+
+		return created;
 	};
-	
+
 	/**
-	 * Create an object from the given Octane structure and set its id. No other
-	 * properties will be set yet.
+	 * Make the given class Octanable. This both enables it to be serialized and stores its
+	 * constructor so it can be deserialized.
 	 * 
-	 * @param {Object} octane the structure containing information for creating
-	 *     an object
+	 * @param {function():void} clsCon the constructor function for the class
+	 * @param {string} clsName the name of the class
+	 * @param {Object} octProps either an array of names of properties to be saved to Octane or a
+	 *     function that returns an array of Octane properties
+	 */
+	hemi.makeOctanable = function(clsCon, clsName, octProps) {
+		octProps = octProps || [];
+		constructors[clsName] = clsCon;
+
+		/*
+         * Essentially a class name.
+         * @type string
+         */
+		clsCon.prototype._octaneType = clsName;
+
+		/*
+	     * Get the Octane structure for the class. The structure returned is:
+	     * <pre>
+	     * {
+	     *     id: the Object's world id (optional)
+	     *     type: the class name
+	     *     props: the class properties (name and id/value) 
+	     * }
+	     * </pre>
+	     * 
+	     * @return {Object} the Octane structure representing the class
+	     */
+		clsCon.prototype._toOctane = function() {
+			var props = hemi.utils.isFunction(octProps) ? octProps.call(this) : parseProps(this, octProps),
+				octane = null;
+
+			if (props !== null) {
+				octane = {
+					type: this._octaneType,
+					props: props
+				};
+
+				if (this._worldId !== undefined) {
+					octane.id = this._worldId;
+				}
+
+				if (this.name && this.name.length > 0 && !octane.props.name) {
+					octane.props.unshift({
+						name: 'name',
+						val: this.name
+					});
+				}
+			}
+
+			return octane;
+		};
+	};
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Utility functions
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	/**
+	 * Create an object from the given Octane structure and set its id. No other properties will be
+	 * set yet.
+	 * 
+	 * @param {Object} octane the structure containing information for creating an object
 	 * @return {Object} the newly created object
 	 */
-	hemi.octane.createObject = function(octane) {
+	function createObject(octane) {
 		if (!octane.type) {
 			alert("Unable to process octane: missing type");
 			return null;
 		}
-		
-		var object = eval("new " + octane.type + "();");
-		
-		if (octane.id !== undefined) {
-			object.setId(octane.id);
+
+		var con = constructors[octane.type],
+			object = null;
+
+		if (con) {
+			object = new con();
+
+			if (octane.id !== undefined) {
+				object._setId(octane.id);
+			}
+		} else {
+			console.log('Cannot find constructor for type: ' + octane.type);
 		}
-		
+
 		return object;
-	};
-	
+	}
+
 	/**
-	 * Iterate through the given Octane structure and set properties for the
-	 * given object. Properties stored by value will be set directly, by Octane
-	 * will be recursively created, by id will be retrieved from the World, and
-	 * by arg will be set by calling the specified function on the object.
+	 * Use the given list of property names to parse Octane properties from the given object.
+	 * 
+	 * @param {Object} obj the object to parse from
+	 * @param {string[]} propNames array of property names
+	 * @return {Object[]} array of parsed Octane properties
+	 */
+	function parseProps(obj, propNames) {
+		var oct = [];
+
+		for (var i = 0, il = propNames.length; i < il; ++i) {
+			var name = propNames[i],
+				prop = obj[name],
+				entry = {
+					name: name	
+				};
+                
+            if (!prop) {
+                entry.val = prop;
+            } else if (hemi.utils.isFunction(prop)) {
+				entry.arg = [];
+			} else if (hemi.utils.isArray(prop)) {
+				if (prop.length > 0) {
+					var p = prop[0];
+
+					if (p._getId && p._worldId) {
+						entry.id = [];
+
+						for (var j = 0; j < prop.length; ++j) {
+							entry.id[j] = prop[j]._getId();
+						}
+					} else if (p._toOctane) {
+						entry.oct = [];
+
+						for (var j = 0; j < prop.length; ++j) {
+							entry.oct[j] = prop[j]._toOctane();
+						}
+					} else {
+						entry.val = prop;
+					}
+				} else {
+					entry.val = prop;
+				}
+			} else if (prop._getId && prop._worldId) {
+				entry.id = prop._getId();
+			} else if (prop._toOctane) {
+				entry.oct = prop._toOctane();
+			} else {
+				entry.val = prop;
+			}
+
+			oct.push(entry);
+		}
+
+		return oct;
+	}
+
+	/*
+	 * Iterate through the given Octane structure and set properties for the given object.
+	 * Properties stored by value will be set directly, by Octane will be recursively created, by id
+	 * will be retrieved from the World, and by arg will be set by calling the specified function on
+	 * the object.
 	 * 
 	 * @param {Object} object the object created from the given Octane
-	 * @param {Object} octane the structure containing information about the
-	 *     given object
+	 * @param {Object} octane the structure containing information about the given object
 	 */
-	hemi.octane.setProperties = function(object, octane) {
-		for (var ndx = 0, len = octane.props.length; ndx < len; ndx++) {
-			var property = octane.props[ndx];
-			var name = property.name;
-			
+	function setProperties(object, octane) {
+		for (var i = 0, il = octane.props.length; i < il; ++i) {
+			var property = octane.props[i],
+				name = property.name;
+
 			if (property.oct !== undefined) {
-				if (property.oct instanceof Array) {
+				if (hemi.utils.isArray(property.oct)) {
 					value = [];
-					
-					for (var p = 0, pLen = property.oct.length; p < pLen; p++) {
-						var child = hemi.octane.createObject(property.oct[p]);
-						hemi.octane.setProperties(child, property.oct[p]);
+
+					for (var j = 0, jl = property.oct.length; j < jl; ++j) {
+						var child = createObject(property.oct[j]);
+						setProperties(child, property.oct[j]);
 						value.push(child);
 					}
 				} else {
-					value = hemi.octane.createObject(property.oct);
-					hemi.octane.setProperties(value, property.oct);
+					value = createObject(property.oct);
+					setProperties(value, property.oct);
 				}
-				
+
 				object[name] = value;
 			} else if (property.val !== undefined) {
 				object[name] = property.val;
 			} else if (property.id !== undefined) {
 				var value;
-				
-				if (property.id instanceof Array) {
+
+				if (hemi.utils.isArray(property.id)) {
 					value = [];
-					
-					for (var p = 0, pLen = property.id.length; p < pLen; p++) {
-						value.push(hemi.world.getCitizenById(property.id[p]));
+
+					for (var j = 0, jl = property.id.length; j < jl; ++j) {
+						value.push(hemi.world.getCitizenById(property.id[j]));
 					}
 				} else {
 					value = hemi.world.getCitizenById(property.id);
 				}
-				
+
 				object[name] = value;
 			} else if (property.arg !== undefined) {
-				var func = object[name];
-				func.apply(object, property.arg);
+				var func = object[name],
+					args = hemi.dispatch.getArguments(null, property.arg);
+
+				func.apply(object, args);
 			} else {
 				alert('Unable to process octane for ' + octane.id + ': missing property value');
 			}
 		}
-	};
-	
-	return hemi;
-})(hemi || {});
-/* 
- * Kuda includes a library and editor for authoring interactive 3D content for the web.
- * Copyright (C) 2011 SRI International.
- *
- * This program is free software; you can redistribute it and/or modify it under the terms
- * of the GNU General Public License as published by the Free Software Foundation; either 
- * version 2 of the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
- * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
- * See the GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License along with this program; 
- * if not, write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, 
- * Boston, MA 02110-1301 USA.
+	}
+
+})();
+/*
+ * Licensed under the MIT license: http://www.opensource.org/licenses/mit-license.php
+ * The MIT License (MIT)
+ * 
+ * Copyright (c) 2011 SRI International
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+ * associated  documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the  Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-var hemi = (function(hemi) {
-	/**
-	 * @namespace A module for prebuilt Message handlers that perform common
-	 * Message handling tasks more easily.
-	 */
-	hemi.handlers = hemi.handlers || {};
-	
-	/**
-	 * @class A ValueCheck handler checks a set of values against a specified
-	 * set of values from the Message to handle. If the values all match, the
-	 * Message is passed to the actual handler.
-	 * @extends hemi.world.Citizen
-	 */
-	hemi.handlers.ValueCheck = hemi.world.Citizen.extend({
-		init: function() {
-			this._super();
-			
-			/**
-			 * A Citizen that the ValueCheck may be using.
-			 * @type hemi.world.Citizen
-			 */
-			this.citizen = null;
-			/**
-			 * The values to check for.
-			 * @type Object[]
-			 */
-			this.values = [];
-			/**
-			 * The parameter names to use to get the values to check.
-			 * @type string[]
-			 */
-			this.valueParams = [];
-			/**
-			 * The handler object for the Message.
-			 * @type Object
-			 */
-			this.handler = null;
-			/**
-			 * The name of the object function to pass the Message to.
-			 * @type string
-			 */
-			this.func = null;
-			/**
-			 * Optional array to specify arguments to pass to the handler. Otherwise
-			 * just pass it the Message.
-			 * @type string[]
-			 */
-			this.args = [];
-		},
-		
-        /**
-         * Overwrites hemi.world.Citizen.citizenType.
-         */
-		citizenType: 'hemi.handlers.ValueCheck',
-		
-		/**
-		 * Send a cleanup Message and remove all references in the ValueCheck.
-		 */
-		cleanup: function() {
-			this._super();
-			
-			this.citizen = null;
-			this.values = [];
-			this.handler = null;
-			this.args = [];
-		},
-		
-		/**
-		 * Check the specified value parameters against the specified values to
-		 * determine if the given Message should be passed to the handler
-		 * object.
-		 * 
-		 * @param {hemi.dispatch.Message} message the Message to handle
-		 */
-		handleMessage: function(message) {
-			var values = hemi.dispatch.getArguments(message, this.valueParams),
-				match = true;
-			
-			for (var ndx = 0, len = values.length; match && ndx < len; ndx++) {
-				var val = values[ndx];
-				
-				if (val != null && val.getId !== undefined) {
-					match = this.values[ndx] === val.getId();
-				} else {
-					match = this.values[ndx] === val;
-				}
-			}
-			
-			if (match) {
-				var args = hemi.dispatch.getArguments(message, this.args);
-				this.handler[this.func].apply(this.handler, args);
-			}
-		},
-		
-		/**
-		 * Get the Octane structure for the ValueCheck.
-	     *
-	     * @return {Object} the Octane structure representing the ValueCheck
-		 */
-        toOctane: function() {
-            var octane = this._super(),
-            	valNames = ['values', 'valueParams', 'func', 'args'];
-			
-			for (var ndx = 0, len = valNames.length; ndx < len; ndx++) {
-				var name = valNames[ndx];
-				
-				octane.props.push({
-					name: name,
-					val: this[name]
-				});
-			};
-            
-            octane.props.push({
-                name: 'handler',
-                id: this.handler.getId()
-            });
-			
-			if (this.citizen) {
-				octane.props.push({
-	                name: 'citizen',
-	                id: this.citizen.getId()
-	            });
-			}
-            
-            return octane;
-        }
-	});
-	
-	/**
-	 * Create a ValueCheck handler that will check pick Messages for the given
-	 * shape name.
-	 * 
-	 * @param {hemi.model.Model} model the Model containing the shape to pick
-	 * @param {string} shapeName the shape name to check for
-	 * @param {Object} handler handler object for the Message.
-	 * @param {string} func name of the object function to pass the Message to
-	 * @param {string[]} opt_args optional array to specify arguments to pass to
-	 *     the handler. Otherwise just pass it the Message.
-	 * @return {hemi.handlers.ValueCheck} the created ValueCheck handler
-	 */
-	hemi.handlers.handlePick = function(model, shapeName, handler, func, opt_args) {
-		var valCheck = new hemi.handlers.ValueCheck();
-		valCheck.citizen = model;
-		valCheck.values = [shapeName];
-		valCheck.valueParams = [hemi.dispatch.MSG_ARG + 'data.pickInfo.shapeInfo.shape.name'];
-		valCheck.handler = handler;
-		valCheck.func = func;
-		
-		if (opt_args) {
-			valCheck.args = opt_args;
-		}
-		
-		return hemi.world.subscribe(hemi.msg.pick, valCheck, 'handleMessage');
-	};
-	
-	/**
-	 * Create a ValueCheck handler that will check Camera move Messages for the
-	 * given viewpoint.
-	 * 
-	 * @param {hemi.view.Camera} camera the camera to receive Messages from
-	 * @param {hemi.view.Viewpoint} viewpoint the viewpoint to check for
-	 * @param {Object} handler handler object for the Message.
-	 * @param {string} func name of the object function to pass the Message to
-	 * @param {string[]} opt_args optional array to specify arguments to pass to
-	 *     the handler. Otherwise just pass it the Message.
-	 * @return {hemi.handlers.ValueCheck} the created ValueCheck handler
-	 */
-	hemi.handlers.handleCameraMove = function(camera, viewpoint, handler, func, opt_args) {
-		var valCheck = new hemi.handlers.ValueCheck();
-		valCheck.citizen = camera;
-		valCheck.values = [viewpoint.getId()];
-		valCheck.valueParams = [hemi.dispatch.MSG_ARG + 'data.viewpoint'];
-		valCheck.handler = handler;
-		valCheck.func = func;
-		
-		if (opt_args) {
-			valCheck.args = opt_args;
-		}
-		
-		return camera.subscribe(hemi.msg.stop, valCheck, 'handleMessage');
-	};
-	
-	return hemi;
-})(hemi || {});
-/* 
- * Kuda includes a library and editor for authoring interactive 3D content for the web.
- * Copyright (C) 2011 SRI International.
- *
- * This program is free software; you can redistribute it and/or modify it under the terms
- * of the GNU General Public License as published by the Free Software Foundation; either 
- * version 2 of the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
- * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
- * See the GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License along with this program; 
- * if not, write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, 
- * Boston, MA 02110-1301 USA.
- */
+(function() {
 
-var hemi = (function(hemi) {
-	/**
-	 * @namespace A module for supporting audio playback with HTML5's audio tag.
-	 */
-	hemi.audio = hemi.audio || {};
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Audio class
+////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	/**
-	 * @class An Audio contains an audio DOM element that can be played, paused,
-	 * etc.
-	 * @extends hemi.world.Citizen
+	 * @class An Audio contains an audio DOM element that can be played, paused, etc.
 	 */
-	hemi.audio.Audio = hemi.world.Citizen.extend({
-		init: function() {
-			this._super();
-			
-			/*
-			 * The actual audio DOM element.
-			 */
-			this.audio = document.createElement('audio');
-			/*
-			 * Flag indicating if the Audio should loop when it ends.
-			 */
-			this.looping = false;
-			/*
-			 * Flag indicating if a seek operation is currently happening.
-			 */
-			this.seeking = false;
-			/*
-			 * Flag indicating if the Audio should start playing when the current
-			 * seek operation finishes.
-			 */
-			this.startPlay = false;
-			/*
-			 * Array of objects containing source URLs, types, and DOM elements.
-			 */
-			this.urls = [];
-			var that = this;
-			
-			// For now, onevent functions (like onemptied) are not supported for
-			// media elements in Webkit browsers.
-			this.audio.addEventListener('emptied', function(e) {
-					that.send(hemi.msg.unload, { });
-				}, true);
-			this.audio.addEventListener('loadeddata', function(e) {
+	var Audio = function() {
+		/*
+		 * Flag indicating if a seek operation is currently happening.
+		 * @type boolean
+		 * @default false
+		 */
+		this._seeking = false;
+
+		/*
+		 * Flag indicating if the Audio should start playing when the current seek operation
+		 * finishes.
+		 * @type boolean
+		 * @default false
+		 */
+		this._startPlay = false;
+
+		/*
+		 * Array of objects containing source URLs, types, and DOM elements.
+		 */
+		this._urls = [];
+
+		/**
+		 * The actual audio DOM element.
+		 * @type Object
+		 */
+		this.audio = document.createElement('audio');
+
+		/**
+		 * Flag indicating if the Audio should loop when it ends.
+		 * @type boolean
+		 * @default false
+		 */
+		this.looping = false;
+
+		var that = this;
+
+		// For now, onevent functions (like onemptied) are not supported for media elements in
+		// Webkit browsers.
+		this.audio.addEventListener('emptied', function(e) {
+				that.send(hemi.msg.unload, { });
+			}, true);
+		this.audio.addEventListener('loadeddata', function(e) {
 	//				that.setLoop_();	*see below*
-					that.send(hemi.msg.load, {
-						src: that.audio.currentSrc
-					});
-				}, true);
-			this.audio.addEventListener('playing', function(e) {
-					that.send(hemi.msg.start, { });
-				}, true);
-			this.audio.addEventListener('ended', function(e) {
-					if (that.looping) {
+				that.send(hemi.msg.load, {
+					src: that.audio.currentSrc
+				});
+			}, true);
+		this.audio.addEventListener('playing', function(e) {
+				that.send(hemi.msg.start, { });
+			}, true);
+		this.audio.addEventListener('ended', function(e) {
+				if (that.looping) {
+					that.play();
+				}
+
+				that.send(hemi.msg.stop, { });
+			}, true);
+	};
+
+	/*
+	 * Remove all references in the Audio.
+	 */
+	Audio.prototype._clean = function() {
+		this.audio = null;
+		this._urls = [];
+	};
+
+	/*
+	 * Array of Hemi Messages that Audio is known to send.
+	 * @type string[]
+	 */
+	Audio.prototype._msgSent = [hemi.msg.load, hemi.msg.start, hemi.msg.stop, hemi.msg.unload];
+
+	/*
+	 * Octane properties for Audio.
+	 * @type string[]
+	 */
+	Audio.prototype._octane = function() {
+		var props = [{
+			name: 'looping',
+			val: this.looping
+		}];
+
+		for (var i = 0, il = this._urls.length; i < il; ++i) {
+			var urlObj = this._urls[i];
+
+			props.push({
+				name: 'addUrl',
+				arg: [urlObj.url, urlObj.type]
+			});
+		}
+
+		return props;
+	};
+
+	/**
+	 * Add the given URL as a source for the audio file to load.
+	 * 
+	 * @param {string} url the URL of the audio file
+	 * @param {string} type the type of the audio file (ogg, mpeg, etc)
+	 */
+	Audio.prototype.addUrl =  function(url, type) {
+		var src = document.createElement('source'),
+			loadUrl = hemi.getLoadPath(url);
+
+		src.setAttribute('src', loadUrl);
+		src.setAttribute('type', 'audio/' + type);
+		this.audio.appendChild(src);
+		this._urls.push({
+			url: url,
+			type: type,
+			node: src
+		});
+	};
+
+	/**
+	 * Get the length of the current audio media.
+	 * 
+	 * @return {number} length of media in seconds
+	 */
+	Audio.prototype.getDuration = function() {
+		return this.audio ? this.audio.duration : null;
+	};
+
+	/**
+	 * Get the current volume of the audio media. Volume ranges from 0.0 to  1.0.
+	 * 
+	 * @return {number} the current volume
+	 */
+	Audio.prototype.getVolume = function() {
+		return this.audio ? this.audio.volume : null;
+	};
+
+	/**
+	 * Pause the audio media if it is currently playing.
+	 */
+	Audio.prototype.pause = function() {
+		if (this.audio && !this.audio.paused) {
+			this.audio.pause();
+			this._startPlay = false;
+		}
+	};
+
+	/**
+	 * Play the audio media if it is not already doing so. If the media is in the middle of a seek
+	 * operation, the Audio will wait until it finishes before playing.
+	 */
+	Audio.prototype.play = function() {
+		if (this.audio) {
+			if (this._seeking) {
+				this._startPlay = true;
+			} else if (this.audio.paused || this.audio.ended) {
+				this.audio.play();
+			}
+		}
+	};
+
+	/**
+	 * Remove the given URL as a source for the audio file to load.
+	 * 
+	 * @param {string} url the URL to remove
+	 */
+	Audio.prototype.removeUrl = function(url) {
+		for (var i = 0, il = this._urls.length; i < il; ++i) {
+			var urlObj = this._urls[i];
+
+			if (urlObj.url === url) {
+				this.audio.removeChild(urlObj.node);
+				this._urls.splice(i, 1);
+
+				if (urlObj.node.src === this.audio.currentSrc) {
+					this.audio.load();
+				}
+
+				break;
+			}
+		}
+	};
+
+	/**
+	 * Set the audio media's current time to the given time. If the media is currently playing,
+	 * it will pause until the seek operation finishes.
+	 * 
+	 * @param {number} time the time to seek to in seconds
+	 */
+	Audio.prototype.seek = function(time) {
+		if (this.audio && time >= 0 && time < this.audio.duration) {
+			var that = this,
+				notify = function() {
+					that.audio.removeEventListener('seeked', notify, true);
+					that._seeking = false;
+
+					if (that._startPlay) {
+						that._startPlay = false;
 						that.play();
 					}
-					
-					that.send(hemi.msg.stop, { });
-				}, true);
-		},
-		
-		/**
-		 * Overwrites hemi.world.Citizen.citizenType
-		 * @string
-		 */
-        citizenType: 'hemi.audio.Audio',
-		
-		/**
-		 * Add the given URL as a source for the audio file to load.
-		 * 
-		 * @param {string} url the URL of the audio file
-		 * @param {string} type the type of the audio file (ogg, mpeg, etc)
-		 */
-		addUrl: function(url, type) {
-			var src = document.createElement('source'),
-				loadUrl = hemi.loader.getPath(url);
-			
-			src.setAttribute('src', loadUrl);
-			src.setAttribute('type', 'audio/' + type);
-			this.audio.appendChild(src);
-			this.urls.push({
-				url: url,
-				type: type,
-				node: src
-			});
-		},
-		
-		/**
-		 * Send a cleanup Message and remove all references in the Audio.
-		 */
-		cleanup: function() {
-			this._super();
-			this.audio = null;
-			this.urls = [];
-		},
-		
-		/**
-		 * Get the length of the current audio media.
-		 * 
-		 * @return {number} length of media in seconds
-		 */
-		getDuration: function() {
-			if (this.audio) {
-				return this.audio.duration;
-			} else {
-				return null;
-			}
-		},
-		
-		/**
-		 * Get the current volume of the audio media. Volume ranges from 0.0 to
-		 * 1.0.
-		 * 
-		 * @return {number} the current volume
-		 */
-		getVolume: function() {
-			if (this.audio) {
-				return this.audio.volume;
-			} else {
-				return null;
-			}
-		},
-		
-		/**
-		 * Pause the audio media if it is currently playing.
-		 */
-		pause: function() {
-			if (this.audio && !this.audio.paused) {
-				this.audio.pause();
-				this.startPlay = false;
-			}
-		},
-		
-		/**
-		 * Play the audio media if it is not already doing so. If the media is
-		 * in the middle of a seek operation, the Audio will wait until it
-		 * finishes before playing.
-		 */
-		play: function() {
-			if (this.audio) {
-				if (this.seeking) {
-					this.startPlay = true;
-				} else if (this.audio.paused || this.audio.ended) {
-					this.audio.play();
-				}
-			}
-		},
-		
-		/**
-		 * Remove the given URL as a source for the audio file to load.
-		 * 
-		 * @param {string} url the URL to remove
-		 */
-		removeUrl: function(url) {
-			for (var i = 0, il = this.urls.length; i < il; i++) {
-				var urlObj = this.urls[i];
-				
-				if (urlObj.url === url) {
-					this.audio.removeChild(urlObj.node);
-					this.urls.splice(i, 1);
-					
-					if (urlObj.node.src === this.audio.currentSrc) {
-						this.audio.load();
-					}
-					
-					break;
-				}
-			}
-		},
-		
-		/**
-		 * Set the audio media's current time to the given time. If the media is
-		 * currently playing, it will pause until the seek operation finishes.
-		 * 
-		 * @param {number} time the time to seek to in seconds
-		 */
-		seek: function(time) {
-			if (this.audio && time >= 0 && time < this.audio.duration) {
-				var that = this,
-					notify = function() {
-						that.audio.removeEventListener('seeked', notify, true);
-						that.seeking = false;
-						
-						if (that.startPlay) {
-							that.startPlay = false;
-							that.play();
-						}
-					};
-				
-				this.audio.addEventListener('seeked', notify, true);
-				this.seeking = true;
-				this.startPlay = !this.audio.paused;
-				this.audio.currentTime = time;
-			}
-		},
-		
-		/**
-		 * Set if the audio media should loop when it ends.
-		 * 
-		 * @param {boolean} looping flag to indicate if the media should loop
-		 */
-		setLoop: function(looping) {
-			if (this.looping !== looping) {
-				this.looping = looping;
-				
-				if (this.audio) {
-//					this.setLoop_();	*see below*
-				}
-			}
-		},
-		
-		/*
-		 * This is the proper way to set looping for HTML5 audio tags.
-		 * Unfortunately Firefox doesn't currently support this feature, so we
-		 * have to hack it in the ended event.
-		 */
-		setLoop_: function() {
-			if (this.looping) {
-				this.audio.setAttribute('loop', 'loop');
-			} else {
-				this.audio.removeAttribute('loop');
-			}
-		},
-		
-		/**
-		 * Set the volume of the audio media. Volume ranges from 0.0 to 1.0.
-		 * 
-		 * @param {number} volume the volume to set
-		 */
-		setVolume: function(volume) {
-			if (this.audio) {
-				this.audio.volume = volume;
-			}
-		},
-		
-		/**
-		 * Get the Octane structure for the Audio.
-	     *
-	     * @return {Object} the Octane structure representing the Audio
-		 */
-		toOctane: function() {
-			var octane = this._super();
-			
-			octane.props.push({
-				name: 'looping',
-				val: this.looping
-			});
-			
-			for (var i = 0, il = this.urls.length; i < il; i++) {
-				var urlObj = this.urls[i];
-				
-				octane.props.push({
-					name: 'addUrl',
-					arg: [urlObj.url, urlObj.type]
-				});
-			}
-			
-			return octane;
+				};
+
+			this.audio.addEventListener('seeked', notify, true);
+			this._seeking = true;
+			this._startPlay = !this.audio.paused;
+			this.audio.currentTime = time;
 		}
+	};
+
+	/**
+	 * Set if the audio media should loop when it ends.
+	 * 
+	 * @param {boolean} looping flag to indicate if the media should loop
+	 */
+	Audio.prototype.setLoop = function(looping) {
+		if (this.looping !== looping) {
+			this.looping = looping;
+
+			if (this.audio) {
+//					this.setLoop_();	*see below*
+			}
+		}
+	};
+
+	/**
+	 * Set the volume of the audio media. Volume ranges from 0.0 to 1.0.
+	 * 
+	 * @param {number} volume the volume to set
+	 */
+	Audio.prototype.setVolume = function(volume) {
+		if (this.audio) {
+			this.audio.volume = volume;
+		}
+	};
+
+// Private functions for Audio
+
+	/*
+	 * This is the proper way to set looping for HTML5 audio tags. Unfortunately Firefox doesn't
+	 * currently support this feature, so we have to hack it in the ended event.
+	 */
+	function setLoopProper() {
+		if (this.looping) {
+			this.audio.setAttribute('loop', 'loop');
+		} else {
+			this.audio.removeAttribute('loop');
+		}
+	};
+
+	hemi.makeCitizen(Audio, 'hemi.Audio', {
+		cleanup: Audio.prototype._clean,
+		toOctane: Audio.prototype._octane
 	});
 
-	hemi.audio.Audio.prototype.msgSent =
-		hemi.audio.Audio.prototype.msgSent.concat([hemi.msg.load,
-			hemi.msg.start, hemi.msg.stop, hemi.msg.unload]);
-
-	return hemi;
-})(hemi || {});/* 
- * Kuda includes a library and editor for authoring interactive 3D content for the web.
- * Copyright (C) 2011 SRI International.
- *
- * This program is free software; you can redistribute it and/or modify it under the terms
- * of the GNU General Public License as published by the Free Software Foundation; either 
- * version 2 of the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
- * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
- * See the GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License along with this program; 
- * if not, write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, 
- * Boston, MA 02110-1301 USA.
+})();
+/*
+ * Licensed under the MIT license: http://www.opensource.org/licenses/mit-license.php
+ * The MIT License (MIT)
+ * 
+ * Copyright (c) 2011 SRI International
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+ * associated  documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the  Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-var hemi = (function(hemi) {
+(function() {
+
+		/* All of the MessageSpecs (and MessageTargets) in the Dispatch */
+	var msgSpecs = new hemi.utils.Hashtable(),
+
+		/* The next id to assign to a MessageTarget */
+		nextId = 0;
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Constants
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
 	/**
-	 * @namespace A module for message dispatching and handling. The Dispatch
-	 * receives Messages and sends them to MessageTargets that are registered
-	 * with MessageSpecs.
+	 * @namespace A module for message dispatching and handling. The Dispatch receives Messages and
+	 * sends them to MessageTargets that are registered with MessageSpecs.
 	 */
 	hemi.dispatch = hemi.dispatch || {};
-	
-	/* The next id to assign to a MessageTarget */
-	var nextId = 0;
-	
+
 	/**
 	 * String literal to indicate that all entries for a field are desired.
 	 * @constant
 	 */
 	hemi.dispatch.WILDCARD = '*';
-	
+
 	/** 
-	  * First part of an argument string indicating it is an id for the actual
-	  * argument desired.
+	  * First part of an argument string indicating it is an id for the actual argument desired.
 	  * @constant
 	  * @example
 	  * 'id:12' will execute: hemi.world.getCitizenById(12);
 	  */ 
 	hemi.dispatch.ID_ARG = 'id:';
-	
+
 	/** 
-	  * First part of an argument string indicating it should be used to parse
-	  * the actual message structure passed to the handler.
+	  * First part of an argument string indicating it should be used to parse the actual message
+	  * structure passed to the handler.
 	  * @constant
 	  * @example
 	  * 'msg:data.shape.name' will parse: message.data.shape.name
 	  */ 
 	hemi.dispatch.MSG_ARG = 'msg:';
-	
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Message class
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
 	/**
 	 * @class A Message is sent whenever an event occurs.
 	 */
-	hemi.dispatch.Message = function() {
+	var Message = function() {
 		/**
 		 * The Message originator.
 		 * @type hemi.world.Citizen
 		 */
 		this.src = null;
-		
+
 		/**
 		 * The type of the Message.
 		 * @type string
 		 */
 		this.msg = null;
-		
+
 		/**
 		 * Container for any and all Message data.
 		 * @type Object
 		 */
 		this.data = {};
 	};
-	
+
+	hemi.dispatch.Message = Message;
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// MessageSpec class
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
 	/**
 	 * @class A MessageSpec specifies a certain Message type and source and
 	 * contains a set of MessageTargets that have registered to receive Messages
 	 * with matching specs.
 	 */
-	hemi.dispatch.MessageSpec = function() {
+	var MessageSpec = function() {
 		/**
 		 * The id of the Message originator to handle Messages from. This can
 		 * also be hemi.dispatch.WILDCARD to match all source ids.
@@ -4776,107 +5815,101 @@ var hemi = (function(hemi) {
 		 */
 		this.targets = [];
 	};
-	
-	hemi.dispatch.MessageSpec.prototype = {
-		/**
-		 * Clean up the MessageSpec so all references in it are removed.
-		 */
-		cleanup: function() {
-			for (var ndx = 0, len = this.targets.length; ndx < len; ndx++) {
-				this.targets[ndx].cleanup();
-			}
-			
-			this.targets = [];
-		},
-		
-		/**
-		 * Get the Octane structure for the MessageSpec.
-	     *
-	     * @return {Object} the Octane structure representing the MessageSpec
-		 */
-		toOctane: function() {
-			var targetsOct = [];
-			
-			for (var ndx = 0, len = this.targets.length; ndx < len; ndx++) {
-				var oct = this.targets[ndx].toOctane();
-				
-				if (oct !== null) {
-					targetsOct.push(oct);
-				} else {
-					hemi.console.log('Null Octane returned by MessageTarget', hemi.console.ERR);
-				}
-			}
-			
-			var props = [
-				{
-					name: 'src',
-					val: this.src
-				},{
-					name: 'msg',
-					val: this.msg
-				},{
-					name: 'targets',
-					oct: targetsOct
-				}
-			];
-			
-			var octane = {
-				type: 'hemi.dispatch.MessageSpec',
-				props: props
-			};
-			
-			return octane;
-		},
-		
-		/**
-		 * Register the given MessageTarget with the MessageSpec.
-		 * 
-		 * @param {hemi.dispatch.MessageTarget} target the target to add
-		 */
-		addTarget: function(target) {
-			if (this.targets.indexOf(target) != -1) {
-				hemi.console.log('MessageSpec already contains MessageTarget', hemi.console.WARN);
-			}
-			
-			this.targets.push(target);
-		},
-		
-		/**
-		 * Remove the given MessageTarget from the MessageSpec.
-		 * 
-		 * @param {hemi.dispatch.MessageTarget} target the target to remove
-		 * @return {hemi.dispatch.MessageTarget} the removed target or null
-		 */
-		removeTarget: function(target) {
-			var found = null,
-				ndx = this.targets.indexOf(target);
-			
-			if (ndx != -1) {
-				var spliced = this.targets.splice(ndx, 1);
-				
-				if (spliced.length === 1) {
-					found = spliced[0];
-				}
+
+	/*
+	 * Octane properties for MessageSpec.
+	 * @type string[]
+	 */
+	MessageSpec.prototype._octane = function() {
+		var targetsOct = [];
+
+		for (var i = 0, il = this.targets.length; i < il; ++i) {
+			var oct = this.targets[i]._toOctane();
+
+			if (oct !== null) {
+				targetsOct.push(oct);
 			} else {
-				hemi.console.log('MessageTarget not found in MessageSpec', hemi.console.WARN);
+				console.log('Null Octane returned by MessageTarget');
 			}
-	        
-	        return found;
-		},
-		
-		/**
-		 * Get the unique hash key for the MessageSpec.
-		 * 
-		 * @return {string} the hash key
-		 */
-		getHash: function() {
-			return this.msg + this.src;
 		}
+
+		return [
+			{
+				name: 'src',
+				val: this.src
+			},{
+				name: 'msg',
+				val: this.msg
+			},{
+				name: 'targets',
+				oct: targetsOct
+			}
+		];
 	};
+
+	/**
+	 * Register the given MessageTarget with the MessageSpec.
+	 * 
+	 * @param {hemi.dispatch.MessageTarget} target the target to add
+	 */
+	MessageSpec.prototype.addTarget = function(target) {
+		if (this.targets.indexOf(target) !== -1) {
+			console.log('MessageSpec already contains MessageTarget');
+		}
+
+		this.targets.push(target);
+	};
+
+	/**
+	 * Clean up the MessageSpec so all references in it are removed.
+	 */
+	MessageSpec.prototype.cleanup = function() {
+		for (var i = 0, il = this.targets.length; i < il; ++i) {
+			this.targets[i].cleanup();
+		}
+
+		this.targets = [];
+	};
+
+	/**
+	 * Remove the given MessageTarget from the MessageSpec.
+	 * 
+	 * @param {hemi.dispatch.MessageTarget} target the target to remove
+	 * @return {hemi.dispatch.MessageTarget} the removed target or null
+	 */
+	MessageSpec.prototype.removeTarget = function(target) {
+		var found = null,
+			ndx = this.targets.indexOf(target);
+
+		if (ndx !== -1) {
+			found = this.targets.splice(ndx, 1)[0];
+		} else {
+			console.log('MessageTarget not found in MessageSpec');
+		}
+
+		return found;
+	};
+
+	/**
+	 * Get the unique hash key for the MessageSpec.
+	 * 
+	 * @return {string} the hash key
+	 */
+	MessageSpec.prototype.getHash = function() {
+		return this.msg + this.src;
+	};
+
+	hemi.dispatch.MessageSpec = MessageSpec;
+	hemi.makeOctanable(hemi.dispatch.MessageSpec, 'hemi.dispatch.MessageSpec',
+		hemi.dispatch.MessageSpec.prototype._octane);
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// MessageTarget class
+////////////////////////////////////////////////////////////////////////////////////////////////////
 	
 	/**
-	 * @class A MessageTarget registers with a MessageSpec to receive Messages
-	 * that match its attributes.
+	 * @class A MessageTarget registers with a MessageSpec to receive Messages that match its
+	 * attributes.
 	 * @example
 	 * A MessageTarget with the following values:
 	 * handler = myObj;
@@ -4886,33 +5919,33 @@ var hemi = (function(hemi) {
 	 * will execute:
 	 * myObj.myFunction(message.src, 12);
 	 */
-	hemi.dispatch.MessageTarget = function() {
+	var MessageTarget = function() {
 		/**
 		 * The id of the MessageTarget.
 		 * @type number
 		 */
-		this.dispatchId = null;
-		
+		this._dispatchId = null;
+
 		/**
 		 * The name of the MessageTarget.
 		 * @type string
 		 * @default ''
 		 */
 		this.name = '';
-		
+
 		/**
 		 * The handler for Messages passed through a MessageSpec. It may be an
 		 * object or function.
 		 * @type Object || function
 		 */
 		this.handler = null;
-		
+
 		/**
 		 * The name of the object function to call if handler is an object.
 		 * @type string
 		 */
 		this.func = null;
-		
+
 		/**
 		 * Optional array to specify arguments to pass to the handler. Otherwise
 		 * just pass it the Message.
@@ -4920,62 +5953,97 @@ var hemi = (function(hemi) {
 		 */
 		this.args = null;
 	};
-	
-	hemi.dispatch.MessageTarget.prototype = {
-		/**
-		 * Clean up the MessageTarget so all references in it are removed.
-		 */
-		cleanup: function() {
-			this.handler = null;
-		},
-		
-		/**
-		 * Get the Octane structure for the MessageTarget.
-	     *
-	     * @return {Object} the Octane structure representing the MessageTarget
-		 */
-		toOctane: function() {
-			if (!this.handler.getId) {
-				hemi.console.log('Handler object in MessageTarget can not be saved to Octane', hemi.console.WARN);
-				return null;
-			}
-			
-			var names = ['dispatchId', 'name', 'func', 'args'],
-				props = [{
-					name: 'handler',
-					id: this.handler.getId()
-				}];
-			
-			for (var ndx = 0, len = names.length; ndx < len; ndx++) {
-				var name = names[ndx];
-				
-				props.push({
-					name: name,
-					val: this[name]
-				});
-			}
-			
-			var octane = {
-				type: 'hemi.dispatch.MessageTarget',
-				props: props
-			};
-			
-			return octane;
-		}
-	};
-	
-	/* All of the MessageSpecs (and MessageTargets) in the Dispatch */
-	hemi.dispatch.msgSpecs = new hemi.utils.Hashtable();
-	
-	/**
-	 * Set the id for the Dispatch to assign to the next MessageTarget.
-	 * 
-	 * @param {number} id the next id to assign
+
+	/*
+	 * Octane properties for MessageSpec.
+	 * @type string[]
 	 */
-	hemi.dispatch.setNextId = function(id) {
-		nextId = id;
+	MessageTarget.prototype._octane = function() {
+		if (!this.handler._getId) {
+			console.log('Handler object in MessageTarget can not be saved to Octane');
+			return null;
+		}
+
+		var names = ['_dispatchId', 'name', 'func', 'args'],
+			props = [
+				{
+					name: 'handler',
+					id: this.handler._getId()
+				}
+			];
+		
+		for (var i = 0, il = names.length; i < il; ++i) {
+			var name = names[i];
+
+			props.push({
+				name: name,
+				val: this[name]
+			});
+		}
+
+		return props;
 	};
-	
+
+	/**
+	 * Clean up the MessageTarget so all references in it are removed.
+	 */
+	MessageTarget.prototype.cleanup = function() {
+		this.handler = null;
+	};
+
+	hemi.dispatch.MessageTarget = MessageTarget;
+	hemi.makeOctanable(hemi.dispatch.MessageTarget, 'hemi.dispatch.MessageTarget',
+		hemi.dispatch.MessageTarget.prototype._octane);
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Global functions
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	/**
+	 * Get the Octane structure for the Dispatch.
+     *
+     * @return {Object} the Octane structure representing the MessageDispatcher
+	 */
+	hemi.dispatch._toOctane = function() {
+		var octane = {
+			nextId: nextId,
+			ents: []
+		};
+
+		msgSpecs.each(function(key, value) {
+			var oct = value._toOctane();
+
+			if (oct !== null) {
+				octane.ents.push(oct);
+			} else {
+				console.log('Null Octane returned by MessageSpec');
+			}
+		});
+
+		return octane;
+	};
+
+	/**
+	 * Check to see what the next id to assign will be without incrementing the Dispatch's nextId
+	 * token.
+	 * 
+	 * @return {number} the next id that will be assigned to a MessageTarget
+	 */
+	hemi.dispatch.checkNextId = function() {
+		return nextId;
+	};
+
+	/**
+	 * Empty the MessageSpec database of all entries.
+	 */
+	hemi.dispatch.cleanup = function() {
+		msgSpecs.each(function(key, value) {
+			value.cleanup();
+		});
+
+		msgSpecs.clear();
+	};
+
 	/**
 	 * Get the next id to assign and increment the Dispatch's nextId token.
 	 * 
@@ -4984,86 +6052,26 @@ var hemi = (function(hemi) {
 	hemi.dispatch.getNextId = function() {
 		return nextId++;
 	};
-	
+
 	/**
-	 * Check to see what the next id to assign will be without incrementing the
-	 * Dispatch's nextId token.
-	 * 
-	 * @return {number} the next id that will be assigned to a MessageTarget
-	 */
-	hemi.dispatch.checkNextId = function() {
-		return nextId;
-	};
-	
-    /**
-	 * Load the given MessageSpec entries into the MessageSpec database.
-	 * 
-	 * @param {hemi.dispatch.MessageSpec[]} entries MessageSpecs to load into
-	 *     the Dispatch
-	 */
-	hemi.dispatch.loadEntries = function(entries) {
-		for (var ndx = 0, len = entries.length; ndx < len; ndx++) {
-			var entry = entries[ndx];
-			this.msgSpecs.put(entry.getHash(), entry);
-		}
-	};
-	
-	/**
-	 * Empty the MessageSpec database of all entries.
-	 */
-	hemi.dispatch.cleanup = function() {
-		this.msgSpecs.each(function(key, value) {
-			value.cleanup();
-		});
-		
-		this.msgSpecs.clear();
-	};
-	
-	/**
-	 * Get the Octane structure for the Dispatch.
-     *
-     * @return {Object} the Octane structure representing the MessageDispatcher
-	 */
-	hemi.dispatch.toOctane = function() {
-		var octane = {
-			nextId: nextId,
-			ents: []
-		};
-		
-		this.msgSpecs.each(function(key, value) {
-			var oct = value.toOctane();
-			
-			if (oct !== null) {
-				octane.ents.push(oct);
-			} else {
-				hemi.console.log('Null Octane returned by MessageSpec', hemi.console.ERR);
-			}
-		});
-		
-		return octane;
-	};
-	
-	/**
-	 * Get any MessageSpecs with the given attributes. If no attributes are
-	 * given, all MessageSpecs will be returned. Valid attributes are:
+	 * Get any MessageSpecs with the given attributes. If no attributes are given, all MessageSpecs
+	 * will be returned. Valid attributes are:
 	 * - src
 	 * - msg
 	 * 
-	 * @param {Object} attributes optional structure with the attributes to
-	 *     search for
-	 * @param {boolean} wildcards flag indicating if wildcard values should be
-	 *     included in the search results (only needed if attributes is set)
-	 * @return {hemi.dispatch.MessageSpec[]} an array of MessageSpecs with
-	 *     matching attributes
+	 * @param {Object} attributes optional structure with the attributes to search for
+	 * @param {boolean} wildcards flag indicating if wildcard values should be included in the
+	 *     search results (only needed if attributes is set)
+	 * @return {hemi.dispatch.MessageSpec[]} an array of MessageSpecs with matching attributes
 	 */
 	hemi.dispatch.getSpecs = function(attributes, wildcards) {
 		var specs;
-		
+
 		if (attributes === undefined) {
-			specs = this.msgSpecs.values();
+			specs = msgSpecs.values();
 		} else {
 			var atts = {};
-			
+
 			if (wildcards) {
 				if (attributes.src !== undefined) {
 					if (attributes.src === hemi.dispatch.WILDCARD) {
@@ -5087,79 +6095,76 @@ var hemi = (function(hemi) {
 					atts.msg = attributes.msg;
 				}
 			}
-			
-			specs = this.msgSpecs.query(atts);
+
+			specs = msgSpecs.query(atts);
 		}
-		
+
 		return specs;
 	};
-	
+
 	/**
-	 * Get the MessageSpec with the given source id and Message type. If
-	 * wildcards are allowed, search for wildcard sources and types as well.
-	 * This is much faster than getSpecs.
+	 * Get the MessageSpec with the given source id and Message type. If wildcards are allowed,
+	 * search for wildcard sources and types as well. This is much faster than getSpecs.
 	 * 
 	 * @param {number} src id of the Message originator to search for
 	 * @param {string} type type of Message to search for
-	 * @param {boolean} wildcards flag indicating if wildcard values should be
-	 *     included in the search results
+	 * @param {boolean} wildcards flag indicating if wildcard values should be included in the
+	 *     search results
 	 * @return {hemi.dispatch.MessageSpec[]} an array of found MessageSpecs
 	 */
 	hemi.dispatch.getSpecsFast = function(src, msg, wildcards) {
 		var specs = [],
 			hash = msg + src,
-			spec = this.msgSpecs.get(hash);
-		
+			spec = msgSpecs.get(hash);
+
 		if (spec !== null) {
 			specs.push(spec);
 		}
-		
+
 		if (wildcards) {
 			var wildSrc = src === hemi.dispatch.WILDCARD;
-			
+
 			if (!wildSrc) {
 				hash = msg + hemi.dispatch.WILDCARD;
-				spec = this.msgSpecs.get(hash);
+				spec = msgSpecs.get(hash);
 				if (spec !== null) {
 					specs.push(spec);
 				}
 			}
 			if (msg !== hemi.dispatch.WILDCARD) {
 				hash = hemi.dispatch.WILDCARD + src;
-				spec = this.msgSpecs.get(hash);
+				spec = msgSpecs.get(hash);
 				if (spec !== null) {
 					specs.push(spec);
 				}
-				
+
 				if (!wildSrc) {
 					hash = hemi.dispatch.WILDCARD + hemi.dispatch.WILDCARD;
-					spec = this.msgSpecs.get(hash);
+					spec = msgSpecs.get(hash);
 					if (spec !== null) {
 						specs.push(spec);
 					}
 				}
 			}
 		}
-		
+
 		return specs;
 	};
-	
+
 	/**
-	 * Get any MessageTargets registered with the given attributes. If no
-	 * attributes are given, all MessageTargets will be returned. Valid
-	 * attributes are:
+	 * Get any MessageTargets registered with the given attributes. If no attributes are given, all
+	 * MessageTargets will be returned. Valid attributes are:
 	 * - src
 	 * - msg
 	 * - dispatchId
 	 * - name
 	 * - handler
 	 * 
-	 * @param {Object} attributes optional structure with the attributes to
-	 *     search for
-	 * @param {boolean} wildcards flag indicating if wildcard values should be
-	 *     included in the search results (only needed if attributes is set)
-	 * @return {hemi.dispatch.MessageTarget[]} an array of MessageTargets
-	 *     registered with matching attributes
+	 * @param {Object} attributes optional structure with the attributes to search for
+	 * @param {boolean} wildcards flag indicating if wildcard values should be included in the
+	 *     search results (only needed if attributes is set)
+	 * @return {hemi.dispatch.MessageTarget[]} an array of MessageTargets registered with matching
+	 *     attributes
 	 */
 	hemi.dispatch.getTargets = function(attributes, wildcards) {
 		var specs = this.getSpecs(attributes, wildcards),
@@ -5167,22 +6172,22 @@ var hemi = (function(hemi) {
 			dispatchId,
 			name,
 			handler;
-		
+
 		if (attributes !== undefined) {
-			dispatchId = attributes.dispatchId;
+			dispatchId = attributes._dispatchId;
 			name = attributes.name;
 			handler = attributes.handler;
 		}
-		
-		for (var ndx = 0, len = specs.length; ndx < len; ndx++) {
-			var targets = specs[ndx].targets;
-			
-			for (var t = 0, tLen = targets.length; t < tLen; t++) {
-				var result = targets[t];
-				var add = true;
+
+		for (var i = 0, il = specs.length; i < il; ++i) {
+			var targets = specs[i].targets;
+
+			for (var j = 0, jl = targets.length; j < jl; ++j) {
+				var result = targets[j],
+					add = true;
 				
 				if (dispatchId !== undefined) {
-					add = result.dispatchId === dispatchId;
+					add = result._dispatchId === dispatchId;
 				}
 				if (add && name !== undefined) {
 					add = result.name === name;
@@ -5190,19 +6195,18 @@ var hemi = (function(hemi) {
 				if (add && handler !== undefined) {
 					add = result.handler === handler;
 				}
-				
+
 				if (add) {
 					results.push(result);
 				}
 			}
 		}
-		
+
 		return results;
 	};
-	
+
 	/**
-	 * Get the MessageSpec that the given MessageTarget is currently
-	 * registered with.
+	 * Get the MessageSpec that the given MessageTarget is currently registered with.
 	 * 
 	 * @param {hemi.dispatch.MessageTarget} target the MessageTarget to get
 	 *     the MessageSpec for
@@ -5210,159 +6214,61 @@ var hemi = (function(hemi) {
 	 */
 	hemi.dispatch.getTargetSpec = function(target) {
 		var specs = this.getSpecs(),
-			dispatchId = target.dispatchId;
-		
-		for (var ndx = 0, len = specs.length; ndx < len; ndx++) {
-			var spec = specs[ndx],
+			dispatchId = target._dispatchId;
+
+		for (var i = 0, il = specs.length; i < il; ++i) {
+			var spec = specs[i],
 				targets = spec.targets;
 			
-			for (var t = 0, tLen = targets.length; t < tLen; t++) {
-				if (targets[t].dispatchId === dispatchId) {
+			for (var j = 0, jl = targets.length; j < jl; ++j) {
+				if (targets[j]._dispatchId === dispatchId) {
 					return spec;
 				}
 			}
 		}
-		
+
 		return null;
 	};
-	
-	/**
-	 * Get the MessageSpec with the given attributes or create one if it does
-	 * not already exist.
+
+    /**
+	 * Load the given MessageSpec entries into the MessageSpec database.
 	 * 
-	 * @param {number} src id of the Message originator to handle Messages for
-	 * @param {string} msg type of Message to handle
-	 * @return {hemi.dispatch.MessageSpec} the created/found MessageSpec
+	 * @param {hemi.dispatch.MessageSpec[]} entries MessageSpecs to load into the Dispatch
 	 */
-	hemi.dispatch.createSpec = function(src, msg) {
-		var specs = this.getSpecsFast(src, msg, false),
-			spec;
-		
-		if (specs.length === 0) {
-			spec = new hemi.dispatch.MessageSpec();
-			spec.src = src;
-			spec.msg = msg;
-			this.msgSpecs.put(spec.getHash(), spec);
-		} else {
-			if (specs.length > 1) {
-				hemi.console.log('Found ' + specs.length + ' MessageSpecs with the same src and msg.', hemi.console.ERR);
-			}
-			
-			spec = specs[0];
+	hemi.dispatch.loadEntries = function(entries) {
+		for (var i = 0, il = entries.length; i < il; ++i) {
+			var entry = entries[i];
+			msgSpecs.put(entry.getHash(), entry);
 		}
-		
-		return spec;
 	};
-	
+
 	/**
-	 * Setup a MessageTarget with the given attributes and register it to
-	 * receive Messages.
-	 * 
-	 * @param {number} src id of the Message originator to handle Messages for
-	 * @param {string} msg type of Message to handle
-	 * @param {Object} handler either a function that will take the Message as a
-	 *     parameter, or an object that will receive it
-	 * @param {string} opt_func name of the function to call if handler is an
-	 *     object
-	 * @param {string[]} opt_args optional array to specify arguments to pass to
-	 *     opt_func. Otherwise the entire Message is just passed in.
-	 * @return {hemi.dispatch.MessageTarget} the created MessageTarget
-	 */
-	hemi.dispatch.registerTarget = function(src, msg, handler, opt_func, opt_args) {
-		var spec = this.createSpec(src, msg),
-			msgTarget = new hemi.dispatch.MessageTarget();
-		msgTarget.dispatchId = this.getNextId();
-		msgTarget.handler = handler;
-		
-		if (opt_func) {
-			msgTarget.func = opt_func;
-		}
-		if (opt_args) {
-			msgTarget.args = opt_args;
-		}
-		
-		spec.addTarget(msgTarget);
-		return msgTarget;
-	};
-	
-	/**
-	 * Remove the given MessageTarget from the dispatch.
-	 * 
-	 * @param {hemi.dispatch.MessageTarget} target the MessageTarget to
-	 *     remove
-	 * @param {Object} opt_attributes optional structure with MessageSpec
-	 *     attributes to search for
-	 * @return {hemi.dispatch.MessageTarget} the removed MessageTarget or null
-	 */
-	hemi.dispatch.removeTarget = function(target, opt_attributes) {
-		var specs = this.getSpecs(opt_attributes, false),
-			removed = null;
-		
-		for (var ndx = 0, len = specs.length; ndx < len; ndx++) {
-			var spec = specs[ndx];
-			removed = spec.removeTarget(target);
-			
-			if (removed !== null) {
-				break;
-			}
-		}
-		
-		if (removed === null) {
-			hemi.console.log('MessageTarget was not found and therefore not removed', hemi.console.WARN);
-		}
-		
-		return removed;
-	};
-	
-	/**
-	 * Remove the given MessageTarget from its current MessageSpec and register
-	 * it with the given specifications.
-	 * 
-	 * @param {hemi.dispatch.MessageTarget} target the MessageTarget to
-	 *     register
-	 * @param {number} src id of the Message originator to handle Messages for
-	 * @param {string} msg type of Message to handle
-	 */
-	hemi.dispatch.setTargetSpec = function(target, src, msg) {
-		var spec = this.getTargetSpec(target);
-		
-		if (spec !== null) {
-			spec.removeTarget(target);
-		} else {
-			hemi.console.log('Previous MessageSpec for MessageTarget not found', hemi.console.WARN);
-		}
-		
-		spec = this.createSpec(src, msg);
-		spec.addTarget(target);
-	};
-	
-	/**
-	 * Create a Message from the given attributes and send it to all
-	 * MessageTargets with matching source id and message type.
+	 * Create a Message from the given attributes and send it to all MessageTargets with matching
+	 * source id and message type.
 	 * 
 	 * @param {hemi.world.Citizen} src the Message originator
 	 * @param {string} msg type of Message to send
-	 * @param {Object} data container for any and all information relevant to
-	 *     the Message
+	 * @param {Object} data container for any and all information relevant to the Message
 	 */
 	hemi.dispatch.postMessage = function(src, msg, data) {
 		var message = new hemi.dispatch.Message(),
-			id = src.getId();
+			id = src._getId();
+
 		message.src = src;
 		message.msg = msg;
 		message.data = data;
-		
+
 		var specs = this.getSpecsFast(id, msg, true);
-		
-		for (var ndx = 0, len = specs.length; ndx < len; ndx++) {
+
+		for (var i = 0, il = specs.length; i < il; ++i) {
 			// Make a local copy of the array in case it gets modified while
 			// sending the message (such as a MessageHandler unsubscribes itself
 			// or another one as part of its handle).
-			var targets = specs[ndx].targets.slice(0);
+			var targets = specs[i].targets.slice(0);
 			
-			for (var t = 0, tLen = targets.length; t < tLen; t++) {
-				var msgTarget = targets[t];
-				var args, func;
+			for (var j = 0, jl = targets.length; j < jl; ++j) {
+				var msgTarget = targets[j],
+					args, func;
 				
 				if (msgTarget.args !== null) {
 					// Parse the specified arguments from the Message.
@@ -5371,7 +6277,7 @@ var hemi = (function(hemi) {
 					// No arguments specified, so just pass the Message.
 					args = [message];
 				}
-				
+
 				if (msgTarget.func) {
 					// The handler is an object. Use the specified function to
 					// handle the Message.
@@ -5381,18 +6287,184 @@ var hemi = (function(hemi) {
 					// The handler is a function. Just pass it the arguments.
 					func = msgTarget.handler;
 				}
-				
+
 				func.apply(msgTarget.handler, args);
 			}
 		}
 	};
 
 	/**
-	 * Create an array of arguments from the given array of parameter strings. A
-	 * string starting with 'id:' indicates the world id for a Citizen to
-	 * retrieve. A string starting with 'msg:' indicates a period-delimited
-	 * string of attributes to parse from within message. Otherwise the argument
-	 * is passed through unmodified.
+	 * Setup a MessageTarget with the given attributes and register it to receive Messages.
+	 * 
+	 * @param {number} src id of the Message originator to handle Messages for
+	 * @param {string} msg type of Message to handle
+	 * @param {Object} handler either a function that will take the Message as a parameter, or an
+	 *     object that will receive it
+	 * @param {string} opt_func name of the function to call if handler is an object
+	 * @param {string[]} opt_args optional array to specify arguments to pass to opt_func. Otherwise
+	 *     the entire Message is just passed in.
+	 * @return {hemi.dispatch.MessageTarget} the created MessageTarget
+	 */
+	hemi.dispatch.registerTarget = function(src, msg, handler, opt_func, opt_args) {
+		var spec = createSpec(src, msg),
+			msgTarget = new hemi.dispatch.MessageTarget();
+
+		msgTarget._dispatchId = this.getNextId();
+		msgTarget.handler = handler;
+
+		if (opt_func) {
+			msgTarget.func = opt_func;
+		}
+		if (opt_args) {
+			msgTarget.args = opt_args;
+		}
+
+		spec.addTarget(msgTarget);
+		return msgTarget;
+	};
+
+	/**
+	 * Remove any MessageSpecs with the given attributes from the dispatch.
+	 * Valid attributes are:
+	 * - src
+	 * - msg
+	 * 
+	 * @param {Object} attributes optional structure with the attributes to
+	 *     search for
+	 * @param {boolean} wildcards flag indicating if wildcard values should be
+	 *     included in the search results (only needed if attributes is set)
+	 * @return {hemi.dispatch.MessageSpec[]} an array of removed MessageSpecs
+	 */
+	hemi.dispatch.removeSpecs = function(attributes, wildcards) {
+		var specs = hemi.dispatch.getSpecs(attributes, wildcards),
+			removed = [],
+			spec;
+
+		for (var i = 0, il = specs.length; i < il; ++i) {
+			spec = msgSpecs.remove(specs[i].getHash());
+			if (spec) removed.push(spec);
+		}
+
+		return removed;
+	};
+
+	/**
+	 * Remove the given MessageTarget from the dispatch.
+	 * 
+	 * @param {hemi.dispatch.MessageTarget} target the MessageTarget to remove
+	 * @param {Object} opt_attributes optional structure with MessageSpec attributes to search for
+	 * @return {hemi.dispatch.MessageTarget} the removed MessageTarget or null
+	 */
+	hemi.dispatch.removeTarget = function(target, opt_attributes) {
+		var specs = this.getSpecs(opt_attributes, false),
+			removed = null;
+
+		for (var i = 0, il = specs.length; i < il; ++i) {
+			var spec = specs[i];
+			removed = spec.removeTarget(target);
+
+			if (removed !== null) {
+				break;
+			}
+		}
+
+		if (removed === null) {
+			console.log('MessageTarget was not found and therefore not removed');
+		}
+
+		return removed;
+	};
+
+	/**
+	 * Remove any MessageTargets registered with the given attributes. If no attributes are given,
+	 * all MessageTargets will be returned. Valid attributes are:
+	 * - src
+	 * - msg
+	 * - dispatchId
+	 * - name
+	 * - handler
+	 * 
+	 * @param {Object} attributes optional structure with the attributes to search for
+	 * @param {boolean} wildcards flag indicating if wildcard values should be included in the
+	 *     search results (only needed if attributes is set)
+	 * @return {hemi.dispatch.MessageTarget[]} array of removed MessageTargets
+	 */
+	hemi.dispatch.removeTargets = function(attributes, wildcards) {
+		var specs = this.getSpecs(attributes, wildcards),
+			results = [],
+			dispatchId,
+			name,
+			handler;
+
+		if (attributes !== undefined) {
+			dispatchId = attributes._dispatchId;
+			name = attributes.name;
+			handler = attributes.handler;
+		}
+
+		for (var i = 0, il = specs.length; i < il; ++i) {
+			var spec = specs[i],
+				targets = spec.targets.slice(0);
+
+			for (var j = 0, jl = targets.length; j < jl; ++j) {
+				var result = targets[j],
+					remove = true;
+
+				if (dispatchId !== undefined) {
+					remove = result._dispatchId === dispatchId;
+				}
+				if (remove && name !== undefined) {
+					remove = result.name === name;
+				}
+				if (remove && handler !== undefined) {
+					remove = result.handler === handler;
+				}
+
+				if (remove) {
+					spec.removeTarget(result);
+					results.push(result);
+				}
+			}
+		}
+
+		return results;
+	};
+
+	/**
+	 * Set the id for the Dispatch to assign to the next MessageTarget.
+	 * 
+	 * @param {number} id the next id to assign
+	 */
+	hemi.dispatch.setNextId = function(id) {
+		nextId = id;
+	};
+
+	/**
+	 * Remove the given MessageTarget from its current MessageSpec and register it with the given
+	 * specifications.
+	 * 
+	 * @param {hemi.dispatch.MessageTarget} target the MessageTarget to register
+	 * @param {number} src id of the Message originator to handle Messages for
+	 * @param {string} msg type of Message to handle
+	 */
+	hemi.dispatch.setTargetSpec = function(target, src, msg) {
+		var spec = this.getTargetSpec(target);
+
+		if (spec !== null) {
+			spec.removeTarget(target);
+		} else {
+			console.log('Previous MessageSpec for MessageTarget not found');
+		}
+
+		spec = createSpec(src, msg);
+		spec.addTarget(target);
+	};
+
+	/**
+	 * Create an array of arguments from the given array of parameter strings. A string starting
+	 * with 'id:' indicates the world id for a Citizen to retrieve. A string starting with 'msg:'
+	 * indicates a period-delimited string of attributes to parse from within message. Otherwise the
+	 * argument is passed through unmodified.
 	 * For example:
 	 * 'id:12' will fetch hemi.world.getCitizens({worldId:12})
 	 * 'msg:data.shape.name' will parse message.data.shape.name
@@ -5402,150 +6474,311 @@ var hemi = (function(hemi) {
 	 * @return {Object[]} array of arguments created
 	 */
 	hemi.dispatch.getArguments = function(message, params) {
-		var arguments = [];
-		
-		for (var ndx = 0, len = params.length; ndx < len; ndx++) {
-			var param = params[ndx];
-			
+		var args = [];
+
+		for (var i = 0, il = params.length; i < il; ++i) {
+			var param = params[i];
+
 			if (typeof param != 'string') {
-				arguments[ndx] = param;
-			} else if (param.substring(0,3) === hemi.dispatch.ID_ARG) {
-				var id = parseInt(param.substring(3));
-				arguments.push(hemi.world.getCitizenById(id));
-			} else if (param.substring(0,4) === hemi.dispatch.MSG_ARG) {
-				param = param.substring(4);
-				var tokens = param.split('.');
-				var arg = message;
-				
-				for (aNdx = 0, aLen = tokens.length; arg != null && aNdx < aLen; aNdx++) {
-					arg = arg[tokens[aNdx]];
+				args[i] = param;
+			} else if (param.substring(0, 3) === hemi.dispatch.ID_ARG) {
+				var id = parseInt(param.substring(3), 10);
+				args[i] = hemi.world.getCitizenById(id);
+			} else if (param.substring(0, 4) === hemi.dispatch.MSG_ARG) {
+				var tokens = param.substring(4).split('.'),
+					arg = message;
+
+				for (var j = 0, jl = tokens.length; arg != null && j < jl; ++j) {
+					arg = arg[tokens[j]];
 				}
-				
-				arguments.push(arg);
+
+				args[i] = arg;
 			} else {
-				arguments[ndx] = param;
+				args[i] = param;
 			}
 		}
-		
-		return arguments;
+
+		return args;
 	};
-	
-	return hemi;
-})(hemi || {});
-/* 
- * Kuda includes a library and editor for authoring interactive 3D content for the web.
- * Copyright (C) 2011 SRI International.
- *
- * This program is free software; you can redistribute it and/or modify it under the terms
- * of the GNU General Public License as published by the Free Software Foundation; either 
- * version 2 of the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
- * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
- * See the GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License along with this program; 
- * if not, write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, 
- * Boston, MA 02110-1301 USA.
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Wildcard functions
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	// Anonymous source
+	var anon = {
+		_getId: function() {
+			return hemi.dispatch.WILDCARD;
+		}
+	};
+
+	/**
+	 * Utility function to reset the contents of the dispatch. This should typically not be used.
+	 * 
+	 * @param {hemi.utils.Hashtable} opt_specs optional set of new MessageSpecs for the dispatch
+	 * @return {hemi.utils.Hashtable} the previous set of MessageSpecs in the dispatch
+	 */
+	hemi._resetMsgSpecs = function(opt_specs) {
+		var oldSpecs = msgSpecs;
+		msgSpecs = opt_specs || new hemi.utils.Hashtable();
+		return oldSpecs;
+	};
+
+	/**
+	 * Send a Message with the given attributes from an anonymous wildcard source to any registered
+	 * MessageTargets.
+	 * 
+	 * @param {string} type type of Message
+	 * @param {Object} data container for any and all information relevant to the Message
+	 */
+	hemi.send = function(type, data) {
+		hemi.dispatch.postMessage(anon, type, data);
+	};
+
+	/**
+	 * Register the given handler to receive Messages of the specified type from any source. This
+	 * creates a MessageTarget.
+	 * 
+	 * @param {string} type type of Message to handle
+	 * @param {Object} handler either a function or an object
+	 * @param {string} opt_func name of the function to call if handler is an object
+	 * @param {string[]} opt_args optional array of names of arguments to pass to the handler.
+	 *     Otherwise the entire Message is just passed in.
+	 * @return {hemi.dispatch.MessageTarget} the created MessageTarget
+	 */
+	hemi.subscribe = function(type, handler, opt_func, opt_args) {
+		return hemi.dispatch.registerTarget(hemi.dispatch.WILDCARD, type, handler, opt_func,
+			opt_args);
+	};
+
+	/**
+	 * Remove the given MessageTarget for the specified Message type. Note that this removes a
+	 * MessageTarget registered with the wildcard as the source id. It does not remove the
+	 * MessageTarget from any Citizens it may be directly registered with.
+	 * 
+	 * @param {hemi.dispatch.MessageTarget} target the MessageTarget to remove from the Dispatch
+	 * @param {string} opt_type Message type the MessageTarget was registered for
+	 * @return {hemi.dispatch.MessageTarget} the removed MessageTarget or null
+	 */
+	hemi.unsubscribe = function(target, opt_type) {
+		return hemi.dispatch.removeTarget(target, {
+			src: hemi.dispatch.WILDCARD,
+			msg: opt_type
+		});
+	};
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Utility functions
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	/*
+	 * Get the MessageSpec with the given attributes or create one if it does not already exist.
+	 * 
+	 * @param {number} src id of the Message originator to handle Messages for
+	 * @param {string} msg type of Message to handle
+	 * @return {hemi.dispatch.MessageSpec} the created/found MessageSpec
+	 */
+	function createSpec(src, msg) {
+		var specs = hemi.dispatch.getSpecsFast(src, msg, false),
+			spec;
+
+		if (specs.length === 0) {
+			spec = new hemi.dispatch.MessageSpec();
+			spec.src = src;
+			spec.msg = msg;
+			msgSpecs.put(spec.getHash(), spec);
+		} else {
+			if (specs.length > 1) {
+				console.log('Found ' + specs.length + ' MessageSpecs with the same src and msg.');
+			}
+
+			spec = specs[0];
+		}
+
+		return spec;
+	}
+
+})();
+/*
+ * Licensed under the MIT license: http://www.opensource.org/licenses/mit-license.php
+ * The MIT License (MIT)
+ * 
+ * Copyright (c) 2011 SRI International
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+ * associated  documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the  Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-var hemi = (function(hemi) {	
+(function() {
+
+	var mouseDownListeners = [],
+		mouseUpListeners = [],
+		mouseMoveListeners = [],
+		mouseWheelListeners = [],
+		keyDownListeners = [],
+		keyUpListeners = [],
+		keyPressListeners = [];
+
+	// Register document listeners
+	document.addEventListener('keypress', function(event) {
+		hemi.input.keyPress(event);
+	}, true);
+	document.addEventListener('keydown', function(event) {
+		hemi.input.keyDown(event);
+	}, true);
+	document.addEventListener('keyup', function(event) {
+		hemi.input.keyUp(event);
+	}, true);
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Global functions
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
 	/**
 	 * @namespace A module for handling all keyboard and mouse input.
 	 */
 	hemi.input = hemi.input || {};
-	
+
+	/**
+	 * Utility function to reset the key input listeners. This should typically not be used.
+	 * 
+	 * @param {Object} opt_listeners optional map of new key down/up/press listeners
+	 * @return {Object} map of the previous key down/up/press listeners
+	 */
+	hemi._resetKeyListeners = function(opt_listeners) {
+		var listeners = {
+			down: keyDownListeners,
+			up: keyUpListeners,
+			press: keyPressListeners
+		};
+
+		opt_listeners = opt_listeners || {};
+		keyDownListeners = opt_listeners.down || [];
+		keyUpListeners = opt_listeners.up || [];
+		keyPressListeners = opt_listeners.press || [];
+
+		return listeners;
+	};
+
+	/**
+	 * Utility function to reset the mouse input listeners. This should typically not be used.
+	 * 
+	 * @param {Object} opt_listeners optional map of new mouse down/up/move/wheel listeners
+	 * @return {Object} map of the previous mouse down/up/move/wheel listeners
+	 */
+	hemi._resetMouseListeners = function(opt_listeners) {
+		var listeners = {
+			down: mouseDownListeners,
+			up: mouseUpListeners,
+			move: mouseMoveListeners,
+			wheel: mouseWheelListeners
+		};
+
+		opt_listeners = opt_listeners || {};
+		mouseDownListeners = opt_listeners.down || [];
+		mouseUpListeners = opt_listeners.up || [];
+		mouseMoveListeners = opt_listeners.move || [];
+		mouseWheelListeners = opt_listeners.wheel || [];
+
+		return listeners;
+	};
+
 	/**
 	 * Setup the listener lists and register the event handlers.
 	 */
-	hemi.input.init = function() {
-		hemi.input.mouseDownListeners = [];
-		hemi.input.mouseUpListeners = [];
-		hemi.input.mouseMoveListeners = [];
-		hemi.input.mouseWheelListeners = [];
-        hemi.input.keyDownListeners = [];
-        hemi.input.keyUpListeners = [];
-        hemi.input.keyPressListeners = [];
-		
-		hemi.core.event.addEventListener(hemi.core.o3dElement, 'mousedown', hemi.input.mouseDown);
-		hemi.core.event.addEventListener(hemi.core.o3dElement, 'mousemove', hemi.input.mouseMove);
-		hemi.core.event.addEventListener(hemi.core.o3dElement, 'mouseup', hemi.input.mouseUp);
-		hemi.core.event.addEventListener(hemi.core.o3dElement, 'wheel', hemi.input.scroll);
-		
-		document.addEventListener('keypress', function(event) {
-			hemi.input.keyPress(event);
+	hemi.input.init = function(canvas) {
+		canvas.addEventListener('mousedown', function(event) {
+			hemi.input.mouseDown(event);
 		}, true);
-		document.addEventListener('keydown', function(event) {
-			hemi.input.keyDown(event);
+		canvas.addEventListener('mousemove', function(event) {
+			hemi.input.mouseMove(event);
 		}, true);
-		document.addEventListener('keyup', function(event) {
-			hemi.input.keyUp(event);
+		canvas.addEventListener('mouseup', function(event) {
+			hemi.input.mouseUp(event);
 		}, true);
+		canvas.addEventListener('mousewheel', function(event) {
+			hemi.input.scroll(event);
+		}, false);
+		canvas.addEventListener('DOMMouseScroll', function(event) {
+			hemi.input.scroll(event);
+		}, false);
 	};
-	
+
 	/**
 	 * Register the given listener as a "mouse down" listener.
 	 *  
 	 * @param {Object} listener an object that implements onMouseDown()
 	 */
 	hemi.input.addMouseDownListener = function(listener) {
-		addListener(hemi.input.mouseDownListeners, listener);
+		addListener(mouseDownListeners, listener);
 	};
-	
+
 	/**
 	 * Register the given listener as a "mouse up" listener.
 	 *  
 	 * @param {Object} listener an object that implements onMouseUp()
 	 */
 	hemi.input.addMouseUpListener = function(listener) {
-		addListener(hemi.input.mouseUpListeners, listener);
+		addListener(mouseUpListeners, listener);
 	};
-	
+
 	/**
 	 * Register the given listener as a "mouse move" listener.
 	 *  
 	 * @param {Object} listener an object that implements onMouseMove()
 	 */
 	hemi.input.addMouseMoveListener = function(listener) {
-		addListener(hemi.input.mouseMoveListeners, listener);
+		addListener(mouseMoveListeners, listener);
 	};
-	
+
 	/**
 	 * Register the given listener as a "mouse wheel" listener.
 	 *  
 	 * @param {Object} listener an object that implements onScroll()
 	 */
 	hemi.input.addMouseWheelListener = function(listener) {
-		addListener(hemi.input.mouseWheelListeners, listener);
+		addListener(mouseWheelListeners, listener);
 	};
-    
+   
 	/**
 	 * Register the given listener as a "key down" listener.
 	 *  
 	 * @param {Object} listener an object that implements onKeyDown()
 	 */
-    hemi.input.addKeyDownListener = function(listener) {
-		addListener(hemi.input.keyDownListeners, listener);
-    };
-    
+	hemi.input.addKeyDownListener = function(listener) {
+		addListener(keyDownListeners, listener);
+	};
+
 	/**
 	 * Register the given listener as a "key up" listener.
 	 *  
 	 * @param {Object} listener an object that implements onKeyUp()
 	 */
-    hemi.input.addKeyUpListener = function(listener) {
-		addListener(hemi.input.keyUpListeners, listener);
-    };
-    
+	hemi.input.addKeyUpListener = function(listener) {
+		addListener(keyUpListeners, listener);
+	};
+
 	/**
 	 * Register the given listener as a "key press" listener.
 	 *  
 	 * @param {Object} listener an object that implements onKeyPress()
 	 */
-    hemi.input.addKeyPressListener = function(listener) {
-		addListener(hemi.input.keyPressListeners, listener);
-    };
-	
+	hemi.input.addKeyPressListener = function(listener) {
+		addListener(keyPressListeners, listener);
+	};
+
 	/**
 	 * Remove the given listener from the list of "mouse down" listeners.
 	 * 
@@ -5553,9 +6786,9 @@ var hemi = (function(hemi) {
 	 * @return {Object} the removed listener if successful or null
 	 */
 	hemi.input.removeMouseDownListener = function(listener) {
-		return removeListener(hemi.input.mouseDownListeners, listener);
+		return removeListener(mouseDownListeners, listener);
 	};
-	
+
 	/**
 	 * Remove the given listener from the list of "mouse up" listeners.
 	 * 
@@ -5563,9 +6796,9 @@ var hemi = (function(hemi) {
 	 * @return {Object} the removed listener if successful or null
 	 */
 	hemi.input.removeMouseUpListener = function(listener) {
-		return removeListener(hemi.input.mouseUpListeners, listener);
+		return removeListener(mouseUpListeners, listener);
 	};
-	
+
 	/**
 	 * Remove the given listener from the list of "mouse move" listeners.
 	 * 
@@ -5573,9 +6806,9 @@ var hemi = (function(hemi) {
 	 * @return {Object} the removed listener if successful or null
 	 */
 	hemi.input.removeMouseMoveListener = function(listener) {
-		return removeListener(hemi.input.mouseMoveListeners, listener);
+		return removeListener(mouseMoveListeners, listener);
 	};
-	
+
 	/**
 	 * Remove the given listener from the list of "mouse wheel" listeners.
 	 * 
@@ -5583,136 +6816,143 @@ var hemi = (function(hemi) {
 	 * @return {Object} the removed listener if successful or null
 	 */
 	hemi.input.removeMouseWheelListener = function(listener) {
-		return removeListener(hemi.input.mouseWheelListeners, listener);
+		return removeListener(mouseWheelListeners, listener);
 	};
-    
+
 	/**
 	 * Remove the given listener from the list of "key down" listeners.
 	 * 
 	 * @param {Object} listener the listener to remove
 	 * @return {Object} the removed listener if successful or null
 	 */
-    hemi.input.removeKeyDownListener = function(listener) {
-		return removeListener(hemi.input.keyDownListeners, listener);
-    };
-    
+	hemi.input.removeKeyDownListener = function(listener) {
+		return removeListener(keyDownListeners, listener);
+	};
+
 	/**
 	 * Remove the given listener from the list of "key up" listeners.
 	 * 
 	 * @param {Object} listener the listener to remove
 	 * @return {Object} the removed listener if successful or null
 	 */
-    hemi.input.removeKeyUpListener = function(listener) {
-		return removeListener(hemi.input.keyUpListeners, listener);
-    };
-    
+	hemi.input.removeKeyUpListener = function(listener) {
+		return removeListener(keyUpListeners, listener);
+	};
+
 	/**
 	 * Remove the given listener from the list of "key press" listeners.
 	 * 
 	 * @param {Object} listener the listener to remove
 	 * @return {Object} the removed listener if successful or null
 	 */
-    hemi.input.removeKeyPressListener = function(listener) {
-		return removeListener(hemi.input.keyPressListeners, listener);
-    };
-	
+	hemi.input.removeKeyPressListener = function(listener) {
+		return removeListener(keyPressListeners, listener);
+	};
+
 	/**
 	 * Handle the event generated by the user pressing a mouse button down.
 	 * 
-	 * @param {o3d.Event} event information about the event which is passed on
-	 *                    to registered "mouse down" listeners
+	 * @param {Object} event information about the event which is passed on to registered "mouse
+	 *     down" listeners
 	 */
 	hemi.input.mouseDown = function(event) {
-		for (var ndx = 0; ndx < hemi.input.mouseDownListeners.length; ndx++) {
-			hemi.input.mouseDownListeners[ndx].onMouseDown(event);
+		var newEvent = getRelativeEvent(event);
+		for (var ndx = 0; ndx < mouseDownListeners.length; ndx++) {
+			mouseDownListeners[ndx].onMouseDown(newEvent);
 		}
 	};
-	
+
 	/**
 	 * Handle the event generated by the user releasing a pressed mouse button.
 	 * 
-	 * @param {o3d.Event} event information about the event which is passed on
-	 *                    to registered "mouse up" listeners
+	 * @param {Object} event information about the event which is passed on to registered "mouse up"
+	 *     listeners
 	 */
 	hemi.input.mouseUp = function(event) {
-		for (var ndx = 0; ndx < hemi.input.mouseUpListeners.length; ndx++) {
-			hemi.input.mouseUpListeners[ndx].onMouseUp(event);
+		var newEvent = getRelativeEvent(event);
+		for (var ndx = 0; ndx < mouseUpListeners.length; ndx++) {
+			mouseUpListeners[ndx].onMouseUp(newEvent);
 		}
 	};
-	
+
 	/**
 	 * Handle the event generated by the user moving the mouse.
 	 * 
-	 * @param {o3d.Event} event information about the event which is passed on
-	 *                    to registered "mouse move" listeners
+	 * @param {Object} event information about the event which is passed on to registered "mouse
+	 *     move" listeners
 	 */
 	hemi.input.mouseMove = function(event) {
-		for (var ndx = 0; ndx < hemi.input.mouseMoveListeners.length; ndx++) {
-			hemi.input.mouseMoveListeners[ndx].onMouseMove(event);
+		var newEvent = getRelativeEvent(event);
+		for (var ndx = 0; ndx < mouseMoveListeners.length; ndx++) {
+			mouseMoveListeners[ndx].onMouseMove(newEvent);
 		}
 	};
-	
+
 	/**
 	 * Handle the event generated by the user scrolling a mouse wheel.
 	 * 
-	 * @param {o3d.Event} event information about the event which is passed on
-	 *                    to registered "mouse wheel" listeners
+	 * @param {Object} event information about the event which is passed on to registered "mouse
+	 *     wheel" listeners
 	 */
 	hemi.input.scroll = function(event) {
-		for (var ndx = 0; ndx < hemi.input.mouseWheelListeners.length; ndx++) {
-			hemi.input.mouseWheelListeners[ndx].onScroll(event);
+		var newEvent = getRelativeEvent(event);
+		newEvent.deltaY = event.detail ? -event.detail : event.wheelDelta;
+		cancelEvent(event);
+		for (var ndx = 0; ndx < mouseWheelListeners.length; ndx++) {
+			mouseWheelListeners[ndx].onScroll(newEvent);
 		}
 	};
-    
+
 	/**
 	 * Handle the event generated by the user pressing a key down.
 	 * 
-	 * @param {o3d.Event} event information about the event which is passed on
-	 *                    to registered "key down" listeners
+	 * @param {Object} event information about the event which is passed on to registered "key down"
+	 *     listeners
 	 */
-    hemi.input.keyDown = function(event) {
-        for (var ndx = 0; ndx < hemi.input.keyDownListeners.length; ndx++) {
-            hemi.input.keyDownListeners[ndx].onKeyDown(event);
-        }
-    };
-    
+	hemi.input.keyDown = function(event) {
+		for (var ndx = 0; ndx < keyDownListeners.length; ndx++) {
+			keyDownListeners[ndx].onKeyDown(event);
+		}
+	};
+
 	/**
 	 * Handle the event generated by the user releasing a pressed key.
 	 * 
-	 * @param {o3d.Event} event information about the event which is passed on
-	 *                    to registered "key up" listeners
+	 * @param {Object} event information about the event which is passed on to registered "key up"
+	 *     listeners
 	 */
-    hemi.input.keyUp = function(event) {
-        for (var ndx = 0; ndx < hemi.input.keyUpListeners.length; ndx++) {
-            hemi.input.keyUpListeners[ndx].onKeyUp(event);
-        }
-    };
-    
+	hemi.input.keyUp = function(event) {
+		for (var ndx = 0; ndx < keyUpListeners.length; ndx++) {
+			keyUpListeners[ndx].onKeyUp(event);
+		}
+	};
+
 	/**
-	 * Handle the event generated by the user pressing a key down and releasing
-	 * it.
+	 * Handle the event generated by the user pressing a key down and releasing it.
 	 * 
-	 * @param {o3d.Event} event information about the event which is passed on
-	 *                    to registered "key press" listeners
+	 * @param {Object} event information about the event which is passed on to registered "key
+	 *     press" listeners
 	 */
-    hemi.input.keyPress = function(event) {
-        for (var ndx = 0; ndx < hemi.input.keyPressListeners.length; ndx++) {
-            hemi.input.keyPressListeners[ndx].onKeyPress(event);
-        }
-    };
-	
-	// Internal functions
-	
+	hemi.input.keyPress = function(event) {
+		for (var ndx = 0; ndx < keyPressListeners.length; ndx++) {
+			keyPressListeners[ndx].onKeyPress(event);
+		}
+	};
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Utility functions
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
 	/*
 	 * Add the given listener to the given set of listeners.
 	 * 
 	 * @param {Object[]} listenerSet list to add to
 	 * @param {Object} listener object to add
 	 */
-	var addListener = function(listenerSet, listener) {
+	function addListener(listenerSet, listener) {
 		listenerSet.push(listener);
-	};
-	
+	}
+
 	/*
 	 * Remove the given listener from the given set of listeners.
 	 * 
@@ -5720,3216 +6960,3763 @@ var hemi = (function(hemi) {
 	 * @param {Object} listener object to remove
 	 * @return {Object} the removed listener if successful or null 
 	 */
-	var removeListener = function(listenerSet, listener) {
-        var found = null;
-		var ndx = listenerSet.indexOf(listener);
-		
-		if (ndx != -1) {
-			var spliced = listenerSet.splice(ndx, 1);
-			
-			if (spliced.length == 1) {
-				found = spliced[0];
-			}
+	function removeListener(listenerSet, listener) {
+		var ndx = listenerSet.indexOf(listener),
+			found = null;
+
+		if (ndx !== -1) {
+			found = listenerSet.splice(ndx, 1)[0];
 		}
-        
-        return found;
-	};
-	
-	return hemi;
-})(hemi || {});
-/* 
- * Kuda includes a library and editor for authoring interactive 3D content for the web.
- * Copyright (C) 2011 SRI International.
- *
- * This program is free software; you can redistribute it and/or modify it under the terms
- * of the GNU General Public License as published by the Free Software Foundation; either 
- * version 2 of the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
- * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
- * See the GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License along with this program; 
- * if not, write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, 
- * Boston, MA 02110-1301 USA.
+
+		return found;
+	}
+
+	function getRelativeXY(event) {
+		var element = event.target ? event.target : event.srcElement,
+			xy = {x: 0, y: 0};
+
+		for (var e = element; e; e = e.offsetParent) {
+			xy.x += e.offsetLeft;
+			xy.y += e.offsetTop;
+		}
+
+		xy.x = event.pageX - xy.x;
+		xy.y = event.pageY - xy.y;
+
+		return xy;
+	}
+
+	function getRelativeEvent(event) {
+		var newEvent = hemi.utils.clone(event, false),
+			xy = getRelativeXY(newEvent);
+
+		newEvent.x = xy.x;
+		newEvent.y = xy.y;
+
+		return newEvent;
+	}
+
+	function cancelEvent(event) {
+		if (!event) event = window.event;
+
+		event.cancelBubble = true;
+
+		if (event.stopPropagation) event.stopPropagation();
+		if (event.preventDefault) event.preventDefault();
+	}
+
+})();
+/*
+ * Licensed under the MIT license: http://www.opensource.org/licenses/mit-license.php
+ * The MIT License (MIT)
+ * 
+ * Copyright (c) 2011 SRI International
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+ * associated  documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the  Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-/**
- * @fileoverview Classes used for setting viewpoints, controlling the camera,
- *		and setting camera view options are defined here.
- */
+(function() {
 
-var hemi = (function(hemi) {
-	/**
-	 * @namespace A module for defining camera and viewpoint options.
+		// Static helper objects shared by all motions
+	var _vector = new THREE.Vector3();
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Shared functions
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	/*
+	 * Test if the Rotator/Scalor/Translator should be a render listener or not.
 	 */
-	hemi.view = hemi.view || {};
-
-	hemi.view.defaults = {
-		MOUSE_SPEED : 0.005,
-		MOUSE_DELTA : 0.0015,
-		TRUCK_SPEED : 0.02,
-		FOV         : 0.707107,
-		NP          : 1,
-		FP          : 10000,
-		MOVE_TIME   : 72,
-		MIN_FOV     : 0.05,
-		MAX_FOV     : Math.PI/3,
-		MIN_TILT    : -Math.PI/2.001,
-		MAX_TILT    : Math.PI/2.001
-	};
-	
-	hemi.view.projection = {
-		PERSPECTIVE : 0,
-		XY          : 1,
-		XZ          : 2,
-		YZ          : 3
-	};
-
-	/**
-	 * @class A Camera controls the point of view and perspective when viewing a
-	 * 3D scene.
-	 * @extends hemi.world.Citizen
-	 */
-	hemi.view.Camera = hemi.world.Citizen.extend({
-		init: function() {
-			this._super();
-			
-			var tween = hemi.utils.penner.linearTween,		
-				t = {
-					cam    : hemi.core.mainPack.createObject('Transform'),
-					pan    : hemi.core.mainPack.createObject('Transform'),
-					tilt   : hemi.core.mainPack.createObject('Transform'),
-					target : hemi.core.mainPack.createObject('Transform')
-				};
-			t.cam.name = 'hemi.view.cam';
-			t.pan.name = 'hemi.view.pan';
-			t.tilt.name = 'hemi.view.tilt';
-			t.target.name = 'hemi.view.target';		
-			t.pan.parent = hemi.core.client.root;
-			t.tilt.parent = t.pan;
-			t.cam.parent = t.tilt;
-			t.target.parent = t.cam;
-			t.target.translate([0,0,-1]);
-			t.cam.translate([0,0,1]);	
-			this.transforms = t;
-			this.vd = { current: null, last: null };
-			this.paramObj = hemi.core.mainPack.createObject('ParamObject');
-			this.light = {
-				position : this.paramObj.createParam('lightWorldPos','ParamFloat3'),
-				color : this.paramObj.createParam('lightColor','ParamFloat4'),
-				fixed : true
-			};
-			this.light.color.value = [1,1,1,1]; 
-	        this.pan = {
-				current : 0,
-				min     : null,
-				max     : null
-			};
-	        this.tilt = { 
-				current : 0,
-				min     : hemi.view.defaults.MIN_TILT,
-				max     : hemi.view.defaults.MAX_TILT  
-			};
-	        this.fov = {
-				current : hemi.view.defaults.FOV,
-				min     : hemi.view.defaults.MIN_FOV,
-				max     : hemi.view.defaults.MAX_FOV
-			};
-			this.camPan = { current : 0, min: null, max: null };
-			this.camTilt = { current: 0, min: null, max: null };
-	        this.distance = 1;
-	        this.up = [0, 1, 0];
-			this.mode = {
-				scroll     : true,
-				scan       : true,
-				fixed      : false,
-				frames     : true,
-				control    : false,
-				projection : hemi.view.projection.PERSPECTIVE
-			};	
-			this.state = {
-				moving : false,
-				curve  : null,
-				time   : { current: 0.0, end: 0.0 },
-				mouse  : false,
-				xy     : { current: [-1,-1], last: [-1,-1] },
-				shift  : false,
-				update : false,
-				vp     : null
-			};
-			this.clip = {
-				near : hemi.view.defaults.NP,
-				far  : hemi.view.defaults.FP
-			};
-			this.easeFunc = [tween,tween,tween];			
-			hemi.view.addRenderListener(this);
-			this.update();
-			this.updateProjection();
-		},
-		
-        /**
-         * Overwrites hemi.world.Citizen.citizenType
-         * @string
-         */
-        citizenType: 'hemi.view.Camera',
-		
-		/**
-		 * Clamp the pan and tilt angles to the Camera's limits.
-		 */
-		clampPanTilt : function() {
-			var p = this.camPan, t = this.camTilt;
-			p.current = ( p.min!=null && p.current<=p.min ) ? p.min : 
-					    ( p.max!=null && p.current>=p.max ) ? p.max : p.current;
-			t.current = ( t.min!=null && t.current<=t.min ) ? t.min : 
-					    ( t.max!=null && t.current>=t.max ) ? t.max : t.current;
-		},
-		
-		/**
-		 * Send a cleanup Message and remove all references in the Camera.
-		 */
-		cleanup: function() {
-			hemi.view.removeRenderListener(this);
-			this._super();			
-			this.disableControl();
-			for (t in this.transforms) {
-				this.transforms[t].parent = null;
-				hemi.core.mainPack.removeObject(this.transforms[t]);
-				this.transforms[t] = null;
-			}
-			this.paramObj.removeParam(this.light.position);
-			this.paramObj.removeParam(this.light.color);
-			hemi.core.mainPack.removeObject(this.paramObj);
-			this.paramObj = null;
-			this.light.position = null;
-			this.light.color = null;
-		},
-		
-		/**
-		 * Disable control of the Camera through the mouse and keyboard.
-		 */
-		disableControl : function() {
-			if (!this.mode.control) {
-				return false;
-			} else {
-				hemi.input.removeMouseDownListener(this);
-				hemi.input.removeMouseUpListener(this);
-				hemi.input.removeMouseMoveListener(this);
-				hemi.input.removeMouseWheelListener(this);
-				hemi.input.removeKeyDownListener(this);
-				hemi.input.removeKeyUpListener(this);	
-				this.mode.control = false;
-				this.state.mouse = false;
-				return true;
-			}
-		},
-		
-		/**
-		 * Disable the shiftkey scanning functionality.
-		 */
-		disableScan : function() {
-			this.mode.scan = false;
-		},
-		
-		/**
-		 * Disable the scroll wheel zooming functionality.
-		 */
-		disableZoom : function() {
-			this.mode.scroll = false;
-		},
-			
-		/**
-		 * Enable control of the Camera through the mouse and keyboard.
-		 */
-		enableControl : function() {
-			if (this.mode.control) {
-				return false;
-			} else {
-				hemi.input.addMouseDownListener(this);
-				hemi.input.addMouseUpListener(this);
-				hemi.input.addMouseMoveListener(this);
-				hemi.input.addMouseWheelListener(this);
-				hemi.input.addKeyDownListener(this);
-				hemi.input.addKeyUpListener(this);
-				this.mode.control = true;
-				return true;
-			}
-		},
-		
-		/**
-		 * Enable the shiftkey dragging functionality.
-		 */
-		enableScan : function() {
-			this.mode.scan = true;
-		},
-		
-		/**
-		 * Enable the camera to zoom with the mouse scroll.
-		 */
-		enableZoom : function() {
-			this.mode.scroll = true;
-		},
-		
-		/**
-		 * Fix the eye to current spot, and use mouse movements to look around.
-		 */
-		fixEye : function() {
-			this.mode.fixed = true;
-			this.update();
-			return this;
-		},
-		
-		/**
-		 * Attach the light source to the Camera.
-		 */
-		lightOnCam : function() {
-			this.light.fixed = true;
-			this.update();
-			return this;
-		},
-		
-		/**
-		 * Allow the eye to rotate about a fixed target. This is the default mode.
-		 */
-		freeEye : function() {
-			this.mode.fixed = false;
-			if (!this.mode.projection) {
-				this.transforms.cam.identity();
-				this.transforms.cam.translate([0,0,this.distance]);
-			}
-			this.update();
-			return this;
-		},
-		
-		/**
-		 * Set the light source to be at the given position.
-		 * 
-		 * @param {number[3]} position XYZ position of the light source
-		 */
-		lightAtPosition : function(position) {
-			this.light.position.value = position;
-			this.light.fixed = false; 
-			this.update();
-			return this;
-		},
-		
-		/**
-		 * Get the current position of the Camera eye.
-		 *
-		 * @return {number[3]} XYZ coordinates of the eye
-		 */
-		getEye : function() {
-			return this.transforms.cam.getUpdatedWorldMatrix()[3].slice(0,3);
-		},
-
-		/**
-		 * Get the current position of the Camera target.
-		 *
-		 * @return {number[3]} XYZ coordinates of the target
-		 */
-		getTarget : function() {
-			if (this.mode.fixed) {
-				return this.transforms.target.getUpdatedWorldMatrix()[3].slice(0,3);
-			} else {
-				return this.transforms.pan.getUpdatedWorldMatrix()[3].slice(0,3);
-			}
-		},
-		
-		/**
-		 * Set the Camera's movement to be measured in frames.
-		 */
-		moveInFrames : function() {
-			this.mode.frames = true;
-		},
-		
-		/**
-		 * Set the Camera's movement to be measured in seconds.
-		 */
-		moveInSeconds : function() {
-			this.mode.frames = false;
-		},
-		
-		/**
-		 * Move the Camera along the specified curve.
-		 *
-		 * @param {hemi.view.CameraCurve} curve curve for the Camera eye and
-		 *     target to follow
-		 * @param {number} opt_time the number of seconds for the Camera to take
-		 *     to move along the curve (0 is instant)
-		 */
-		moveOnCurve : function(curve, opt_time) {
-			if (this.vd.current !== null) {
-				this.vd.last = this.vd.current;
-			} else {
-				this.vd.last = hemi.view.createViewData(this);
-			}
-			
-			this.vd.current = new hemi.view.ViewData({
-				eye: curve.eye.getEnd(),
-				target: curve.target.getEnd(),
-				up: this.up,
-				fov: this.fov.current,
-				np: this.clip.near,
-				fp: this.clip.far
-			});
-			this.state.curve = curve;
-			this.state.moving = true;
-			this.state.vp = null;
-			this.state.time.end = (opt_time == null) ? 1.0 : (opt_time > 0) ? opt_time : 0.001;
-			this.state.time.current = 0.0;
-			this.send(hemi.msg.start, { viewdata: this.vd.current });
-		},
-		
-		/**
-		 * Move the Camera when the Camera is in orthographic viewing mode.
-		 *
-		 * @param {number} xMovement The mouse movement, in pixels, along the x-axis
-		 * @param {number} yMovement The mouse movement, in pixels, along the y-axis
-		 */
-		moveOrthographic : function(xMovement,yMovement) {
-			var xDis = xMovement * 2 * this.distance / hemi.core.client.width;
-			var yDis = yMovement * 2 * this.distance / hemi.core.client.width;
-			switch(this.mode.projection) {
-				case hemi.view.projection.XY:
-				case hemi.view.projection.YZ:
-					this.transforms.pan.translate([-xDis,yDis,0]);
-					break;
-				case hemi.view.projection.XZ:
-					this.transforms.pan.translate([xDis,0,yDis]);
-					break;
-			}
-		},
-
-		/**
-		 * Move the Camera when the Camera is in perspective viewing mode.
-		 *
-		 * @param {number} xMovement The mouse movement, in pixels, along the x-axis
-		 * @param {number} yMovement The mouse movement, in pixels, along the y-axis
-		 */		
-		movePerspective : function(xMovement,yMovement) {
-			if (this.state.shift && this.mode.scan) {
-				var deltaX = hemi.view.defaults.MOUSE_DELTA * this.distance
-					* (xMovement);
-				var deltaY = hemi.view.defaults.MOUSE_DELTA * this.distance
-					* (yMovement);
-				this.transforms.pan.translate([
-					-deltaX,
-					deltaY * Math.cos(this.tilt.current),
-					deltaY * Math.sin(this.tilt.current)]);
-				this.update();
-			} else {
-				if (this.mode.fixed) {
-					this.rotate(
-						-xMovement * hemi.view.defaults.MOUSE_SPEED,
-						-yMovement * hemi.view.defaults.MOUSE_SPEED);
-				} else {
-					this.orbit(
-						-xMovement * hemi.view.defaults.MOUSE_SPEED,
-						-yMovement * hemi.view.defaults.MOUSE_SPEED);
-				}		
-			}
-		},
-		
-		/**
-		 * Move the Camera to the given Viewpoint.
-		 *
-		 * @param {hemi.view.Viewpoint} view Viewpoint to move to
-		 * @param {number} opt_time the number of seconds for the Camera to take
-		 *     to move to the Viewpoint (0 is instant)
-		 */
-		moveToView : function(view, opt_time) {
-			var t = (opt_time == null) ? 1.0 : opt_time,
-				pkg;
-			
-			if (view.getData != null) {
-				this.vd.current = view.getData();
-				this.state.vp = view;
-				pkg = {viewpoint: view};
-			} else {
-				this.vd.current = view;
-				this.state.vp = null;
-				pkg = {viewdata: view};
-			}
-			
-			this.vd.last = hemi.view.createViewData(this);
-			this.state.curve = null;
-			this.state.time.end = (t > 0) ? t : 0.001;
-			this.state.time.current = 0.0;
-			this.state.moving = true;
-			this.send(hemi.msg.start, pkg);
-		},
-		
-		/**
-		 * Keyboard key-down listener.
-		 *
-		 * @param {o3d.Event} keyEvent Message describing key down
-		 */
-		onKeyDown : function(keyEvent) {
-			this.state.shift = (keyEvent.keyCode == 16);
-		},
-
-		/**
-		 * Keyboard key-up listener.
-		 *
-		 * @param {o3d.Event} keyEvent Message describing key up
-		 */
-		onKeyUp : function(keyEvent) {
-			if (keyEvent.keyCode == 16) this.state.shift = false;
-		},
-
-		/**
-		 * Mouse-down listener - set parameters to reflect that fact.
-		 *
-		 * @param {o3d.Event} mouseEvent Message describing mouse down
-		 */
-		onMouseDown : function(mouseEvent) {
-			this.state.mouse = true;
-			this.state.xy.current[0] = this.state.xy.last[0] = mouseEvent.x;
-			this.state.xy.current[1] = this.state.xy.last[1] = mouseEvent.y;
-		},
-
-		/**
-		 * Mouse-move listener - move the camera if the mouse is down.
-		 *
-		 * @param {o3d.Event} mouseEvent Message describing mouse move
-		 */
-		onMouseMove : function(mouseEvent) {
-			if (this.state.mouse) {
-				this.state.xy.last[0] = this.state.xy.current[0];
-				this.state.xy.last[1] = this.state.xy.current[1];
-				this.state.xy.current[0] = mouseEvent.x;
-				this.state.xy.current[1] = mouseEvent.y;
-				var xMovement = this.state.xy.current[0] - this.state.xy.last[0];
-				var yMovement = this.state.xy.current[1] - this.state.xy.last[1];
-					if (this.mode.projection) {
-						this.moveOrthographic(xMovement,yMovement);			
-					} else {
-						this.movePerspective(xMovement,yMovement);
-					}	
-			}
-		},
-
-		/**
-		 * Mouse-up listener
-		 *
-		 * @param {o3d.Event} mouseEvent Message describing mouse up
-		 */
-		onMouseUp : function(mouseEvent) {
-			this.state.mouse = false;
-		},
-		
-		/**
-		 * Render listener - check mouse and camera parameters and decide if the
-		 * Camera needs to be updated.
-		 *
-		 * @param {o3d.Event} renderEvent Message desribing render loop
-		 */
-		onRender : function(renderEvent) {
-			var state = this.state,
-				xy = state.xy;	
-			
-			if ((state.mouse && (xy.current[0] !== xy.last[0] ||
-				                 xy.current[1] !== xy.last[1])) ||
-				state.moving ||
-				state.update) {
-				this.update(renderEvent.elapsedTime);
-			}
-			state.update = false;
-		},
-		
-		/**
-		 * Mouse-scroll listener - zoom the camera in or out.
-		 *
-		 * @param {o3d.Event} mouseEvent Message describing mouse behavior
-		 */
-		onScroll : function(mouseEvent) {		
-			if (!this.mode.scroll) {
-				return;
-			}
-			if (this.state.shift) {
-				var dis = this.distance * hemi.view.defaults.TRUCK_SPEED,
-					dir = (mouseEvent.deltaY > 0) ? 1 : -1;
-				this.truck(dis*dir);
-			} else {
-				if (this.mode.fixed) {
-					var breakpoint = (this.fov.max + this.fov.min)/2;
-					if (mouseEvent.deltaY > 0) {
-						if (this.fov.current < breakpoint) {
-							this.fov.current = this.fov.min + (this.fov.current - this.fov.min)*11/12;
-						} else {
-							this.fov.current = this.fov.max - (this.fov.max - this.fov.current)*13/12;
-						}
-					} else {
-						if (this.fov.current < breakpoint) {
-							this.fov.current = this.fov.min + (this.fov.current - this.fov.min)*13/12;
-						} else {
-							this.fov.current = this.fov.max - (this.fov.max - this.fov.current)*11/12;
-						}
-					}
-					this.updateProjection();
-					this.state.update = true;
-					return;
-				} else {
-					var t = (mouseEvent.deltaY > 0) ? 11/12 : 13/12;
-					this.distance = hemi.core.math.lerpScalar(0, this.distance, t);
-					if (!this.mode.projection) {
-						this.transforms.cam.identity();
-						this.transforms.cam.translate([0,0,this.distance]);
-					}
-					this.updateProjection();
-					this.state.update = true;
-				}
-			}
-		},
-		
-		/**
-		 * Orbit the Camera about the target point it is currently looking at.
-		 * 
-		 * @param {number} pan amount to pan around by (in radians)
-		 * @param {number} tilt amount to tilt up and down by (in radians)
-		 */
-		orbit : function(pan,tilt) {
-			if (tilt == null) tilt = 0;
-			var lastTilt = this.tilt.current;			
-			this.pan.current += pan;
-			this.tilt.current += tilt;			
-			if (this.tilt.current >= this.tilt.max) {
-				this.tilt.current = this.tilt.max;
-			} else if (this.tilt.current <= this.tilt.min) {
-				this.tilt.current = this.tilt.min;
-			}
-			this.transforms.pan.rotateY(pan);
-			this.transforms.tilt.rotateX(this.tilt.current - lastTilt);
-			this.update();
-		},
-		
-		/**
-		 * Rotate the Camera in place so that it looks in a new direction. Note
-		 * that this has no effect if the Camera is not in fixed-eye mode.
-		 * 
-		 * @param {number} pan amount to pan (in radians)
-		 * @param {number} tilt amount to tilt (in radians)
-		 */
-		rotate : function(pan,tilt) {
-			var cam = this.transforms.cam;
-			if (tilt == null) tilt = 0;
-
-			this.camPan.current += pan;
-			this.camTilt.current += tilt;
-			this.clampPanTilt();	
-			cam.identity();
-			cam.translate([0,0,this.distance]);
-			cam.rotateY(this.camPan.current);
-			cam.rotateX(this.camTilt.current);
-			this.update();
-		},
-
-		/**
-		 * Set the limits on the Camera pan and tilt in fixed eye mode.
-		 * 
-		 * @param {number} panMin minimum pan angle (in radians)
-		 * @param {number} panMax maximum pan angle (in radians)
-		 * @param {number} tiltMin minimum tilt angle (in radians)
-		 * @param {number} tiltMax maximum tilt angle (in radians)
-		 */
-		setLookAroundLimits : function(panMin, panMax, tiltMin, tiltMax) {
-			this.camPan.min = panMin;
-			this.camPan.max = panMax;
-			this.camTilt.min = tiltMin;
-			this.camTilt.max = tiltMax;
-			return this;
-		},
-		
-		/**
-		 * Set the function used to ease the Camera in and out of moves.
-		 *
-		 * @param {function|Object} easeFunc Either the function which will be
-		 *     used for easing on all 3 axes, or a simple object containing x,
-		 *     y, or z fields specifying a different function for each axis.
-		 * @return {hemi.view.Camera} This Camera, for chaining
-		 */
-		setEasing : function(easeFunc) {
-			if (typeof(easeFunc) == 'function') {
-				this.easeFunc = [easeFunc,easeFunc,easeFunc];
-			} else {
-				this.easeFunc = [
-					easeFunc.x || this.easeFunc[0],
-					easeFunc.y || this.easeFunc[1],
-					easeFunc.z || this.easeFunc[2],
-				];
-			}
-			return this;
-		},
-		
-		/**
-		 * Set the eye and target of the Camera. 
-		 *
-		 * @param {number[3]} eye XYZ position of camera eye
-		 * @param {number[3]} target XYZ position of camera target
-		 */
-		setEyeTarget : function(eye,target) {
-			var offset = [eye[0]-target[0],eye[1]-target[1],eye[2]-target[2]],
-				rtp = hemi.utils.cartesianToSpherical(offset),
-				t = this.transforms;
-
-			this.distance = rtp[0];
-			this.tilt.current = rtp[1] - Math.PI/2;
-			this.pan.current = rtp[2];
-			
-			t.pan.identity();
-			t.pan.translate(target);
-			t.pan.rotateY(this.pan.current);
-			
-			t.tilt.identity();
-			t.tilt.rotateX(this.tilt.current);
-			
-			var camPos = [0, 0, this.distance];
-			t.cam.identity();
-			t.cam.translate(camPos);
-			
-			hemi.utils.pointZAt(t.cam, camPos, hemi.utils.pointAsLocal(t.cam,target));
-			t.cam.rotateY(Math.PI);
-			this.camPan.current = 0;
-			this.camTilt.current = 0;			
-		},
-		
-		/**
-		 * Set the color of the Camera's light source.
-		 * 
-		 * @param {number[3]} rgb rgb value of the color
-		 */
-		setLight : function(rgb) {
-			this.light.color.value = [rgb[0],rgb[1],rgb[2],1];
-			return this;
-		},
-		
-		/**
-		 * Set the Camera view to render with an orthographic projection.
-		 *
-		 * @param {number} axis Enum for xy, xz, or yz plane to look at
-		 */
-		setOrthographic : function(axis) {
-			this.mode.projection = axis;
-			this.updateProjection();
-		},
-		
-		/**
-		 * Set the Camera view to render with a perspective projection.
-		 */
-		setPerspective : function() {
-			this.mode.projection = 0;
-			this.updateProjection();
-		},
-		
-		/**
-		 * Set the zooming limits in fixed-eye mode.
-		 *
-		 * @param {number} min zoom-in limit (in radians)
-		 * @param {number} max zoom-out limit (in radians)
-		 */
-		setZoomLimits : function(min,max) {
-			this.fov.min = min;
-			this.fov.max = max;
-			if (this.fov.current > this.fov.max) {
-				this.fov.current = this.fov.max;
-			}
-			if (this.fov.current < this.fov.min) {
-				this.fov.current = this.fov.min;
-			}
-		},
-		
-		/**
-		 * Get the Octane structure for this Camera.
-	     *
-	     * @return {Object} the Octane structure representing this Camera
-		 */
-		toOctane: function() {
-			var octane = this._super(),
-				curView = hemi.view.createViewData(this);
-			
-			octane.props.push({
-				name: this.mode.control ? 'enableControl' : 'disableControl',
-				arg: []
-			});
-			octane.props.push({
-				name: 'mode',
-				val: this.mode
-			});
-			octane.props.push({
-				name: 'moveToView',
-				arg: [curView, 0]
-			});
-
-			return octane;
-		},
-		
-		/**
-		 * Move the Camera towards or away from its current target point by the
-		 * given distance.
-		 * 
-		 * @param {number} distance the distance to move the Camera
-		 */
-		truck : function(distance) {
-			this.transforms.pan.rotateX(this.tilt.current);
-			this.transforms.pan.translate(0,0,-distance);
-			this.transforms.pan.rotateX(-this.tilt.current);
-			this.update();
-		},
-		
-		/**
-		 * Set up the Camera to interpolate between the two given time values.
-		 * 
-		 * @param {number} current current time
-		 * @param {number} end end time
-		 */
-		interpolateView : function(current,end) {
-			var eye = [], target = [],
-				last = this.vd.last,
-				cur = this.vd.current,
-				upProj = false;
-			
-			if (this.state.curve) {
-				var t = this.easeFunc[0](current,0,1,end);
-				eye = this.state.curve.eye.interpolate(t);
-				target = this.state.curve.target.interpolate(t);
-			} else {
-				for (var i=0; i<3; i++) {
-					eye[i] = this.easeFunc[i](current,last.eye[i],cur.eye[i]-last.eye[i],end);
-					target[i] = this.easeFunc[i](current,last.target[i],cur.target[i]-last.target[i],end);
-				}
-			}
-			if (cur.fov !== last.fov) {
-				this.fov.current = this.easeFunc[0](current,last.fov,cur.fov-last.fov,end);
-				upProj = true;
-			}
-			if (cur.np !== last.np) {
-				this.clip.near = this.easeFunc[0](current,last.np,cur.np-last.np,end);
-				upProj = true;
-			}
-			if (cur.fp !== last.fp) {
-				this.clip.far = this.easeFunc[0](current,last.fp,cur.fp-last.fp,end);
-				upProj = true;
-			}	
-			if (upProj) {
-				this.updateProjection();
-			}
-			
-			this.setEyeTarget(eye,target);
-		},
-		
-		/**
-		 * Update the Camera.
-		 */
-		update : function(delta) {
-			var time = this.state.time;
-			if (this.state.moving) {
-				this.interpolateView(time.current,time.end);
-				if (delta != undefined) {
-					var d = this.mode.frames ? 1.0/hemi.view.FPS : delta;
-					if (time.current >= time.end) {
-						this.state.moving = false;
-						this.state.curve = null;
-						
-						if (this.state.vp !== null) {
-							this.send(hemi.msg.stop, { viewpoint:this.state.vp });
-							this.state.vp = null;
-						} else {
-							this.send(hemi.msg.stop, { viewdata:this.vd.current });
-						}
-					}
-					time.current += d;
-					if (time.current >= time.end) {
-						time.current = time.end;
-					}				
-				}
-			} 
-			this.transforms.target.identity();
-			this.transforms.target.translate([0,0,-this.distance]);
-			hemi.view.viewInfo.drawContext.view = hemi.core.math.matrix4.lookAt(
-					this.getEye(),
-					this.getTarget(),
-					this.up);
-			if (this.light.fixed) {
-				this.light.position.value = this.getEye();
-			}
-		},
-		
-		/**
-		 * Update the Camera view projection.
-		 */
-		updateProjection : function() {
-			var aspect = hemi.view.clientSize.width / hemi.view.clientSize.height;
-			if (this.mode.projection) {
-				var scale = this.distance;
-				hemi.view.viewInfo.drawContext.projection = hemi.core.math.matrix4.orthographic(
-					-scale,scale,-scale/aspect,scale/aspect,0,this.clip.far);			
-			} else {
-				hemi.view.viewInfo.drawContext.projection = hemi.core.math.matrix4.perspective(
-					this.fov.current,aspect,this.clip.near,this.clip.far);
-			}
+	function shouldRender() {
+		if (!this.enabled ||  (this.accel.isZero() && this.vel.isZero())) {
+			hemi.removeRenderListener(this);
+		} else {
+			hemi.addRenderListener(this);
 		}
-	});
-	
-	hemi.view.Camera.prototype.msgSent =
-		hemi.view.Camera.prototype.msgSent.concat([
-			hemi.msg.start,
-			hemi.msg.stop]);
-	
+	}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Rotator class
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
 	/**
-	 * @class A CameraCurve contains an "eye" Curve and a "target" Curve that
-	 * allow a Camera to follow a smooth path through several waypoints.
-	 * @extends hemi.world.Citizen
+	 * @class A Rotator makes automated rotation easier by allowing simple calls such as setVel to
+	 * begin the automated spinning of a Transform.
+	 *
+	 * @param {hemi.Transform} opt_tran optional transform that will be rotating
+	 * @param {Object} opt_config optional configuration for the Rotator
+	 */
+	var Rotator = function(opt_tran, opt_config) {
+		var cfg = opt_config || {};
+
+		this._transform = null;
+		this.accel = cfg.accel || new THREE.Vector3();
+		this.angle = cfg.angle || new THREE.Vector3();
+		this.vel = cfg.vel || new THREE.Vector3();
+
+		this.time = 0;
+		this.stopTime = 0;
+		this.steadyRotate = false;
+		this.mustComplete = false;
+		this.startAngle = this.angle.clone();
+		this.stopAngle = this.angle.clone();
+
+		if (opt_tran !== undefined) {
+			this.setTransform(opt_tran);
+		}
+
+		this.enable();
+	};
+
+	/*
+	 * Octane properties for Rotator.
 	 * 
-	 * @param {hemi.curve.Curve} eye Curve for camera eye to follow
-	 * @param {hemi.curve.Curve} target Curve for camera target to follow
+	 * @return {Object[]} array of Octane properties
 	 */
-	hemi.view.CameraCurve = hemi.world.Citizen.extend({
-		init: function(eye, target) {
-			this._super();
-			
-			this.eye = eye;
-			this.target = target;
-		},
-		
-		/**
-         * Overwrites hemi.world.Citizen.citizenType
-         * @string
-         */
-		citizenType: 'hemi.view.CameraCurve',
-		
-		/**
-		 * Send a cleanup Message and remove all references in the CameraCurve.
-		 */
-		cleanup: function() {
-			this._super();			
-			this.eye = null;
-			this.target = null;
-		},
-		
-		/**
-		 * Get the Octane structure for this CameraCurve.
-	     *
-	     * @return {Object} the Octane structure representing this CameraCurve
-		 */
-		toOctane: function() {
-			var octane = this._super();
-			
-			octane.props.push({
-				name: 'eye',
-				oct: this.eye.toOctane()
-			});
-			octane.props.push({
-				name: 'target',
-				oct: this.target.toOctane()
-			});
-
-			return octane;
-		}
-	});
-	
-	hemi.view.ViewData = function(config) {
-		var cfg = config || {};
-		this.eye = cfg.eye || [0,0,-1];
-		this.target = cfg.target || [0,0,0];
-		this.up = cfg.up || [0,1,0];
-		this.fov = cfg.fov || hemi.view.defaults.FOV;
-		this.np = cfg.np || hemi.view.defaults.NP;
-		this.fp = cfg.fp ||hemi.view.defaults.FP;
+	Rotator.prototype._octane = function() {
+		return [{
+					name: '_transform',
+					id: this._transform._getId()
+				},
+				{
+					name: 'setAngle',
+					arg: [this.angle]
+				},
+				{
+					name: 'setAcceleration',
+					arg: [this.accel]
+				},
+				{
+					name: 'setVelocity',
+					arg: [this.vel]
+				}];
 	};
-	
+
 	/**
-	 * @class A Viewpoint describes everything needed for a view - eye, target,
-	 * up axis, field of view, near plane, and far plane.
-	 * @extends hemi.world.Citizen
+	 * Clear properties like acceleration, velocity, etc.
 	 */
-	hemi.view.Viewpoint = hemi.world.Citizen.extend({
-		init: function(config) {
-			this._super();
-			
-			var cfg = config || {};
-			this.name = cfg.name || '';
-			this.eye = cfg.eye || [0,0,-1];
-			this.target = cfg.target || [0,0,0];
-			this.up = cfg.up || [0,1,0];
-			this.fov = cfg.fov || hemi.view.defaults.FOV;
-			this.np = cfg.np || hemi.view.defaults.NP;
-			this.fp = cfg.fp ||hemi.view.defaults.FP;
-		},
-		
-		/**
-         * Overwrites hemi.world.Citizen.citizenType
-         * @string
-         */
-		citizenType: 'hemi.view.Viewpoint',
-		
-		/**
-		 * Get the data contained within the Viewpoint.
-		 * 
-		 * @return {hemi.view.ViewData} the ViewData for the Viewpoint
+	Rotator.prototype.clear = function() {
+		this.disable();
+		this.accel.set(0, 0, 0);
+		this.angle.set(0, 0, 0);
+		this.vel.set(0, 0, 0);
+	};
+
+	/**
+	 * Disable animation for the Rotator.
+	 */
+	Rotator.prototype.disable = function() {
+		if (this.enabled) {
+			hemi.removeRenderListener(this);
+			this.enabled = false;
+		}
+	};
+
+	/**
+	 * Enable animation for the Rotator.
+	 */
+	Rotator.prototype.enable = function() {
+		this.enabled = true;
+		shouldRender.call(this);
+	};
+
+	/**
+	 * Perform Newtonian calculations on the rotating object, starting with the angular velocity.
+	 *
+	 * @param {Object} event the render event
+	 */
+	Rotator.prototype.onRender = function(event) {
+		if (!this._transform) return;
+
+		var t = event.elapsedTime;
+
+		if (this.steadyRotate) {
+			this.time += t;
+
+			if (this.time >= this.stopTime) {
+				hemi.removeRenderListener(this);
+				this.time = this.stopTime;
+				this.angle.copy(this.stopAngle);
+				this.steadyRotate = this.mustComplete = false;
+				this._transform.send(hemi.msg.stop, {});
+			} else {
+				hemi.utils.lerpVec3(this.startAngle, this.stopAngle, this.time / this.stopTime,
+					this.angle);
+			}
+		} else {
+			this.vel.addSelf(_vector.copy(this.accel).multiplyScalar(t));
+			this.angle.addSelf(_vector.copy(this.vel).multiplyScalar(t));
+		}
+
+		applyRotator.call(this);
+	};
+
+	/**
+	 * Make the Rotator rotate the specified amount in the specified amount of time.
+	 *
+	 * @param {THREE.Vector3} theta XYZ amounts to rotate (in radians)
+	 * @param {number} time number of seconds for the rotation to take
+	 * @param {boolean} opt_mustComplete optional flag indicating that no other rotations can be
+	 *     started until this one finishes
+	 * @return {boolean} true if the Rotator will start turning, false if it will not
+	 */
+	Rotator.prototype.turn = function(theta, time, opt_mustComplete) {
+		if (!this.enabled || this.mustComplete) return false;
+
+		this.mustComplete = opt_mustComplete || false;
+		this.time = 0;
+		this.stopTime = time || 0.001;
+		this.steadyRotate = true;
+		this.startAngle.copy(this.angle);
+		this.stopAngle.add(this.angle, theta);
+		hemi.addRenderListener(this);
+		this._transform.send(hemi.msg.start, {});
+		return true;
+	};
+
+	/**
+	 * Set the angular acceleration.
+	 *
+	 * @param {THREE.Vector3} acceleration XYZ angular acceleration (in radians)
+	 */
+	Rotator.prototype.setAcceleration = function(acceleration) {
+		this.accel.copy(acceleration);
+		shouldRender.call(this);
+	};
+
+	/**
+	 * Set the current rotation angle.
+	 *
+	 * @param {THREE.Vector3} theta XYZ rotation angle (in radians)
+	 */
+	Rotator.prototype.setAngle = function(theta) {
+		this.angle.copy(theta);
+		applyRotator.call(this);
+	};
+
+	/**
+	 * Set the given Transform for the Rotator to control rotating.
+	 *
+	 * @param {hemi.Transform} transform the Transform to rotate
+	 */
+	Rotator.prototype.setTransform = function(transform) {
+		hemi.utils.useEuler(transform);
+		this._transform = transform;
+		this.angle.copy(transform.rotation);
+	};
+
+	/**
+	 * Set the angular velocity.
+	 *
+	 * @param {THREE.Vector3} velocity XYZ angular velocity (in radians)
+	 */
+	Rotator.prototype.setVelocity = function(velocity) {
+		this.vel.copy(velocity);
+		shouldRender.call(this);
+	};
+
+// Private functions
+
+	/*
+	 * Apply the Rotator's calculated angle to its Transform's rotation.
+	 */
+	function applyRotator() {
+		if (this._transform.useQuaternion) {
+			this._transform.useQuaternion = false;
+		}
+
+		this._transform.rotation.copy(this.angle);
+		this._transform.updateMatrix();
+		this._transform.updateMatrixWorld(true);
+	}
+
+	hemi.Rotator = Rotator;
+	hemi.makeOctanable(hemi.Rotator, 'hemi.Rotator', hemi.Rotator.prototype._octane);
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Translator class
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	/**
+	 * @class A Translator provides easy setting of linear velocity and acceleration of Transforms.
+	 * 
+	 * @param {hemi.Transform} opt_tran optional Transform that will be moving
+	 * @param {Object} opt_config optional configuration for the Translator
+	 */
+	var Translator = function(opt_tran, opt_config) {
+		var cfg = opt_config || {};
+
+		this._transform = null;
+		this.pos = cfg.pos || new THREE.Vector3();
+		this.vel = cfg.vel || new THREE.Vector3();
+		this.accel = cfg.accel || new THREE.Vector3();
+
+		this.time = 0;
+		this.stopTime = 0;
+		this.mustComplete = false;
+		this.steadyMove = false;
+		this.startPos = this.pos.clone();
+		this.stopPos = this.pos.clone();
+
+		if (opt_tran !== undefined) {
+			this.setTransform(opt_tran);
+		}
+
+		this.enable();
+	};
+
+	/*
+	 * Octane properties for Translator.
+	 * 
+	 * @return {Object[]} array of Octane properties
+	 */
+	Translator.prototype._octane = function() {
+		return [{
+					name: '_transform',
+					id: this._transform._getId()
+				},
+				{
+					name: 'setPosition',
+					arg: [this.pos]
+				},
+				{
+					name: 'setAcceleration',
+					arg: [this.accel]
+				},
+				{
+					name: 'setVelocity',
+					arg: [this.vel]
+				}];
+	};
+
+	/**
+	 * Clear properties like acceleration, velocity, etc.
+	 */
+	Translator.prototype.clear = function() {
+		this.disable();
+		this.pos.set(0, 0, 0);
+		this.vel.set(0, 0, 0);
+		this.accel.set(0, 0, 0);
+	};
+
+	/**
+	 * Disable animation for the Translator. 
+	 */
+	Translator.prototype.disable = function() {
+		if (this.enabled) {
+			hemi.removeRenderListener(this);
+			this.enabled = false;
+		}
+	};
+
+	/**
+	 * Enable animation for the Translator. 
+	 */
+	Translator.prototype.enable = function() {
+		this.enabled = true;
+		shouldRender.call(this);
+	};
+
+	/**
+	 * Make the Translator translate the specified amount in the specified amount of time.
+	 * 
+	 * @param {THREE.Vector3} delta XYZ amount to translate
+	 * @param {number} time number of seconds for the translation to take
+	 * @param {boolean} opt_mustComplete optional flag indicating that no other translations can be
+	 *     started until this one finishes
+	 * @return {boolean} true if the Translator will start moving, false if it will not
+	 */
+	Translator.prototype.move = function(delta, time, opt_mustComplete) {
+		if (!this.enabled || this.mustComplete) return false;
+
+		this.mustComplete = opt_mustComplete || false;
+		this.time = 0;
+		this.stopTime = time || 0.001;
+		this.steadyMove = true;
+		this.startPos.copy(this.pos);
+		this.stopPos.add(this.pos, delta);
+		hemi.addRenderListener(this);
+		this._transform.send(hemi.msg.start,{});
+		return true;
+	};
+
+	/**
+	 * Calculate the position of the Translator based on the acceleration and velocity.
+	 * 
+	 * @param {Object} event the render event
+	 */
+	Translator.prototype.onRender = function(event) {
+		if (!this._transform) return;
+
+		var t = event.elapsedTime;
+
+		if (this.steadyMove) {
+			this.time += t;
+
+			if (this.time >= this.stopTime) {
+				hemi.removeRenderListener(this);
+				this.time = this.stopTime;
+				this.pos.copy(this.stopPos);
+				this.steadyMove = this.mustComplete = false;
+				this._transform.send(hemi.msg.stop,{});
+			} else {
+				hemi.utils.lerpVec3(this.startPos, this.stopPos, this.time / this.stopTime,
+					this.pos);
+			}
+		} else {
+			this.vel.addSelf(_vector.copy(this.accel).multiplyScalar(t));
+			this.pos.addSelf(_vector.copy(this.vel).multiplyScalar(t));
+		}
+
+		applyTranslator.call(this);
+	};
+
+	/**
+	 * Set the acceleration.
+	 * 
+	 * @param {THREE.Vector3} acceleration XYZ acceleration vector
+	 */
+	Translator.prototype.setAcceleration = function(acceleration) {
+		this.accel.copy(acceleration);
+		shouldRender.call(this);
+	};
+
+	/**
+	 * Set the position.
+	 * 
+	 * @param {THREE.Vector3} position XYZ position
+	 */
+	Translator.prototype.setPosition = function(position) {
+		this.pos.copy(position);
+		applyTranslator.call(this);
+	};
+
+	/**
+	 * Set the given Transform for the Translator to control translating.
+	 *
+	 * @param {hemi.Transform} transform the Transform to translate
+	 */
+	Translator.prototype.setTransform = function(transform) {
+		this._transform = transform;
+		this.pos.copy(transform.position);
+	};
+
+	/**
+	 * Set the velocity.
+	 * 
+	 * @param {THREE.Vector3} velocity XYZ velocity vector
+	 */
+	Translator.prototype.setVelocity = function(velocity) {
+		this.vel.copy(velocity);
+		shouldRender.call(this);
+	};
+
+// Private functions
+
+	/*
+	 * Apply the Translator's calculated position to its Transform's position.
+	 */
+	function applyTranslator() {
+		this._transform.position.copy(this.pos);
+		this._transform.updateMatrix();
+		this._transform.updateMatrixWorld(true);
+	}
+
+	hemi.Translator = Translator;
+	hemi.makeOctanable(hemi.Translator, 'hemi.Translator', hemi.Translator.prototype._octane);
+
+})();
+/*
+ * Licensed under the MIT license: http://www.opensource.org/licenses/mit-license.php
+ * The MIT License (MIT)
+ * 
+ * Copyright (c) 2011 SRI International
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+ * associated  documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the  Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
+
+(function() {
+
+		// Containers for motions and manips to allow them to be reused and save some memory
+		// allocation costs.
+	var manips = [],
+		motions = [],
+		// Mapping of previous manip parameters for Transforms and Meshes to enable quick swapping
+		// of cancelInteraction and setMovable (for example).
+		savedParams = {};
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Contants
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	hemi.MotionType = {
+		MOVE: 'move',
+		RESIZE: 'resize',
+		TURN: 'turn'
+	};
+
+	// We intentionally use the MotionType enum for both manips and motions.
+	manips[hemi.MotionType.MOVE] = {
+		create: function() { return new hemi.Movable(); },
+		storage: []
+	};
+	manips[hemi.MotionType.RESIZE] = {
+		create: function() { return new hemi.Resizable(); },
+		storage: []
+	};
+	manips[hemi.MotionType.TURN] = {
+		create: function() { return new hemi.Turnable(); },
+		storage: []
+	};
+
+	motions[hemi.MotionType.MOVE] = {
+		create: function() { return new hemi.Translator(); },
+		storage: []
+	};
+	motions[hemi.MotionType.RESIZE] = {
+		create: function() { return new hemi.Scalor(); },
+		storage: []
+	};
+	motions[hemi.MotionType.TURN] = {
+		create: function() { return new hemi.Rotator(); },
+		storage: []
+	};
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Transform class
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	/**
+	 * @class A Transform performs hierarchical matrix transformations.
+	 */
+	var Transform = function() {
+		THREE.Object3D.call(this);
+
+		/*
+		 * The Manipulator that allows the user to control the Transform through mouse interaction.
+		 * @type Manipulator
 		 */
-		getData: function() {
-			return new hemi.view.ViewData(this);
-		},
-		
-		/**
-		 * Set the data for the Viewpoint.
-		 * 
-		 * @param {hemi.view.ViewData} viewData data to set for the Viewpoint
+		this._manip = null;
+
+		/*
+		 * The Rotator that is currently moving the Transform.
+		 * @type hemi.Rotator
 		 */
-		setData: function(viewData) {
-			this.eye = viewData.eye;
-			this.target = viewData.target;
-			this.up = viewData.up;
-			this.fov = viewData.fov;
-			this.np = viewData.np;
-			this.fp = viewData.fp;
-		},
-		
-		/**
-		 * Get the Octane structure for this Viewpoint.
-	     *
-	     * @return {Object} the Octane structure representing this Viewpoint
+		this._rotator = null;
+
+		/*
+		 * The Translator that is currently moving the Transform.
+		 * @type hemi.Translator
 		 */
-		toOctane: function() {
-			var octane = this._super();
-			
-			var names = ['eye', 'target', 'up', 'fov', 'np', 'fp'];
-			
-			for (var ndx = 0, len = names.length; ndx < len; ndx++) {
-				var name = names[ndx];
-				
-				octane.props.push({
+		this._translator = null;
+
+		/**
+		 * Flag indicating if the Transform should be pickable by mouse clicks.
+		 * @type boolean
+		 * @default true
+		 */
+		this.pickable = true;
+
+		// Improve performance by having autoupdate default to false
+		this.matrixAutoUpdate = false;
+	};
+
+	Transform.prototype = new THREE.Object3D();
+	Transform.constructor = Transform;
+
+	/*
+	 * Remove all references in the Transform.
+	 */
+	Transform.prototype._clean = function() {
+		this.cancelInteraction();
+		this.cancelMoving();
+		this.cancelResizing();
+		this.cancelTurning();
+
+		if (this.parent) {
+			this.parent.remove(this);
+		}
+
+		var children = [].concat(this.children);
+
+		for (var i = 0, il = children.length; i < il; ++i) {
+			children[i].cleanup();
+		}
+
+		savedParams[this._getId()] = undefined;
+	};
+
+	/*
+	 * Use the given Object3D to initialize properties.
+	 * 
+	 * @param {THREE.Object3D} obj Object3D to use to initialize properties
+	 * @param {Object} toConvert look-up structure to get the Transform equivalent of an Object3D
+	 *     for animations
+	 */
+	Transform.prototype._init = function(obj, toConvert) {
+		var children = this.children;
+		// This is important since THREE.KeyFrameAnimation relies on updating a shared reference to
+		// the matrix.
+		this.matrix = obj.matrix;
+		this.matrixWorld = obj.matrixWorld;
+		this.updateMatrix();
+		this.updateMatrixWorld();
+		this.children = [];
+
+		if (toConvert[obj.id] !== undefined) {
+			toConvert[obj.id] = this;
+		}
+
+		for (var i = 0, il = children.length; i < il; ++i) {
+			var child = children[i],
+				childObj = obj.getChildByName(child.name, false);
+
+			this.add(child);
+			child._init(childObj, toConvert);
+		}
+	};
+
+	/*
+	 * Array of Hemi Messages that Transform is known to send.
+	 * @type string[]
+	 */
+	Transform.prototype._msgSent = [hemi.msg.move, hemi.msg.resize, hemi.msg.start, hemi.msg.stop];
+
+	/*
+	 * Octane properties for Transform.
+	 * 
+	 * @return {Object[]} array of Octane properties
+	 */
+	Transform.prototype._octane = function() {
+		var names = ['pickable', 'visible', 'useQuaternion'],
+			props = [],
+			childArr = [];
+
+		for (var i = 0, il = names.length; i < il; ++i) {
+			var name = names[i];
+
+			props.push({
+				name: name,
+				val: this[name]
+			});
+		}
+
+		for (var i = 0, il = this.children.length; i < il; ++i) {
+			childArr[i] = this.children[i]._getId();
+		}
+
+		props.push({
+			name: 'children',
+			id: childArr
+		});
+
+		names = ['_manip', '_rotator', '_translator', 'position', 'scale'];
+
+		names.push(this.useQuaternion ? 'quaternion' : 'rotation');
+
+		for (var i = 0, il = names.length; i < il; ++i) {
+			var name = names[i];
+
+			if (this[name]) {
+				props.push({
 					name: name,
-					val: this[name]
+					oct: this[name]._toOctane()
 				});
 			}
-
-			return octane;
 		}
-	});
-	
-	/**
-	 * @class A ClientSize contains the height and width of the O3D client and
-	 * updates camera projections when either value changes.
-	 */
-	hemi.view.ClientSize = function() {
-		this.width = 0;
-		this.height = 0;
-	};
-	
-	/**
-	 * Check if the client's width or height has changed. If so, update the
-	 * projection of cameras. This function allows ClientSize to be a render
-	 * listener.
-	 */
-	hemi.view.ClientSize.prototype.onRender = function() {
-		// Update from the client size
-		var newWidth = parseInt(hemi.core.client.width);
-		var newHeight = parseInt(hemi.core.client.height);
-		if ((newWidth != this.width || newHeight != this.height) &&
-			hemi.world.camera != null) {
-			this.width = newWidth;
-			this.height = newHeight;
 
-			hemi.world.camera.updateProjection();
+		return props;
+	};
+
+	/**
+	 * Cancel the current interaction that is enabled for the Transform (movable, resizable or
+	 * turnable).
+	 */
+	Transform.prototype.cancelInteraction = function() {
+		if (this._manip) {
+			// We will save the manip's current state before we remove it (in case it is restored).
+			var params = getParams(this._getId()),
+				type;
+
+			if (this._manip instanceof hemi.Movable) {
+				type = hemi.MotionType.MOVE;
+				params.uv = this._manip._uv.slice(0);
+				params.angle = params.scale = undefined;
+			} else if (this._manip instanceof hemi.Resizable) {
+				type = hemi.MotionType.RESIZE;
+				params.scale = this._manip._scale;
+				params.angle = params.uv = undefined;
+			} else if (this._manip instanceof hemi.Turnable) {
+				type = hemi.MotionType.TURN;
+				params.angle = this._manip._angle;
+				params.scale = params.uv = undefined;
+			}
+
+			removeManip(this._manip, type);
+			this._manip = null;
 		}
 	};
 
 	/**
-	 * Initialize the hemi view.
+	 * Cancel any translating motion that is currently enabled for the Transform.
 	 */
-	hemi.view.init = function() {
-		/**
-		 * The animation framerate in frames-per-second.
-		 * @type number
-		 * @default 24
-		 */
-		this.FPS = 24;
-		this.defaultBG = [1, 1, 1, 1];
-		this.clientSize = new hemi.view.ClientSize();
-		this.renderListeners = [];
-		this.viewInfo = hemi.core.renderGraph.createBasicView(hemi.core.mainPack,
-				hemi.core.client.root, hemi.core.client.renderGraphRoot);
-		this.setBGColor(this.defaultBG);
-
-		hemi.view.addRenderListener(this.clientSize);
-		hemi.core.client.setRenderCallback(hemi.view.onRender);
+	Transform.prototype.cancelMoving = function() {
+		if (this._translator) {
+			removeMotion(this._translator, hemi.MotionType.MOVE);
+			this._translator = null;
+		}
 	};
 
 	/**
-	 * Add the given render listener to the view. A listener must implement the
-	 * onRender function.
+	 * Cancel any scaling motion that is currently enabled for the Transform.
+	 */
+	Transform.prototype.cancelResizing = function() {
+		// TODO
+	};
+
+	/**
+	 * Cancel any rotating motion that is currently enabled for the Transform.
+	 */
+	Transform.prototype.cancelTurning = function(type) {
+		if (this._rotator) {
+			removeMotion(this._rotator, hemi.MotionType.TURN);
+			this._rotator = null;
+		}
+	};
+
+	/**
+	 * Get the current acceleration of the given motion type for the Transform.
 	 * 
-	 * @param {Object}
-	 *            listener the render listener to add
+	 * @param {hemi.MotionType} type the type of motion acceleration to get
+	 * @param {THREE.Vector3} opt_accel optional vector to receive acceleration data
+	 * @return {THREE.Vector3} the current acceleration of the given motion type
 	 */
-	hemi.view.addRenderListener = function(listener) {
-		var ndx = hemi.view.renderListeners.indexOf(listener);
-		if (ndx === -1) {
-			hemi.view.renderListeners.push(listener);
+	Transform.prototype.getAcceleration = function(type, opt_accel) {
+		var motion;
+		opt_accel = opt_accel || new THREE.Vector3();
+
+		switch (type) {
+			case hemi.MotionType.TURN:
+				motion = this._rotator;
+				break;
+			case hemi.MotionType.RESIZE:
+				// TODO
+				break;
+			case hemi.MotionType.MOVE:
+				motion = this._translator;
+				break;
+			default:
+				console.log('Unrecognized motion type: ' + type);
+				break;
 		}
+
+		if (motion) {
+			opt_accel.copy(motion.accel);
+		} else {
+			opt_accel.set(0, 0, 0);
+		}
+
+		return opt_accel;
 	};
 
 	/**
-	 * Remove the given render listener from the view.
-	 * 
-	 * @param {Object}
-	 *            listener the render listener to remove
-	 * @return {Object} the removed listener if successful or null
-	 */
-	hemi.view.removeRenderListener = function(listener) {
-		var ndx = hemi.view.renderListeners.indexOf(listener);
-		var retVal = null;
-		if (ndx !== -1) {
-			retVal = hemi.view.renderListeners.splice(ndx, 1);
-		}
-
-		return retVal;
-	};
-
-	/**
-	 * Notify all of the render listeners with the given render event.
-	 * 
-	 * @param {o3d.RenderEvent}
-	 *            renderEvent render event to pass to listeners
-	 */
-	hemi.view.onRender = function(renderEvent) {
-		for (var ndx = 0; ndx < hemi.view.renderListeners.length; ndx++) {
-			hemi.view.renderListeners[ndx].onRender(renderEvent);
-		}
-	};
-
-	/**
-	 * Set the clear color of the client.
+	 * Get all of the child Transforms that are under the Transform.
 	 *
-	 * @param {number[4]} rgba Red-Green-Blue-Alpha array
+	 * @param {hemi.Transform[]} opt_arr optional array to place Transforms in
+	 * @return {hemi.Transform[]} array of all child/grandchild Transforms
 	 */
-	hemi.view.setBGColor = function(rgba) {
-		this.viewInfo.clearBuffer.clearColor = rgba;
-	};
-	
-	/**
-	 * Get the clear color of the client.
-	 * 
-	 * @return {number[4]} the background color
-	 */
-	hemi.view.getBGColor = function() {
-		return this.viewInfo.clearBuffer.clearColor;
+	Transform.prototype.getAllChildren = function(opt_arr) {
+		opt_arr = opt_arr || [];
+
+		for (var i = 0, il = this.children.length; i < il; ++i) {
+			var child = this.children[i];
+			opt_arr.push(child);
+			child.getAllChildren(opt_arr);
+		}
+
+		return opt_arr;
 	};
 
 	/**
-	 * Get the time that the specified animation frame occurs at.
+	 * Get the current velocity of the given motion type for the Transform.
 	 * 
-	 * @param {number} frame frame number to get the time for
-	 * @return {number} time that the frame occurs at
+	 * @param {hemi.MotionType} type the type of motion velocity to get
+	 * @param {THREE.Vector3} opt_vel optional vector to receive velocity data
+	 * @return {THREE.Vector3} the current velocity of the given motion type
 	 */
-	hemi.view.getTimeOfFrame = function(frame) {
-		return frame / this.FPS;
+	Transform.prototype.getVelocity = function(type, opt_vel) {
+		var motion;
+		opt_vel = opt_vel || new THREE.Vector3();
+
+		switch (type) {
+			case hemi.MotionType.TURN:
+				motion = this._rotator;
+				break;
+			case hemi.MotionType.RESIZE:
+				// TODO
+				break;
+			case hemi.MotionType.MOVE:
+				motion = this._translator;
+				break;
+			default:
+				console.log('Unrecognized motion type: ' + type);
+				break;
+		}
+
+		if (motion) {
+			opt_vel.copy(motion.vel);
+		} else {
+			opt_vel.set(0, 0, 0);
+		}
+
+		return opt_vel;
 	};
+
+	/**
+	 * Set all of the Transform's properties to their identity values.
+	 */
+	Transform.prototype.identity = function() {
+		this.position.set(0, 0, 0);
+		this.quaternion.set(0, 0, 0, 1);
+		this.rotation.set(0, 0, 0);
+		this.scale.set(1, 1, 1);
+		this.matrix.identity();
+		this.updateMatrixWorld(true);
+	};
+
+	/**
+	 * Animate the Transform moving by the given amount over the given amount of time.
+	 * 
+	 * @param {THREE.Vector3} delta XYZ amount to move the Transform by
+	 * @param {number} time the amount of time for the motion to take (in seconds)
+	 * @param {boolean} opt_mustComplete optional flag indicating this move cannot be interrupted by
+	 *     a different move before it finishes
+	 * @return {boolean} true if the Transform will start moving, false if it will not
+	 */
+	Transform.prototype.move = function(delta, time, opt_mustComplete) {
+		if (!this._translator) {
+			this._translator = getMotion(hemi.MotionType.MOVE);
+			this._translator.setTransform(this);
+		}
+
+		return this._translator.move(delta, time, opt_mustComplete);
+	};
+
+	/**
+	 * Animate the Transform resizing by the given amount over the given amount of time.
+	 * 
+	 * @param {THREE.Vector3} scale XYZ amount to scale the Transform by
+	 * @param {number} time the amount of time for the motion to take (in seconds)
+	 * @param {boolean} opt_mustComplete optional flag indicating this resize cannot be interrupted
+	 *     by a different resize before it finishes
+	 * @return {boolean} true if the Transform will start resizing, false if it will not
+	 */
+	Transform.prototype.resize = function(scale, time, opt_mustComplete) {
+		// TODO
+	};
+
+	/**
+	 * Allow the Transform to be moved (translated) through mouse interaction along the given plane.
+	 * 
+	 * @param {string} opt_plane optional 2D plane to enable movement along (default is XZ)
+	 * @param {number[4]} opt_limits optional array of movement limits within the plane:
+	 *     [min on u, max on u, min on v, max on v]
+	 * @param {hemi.Transform[]} opt_transforms optional array of extra Transforms to make movable
+	 *     as one group with the Transform
+	 */
+	Transform.prototype.setMovable = function(opt_plane, opt_limits, opt_transforms) {
+		var params = getParams(this._getId()),
+			restore = opt_plane == null && opt_limits == null && opt_transforms == null;
+
+		if (this._manip instanceof hemi.Movable) {
+			this._manip.clearTransforms();
+		} else {
+			this.cancelInteraction();
+			this._manip = getManip(hemi.MotionType.MOVE);
+		}
+
+		if (params.uv === undefined) {
+			// Previous manip was not a Movable, so restoring is not possible.
+			restore = false;
+		} else if (restore) {
+			this._manip._uv[0] = params.uv[0];
+			this._manip._uv[1] = params.uv[1];
+		}
+
+		if (opt_plane != null) {
+			this._manip.setPlane(opt_plane);
+			params.plane = opt_plane;
+		} else if (restore && params.plane) {
+			this._manip.setPlane(params.plane);
+		}
+
+		if (opt_limits != null) {
+			this._manip.setLimits(opt_limits);
+			params.limits = opt_limits;
+		} else if (restore && params.limits) {
+			this._manip.setLimits(params.limits);
+		}
+
+		if (opt_transforms != null) {
+			opt_transforms = opt_transforms.slice(0);
+			opt_transforms.unshift(this);
+			params.transforms = opt_transforms;
+		} else if (restore && params.transforms) {
+			opt_transforms = params.transforms;
+		} else {
+			opt_transforms = [this];
+		}
+
+		for (var i = 0, il = opt_transforms.length; i < il; ++i) {
+			this._manip.addTransform(opt_transforms[i]);
+		}
+	};
+
+	/**
+	 * Set the Transform to translate with the given velocity and/or acceleration.
+	 * 
+	 * @param {THREE.Vector3} opt_velocity optional XYZ velocity to set for moving
+	 * @param {THREE.Vector3} opt_acceleration optional XYZ acceleration to set for moving
+	 */
+	Transform.prototype.setMoving = function(opt_velocity, opt_acceleration) {
+		if (!this._translator) {
+			this._translator = getMotion(hemi.MotionType.MOVE);
+			this._translator.setTransform(this);
+		}
+
+		if (opt_acceleration != null) {
+			this._translator.setAcceleration(opt_acceleration);
+		}
+		if (opt_velocity != null) {
+			this._translator.setVelocity(opt_velocity);
+		}
+	};
+
+	/**
+	 * Set the pickable flag for the Transform and optionally all of its children.
+	 * 
+	 * @param {boolean} pickable flag indicating if the Transform should be pickable
+	 * @param {boolean} recurse flag indicating if all child Transforms should also be set
+	 */
+	Transform.prototype.setPickable = function(pickable, recurse) {
+		this.pickable = pickable;
+
+		if (recurse) {
+			for (var i = 0, il = this.children.length; i < il; ++i) {
+				this.children[i].setPickable(pickable, recurse);
+			}
+		}
+	};
+
+	/**
+	 * Allow the Transform to be resized (scaled) through mouse interaction along the given axis.
+	 * 
+	 * @param {string} opt_axis optional axis to enable resizing along (default is Y)
+	 * @param {hemi.Transform[]} opt_transforms optional array of extra Transforms to make resizable
+	 *     as one group with the Transform
+	 */
+	Transform.prototype.setResizable = function(opt_axis, opt_transforms) {
+		var params = getParams(this._getId()),
+			restore = opt_axis == null && opt_transforms == null;
+
+		if (this._manip instanceof hemi.Resizable) {
+			this._manip.clearTransforms();
+		} else {
+			this.cancelInteraction();
+			this._manip = getManip(hemi.MotionType.RESIZE);
+		}
+
+		if (params.scale === undefined) {
+			// Previous manip was not a Resizable, so restoring is not possible.
+			restore = false;
+		} else if (restore) {
+			this._manip._scale = params.scale;
+		}
+
+		if (opt_axis != null) {
+			this._manip.setAxis(opt_axis);
+			params.axis = opt_axis;
+		} else if (restore && params.axis) {
+			this._manip.setAxis(params.axis);
+		}
+
+		if (opt_transforms != null) {
+			opt_transforms = opt_transforms.slice(0);
+			opt_transforms.unshift(this);
+			params.transforms = opt_transforms;
+		} else if (restore && params.transforms) {
+			opt_transforms = params.transforms;
+		} else {
+			opt_transforms = [this];
+		}
+
+		for (var i = 0, il = opt_transforms.length; i < il; ++i) {
+			this._manip.addTransform(opt_transforms[i]);
+		}
+	};
+
+	/**
+	 * Set the Transform to scale with the given velocity and/or acceleration.
+	 * 
+	 * @param {THREE.Vector3} opt_velocity optional XYZ velocity to set for resizing
+	 * @param {THREE.Vector3} opt_acceleration optional XYZ acceleration to set for resizing
+	 */
+	Transform.prototype.setResizing = function(opt_velocity, opt_acceleration) {
+		// TODO
+	};
+
+	/**
+	 * Allow the Transform to be turned (rotated) through mouse interaction about the given axis.
+	 * 
+	 * @param {string} axis optional axis to enable turning about (default is Y)
+	 * @param {number[2]} opt_limits optional minimum and maximum angle limits (in radians)
+	 * @param {hemi.Transform[]} opt_transforms optional array of extra Transforms to make turnable
+	 *     as one group with the Transform
+	 */
+	Transform.prototype.setTurnable = function(opt_axis, opt_limits, opt_transforms) {
+		var params = getParams(this._getId()),
+			restore = opt_axis == null && opt_limits == null && opt_transforms == null;
+
+		if (this._manip instanceof hemi.Turnable) {
+			this._manip.clearTransforms();
+		} else {
+			this.cancelInteraction();
+			this._manip = getManip(hemi.MotionType.TURN);
+		}
+
+		if (params.angle === undefined) {
+			// Previous manip was not a Turnable, so restoring is not possible.
+			restore = false;
+		} else if (restore) {
+			this._manip._angle = params.angle;
+		}
+
+		if (opt_axis != null) {
+			this._manip.setAxis(opt_axis);
+			params.axis = opt_axis;
+		} else if (restore && params.axis) {
+			this._manip.setAxis(params.axis);
+		}
+
+		if (opt_limits != null) {
+			this._manip.setLimits(opt_limits);
+			params.limits = opt_limits;
+		} else if (restore && params.limits) {
+			this._manip.setLimits(params.limits);
+		}
+
+		if (opt_transforms != null) {
+			opt_transforms = opt_transforms.slice(0);
+			opt_transforms.unshift(this);
+			params.transforms = opt_transforms;
+		} else if (restore && params.transforms) {
+			opt_transforms = params.transforms;
+		} else {
+			opt_transforms = [this];
+		}
+
+		for (var i = 0, il = opt_transforms.length; i < il; ++i) {
+			this._manip.addTransform(opt_transforms[i]);
+		}
+	};
+
+	/**
+	 * Set the Transform to rotate with the given velocity and/or acceleration.
+	 * 
+	 * @param {THREE.Vector3} opt_velocity optional XYZ velocity to set for turning (in radians)
+	 * @param {THREE.Vector3} opt_acceleration optional XYZ acceleration to set for turning (in radians)
+	 */
+	Transform.prototype.setTurning = function(opt_velocity, opt_acceleration) {
+		if (!this._rotator) {
+			this._rotator = getMotion(hemi.MotionType.TURN);
+			this._rotator.setTransform(this);
+		}
+
+		if (opt_acceleration != null) {
+			this._rotator.setAcceleration(opt_acceleration);
+		}
+		if (opt_velocity != null) {
+			this._rotator.setVelocity(opt_velocity);
+		}
+	};
+
+	/**
+	 * Set the visible flag for the Transform and optionally all of its children.
+	 * 
+	 * @param {boolean} visible flag indicating if the Transform should be visible
+	 * @param {boolean} recurse flag indicating if all child Transforms should also be set
+	 */
+	Transform.prototype.setVisible = function(visible, recurse) {
+		this.visible = visible;
+
+		if (recurse) {
+			for (var i = 0, il = this.children.length; i < il; ++i) {
+				this.children[i].setVisible(visible, recurse);
+			}
+		}
+	};
+
+	/**
+	 * Animate the Transform turning by the given amount over the given amount of time.
+	 * 
+	 * @param {THREE.Vector3} delta XYZ amount to turn the Transform by (in radians)
+	 * @param {number} time the amount of time for the motion to take (in seconds)
+	 * @param {boolean} opt_mustComplete optional flag indicating this turn cannot be interrupted by
+	 *     a different turn before it finishes
+	 * @return {boolean} true if the Transform will start turning, false if it will not
+	 */
+	Transform.prototype.turn = function(theta, time, opt_mustComplete) {
+		if (!this._rotator) {
+			this._rotator = getMotion(hemi.MotionType.TURN);
+			this._rotator.setTransform(this);
+		}
+
+		return this._rotator.turn(theta, time, opt_mustComplete);
+	};
+
+	hemi.makeCitizen(Transform, 'hemi.Transform', {
+		cleanup: Transform.prototype._clean,
+		toOctane: Transform.prototype._octane
+	});
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Mesh class
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	/**
+	 * @class A Mesh performs hierarchical matrix transformations and contains geometry and
+	 * rendering materials.
+	 */
+	var Mesh = function(geometry, material) {
+		THREE.Mesh.call(this, geometry, material);
+
+		/*
+		 * The Manipulator that allows the user to control the Mesh through mouse interaction.
+		 * @type Manipulator
+		 */
+		this._manip = null;
+
+		/*
+		 * A custom opacity value for the Mesh's material.
+		 * @type numbe
+		 */
+		this._opacity = null;
+
+		/*
+		 * The Rotator that is currently moving the Mesh.
+		 * @type hemi.Rotator
+		 */
+		this._rotator = null;
+
+		/*
+		 * The Translator that is currently moving the Mesh.
+		 * @type hemi.Translator
+		 */
+		this._translator = null;
+
+		/**
+		 * Flag indicating if the Mesh should be pickable by mouse clicks.
+		 * @type boolean
+		 * @default true
+		 */
+		this.pickable = true;
+
+		// Improve performance by having autoupdate default to false
+		this.matrixAutoUpdate = false;
+	};
+
+	Mesh.prototype = new THREE.Mesh();
+	Mesh.constructor = Mesh;
+
+	/*
+	 * Remove all references in the Mesh.
+	 */
+	Mesh.prototype._clean = Transform.prototype._clean;
+
+	/*
+	 * Use the given Mesh to initialize properties.
+	 * 
+	 * @param {THREE.Mesh} obj Mesh to use to initialize properties
+	 * @param {Object} toConvert look-up structure to get the hemi.Mesh equivalent of a THREE.Mesh
+	 *     for animations
+	 */
+	Mesh.prototype._init = function(obj, toConvert) {
+		this.geometry = obj.geometry;
+		this.material = obj.material;
+		this.boundRadius = obj.boundRadius;
+
+		if (this.geometry.morphTargets.length) {
+			this.morphTargetBase = obj.morphTargetBase;
+			this.morphTargetForcedOrder = obj.morphTargetForcedOrder;
+			this.morphTargetInfluences = obj.morphTargetInfluences;
+			this.morphTargetDictionary = obj.morphTargetDictionary;
+		}
+
+		if (this._opacity !== null) {
+			var opacity = this._opacity;
+			this._opacity = null; // Necessary for the function to clone the material
+			hemi.fx.setOpacity(this, opacity);
+		}
+
+		Transform.prototype._init.call(this, obj, toConvert);
+	};
+
+	/*
+	 * Array of Hemi Messages that Mesh is known to send.
+	 * @type string[]
+	 */
+	Mesh.prototype._msgSent = Transform.prototype._msgSent;
+
+	/*
+	 * Octane properties for Mesh.
+	 * @return {Object[]} array of Octane properties
+	 */
+	Mesh.prototype._octane = function() {
+		var props = Transform.prototype._octane.call(this);
+		
+		props.push({
+			name: '_opacity',
+			val: this._opacity
+		});
+		
+		return props;
+	};
+	
+	/**
+	 * Cancel the current interaction that is enabled for the Mesh (movable, resizable or turnable).
+	 */
+	Mesh.prototype.cancelInteraction = Transform.prototype.cancelInteraction;
+
+	/**
+	 * Cancel any translating motion that is currently enabled for the Mesh.
+	 */
+	Mesh.prototype.cancelMoving = Transform.prototype.cancelMoving;
+
+	/**
+	 * Cancel any scaling motion that is currently enabled for the Mesh.
+	 */
+	Mesh.prototype.cancelResizing = Transform.prototype.cancelResizing;
+
+	/**
+	 * Cancel any rotating motion that is currently enabled for the Mesh.
+	 */
+	Mesh.prototype.cancelTurning = Transform.prototype.cancelTurning;
+
+	/**
+	 * Get the current acceleration of the given motion type for the Mesh.
+	 * 
+	 * @param {hemi.MotionType} type the type of motion acceleration to get
+	 * @param {THREE.Vector3} opt_accel optional vector to receive acceleration data
+	 * @return {THREE.Vector3} the current acceleration of the given motion type
+	 */
+	Mesh.prototype.getAcceleration = Transform.prototype.getAcceleration;
+
+	/**
+	 * Get all of the child Transforms that are under the Mesh.
+	 *
+	 * @param {hemi.Transform[]} opt_arr optional array to place Transforms in
+	 * @return {hemi.Transform[]} array of all child/grandchild Transforms
+	 */
+	Mesh.prototype.getAllChildren = Transform.prototype.getAllChildren;
+
+	/**
+	 * Get the bounding box of the Mesh's geometry in world-space coordinates.
+	 * 
+	 * @return {hemi.BoundingBox} the world-space bounding box
+	 */
+	Mesh.prototype.getBoundingBox = function() {
+		var box = this.geometry.boundingBox,
+			wm = this.matrixWorld;
+
+		if (!box) {
+			this.geometry.computeBoundingBox();
+			box = this.geometry.boundingBox;
+		}
+
+		return new hemi.BoundingBox(wm.multiplyVector3(box.min.clone()),
+			wm.multiplyVector3(box.max.clone()));
+	};
+
+	/**
+	 * Get the current velocity of the given motion type for the Mesh.
+	 * 
+	 * @param {hemi.MotionType} type the type of motion velocity to get
+	 * @param {THREE.Vector3} opt_vel optional vector to receive velocity data
+	 * @return {THREE.Vector3} the current velocity of the given motion type
+	 */
+	Mesh.prototype.getVelocity = Transform.prototype.getVelocity;
+
+	/**
+	 * Set all of the Transform's properties to their identity values.
+	 */
+	Mesh.prototype.identity = Transform.prototype.identity;
+
+	/**
+	 * Animate the Mesh moving by the given amount over the given amount of time.
+	 * 
+	 * @param {THREE.Vector3} delta XYZ amount to move the Mesh by
+	 * @param {number} time the amount of time for the motion to take (in seconds)
+	 * @param {boolean} opt_mustComplete optional flag indicating this move cannot be interrupted by
+	 *     a different move before it finishes
+	 * @return {boolean} true if the Mesh will start moving, false if it will not
+	 */
+	Mesh.prototype.move = Transform.prototype.move;
+
+	/**
+	 * Animate the Mesh resizing by the given amount over the given amount of time.
+	 * 
+	 * @param {THREE.Vector3} scale XYZ amount to scale the Mesh by
+	 * @param {number} time the amount of time for the motion to take (in seconds)
+	 * @param {boolean} opt_mustComplete optional flag indicating this resize cannot be interrupted
+	 *     by a different resize before it finishes
+	 * @return {boolean} true if the Mesh will start resizing, false if it will not
+	 */
+	Mesh.prototype.resize = Transform.prototype.resize;
+
+	/**
+	 * Allow the Mesh to be moved (translated) through mouse interaction along the given plane.
+	 * 
+	 * @param {string} plane the 2D plane to enable movement along
+	 * @param {number[4]} opt_limits optional array of movement limits within the plane:
+	 *     [min on u, max on u, min on v, max on v]
+	 * @param {hemi.Transform[]} opt_transforms optional array of extra Transforms to make movable
+	 *     as one group with the Mesh
+	 */
+	Mesh.prototype.setMovable = Transform.prototype.setMovable;
+
+	/**
+	 * Set the Mesh to translate with the given velocity and/or acceleration.
+	 * 
+	 * @param {THREE.Vector3} opt_velocity optional XYZ velocity to set for moving
+	 * @param {THREE.Vector3} opt_acceleration optional XYZ acceleration to set for moving
+	 */
+	Mesh.prototype.setMoving = Transform.prototype.setMoving;
+
+	/**
+	 * Set the pickable flag for the Mesh and optionally all of its children.
+	 * 
+	 * @param {boolean} pickable flag indicating if the Mesh should be pickable
+	 * @param {boolean} recurse flag indicating if all child Transforms should also be set
+	 */
+	Mesh.prototype.setPickable = Transform.prototype.setPickable;
+
+	/**
+	 * Allow the Mesh to be resized (scaled) through mouse interaction along the given axis.
+	 * 
+	 * @param {string} axis the axis to enable resizing along
+	 * @param {hemi.Transform[]} opt_transforms optional array of extra Transforms to make resizable
+	 *     as one group with the Mesh
+	 */
+	Mesh.prototype.setResizable = Transform.prototype.setResizable;
+
+	/**
+	 * Set the Mesh to scale with the given velocity and/or acceleration.
+	 * 
+	 * @param {THREE.Vector3} opt_velocity optional XYZ velocity to set for resizing
+	 * @param {THREE.Vector3} opt_acceleration optional XYZ acceleration to set for resizing
+	 */
+	Mesh.prototype.setResizing = Transform.prototype.setResizing;
+
+	/**
+	 * Allow the Mesh to be turned (rotated) through mouse interaction about the given axis.
+	 * 
+	 * @param {string} axis the axis to enable turning about
+	 * @param {number[2]} opt_limits optional minimum and maximum angle limits (in radians)
+	 * @param {hemi.Transform[]} opt_transforms optional array of extra Transforms to make turnable
+	 *     as one group with the Mesh
+	 */
+	Mesh.prototype.setTurnable = Transform.prototype.setTurnable;
+
+	/**
+	 * Set the Mesh to rotate with the given velocity and/or acceleration.
+	 * 
+	 * @param {THREE.Vector3} opt_velocity optional XYZ velocity to set for turning (in radians)
+	 * @param {THREE.Vector3} opt_acceleration optional XYZ acceleration to set for turning (in radians)
+	 */
+	Mesh.prototype.setTurning = Transform.prototype.setTurning;
+
+	/**
+	 * Set the visible flag for the Mesh and optionally all of its children.
+	 * 
+	 * @param {boolean} visible flag indicating if the Mesh should be visible
+	 * @param {boolean} recurse flag indicating if all child Transforms should also be set
+	 */
+	Mesh.prototype.setVisible = Transform.prototype.setVisible;
+
+	/**
+	 * Animate the Mesh turning by the given amount over the given amount of time.
+	 * 
+	 * @param {THREE.Vector3} delta XYZ amount to turn the Mesh by (in radians)
+	 * @param {number} time the amount of time for the motion to take (in seconds)
+	 * @param {boolean} opt_mustComplete optional flag indicating this turn cannot be interrupted by
+	 *     a different turn before it finishes
+	 * @return {boolean} true if the Mesh will start turning, false if it will not
+	 */
+	Mesh.prototype.turn = Transform.prototype.turn;
+
+	hemi.makeCitizen(Mesh, 'hemi.Mesh', {
+		cleanup: Mesh.prototype._clean,
+		toOctane: Mesh.prototype._octane
+	});
+
+// No extra functionality, but these are useful as Citizens/Octanable.
+
+	hemi.makeCitizen(THREE.Scene, 'hemi.Scene');
+	hemi.makeOctanable(THREE.Vector3, 'THREE.Vector3', ['x', 'y', 'z']);
+	hemi.makeOctanable(THREE.Quaternion, 'THREE.Quaternion', ['x', 'y', 'z', 'w']);
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Utility functions
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	/*
+	 * Get a manip object of the given type. This may be a newly constructed one or a cached one
+	 * that was no longer being used.
+	 * 
+	 * @param {hemi.MotionType} type the type of manip to get
+	 * @return {Manip} the newly constructed or cached manip object
+	 */
+	function getManip(type) {
+		var obj = manips[type],
+			manip;
+
+		if (obj) {
+			manip = obj.storage.length > 0 ? obj.storage.pop() : obj.create();
+		} else {
+			console.log('Unrecognized manipulation type: ' + type);
+		}
+
+		manip.enable();
+		return manip;
+	}
+
+	/*
+	 * Get a motion object of the given type. This may be a newly constructed one or a cached one
+	 * that was no longer being used.
+	 * 
+	 * @param {hemi.MotionType} type the type of motion to get
+	 * @return {Motion} the newly constructed or cached motion object
+	 */
+	function getMotion(type) {
+		var obj = motions[type],
+			motion;
+
+		if (obj) {
+			motion = obj.storage.length > 0 ? obj.storage.pop() : obj.create();
+		} else {
+			console.log('Unrecognized motion type: ' + type);
+		}
+
+		motion.enable();
+		return motion;
+	}
+
+	/*
+	 * Get the previous manip params for the Transform/Mesh with the given id.
+	 * 
+	 * @param {number} id world id of the Transform/Mesh
+	 * @return {Object} previous manip params
+	 */
+	function getParams(id) {
+		var params = savedParams[id];
+
+		if (!params) {
+			savedParams[id] = params = {};
+		}
+
+		return params;
+	}
+
+	/*
+	 * Clear the given manipulation object of its attributes and cache it for future use (unless the
+	 * cache is full).
+	 * 
+	 * @param {Manip} manip the manipulation object to clear and cache
+	 * @param {hemi.MotionType} type the type of motion
+	 */
+	function removeManip(manip, type) {
+		var obj = manips[type];
+		manip.clear();
+
+		if (obj) {
+			obj.storage.length > 10 ? manip.cleanup() : obj.storage.push(manip);
+		} else {
+			console.log('Unrecognized manipulation type: ' + type);
+		}
+	}
+
+	/*
+	 * Clear the given motion object of its attributes and cache it for future use (unless the cache
+	 * is full).
+	 * 
+	 * @param {Motion} motion the motion object to clear and cache
+	 * @param {hemi.MotionType} type the type of motion
+	 */
+	function removeMotion(motion, type) {
+		var obj = motions[type];
+		motion.clear();
+
+		if (obj) {
+			obj.storage.length > 10 ? motion.cleanup() : obj.storage.push(motion);
+		} else {
+			console.log('Unrecognized motion type: ' + type);
+		}
+	}
+
+})();
+/*
+ * Licensed under the MIT license: http://www.opensource.org/licenses/mit-license.php
+ * The MIT License (MIT)
+ * 
+ * Copyright (c) 2011 SRI International
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+ * associated  documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the  Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
+
+(function() {
+
+		// Default values for Camera control, etc
+	var FAR_PLANE = 10000,
+		FOV = 0.707107,
+		MAX_FOV = Math.PI / 3,
+		MAX_TILT = Math.PI / 2.001,
+		MIN_FOV = 0.05,
+		MIN_TILT = -Math.PI / 2.001,
+		MOUSE_DELTA = 0.0015,
+		MOUSE_SPEED = 0.005,
+		NEAR_PLANE = 1,
+		SCROLL_UP = 13/12,
+		SCROLL_DOWN = 11/12,
+		TRUCK_SPEED = 0.02,
+		// Static helper objects shared by all Cameras
+		_vector1 = new THREE.Vector3(),
+		_vector2 = new THREE.Vector3();
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Camera class
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	/**
+	 * @class A Camera controls the point of view and perspective when viewing a  3D scene.
+	 */
+	var Camera = function() {
+		this.panTilt = new THREE.Object3D();
+		this.panTilt.name = 'panTilt';
+		this.panTilt.eulerOrder = 'ZYX';
+		this.panTilt.matrixAutoUpdate = false;
+		this.cam = new THREE.Object3D();
+		this.cam.name = 'cam';
+		this.cam.eulerOrder = 'ZYX';
+		this.cam.matrixAutoUpdate = false;
+		this.panTilt.add(this.cam);
+
+		this.cam.position.z = 1;
+		this.cam.updateMatrix();
+		this.updateWorldMatrices();
+
+		this.distance = 1;
+		this.vd = { current: null, last: null };
+		this.tiltMax = MAX_TILT;
+		this.tiltMin = MIN_TILT;
+
+		this.fov = {
+			current: FOV,
+			min: MIN_FOV,
+			max: MAX_FOV
+		};
+		this.lookLimits = {
+			panMax: null,
+			panMin: null,
+			tiltMax: null,
+			tiltMin: null
+		};
+		this.mode = {
+			scroll: true,
+			scan: true,
+			fixed: false,
+			control: false,
+			projection: null
+		};	
+		this.state = {
+			moving: false,
+			curve: null,
+			time: { current: 0.0, end: 0.0 },
+			mouse: false,
+			xy: { current: [-1,-1], last: [-1,-1] },
+			shift: false,
+			update: false,
+			vp: null
+		};
+
+		this.threeCamera = new THREE.PerspectiveCamera(this.fov.current * hemi.RAD_TO_DEG,
+			window.innerWidth / window.innerHeight, NEAR_PLANE, FAR_PLANE);
+		this.threeCamera.matrixAutoUpdate = false;
+
+		/**
+		 * A light that moves with the Camera and is always pointing where the Camera is pointing.
+		 * @type THREE.PointLight
+		 */
+		this.light = new THREE.PointLight(0xffffff, 1.35);
+
+		// Use shared reference to guarantee the camera light follows the Camera.
+		this.light.position = this.threeCamera.position;
+		this.light.rotation = this.threeCamera.rotation;
+		this.light.scale = this.threeCamera.scale;
+
+		var tween = hemi.utils.penner.linearTween;
+		this.easeFunc = [tween,tween,tween];
+		updateCamera.call(this);
+
+		hemi.addRenderListener(this);
+	};
+
+	/*
+	 * Remove all references in the Camera.
+	 */
+	Camera.prototype._clean = function() {
+		hemi.removeRenderListener(this);
+		this.disableControl();
+		this.light = null;
+		this.threeCamera = null;
+	};
+
+	/*
+	 * Array of Hemi Messages that Camera is known to send.
+	 * @type string[]
+	 */
+	Camera.prototype._msgSent = [hemi.msg.start, hemi.msg.stop];
+
+	/*
+	 * Octane properties for Camera.
+	 * 
+	 * @return {Object[]} array of Octane properties
+	 */
+	Camera.prototype._octane = function() {
+		var curView = hemi.createViewData(this),
+			oct = [
+				{
+					name: this.mode.control ? 'enableControl' : 'disableControl',
+					arg: []
+				}, {
+					name: 'mode',
+					val: this.mode
+				}, {
+					name: 'moveToView',
+					arg: [curView, 0]
+				}
+			];
+
+		return oct;
+	};
+
+	/**
+	 * Disable control of the Camera through the mouse and keyboard.
+	 * 
+	 * @return {hemi.Camera} this Camera (for easy chaining)
+	 */
+	Camera.prototype.disableControl = function() {
+		if (this.mode.control) {
+			hemi.input.removeMouseDownListener(this);
+			hemi.input.removeMouseUpListener(this);
+			hemi.input.removeMouseMoveListener(this);
+			hemi.input.removeMouseWheelListener(this);
+			hemi.input.removeKeyDownListener(this);
+			hemi.input.removeKeyUpListener(this);	
+			this.mode.control = false;
+			this.state.mouse = false;
+		}
+
+		return this;
+	};
+
+	/**
+	 * Disable the shiftkey scanning.
+	 * 
+	 * @return {hemi.Camera} this Camera (for easy chaining)
+	 */
+	Camera.prototype.disableScan = function() {
+		this.mode.scan = false;
+		return this;
+	};
+
+	/**
+	 * Disable the scroll wheel zooming.
+	 * 
+	 * @return {hemi.Camera} this Camera (for easy chaining)
+	 */
+	Camera.prototype.disableZoom = function() {
+		this.mode.scroll = false;
+		return this;
+	};
+
+	/**
+	 * Enable control of the Camera through the mouse and keyboard.
+	 * 
+	 * @return {hemi.Camera} this Camera (for easy chaining)
+	 */
+	Camera.prototype.enableControl = function(element) {
+		if (!this.mode.control) {
+			hemi.input.addMouseDownListener(this);
+			hemi.input.addMouseUpListener(this);
+			hemi.input.addMouseMoveListener(this);
+			hemi.input.addMouseWheelListener(this);
+			hemi.input.addKeyDownListener(this);
+			hemi.input.addKeyUpListener(this);
+			this.mode.control = true;
+		}
+
+		return this;
+	};
+
+	/**
+	 * Enable the shiftkey dragging.
+	 * 
+	 * @return {hemi.Camera} this Camera (for easy chaining)
+	 */
+	Camera.prototype.enableScan = function() {
+		this.mode.scan = true;
+		return this;
+	};
+
+	/**
+	 * Enable the camera to zoom with the mouse scroll.
+	 * 
+	 * @return {hemi.Camera} this Camera (for easy chaining)
+	 */
+	Camera.prototype.enableZoom = function() {
+		this.mode.scroll = true;
+		return this;
+	};
+
+	/**
+	 * Fix the camera to its current spot, and use mouse movements to look around.
+	 * 
+	 * @return {hemi.Camera} this Camera (for easy chaining)
+	 */
+	Camera.prototype.fixEye = function() {
+		this.mode.fixed = true;
+		updateCamera.call(this);
+		return this;
+	};
+
+	/**
+	 * Allow the camera to rotate about a fixed target. This is the default mode.
+	 * 
+	 * @return {hemi.Camera} this Camera (for easy chaining)
+	 */
+	Camera.prototype.freeEye = function() {
+		this.setEyeTarget(this.getEye(_vector1), this.getTarget(_vector2));
+		this.mode.fixed = false;
+		updateCamera.call(this);
+		return this;
+	};
+
+	/**
+	 * Get the current position of the Camera eye.
+	 * 
+	 * @param {THREE.Vector3} opt_vec optional vector to receive eye position
+	 * @return {THREE.Vector3} XYZ coordinates of the eye
+	 */
+	Camera.prototype.getEye = function(opt_vec) {
+		var eye;
+
+		if (opt_vec) {
+			opt_vec.copy(this.cam.matrixWorld.getPosition());
+			eye = opt_vec;
+		} else {
+			eye = this.cam.matrixWorld.getPosition().clone();
+		}
+
+		return eye;
+	};
+
+	/**
+	 * Get the current position of the Camera target.
+	 * 
+	 * @param {THREE.Vector3} opt_vec optional vector to receive target position
+	 * @return {THREE.Vector3} XYZ coordinates of the target
+	 */
+	Camera.prototype.getTarget = function(opt_vec) {
+		var tgt;
+
+		if (this.mode.fixed) {
+			// Create a target vector that is transformed by cam's matrix but adds a negative Z
+			// translation of "distance" length
+			tgt = opt_vec ? opt_vec.set(0, 0, 1) : new THREE.Vector3(0, 0, 1);
+			this.cam.matrixWorld.rotateAxis(tgt).multiplyScalar(-this.distance);
+			tgt.addSelf(this.cam.matrixWorld.getPosition());
+		} else {
+			if (opt_vec) {
+				opt_vec.copy(this.panTilt.matrixWorld.getPosition());
+				tgt = opt_vec;
+			} else {
+				tgt = this.panTilt.matrixWorld.getPosition().clone();
+			}
+		}
+
+		return tgt;
+	};
+
+	/**
+	 * Move the Camera along the specified curve.
+	 *
+	 * @param {hemi.CameraCurve} curve curve for the Camera eye and target to follow
+	 * @param {number} opt_time the number of seconds for the Camera to take to move alon gthe curve
+	 *     (0 is instant)
+	 */
+	Camera.prototype.moveOnCurve = function(curve, opt_time) {
+		if (this.vd.current !== null) {
+			this.vd.last = this.vd.current;
+		} else {
+			this.vd.last = hemi.createViewData(this);
+		}
+
+		this.vd.current = new hemi.ViewData({
+			eye: curve.eye.getEnd(),
+			target: curve.target.getEnd(),
+			fov: this.fov.current,
+			np: this.threeCamera.near,
+			fp: this.threeCamera.far
+		});
+		this.state.curve = curve;
+		this.state.moving = true;
+		this.state.vp = null;
+		this.state.time.end = (opt_time === null) ? 1.0 : (opt_time > 0) ? opt_time : 0.001;
+		this.state.time.current = 0.0;
+		this.send(hemi.msg.start, { viewdata: this.vd.current });
+	};
+
+	/**
+	 * Move the Camera to the given Viewpoint.
+	 *
+	 * @param {hemi.Viewpoint} view Viewpoint to move to
+	 * @param {number} opt_time the number of seconds for the Camera to take to move to the
+	 *     Viewpoint (0 is instant)
+	 */
+	Camera.prototype.moveToView = function(view, opt_time) {
+		var t = (opt_time === undefined) ? 1.0 : opt_time,
+			pkg;
+
+		if (view.getData !== undefined) {
+			this.vd.current = view.getData();
+			this.state.vp = view;
+			pkg = {viewpoint: view};
+		} else {
+			this.vd.current = view;
+			this.state.vp = null;
+			pkg = {viewdata: view};
+		}
+
+		this.vd.last = hemi.createViewData(this);
+		this.state.curve = null;
+		this.state.time.end = (t > 0) ? t : 0.001;
+		this.state.time.current = 0.0;
+		this.state.moving = true;
+		this.send(hemi.msg.start, pkg);
+	};
+
+	/**
+	 * Keyboard key-down listener.
+	 *
+	 * @param {Object} keyEvent key down event
+	 */
+	Camera.prototype.onKeyDown = function(keyEvent) {
+		this.state.shift = (keyEvent.keyCode === 16);
+	};
+
+	/**
+	 * Keyboard key-up listener.
+	 *
+	 * @param {Object} keyEvent key up event
+	 */
+	Camera.prototype.onKeyUp = function(keyEvent) {
+		if (keyEvent.keyCode === 16) this.state.shift = false;
+	};
+
+	/**
+	 * Mouse-down listener - set parameters to reflect that fact.
+	 *
+	 * @param {Object} mouseEvent mouse down event
+	 */
+	Camera.prototype.onMouseDown = function(mouseEvent) {
+		this.state.mouse = true;
+		this.state.xy.current[0] = this.state.xy.last[0] = mouseEvent.x;
+		this.state.xy.current[1] = this.state.xy.last[1] = mouseEvent.y;
+	};
+
+	/**
+	 * Mouse-move listener - move the camera if the mouse is down.
+	 *
+	 * @param {Object} mouseEvent mouse move event
+	 */
+	Camera.prototype.onMouseMove = function(mouseEvent) {
+		if (this.state.mouse) {
+			this.state.xy.last[0] = this.state.xy.current[0];
+			this.state.xy.last[1] = this.state.xy.current[1];
+			this.state.xy.current[0] = mouseEvent.x;
+			this.state.xy.current[1] = mouseEvent.y;
+
+			var xMovement = this.state.xy.current[0] - this.state.xy.last[0],
+				yMovement = this.state.xy.current[1] - this.state.xy.last[1];
+
+			if (this.mode.projection) {
+				moveOrthographic.call(this, xMovement, yMovement);
+			} else {
+				movePerspective.call(this, xMovement, yMovement);
+			}
+		}
+	};
+
+	/**
+	 * Mouse-up listener.
+	 *
+	 * @param {Object} mouseEvent mouse up event
+	 */
+	Camera.prototype.onMouseUp = function(mouseEvent) {
+		this.state.mouse = false;
+	};
+
+	/**
+	 * Render listener - check mouse and camera parameters and decide if the Camera needs to be
+	 * updated.
+	 *
+	 * @param {Object} renderEvent render event
+	 */
+	Camera.prototype.onRender = function(renderEvent) {
+		var state = this.state,
+			xy = state.xy;	
+		
+		if ((state.mouse && (xy.current[0] !== xy.last[0] || xy.current[1] !== xy.last[1])) ||
+			state.moving || state.update) {
+			updateCamera.call(this, renderEvent.elapsedTime);
+		}
+
+		state.update = false;
+	};
+
+	/**
+	 * Mouse-scroll listener - zoom the camera in or out.
+	 *
+	 * @param {Object} mouseEvent mouse wheel event
+	 */
+	Camera.prototype.onScroll = function(mouseEvent) {
+		if (!this.mode.scroll) return;
+
+		if (this.state.shift) {
+			var dis = this.distance * TRUCK_SPEED,
+				dir = (mouseEvent.deltaY > 0) ? 1 : -1;
+
+			this.truck(dis * dir);
+		} else {
+			if (this.mode.fixed) {
+				var breakpoint = (this.fov.max + this.fov.min) / 2;
+
+				if (mouseEvent.deltaY > 0) {
+					if (this.fov.current < breakpoint) {
+						this.fov.current = this.fov.min + (this.fov.current - this.fov.min) * SCROLL_DOWN;
+					} else {
+						this.fov.current = this.fov.max - (this.fov.max - this.fov.current) * SCROLL_UP;
+					}
+				} else {
+					if (this.fov.current < breakpoint) {
+						this.fov.current = this.fov.min + (this.fov.current - this.fov.min) * SCROLL_UP;
+					} else {
+						this.fov.current = this.fov.max - (this.fov.max - this.fov.current) * SCROLL_DOWN;
+					}
+				}
+
+				this.threeCamera.fov = this.fov.current * hemi.RAD_TO_DEG;
+				this.threeCamera.updateProjectionMatrix();
+				this.state.update = true;
+			} else {
+				var t = (mouseEvent.deltaY > 0) ? SCROLL_DOWN : SCROLL_UP;
+				this.distance = hemi.utils.lerp(0, this.distance, t);
+
+				if (!this.mode.projection) {
+					this.cam.position.z = this.distance;
+					this.cam.updateMatrix();
+				}
+
+				this.state.update = true;
+			}
+		}
+	};
+
+	/**
+	 * Orbit the Camera about the target point it is currently looking at.
+	 * 
+	 * @param {number} pan amount to pan around by (in radians)
+	 * @param {number} tilt amount to tilt up and down by (in radians)
+	 * @return {hemi.Camera} this Camera (for easy chaining)
+	 */
+	Camera.prototype.orbit = function(pan, tilt) {
+		if (tilt === undefined) tilt = 0;
+
+		var newTilt = this.panTilt.rotation.x + tilt;
+
+		this.panTilt.rotation.y += pan;
+		this.panTilt.rotation.x = hemi.utils.clamp(newTilt, this.tiltMin, this.tiltMax);
+		this.panTilt.updateMatrix();
+		updateCamera.call(this);
+		return this;
+	};
+
+	/**
+	 * Rotate the Camera in place so that it looks in a new direction. Note that this has no effect
+	 * if the Camera is not in fixed-eye mode.
+	 * 
+	 * @param {number} pan amount to pan (in radians)
+	 * @param {number} tilt amount to tilt (in radians)
+	 * @return {hemi.Camera} this Camera (for easy chaining)
+	 */
+	Camera.prototype.rotate = function(pan, tilt) {
+		if (tilt === undefined) tilt = 0;
+
+		var ll = this.lookLimits,
+			newPan = this.cam.rotation.y + pan,
+			newTilt = this.cam.rotation.x + tilt;
+
+		if (ll.panMin !== null && newPan < ll.panMin) {
+			this.cam.rotation.y = ll.panMin;
+		} else if (ll.panMax !== null && newPan > ll.panMax) {
+			this.cam.rotation.y = ll.panMax;
+		} else {
+			this.cam.rotation.y = newPan;
+		}
+
+		if (ll.tiltMin !== null && newTilt < ll.tiltMin) {
+			this.cam.rotation.x = ll.tiltMin;
+		} else if (ll.tiltMax !== null && newTilt > ll.tiltMax) {
+			this.cam.rotation.x = ll.tiltMax;
+		} else {
+			this.cam.rotation.x = newTilt;
+		}
+
+        this.cam.updateMatrix();
+		updateCamera.call(this);
+		return this;
+	};
+
+	/**
+	 * Set the limits on the Camera pan and tilt in fixed eye mode.
+	 * 
+	 * @param {number} panMin minimum pan angle (in radians)
+	 * @param {number} panMax maximum pan angle (in radians)
+	 * @param {number} tiltMin minimum tilt angle (in radians)
+	 * @param {number} tiltMax maximum tilt angle (in radians)
+	 * @return {hemi.Camera} this Camera (for easy chaining)
+	 */
+	Camera.prototype.setLookAroundLimits = function(panMin, panMax, tiltMin, tiltMax) {
+		this.lookLimits.panMax = panMax;
+		this.lookLimits.panMin = panMin;
+		this.lookLimits.tiltMax = tiltMax;
+		this.lookLimits.tiltMin = tiltMin;
+		return this;
+	};
+
+	/**
+	 * Set the function used to ease the Camera in and out of moves.
+	 *
+	 * @param {function[]} easeFunc array of three functions which will be used for easing on the X,
+	 *     Y, and Z axes
+	 * @return {hemi.Camera} this Camera (for easy chaining)
+	 */
+	Camera.prototype.setEasing = function(easeFunc) {
+		if (typeof(easeFunc) == 'function') {
+			this.easeFunc = [easeFunc,easeFunc,easeFunc];
+		} else {
+			this.easeFunc = [
+				easeFunc.x || this.easeFunc[0],
+				easeFunc.y || this.easeFunc[1],
+				easeFunc.z || this.easeFunc[2]
+			];
+		}
+
+		return this;
+	};
+
+	/**
+	 * Set the eye and target of the Camera. 
+	 *
+	 * @param {THREE.Vector3} eye XYZ position of camera eye
+	 * @param {THREE.Vector3} target XYZ position of camera target
+	 */
+	Camera.prototype.setEyeTarget = function(eye, target) {
+		var offset = [eye.x - target.x, eye.y - target.y, eye.z -target.z],
+			rtp = hemi.utils.cartesianToSpherical(offset);
+
+		this.distance = rtp[0];
+
+		this.panTilt.position.copy(target);
+        this.panTilt.rotation.y = rtp[2];
+        this.panTilt.rotation.x = rtp[1] - hemi.HALF_PI;
+        this.panTilt.updateMatrix();
+
+		this.cam.rotation.y = 0;
+		this.cam.rotation.x = 0;
+		this.cam.position.z = this.distance;
+        this.cam.updateMatrix();
+
+		_vector1.set(0, 0, this.distance);
+		hemi.utils.pointAsLocal(this.cam, _vector2.copy(target));
+		hemi.utils.pointZAt(this.cam, _vector1, _vector2);
+		this.cam.rotation.y += Math.PI;
+		this.cam.updateMatrix();
+
+        this.updateWorldMatrices();
+	};
+
+	/**
+	 * Set the color of the Camera's light source.
+	 * 
+	 * @param {number[3]} rgb rgb value of the color
+	 * @return {hemi.Camera} this Camera (for easy chaining)
+	 */
+	Camera.prototype.setLightColor = function(rgb) {
+		this.light.color.setRGB(rgb[0], rgb[1], rgb[2]);
+		return this;
+	};
+
+	/**
+	 * Set the Camera view to render with an orthographic projection.
+	 * 
+	 * @param {hemi.Plane} plane the plane to look at orthographically (xy, xz, or yz)
+	 * @return {hemi.Camera} this Camera (for easy chaining)
+	 */
+	Camera.prototype.setOrthographic = function(plane) {
+		this.mode.projection = plane;
+		return this;
+	};
+
+	/**
+	 * Set the Camera view to render with a perspective projection.
+	 * 
+	 * @return {hemi.Camera} this Camera (for easy chaining)
+	 */
+	Camera.prototype.setPerspective = function() {
+		this.mode.projection = null;
+		return this;
+	};
+
+	/**
+	 * Set the zooming limits in fixed-eye mode.
+	 *
+	 * @param {number} min zoom-in limit (in radians)
+	 * @param {number} max zoom-out limit (in radians)
+	 * @return {hemi.Camera} this Camera (for easy chaining)
+	 */
+	Camera.prototype.setZoomLimits = function(min, max) {
+		this.fov.min = min;
+		this.fov.max = max;
+
+		if (this.fov.current > this.fov.max) {
+			this.fov.current = this.fov.max;
+		}
+		if (this.fov.current < this.fov.min) {
+			this.fov.current = this.fov.min;
+		}
+
+		return this;
+	};
+
+	/**
+	 * Move the Camera towards or away from its current target point by the given distance.
+	 * 
+	 * @param {number} distance the distance to move the Camera
+	 * @return {hemi.Camera} this Camera (for easy chaining)
+	 */
+	Camera.prototype.truck = function(distance) {
+		this.panTilt.translateZ(-distance);
+        this.panTilt.updateMatrix();
+        updateCamera.call(this);
+		return this;
+	};
+
+	/**
+	 * Recursively update all world matrices of the Camera's transforms.
+	 */
+    Camera.prototype.updateWorldMatrices = function() {
+        this.panTilt.updateMatrixWorld(true);
+    };
+
+// Private functions for Camera
+
+	/*
+	 * Set up the Camera to interpolate between the two given time values.
+	 * 
+	 * @param {number} current current time
+	 * @param {number} end end time
+	 */
+	function interpolateView(current, end) {
+		var last = this.vd.last,
+			cur = this.vd.current,
+			upProj = false,
+			eye, target;
+
+		if (this.state.curve) {
+			var t = this.easeFunc[0](current, 0, 1, end);
+			eye = this.state.curve.eye.interpolate(t);
+			target = this.state.curve.target.interpolate(t);
+		} else {
+			eye = _vector1;
+			target = _vector2;
+			eye.x = this.easeFunc[0](current, last.eye.x, cur.eye.x - last.eye.x, end);
+			eye.y = this.easeFunc[1](current, last.eye.y, cur.eye.y - last.eye.y, end);
+			eye.z = this.easeFunc[2](current, last.eye.z, cur.eye.z - last.eye.z, end);
+			target.x = this.easeFunc[0](current, last.target.x, cur.target.x - last.target.x, end);
+			target.y = this.easeFunc[1](current, last.target.y, cur.target.y - last.target.y, end);
+			target.z = this.easeFunc[2](current, last.target.z ,cur.target.z - last.target.z,end);
+		}
+		if (cur.fov !== last.fov) {
+			this.fov.current = this.easeFunc[0](current, last.fov, cur.fov - last.fov, end);
+			this.threeCamera.fov = this.fov.current * hemi.RAD_TO_DEG;
+			upProj = true;
+		}
+		if (cur.np !== last.np) {
+			this.threeCamera.near = this.easeFunc[0](current, last.np, cur.np - last.np, end);
+			upProj = true;
+		}
+		if (cur.fp !== last.fp) {
+			this.threeCamera.far = this.easeFunc[0](current, last.fp, cur.fp - last.fp, end);
+			upProj = true;
+		}
+		if (upProj) {
+			this.threeCamera.updateProjectionMatrix();
+		}
+
+		this.setEyeTarget(eye, target);
+	}
+
+	/*
+	 * Move the Camera when the Camera is in orthographic viewing mode.
+	 *
+	 * @param {number} xMovement the mouse movement in pixels along the x-axis
+	 * @param {number} yMovement the mouse movement in pixels along the y-axis
+	 */
+	function moveOrthographic(xMovement, yMovement) {
+		var distFactor = 2 * this.distance / hemi.core.client.width,
+			xDis = xMovement * distFactor,
+			yDis = yMovement * distFactor;
+
+		switch(this.mode.projection) {
+			case hemi.Plane.XY:
+			case hemi.Plane.YZ:
+				this.panTilt.translateX(-xDis);
+                this.panTilt.translateY(yDis);
+                this.panTilt.updateMatrix();
+				break;
+			case hemi.Plane.XZ:
+			    this.panTilt.translateX(xDis);
+                this.panTilt.translateZ(yDis);
+                this.panTilt.updateMatrix();
+				break;
+		}
+	}
+
+	/*
+	 * Move the Camera when the Camera is in perspective viewing mode.
+	 *
+	 * @param {number} xMovement the mouse movement in pixels along the x-axis
+	 * @param {number} yMovement the mouse movement in pixels along the y-axis
+	 */		
+	function movePerspective(xMovement, yMovement) {
+		if (this.state.shift && this.mode.scan) {
+			var deltaX = MOUSE_DELTA * this.distance * xMovement,
+				deltaY = MOUSE_DELTA * this.distance * yMovement;
+
+			this.panTilt.translateX(-deltaX);
+			this.panTilt.translateY(deltaY);
+            this.panTilt.updateMatrix();
+			updateCamera.call(this);
+		} else {
+			if (this.mode.fixed) {
+				this.rotate(-xMovement * MOUSE_SPEED, -yMovement * MOUSE_SPEED);
+			} else {
+				this.orbit(-xMovement * MOUSE_SPEED, -yMovement * MOUSE_SPEED);
+			}		
+		}
+	}
+
+	/*
+	 * Update the Camera.
+	 * 
+	 * @param {number} opt_delta optional time delta to upate for
+	 */
+	function updateCamera(opt_delta) {
+		var time = this.state.time;
+
+		if (this.state.moving) {
+			interpolateView.call(this, time.current,time.end);
+
+			if (opt_delta !== undefined) {
+				if (time.current >= time.end) {
+					this.state.moving = false;
+					this.state.curve = null;
+
+					if (this.state.vp !== null) {
+						this.send(hemi.msg.stop, { viewpoint:this.state.vp });
+						this.state.vp = null;
+					} else {
+						this.send(hemi.msg.stop, { viewdata:this.vd.current });
+					}
+				}
+
+				time.current += opt_delta;
+
+				if (time.current >= time.end) {
+					time.current = time.end;
+				}				
+			}
+		}
+
+		this.updateWorldMatrices();
+		this.getEye(this.threeCamera.position);
+		this.getTarget(_vector1);
+
+		this.threeCamera.matrix.setPosition(this.threeCamera.position);
+		this.threeCamera.lookAt(_vector1);
+		this.threeCamera.updateMatrixWorld(true);
+
+		this.light.updateMatrix();
+	}
+
+	hemi.makeCitizen(Camera, 'hemi.Camera', {
+		cleanup: Camera.prototype._clean,
+		toOctane: Camera.prototype._octane
+	});
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// CameraCurve class
+////////////////////////////////////////////////////////////////////////////////////////////////////
+	
+	/**
+	 * @class A CameraCurve contains an "eye" Curve and a "target" Curve that allow a Camera to
+	 * follow a smooth path through several waypoints.
+	 * 
+	 * @param {hemi.Curve} eye Curve for camera eye to follow
+	 * @param {hemi.Curve} target Curve for camera target to follow
+	 */
+	var CameraCurve = function(eye, target) {
+		this.eye = eye;
+		this.target = target;
+	};
+
+	/*
+	 * Remove all references in the CameraCurve.
+	 */
+	CameraCurve.prototype._clean = function() {
+		this.eye = null;
+		this.target = null;
+	};
+
+	/*
+	 * Octane properties for CameraCurve.
+	 * @type string[]
+	 */
+	CameraCurve.prototype._octane = ['eye', 'target'];
+
+	hemi.makeCitizen(CameraCurve, 'hemi.CameraCurve', {
+		cleanup: CameraCurve.prototype._clean,
+		toOctane: CameraCurve.prototype._octane
+	});
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// ViewData class
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	/**
+	 * @class A ViewData is a light-weight, non-Citizen form of a Viewpoint.
+	 */
+	hemi.ViewData = function(config) {
+		var cfg = config || {};
+		this.eye = cfg.eye || new THREE.Vector3(0, 0, -1);
+		this.target = cfg.target || new THREE.Vector3(0, 0, 0);
+		this.fov = cfg.fov || FOV;
+		this.np = cfg.np || NEAR_PLANE;
+		this.fp = cfg.fp || FAR_PLANE;
+	};
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Viewpoint class
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	/**
+	 * @class A Viewpoint describes everything needed for a view - eye, target, field of view, near
+	 * plane, and far plane.
+	 */
+	var Viewpoint = function(config) {
+		var cfg = config || {};
+		this.name = cfg.name || '';
+		this.eye = cfg.eye || new THREE.Vector3(0, 0, -1);
+		this.target = cfg.target || new THREE.Vector3(0, 0, 0);
+		this.fov = cfg.fov || FOV;
+		this.np = cfg.np || NEAR_PLANE;
+		this.fp = cfg.fp || FAR_PLANE;
+	};
+
+	/*
+	 * Remove all references in the Viewpoint.
+	 */
+	Viewpoint.prototype._clean = function() {
+		this.eye = null;
+		this.target = null;
+	};
+
+	/*
+	 * Octane properties for Viewpoint.
+	 * @type string[]
+	 */
+	Viewpoint.prototype._octane = ['eye', 'target', 'fov', 'np', 'fp'];
+
+	/**
+	 * Get the data contained within the Viewpoint.
+	 *
+	 * @return {hemi.ViewData} the ViewData for the Viewpoint
+	 */
+	Viewpoint.prototype.getData = function() {
+		return new hemi.ViewData(this);
+	};
+
+	/**
+	 * Set the data for the Viewpoint.
+	 *
+	 * @param {hemi.ViewData} viewData data to set for the Viewpoint
+	 */
+	Viewpoint.prototype.setData = function(viewData) {
+		this.eye = viewData.eye;
+		this.target = viewData.target;
+		this.fov = viewData.fov;
+		this.np = viewData.np;
+		this.fp = viewData.fp;
+	};
+
+	hemi.makeCitizen(Viewpoint, 'hemi.Viewpoint', {
+		cleanup: Viewpoint.prototype._clean,
+		toOctane: Viewpoint.prototype._octane
+	});
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Global functions
+////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	/**
 	 * Create a new ViewData with the given Camera's current viewing parameters.
-	 * 
-	 * @param {hemi.view.Camera} camera the Camera to create the Viewpoint from
-	 * @return {hemi.view.ViewData} the newly created ViewData
+	 *
+	 * @param {hemi.Camera} camera the Camera to create the Viewpoint from
+	 * @return {hemi.ViewData} the newly created ViewData
 	 */
-	hemi.view.createViewData = function(camera) {
-		return new hemi.view.ViewData({
+	hemi.createViewData = function(camera) {
+		return new hemi.ViewData({
 			eye: camera.getEye(),
 			target: camera.getTarget(),
-			up: camera.up,
 			fov: camera.fov.current,
-			np: camera.clip.near,
-			fp: camera.clip.far
+			np: camera.threeCamera.near,
+			fp: camera.threeCamera.far
 		});
 	};
 
 	/**
-	 * Create a new Viewpoint with the given name and the given Camera's current
-	 * viewing parameters.
-	 * 
+	 * Create a new Viewpoint with the given name and the given Camera's current viewing parameters.
+	 *
 	 * @param {string} name the name of the new Viewpoint
-	 * @param {hemi.view.Camera} camera the Camera to create the Viewpoint from
-	 * @return {hemi.view.Viewpoint} the newly created Viewpoint
+	 * @param {hemi.Camera} camera the Camera to create the Viewpoint from
+	 * @return {hemi.Viewpoint} the newly created Viewpoint
 	 */
-	hemi.view.createViewpoint = function(name, camera) {
-		var viewpoint = new hemi.view.Viewpoint({name: name});
+	hemi.createViewpoint = function(name, camera) {
+		var viewpoint = new hemi.Viewpoint({name: name});
 		viewpoint.setData(this.createViewData(camera));
 		return viewpoint;
 	};
 
-	/**
-	 * Create a new Viewpoint with the given name and the given viewing
-	 * parameters.
-	 * 
-	 * @param {string} name the name of the new Viewpoint
-	 * @param {number[3]} eye the coordinates of the eye
-	 * @param {number[3]} target the coordinates of the target
-	 * @param {number[3]} up the coordinates of the up direction
-	 * @param {number} fov angle of the field-of-view
-	 * @return {hemi.view.Viewpoint} the newly created Viewpoint
-	 */
-	hemi.view.createCustomViewpoint = function(name, eye, target, up, fov,
-			np, fp) {
-		var viewPoint = new hemi.view.Viewpoint({
-			name: name,
-			eye: eye,
-			target: target,
-			up: up,
-			fov: fov,
-			np: np,
-			fp: fp
-		});
-
-		return viewPoint;
-	};
-
-	return hemi;
-
-})(hemi || {});
-/* 
- * Kuda includes a library and editor for authoring interactive 3D content for the web.
- * Copyright (C) 2011 SRI International.
- *
- * This program is free software; you can redistribute it and/or modify it under the terms
- * of the GNU General Public License as published by the Free Software Foundation; either 
- * version 2 of the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
- * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
- * See the GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License along with this program; 
- * if not, write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, 
- * Boston, MA 02110-1301 USA.
+})();
+/*
+ * Licensed under the MIT license: http://www.opensource.org/licenses/mit-license.php
+ * The MIT License (MIT)
+ * 
+ * Copyright (c) 2011 SRI International
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+ * associated  documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the  Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-var hemi = (function(hemi) {
-	/**
-	 * @namespace A module for managing 3D models and their assets.
-	 */
-	hemi.model = hemi.model || {};
+(function() {
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Model class
+////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	/**
-	 * The name of the root Transform for all loaded Models. All Transforms in
-	 * a Model are a child or grandchild of the modelRoot.
-	 * @type string
-	 * @constant
+	 * @class A Model represents a hierarchical set of transforms, geometry, and animations that
+	 * make up a 3D object.
+	 * 
+	 * @param {hemi.Client} client the Client that will render the Model
 	 */
-	hemi.model.MODEL_ROOT = 'ModelRoot';
+	var Model = function(client) {
+		/*
+		 * The name of the file to load the Model's assets from.
+		 * @type string
+		 */
+		this._fileName = null;
+		/*
+		 * Flag indicating if the Model's assets are loaded.
+		 * @type boolean
+		 * @default false
+		 */
+		this._loaded = false;
 
-	/**
-	 * @class A TransformUpdate allows changes to a Transform in a Model to be
-	 * persisted through Octane.
-	 */
-	hemi.model.TransformUpdate = function() {
 		/**
-		 * The updated position, rotation, and scale of the Transform.
-		 * @type number[4][4]
+		 * Array of KeyFrameAnimations that the Model contains.
+		 * @type THREE.KeyFrameAnimation[]
 		 */
-		this.localMatrix = null;
+		this.animations = [];
 		/**
-		 * A flag indicating if the Transform is visible.
+		 * Flag indicating if the Model should load its assets when its file name is set.
 		 * @type boolean
+		 * @default true
 		 */
-		this.visible = null;
+		this.autoLoad = true;
 		/**
-		 * A flag indicating if the Transform is able to be picked.
-		 * @type boolean
+		 * The Client that the Model is being rendered by.
+		 * @type hemi.Client
 		 */
-		this.pickable = null;
+		this.client = client;
 		/**
-		 * The opacity of the Transform. 
-		 * @type number
+		 * Array of Geometries that the Model contains.
+		 * @type THREE.Geometry[]
 		 */
-		this.opacity = null;
-		
-		this.transform = null;
-		this.toLoad = null;
+		this.geometries = [];
+		/**
+		 * Array of Materials that the Model contains.
+		 * @type THREE.Material[]
+		 */
+		this.materials = [];
+		/**
+		 * The root Transform of the Model
+		 * @type hemi.Transform
+		 */
+		this.root = null;
 	};
 
-	hemi.model.TransformUpdate.prototype = {
-		/**
-		 * Get the Octane structure for the TransformUpdate.
-		 *
-		 * @return {Object} the Octane structure representing the TransformUpdate
-		 */
-		toOctane: function() {
-			var octane = {
-					type: 'hemi.model.TransformUpdate',
-					props: [{
-						name: 'toLoad',
-						val: this.transform.name
-					}]
+	/*
+	 * Remove all references in the Model.
+	 */
+	Model.prototype._clean = function() {
+		this.unload();
+		this.client = null;
+	};
+
+	/*
+	 * Array of Hemi Messages that Model is known to send.
+	 * @type string[]
+	 */
+	Model.prototype._msgSent = [hemi.msg.load, hemi.msg.unload];
+
+	/*
+	 * Octane properties for Model.
+	 * 
+	 * @return {Object[]} array of Octane properties
+	 */
+	Model.prototype._octane = function() {
+		return [
+				{
+					name: 'autoLoad',
+					val: this.autoLoad
 				},
-				valNames = ['localMatrix', 'visible', 'pickable', 'opacity'];
-			
-			for (var i = 0, il = valNames.length; i < il; i++) {
-				var name = valNames[i];
-				octane.props.push({
-					name: name,
-					val: this[name]
+				{
+					name: 'client',
+					id: this.client._getId()
+				},
+				{
+					name: 'root',
+					id: this.root._getId()
+				},
+				{
+					name: 'setFileName',
+					arg: [this._fileName]
+				}
+			];
+	};
+
+	/**
+	 * Calculate the maximum animation time (in seconds).
+	 * 
+	 * @return {number} max animation time in seconds.
+	 */
+	Model.prototype.getMaxAnimationTime = function() {
+		var animations = this.animations,
+			max = null;
+
+		for (var i = 0, il = animations.length; i < il; ++i) {
+			var time = animations[i].data.length;
+			if (max === null || max < time) max = time;
+		}
+
+		return max;
+	};
+
+	/**
+	 * Calculate the minimum animation time (in seconds).
+	 * 
+	 * @return {number} min animation time in seconds.
+	 */
+	Model.prototype.getMinAnimationTime = function() {
+		var animations = this.animations,
+			min = null;
+
+		for (var i = 0, il = animations.length; i < il; ++i) {
+			var hierarchy = animations[i].data.hierarchy;
+
+			for (var j = 0, jl = hierarchy.length; j < jl; ++j) {
+				var keys = hierarchy[j].keys;
+
+				for (var k = 0, kl = keys.length; k < kl; ++k) {
+					var time = keys[k].time;
+					if (min === null || min > time) min = time;
+				}
+			}
+		}
+
+		return min;
+	};
+
+	/**
+	 * Get any Transforms with the given name in the Model.
+	 * 
+	 * @param {string} name the name of the Transform to find
+	 * @return {hemi.Transform[]} array of matching Transforms
+	 */
+	Model.prototype.getTransforms = function(name) {
+		var trans = [];
+		getTransformsRecursive(name, this.root, trans);
+		return trans;
+	};
+
+	/**
+	 * Get the first Transform found with the given name in the Model.
+	 * 
+	 * @param {string} name the name of the Transform to find
+	 * @return {hemi.Transform} the first matching Transform or null
+	 */
+	Model.prototype.getTransform = function(name) {
+		var trans = [],
+			tran = null;
+
+		getTransformsRecursive(name, this.root, trans);
+		var length = trans.length;
+
+		if (length > 0) {
+			tran = trans[0];
+
+			if (length > 1) {
+				console.log('Warning: found ' + length + ' transforms with name ' + name);
+			}
+		}
+
+		return tran;
+	};
+
+	/**
+	 * Load the Model's assets from its file.
+	 * 
+	 * @param {Object} opt_collada optional cached object constructed by the ColladaLoader that can
+	 *     be used to construct a new Model without loading and parsing the asset file
+	 */
+	Model.prototype.load = function(opt_collada) {
+		if (this._loaded) this.unload();
+
+		var that = this,
+			onCollada = function (collada) {
+				var animHandler = THREE.AnimationHandler,
+					animations = collada.animations,
+					toConvert = {};
+
+				that._loaded = true;
+
+				for (var i = 0, il = animations.length; i < il; ++i) {
+					var node = animations[i].node;
+					toConvert[node.id] = node;
+				}
+
+				if (that.root === null) {
+					that.root = convertObject3Ds.call(that, collada.scene, toConvert);
+				} else {
+					that.root._init(collada.scene, toConvert);
+				}
+
+				that.client.scene.add(that.root);
+
+				for (var i = 0, il = animations.length; i < il; ++i) {
+					var anim = animations[i];
+					//Add to the THREE Animation handler to get the benefits of it's
+					animHandler.add(anim);
+
+					var kfAnim = new THREE.KeyFrameAnimation(toConvert[anim.node.id], anim.name);
+					kfAnim.timeScale = 1;
+					that.animations.push(kfAnim);
+				}
+
+				that.send(hemi.msg.load, {
+					root: collada.scene
 				});
 			};
 
-			return octane;
-		},
-
-		/**
-		 * Check if the TransformUpdate has been modified.
-		 * 
-		 * @return {boolean} true if the Transform has been changed
-		 */
-		isModified: function() {
-			return this.localMatrix != null || this.pickable != null 
-				|| this.visible != null || this.opacity != null;
-		},
-
-		/**
-		 * Apply the changes in the TransformUpdate to its target Transform.
-		 * 
-		 * @param {hemi.model.Model} model the Model to get the Transform from
-		 */
-		apply: function(model) {
-			if (this.toLoad !== null) {
-				var transforms = model.getTransforms(this.toLoad);
-				
-				if (transforms.length === 1) {
-					this.transform = transforms[0];
-					this.toLoad = null;
-				} else {
-					hemi.console.log(transforms.length + ' transforms with name ' +
-						this.toLoad + ' in model ' + model.name, hemi.console.ERR);
-					return;
-				}
-			}
-			
-			if (this.localMatrix != null) {
-				this.transform.localMatrix = this.localMatrix;
-			}
-			
-			if (this.pickable != null) {
-				hemi.picking.setPickable(this.transform, this.pickable, true);
-			}
-			
-			if (this.visible != null) {
-				this.transform.visible = this.visible;
-			}
-			
-			if (this.opacity != null) {
-				model.setTransformOpacity(this.transform, this.opacity, false);
-			}
+		if (opt_collada) {
+			onCollada(opt_collada);
+		} else {
+			hemi.loadCollada(this._fileName, onCollada); 
 		}
 	};
 
 	/**
-	 * @class A ModelConfig contains the pack, transform, and animation time
-	 * attributes for a Model. The pack is filled with shapes, transforms, and
-	 * materials loaded from a model file.
+	 * Set the given file name as the Model's file to load. If the autoLoad flag is set, load the
+	 * Model now.
+	 * 
+	 * @param {string} the name of the file to load (relative to hemi.loadPath)
 	 */
-	hemi.model.ModelConfig = function() {
-		this.pack = hemi.core.client.createPack();
-		// Create a root transform for the model's shapes and transforms
-		this.rootTransform = this.pack.createObject('Transform');
-		this.rootTransform.parent = hemi.model.modelRoot;
-		// Create a param to access animations. No need to worry about storing
-		// it for cleanup, it will get destroyed with pack.
-		var paramObject = this.pack.createObject('ParamObject');
-		this.animationTime = paramObject.createParam('animTime', 'ParamFloat');
-	};
+	Model.prototype.setFileName = function(fileName) {
+		this._fileName = fileName;
 
-	hemi.model.ModelConfig.prototype = {
-		/**
-		 * Get all materials loaded in the pack from the model file.
-		 * 
-		 * @return {o3d.Material[]} array of materials
-		 */
-		getMaterials: function() {
-			return this.pack.getObjectsByClassName('o3d.Material');
-		},
-
-		/**
-		 * Get all shapes loaded in the pack from the model file.
-		 * 
-		 * @return {o3d.Shape[]} array of shapes
-		 */
-		getShapes: function() {
-			return this.pack.getObjectsByClassName('o3d.Shape');
-		},
-
-		/**
-		 * Get all transforms loaded in the pack from the model file.
-		 * 
-		 * @return {o3d.Transform[]} array of tranforms
-		 */
-		getTransforms: function() {
-			return this.pack.getObjectsByClassName('o3d.Transform');
-		},
-		
-		/**
-		 * Check if the pack contains any skinned meshes.
-		 * 
-		 * @return {boolean} true if the pack contains any skinned meshes
-		 */
-		isSkinned: function() {
-			return this.pack.getObjectsByClassName('o3d.Skin').length > 0;
-		}
+		if (this.autoLoad) this.load();
 	};
 
 	/**
-	 * @class A Model contains geometric shapes, hierarchical transforms that
-	 * manipulate those shapes, and materials that affect how the shapes are
-	 * displayed.
-	 * @extends hemi.world.Citizen
+	 * Unload all of the Model's loaded transforms, geometries, etc.
 	 */
-	hemi.model.Model = hemi.world.Citizen.extend({
-		init: function() {
-			this._super();
+	Model.prototype.unload = function() {
+		this.send(hemi.msg.unload, {
+			root: this.root
+		});
 
-			/**
-			 * A flag that indicates if the Model is currently animating.
-			 * @type boolean
-			 * @default false
-			 */
-			this.isAnimating = false;
-			this.isSkinned = false;
-			this.fileName = '';
+		if (this.root) {
+			this.root.cleanup();
 			this.root = null;
-			this.materials = [];
-			this.shapes = [];
-			this.transforms = [];
-			this.transformUpdates = [];
-			this.animParam = null;
-			this.pack = null;
-		},
-		
-		/**
-		 * Overwrites hemi.world.Citizen.citizenType
-		 * @string
-		 */
-		citizenType: 'hemi.model.Model',
-		
-		/**
-		 * Send a cleanup Message and remove all references in the Model.
-		 */
-		cleanup: function() {
-			this._super();
-			this.unload();
-		},
+		}
 
-		/**
-		 * Get the Octane structure for the Model.
-		 *
-		 * @return {Object} the Octane structure representing the Model
-		 */
-		toOctane: function() {
-			var octane = this._super();
 
-			octane.props.push({
-				name: 'setFileName',
-				arg: [this.fileName]
-			});
+		this._loaded = false;
+		this.animations = [];
+		this.geometries = [];
+		this.materials = [];
+	};
 
-			var upEntry = {
-				name: 'transformUpdates',
-				oct: []
-			};
+	Model.prototype.setVisible = function(visible) {
+		var transforms = this.root.getAllChildren();
+		for (var count = 0; count < transforms.length; ++count) {
+			transforms[count].visible = visible;
+		}
+	};
 
-			for (var t = 0, len = this.transformUpdates.length; t < len; t++) {
-				var update = this.transformUpdates[t];
-				
-				if (update.isModified()) {
-					// Only save the TransformUpdate if there is actually a
-					// change to save.
-					upEntry.oct.push(update.toOctane());
-				}
+// Private functions for Model
+
+	/*
+	 * Convert the loaded THREE.Object3Ds to hemi.Transforms so that they can be Citizens.
+	 * 
+	 * @param {THREE.Object3D} obj the root Object3D to start converting at
+	 * @param {Object} toConvert mapping of Object3D id's to matching Transforms for animations to
+	 *     use to connect with the newly created Transforms
+	 * @return {hemi.Transform} the converted root Transform
+	 */
+	function convertObject3Ds(obj, toConvert) {
+		var children = obj.children,
+			newObj;
+
+		if (obj.geometry) {
+			newObj = new hemi.Mesh();
+			newObj.geometry = obj.geometry;
+			newObj.material = obj.material;
+			newObj.boundRadius = obj.boundRadius;
+
+			if (newObj.geometry.morphTargets.length) {
+				newObj.morphTargetBase = obj.morphTargetBase;
+				newObj.morphTargetForcedOrder = obj.morphTargetForcedOrder;
+				newObj.morphTargetInfluences = obj.morphTargetInfluences;
+				newObj.morphTargetDictionary = obj.morphTargetDictionary;
+			}
+			if (this.materials.indexOf(obj.material) === -1) {
+				this.materials.push(obj.material);
+			}
+			if (this.geometries.indexOf(obj.geometry) === -1) {
+				this.geometries.push(obj.geometry);
+			}
+		} else {
+			newObj = new hemi.Transform();
+		}
+
+		newObj.name = obj.name;
+		newObj.visible = obj.visible;
+		newObj.position = obj.position;
+		newObj.rotation = obj.rotation;
+		newObj.quaternion = obj.quaternion;
+		newObj.scale = obj.scale;
+		newObj.useQuaternion = obj.useQuaternion;
+		newObj.matrix = obj.matrix;
+		newObj.matrixWorld = obj.matrixWorld;
+
+		if (toConvert[obj.id] !== undefined) {
+			toConvert[obj.id] = newObj;
+		}
+
+		for (var i = 0; i < children.length; ++i) {
+			var newChild = convertObject3Ds.call(this, children[i], toConvert);
+			newObj.add(newChild);
+		}
+
+		return newObj;
+	}
+
+	hemi.makeCitizen(Model, 'hemi.Model', {
+		cleanup: Model.prototype._clean,
+		toOctane: Model.prototype._octane
+	});
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Utility functions
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	/*
+	 * Recursive function to search through all Transform children for any Transforms with the given
+	 * name.
+	 * 
+	 * @param {string} name the name to search for
+	 * @param {hemi.Transform} transform the transform with children to check
+	 * @param {hemi.Transform[]} returnTrans array of matching Transforms that is being populated
+	 */
+	function getTransformsRecursive(name, transform, returnTrans) {
+		for (var i = 0; i < transform.children.length; ++i) {
+			var child = transform.children[i];
+
+			if (child.name === name) {
+				returnTrans.push(child);
 			}
 
-			octane.props.push(upEntry);
+			getTransformsRecursive(name, child, returnTrans);
+		}
+	}
 
-			return octane;
-		},
+})();
+/*
+ * Licensed under the MIT license: http://www.opensource.org/licenses/mit-license.php
+ * The MIT License (MIT)
+ * 
+ * Copyright (c) 2011 SRI International
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+ * associated  documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the  Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
 
-		/**
-		 * Set the file name and model name for the Model and then begin loading
-		 * the file.
-		 * 
-		 * @param {string} fileName name of the file
-		 * @param {function(string):void} opt_errFnc optional error callback
-		 */
-		setFileName: function(fileName, opt_errFnc) {
-			this.fileName = fileName;
-			if (this.name.length <= 0) {
-				this.name = getModelName(fileName);
-			}
-			this.load(opt_errFnc);
-		},
-		
-		/**
-		 * Load the Model (or reload) from its file url.
-		 * 
-		 * @param {function(string):void} opt_errFnc optional error callback
-		 */
-		load: function(opt_errFnc) {
-			var config = new hemi.model.ModelConfig(),
-				that = this;
-			
-			if (this.pack !== null) {
-				this.unload();
-			}
-			
-			hemi.loader.loadModel(
-				this.fileName,
-				config.pack,
-				config.rootTransform,
-				function(pack, parent) {
-					hemi.core.loaderCallback(pack);
-					that.loadConfig(config);
-				},
-				{opt_animSource: config.animationTime},
-				opt_errFnc);
-		},
+(function() {
 
-		/**
-		 * Load the given configuration into the Model, populating it with
-		 * transforms, shapes, and materials.
-		 * 
-		 * @param {hemi.model.ModelConfig} config configuration for the Model
-		 */
-		loadConfig: function(config) {
-			var id = this.getId();
-			
-			if (this.name.length <= 0) {
-				this.name = getModelName(this.fileName);
-			}
-			this.isSkinned = config.isSkinned();
-			this.root = config.rootTransform;
-			this.root.name = this.name + '_Root';
-			// The deserialization process sets bad values for bounding boxes of
-			// transforms, so we force them to be recalculated.
-			if (this.isSkinned) {
-				// For some reason, skinned meshes need to be rendered once and
-				// then have both shapes and transforms recalculated.
-				hemi.view.viewInfo.renderGraphRoot.render();
-				this.root.recalculateBoundingBox(true, true);
-			} else {
-				this.root.recalculateBoundingBox(true);
-			}
-			
-			this.animParam = config.animationTime;
-			this.materials = config.getMaterials();
-			this.shapes = config.getShapes();
-			this.transforms = config.getTransforms();
-			this.pack = config.pack;
-			
-			for (var i = 0, il = this.materials.length; i < il; ++i) {
-				var mat = this.materials[i],
-					oid = mat.createParam('ownerId', 'o3d.ParamInteger');
-				oid.value = id;
-			}
-			
-			for (var t = 0, len = this.transforms.length; t < len; ++t) {
-				var transform = this.transforms[t],
-					oid = transform.createParam('ownerId', 'o3d.ParamInteger');
-				oid.value = id;
-			}
-			
-			for (var t = 0, len = this.transformUpdates.length; t < len; t++) {
-				var update = this.transformUpdates[t];
-				update.apply(this);
-			}
+	// Static helper objects shared by all Pickers
+	var _projector = new THREE.Projector(),
+		_ray = new THREE.Ray(),
+		_vector = new THREE.Vector3();
 
-			hemi.world.tranReg.distribute(this);
-			
-			this.send(hemi.msg.load, {});
-		},
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Picker class
+////////////////////////////////////////////////////////////////////////////////////////////////////
 
-		/**
-		 * Get the Model's animation parameter. It's value property can be
-		 * set to update the Model to a specific keyframe.
-		 *
-		 * @return {o3d.ParamObject} the Model's animation parameter
-		 */
-		getAnimationParameter: function() {
-			return this.animParam;
-		},
+	/**
+	 * @class A Picker contains the logic for perfoming pick operations on 3D scenes from mouse
+	 * clicks.
+	 */
+	hemi.Picker = function(scene, camera) {
+		this.camera = camera;
+		this.scene = scene;
+		this.height = 1;
+		this.width = 1;
 
-		/**
-		 * Get the Model's current animation time.
-		 *
-		 * @return {number} the Model's current animation time
-		 */
-		getAnimationTime: function() {
-			var time = 0.0;
-			
-			if (this.animParam) {
-				time = this.animParam.value;
-			}
-			
-			return time;
-		},
-		
-		/**
-		 * Get the Model's max animation time value (in seconds).
-		 * 
-		 * @return {number} the Model's max animation time
-		 */
-		getMaxAnimationTime: function() {	
-			var curves = this.pack.getObjectsByClassName('o3d.Curve'),
-				max = 0;
-			
-			for (var ndx = 0; ndx < curves.length; ndx++) {
-				var keys = curves[ndx].keys;
-				
-				for (var ndx2 = 0; ndx2 < keys.length; ndx2++) {
-					var input = keys[ndx2].input;
-					max = input > max ? input : max;
-				}
-			}
-			
-			return max;
-		},
+		this.pickGrabber = null;
 
-		/**
-		 * Increment the Model's animation time by the given amount.
-		 *
-		 * @param {number} animateInc amount to increment animation time by
-		 */
-		incrementAnimationTime: function(animateInc) {
-			if (this.animParam) {
-				this.setAnimationTime(this.animParam.value + animateInc);
-			}
-		},
+		hemi.input.addMouseDownListener(this);
+	};
 
-		/**
-		 * Set the Model's animation time to the given amount.
-		 *
-		 * @param {number} animateTime amount to set the animation time to
-		 */
-		setAnimationTime: function(animateTime) {
-			if (this.animParam) {
-				var previous = this.animParam.value;
-				this.animParam.value = animateTime;
+	/*
+	 * Remove all references in the Picker.
+	 */
+	hemi.Picker.prototype.cleanup = function() {
+		hemi.input.removeMouseDownListener(this);
+		this.camera = null;
+		this.pickGrabber = null;
+		this.scene = null;
+	};
 
-				this.send(hemi.msg.animate,
-					{
-						previous: previous,
-						time: animateTime
-					});
-			}
-		},
+	/**
+	 * Handle the mouse down event by performing a pick operation. If a 3D object is picked, send
+	 * out a message on the dispach.
+	 * 
+	 * @param {Object} mouseEvent the mouse down event
+	 */
+	hemi.Picker.prototype.onMouseDown = function(mouseEvent) {
+		var x = (mouseEvent.x / this.width) * 2 - 1,
+			y = -(mouseEvent.y / this.height) * 2 + 1,
+			camPos = this.camera.threeCamera.position,
+			toPick = [];
 
-		/**
-		 * Get any Materials in the Model with the given name.
-		 *
-		 * @param {string} materialName the name of the desired Material
-		 * @return {o3d.Material[]} array of Materials with the given name
-		 */
-		getMaterials: function(materialName) {
-			var mats = [];
-			
-			for (var m = 0, len = this.materials.length; m < len; m++) {
-				var material = this.materials[m];
-				if (material.name === materialName) 
-					mats.push(material);
-			}
-			
-			return mats;
-		},
+		_vector.set(x, y, 1);
+		_projector.unprojectVector(_vector, this.camera.threeCamera);
+		_ray.origin.copy(camPos);
+		_ray.direction.copy(_vector.subSelf(camPos).normalize());
 
-		/**
-		 * Get any Shapes in the Model with the given name.
-		 *
-		 * @param {string} shapeName the name of the desired Shape
-		 * @return {o3d.Shape[]} array of Shapes with the given name
-		 */
-		getShapes: function(shapeName) {
-			var shps = [];
-			
-			for (var s = 0, len = this.shapes.length; s < len; s++) {
-				var shape = this.shapes[s];
-				if (shape.name === shapeName) 
-					shps.push(shape);
-			}
-			
-			return shps;
-		},
+		buildPickList(this.scene.children, toPick);
+		var pickedObjs = _ray.intersectObjects(toPick);
 
-		/**
-		 * Get any Transforms in the Model with the given name.
-		 *
-		 * @param {string} transformName the name of the desired Transform
-		 * @return {o3d.Transform[]} array of Transforms with the given name
-		 */
-		getTransforms: function(transformName) {
-			var tfms = [];
-			
-			for (var t = 0, len = this.transforms.length; t < len; t++) {
-				var transform = this.transforms[t];
-				if (transform.name === transformName) 
-					tfms.push(transform);
-			}
-			
-			return tfms;
-		},
+		if (pickedObjs.length > 0) {
+			for (var i = 0; i < pickedObjs.length; ++i) {
+				var pickedObj = pickedObjs[i];
 
-		/**
-		 * Get the TransformUpdate for the given Transform, or create a new one
-		 * if it does not already exist.
-		 *
-		 * @param {o3d.Transform} transform the Transform
-		 * @return {hemi.model.TransformUpdate} the TransformUpdate for the
-		 *		   Transform
-		 */
-		getTransformUpdate: function(transform) {
-			var transUp = null;
-			
-			for (var t = 0, len = this.transformUpdates.length; t < len; t++) {
-				var update = this.transformUpdates[t];
-				
-				if (update.transform === transform) {
-					transUp = update;
+				if (pickedObj.object.pickable) {
+					var worldIntersectionPosition = pickedObj.object.parent.matrixWorld.multiplyVector3(
+						pickedObj.point.clone());
+
+					var pickInfo =	{
+						mouseEvent: mouseEvent,
+						pickedMesh: pickedObj.object,
+						worldIntersectionPosition: worldIntersectionPosition
+					};
+
+					if (this.pickGrabber !== null) {
+						this.pickGrabber.onPick(pickInfo);
+					} else {
+						hemi.send(hemi.msg.pick, pickInfo);
+					}
 					break;
 				}
 			}
-
-			if (transUp === null) {
-				transUp = new hemi.model.TransformUpdate();
-				transUp.transform = transform;
-				this.transformUpdates.push(transUp);
-			}
-			
-			return transUp;
-		},
-		
-		/**
-		 * Calculate the center point of the Model's bounding box.
-		 * 
-		 * @return {number[3]} XYZ point in 3D space
-		 */
-		getCenterPoint: function() {
-			var boundingBox = this.root.boundingBox;
-			
-			var xSpan = boundingBox.maxExtent[0] - boundingBox.minExtent[0];
-			var ySpan = boundingBox.maxExtent[1] - boundingBox.minExtent[1];
-			var zSpan = boundingBox.maxExtent[2] - boundingBox.minExtent[2]; 
- 
-			var center = [xSpan / 2, ySpan / 2, zSpan / 2];
-			
-			return center;
-		},
-		
-		/**
-		 * Get the bounding box of the Model's root Transform.
-		 * 
-		 * @return {o3d.BoundingBox} bounding box for the entire Model
-		 */
-		getBoundingBox : function(){
-			return this.root.boundingBox;
-		},
-		
-		/**
-		 * Set the pickable flag for the Transforms in the Model.
-		 *
-		 * @param {Object} config configuration options
-		 */
-		setPickable: function(config) {
-			var pick = config.pick,
-				transforms;
-			
-			if (config.transforms instanceof Array) {
-				transforms = config.transforms;
-			} else {
-				transforms = [config.transforms];
-			}
-			
-			for (var i = 0, il = transforms.length; i < il; i++) {
-				this.setTransformPickable(transforms[i], pick);
-			}
-		},
-		
-		/**
-		 * Sets the opacity of the Transform to the given value. 
-		 * 
-		 * @param {o3d.Transform} transform the Transform to update
-		 * @param {number} opacity the new opacity value
-		 * @param {boolean} opt_trickle optional flag indicating if opacity
-		 *     should also be set for the Transform's children (default is true)
-		 */
-		setTransformOpacity: function(transform, opacity, opt_trickle) {
-			var update = this.getTransformUpdate(transform),
-				shapes = transform.shapes,
-				o = transform.getParam('opacity'),
-				trickle = opt_trickle == null ? true : opt_trickle;
-			
-			if (o == null) {
-				for (var i = 0, il = shapes.length; i < il; i++) {
-					var s = shapes[i],
-						elements = s.elements;
-					
-					for (var j = 0, jl = elements.length; j < jl; j++) {
-						hemi.fx.addOpacity(elements[j].material);
-					}
-				}
-				
-				o = transform.createParam('opacity','ParamFloat');
-			}
-			
-			o.value = opacity;
-			update.opacity = opacity === 1 ? null : opacity;
-			
-			if (trickle) {
-				var children = transform.children;
-				
-				for (var i = 0, il = children.length; i < il; i++) {
-					this.setTransformOpacity(children[i], opacity, true);
-				}
-			}
-		},
-
-		/**
-		 * Set the pickable flag for the given Transform.
-		 *
-		 * @param {o3d.Transform} transform the Transform
-		 * @param {boolean} pickable value to set for pickable
-		 */
-		setTransformPickable: function(transform, pickable) {
-			var update = this.getTransformUpdate(transform);
-			hemi.picking.setPickable(transform, pickable, true);
-			update.pickable = pickable ? null : false;
-		},
-		
-		/**
-		 * Set the visible flag for the given Transform.
-		 *
-		 * @param {o3d.Transform} transform the Transform
-		 * @param {boolean} visible value to set for visible
-		 */
-		setTransformVisible: function(transform, visible) {
-			var update = this.getTransformUpdate(transform);
-			transform.visible = visible;
-			update.visible = visible ? null : false;
-		},
-		
-		/**
-		 * Set the visible flag for the Transforms in the Model.
-		 *
-		 * @param {Object} config configuration options
-		 */
-		setVisible: function(config) {
-			var vis = config.vis,
-				transforms;
-			
-			if (config.transforms instanceof Array) {
-				transforms = config.transforms;
-			} else {
-				transforms = [config.transforms];
-			}
-			
-			for (var i = 0, il = transforms.length; i < il; i++) {
-				this.setTransformVisible(transforms[i], vis);
-			}
-		},
-		
-		/**
-		 * Rotate the Transforms in the Model.
-		 * 
-		 * @param {Object} config configuration options
-		 */
-		rotate: function(config) {
-			var axis = config.axis.toLowerCase(),
-				rad = config.rad,
-				transforms;
-			
-			if (config.transforms instanceof Array) {
-				transforms = config.transforms;
-			} else {
-				transforms = [config.transforms];
-			}
-			
-			for (var i = 0, il = transforms.length; i < il; i++) {
-				switch(axis) {
-					case 'x':
-						this.rotateTransformX(transforms[i], rad);
-						break;
-					case 'y':
-						this.rotateTransformY(transforms[i], rad);
-						break;
-					case 'z':
-						this.rotateTransformZ(transforms[i], rad);
-						break;
-				}
-			}
-		},
-
-		/**
-		 * Rotate the given Transform along the x-axis by the amount provided.
-		 * 
-		 * @param {o3d.Transform} transform the Transform
-		 * @param {number} amount the amount to rotate (in radians)
-		 */
-		rotateTransformX: function(transform, amount) {
-			var update = this.getTransformUpdate(transform);
-			transform.rotateX(amount);
-			update.localMatrix = hemi.utils.clone(transform.localMatrix);
-		},
-
-		/**
-		 * Rotate the given Transform along the y-axis by the amount provided.
-		 * 
-		 * @param {o3d.Transform} transform the Transform
-		 * @param {number} amount the amount to rotate (in radians)
-		 */
-		rotateTransformY: function(transform, amount) {
-			var update = this.getTransformUpdate(transform);
-			transform.rotateY(amount);
-			update.localMatrix = hemi.utils.clone(transform.localMatrix);
-		},
-
-		/**
-		 * Rotate the given Transform along the z-axis by the amount provided.
-		 * 
-		 * @param {o3d.Transform} transform the Transform
-		 * @param {number} amount the amount to rotate (in radians)
-		 */
-		rotateTransformZ: function(transform, amount) {
-			var update = this.getTransformUpdate(transform);
-			transform.rotateZ(amount);
-			update.localMatrix = hemi.utils.clone(transform.localMatrix);
-		},
-		
-		/**
-		 * Scale the Transforms in the Model.
-		 * 
-		 * @param {Object} config configuration options
-		 */
-		scale: function(config) {
-			var x = config.x,
-				y = config.y,
-				z = config.z,
-				transforms;
-			
-			if (config.transforms instanceof Array) {
-				transforms = config.transforms;
-			} else {
-				transforms = [config.transforms];
-			}
-			
-			for (var i = 0, il = transforms.length; i < il; i++) {
-				this.scaleTransform(transforms[i], x, y, z);
-			}
-		},
-
-		/**
-		 * Scale the given Transform by the factors provided.
-		 * 
-		 * @param {o3d.Transform} transform the Transform
-		 * @param {number} xFactor the amount to scale along x
-		 * @param {number} yFactor the amount to scale along y
-		 * @param {number} zFactor the amount to scale along z
-		 * @throws {Exception} If any of the scale factors are negative.
-		 */
-		scaleTransform: function(transform, xFactor, yFactor, zFactor) {
-			if (xFactor < 0 || yFactor < 0 || zFactor < 0) {
-				throw('Cannot scale with a negative number');
-			} else {
-				var update = this.getTransformUpdate(transform);
-				transform.scale(xFactor, yFactor, zFactor);
-				update.localMatrix = hemi.utils.clone(transform.localMatrix);
-			}			
-		},
-
-		/**
-		 * Set the given Transform's matrix to the new matrix.
-		 * 
-		 * @param {o3d.Transform} transform the Transform
-		 * @param {number[4][4]} matrix the new local matrix
-		 */
-		setTransformMatrix: function(transform, matrix) {
-			var update = this.getTransformUpdate(transform);			
-			transform.localMatrix = matrix;
-			update.localMatrix = hemi.utils.clone(transform.localMatrix);
-		},
-		
-		/**
-		 * Clean up any materials, shapes, and transforms contained in the
-		 * Model.
-		 */
-		unload: function() {
-			this.materials = [];
-			this.shapes = [];
-			this.transforms = [];
-			this.transformUpdates = [];
-			
-			if (this.pack !== null) {
-				// Remove this Model's transform tree from the client root
-				// transform before destroying the resources.
-				this.root.parent = null;
-				this.pack.destroy();
-				this.pack = null;
-				this.root = null;
-				this.animParam = null;
-			}
-			
-			this.send(hemi.msg.unload, {});
 		}
-	});
-
-	hemi.model.Model.prototype.msgSent =
-		hemi.model.Model.prototype.msgSent.concat([hemi.msg.animate,
-			hemi.msg.load, hemi.msg.unload]);
-
-	/**
-	 * Set up the modelRoot, the transform root that all Model transforms will
-	 * be children of.
-	 */
-	hemi.model.init = function() {
-		// A transform parent to hold model transform roots
-		this.modelRoot = hemi.core.mainPack.createObject('Transform');
-		this.modelRoot.name = hemi.model.MODEL_ROOT;
-		this.modelRoot.parent = hemi.picking.pickRoot;
 	};
-
-	// Internal functions
-	var getModelName = function(fileName) {
-		// Currently, file names are of the form:
-		// [path to directory]/[model name]/scene.json
-		var end = fileName.lastIndexOf('/');
-		
-		if (end < 1) {
-			end = fileName.length;
-		}
-		
-		var start = fileName.lastIndexOf('/', end - 1) + 1;
-		
-		if (start >= end) {
-			start = 0;
-		}
-		
-		return fileName.substring(start, end);
-	};
-
-	return hemi;
-})(hemi || {});
-/* 
- * Kuda includes a library and editor for authoring interactive 3D content for the web.
- * Copyright (C) 2011 SRI International.
- *
- * This program is free software; you can redistribute it and/or modify it under the terms
- * of the GNU General Public License as published by the Free Software Foundation; either 
- * version 2 of the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
- * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
- * See the GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License along with this program; 
- * if not, write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, 
- * Boston, MA 02110-1301 USA.
- */
-
-var hemi = (function(hemi) {
 	
 	/**
-	 * @namespace A module for animating Models.
+	 * Remove the current 'pick grabber'. Allow pick messages to continue being
+	 * passed to the other registered handlers.
+	 * 
+	 * @return {Object} the removed grabber or null
 	 */
-	hemi.animation = hemi.animation || {};
+	hemi.Picker.prototype.removePickGrabber = function() {
+		var grabber = this.pickGrabber;
+		this.pickGrabber = null;
+
+		return grabber;
+	};
+
+		/**
+	 * Register the given handler as the 'pick grabber'. The pick grabber
+	 * intercepts pick messages and prevents them from being passed to other
+	 * handlers. It should be used if the user enters an 'interaction mode' that
+	 * overrides default behavior.
+	 * 
+	 * @param {Object} grabber an object that implements onPick()
+	 */
+	hemi.Picker.prototype.setPickGrabber = function(grabber) {
+		this.pickGrabber = grabber;
+	};
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Utility functions
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	/*
+	 * Recursively build a list of all of the children, grandchildren, etc. of the Transforms in the
+	 * given array.
+	 * 
+	 * @param {hemi.Transform[]} array of Transforms to add to list
+	 * @param {hemi.Transform[]} the list to fill
+	 */
+	function buildPickList(objects, pickList) {
+		for (var i = 0, il = objects.length; i < il; ++i) {
+			var obj = objects[i];
+			pickList.push(obj);
+
+			if (obj.children.length > 0) {
+				buildPickList(obj.children, pickList);
+			}
+		}
+	}
+
+})();
+/*
+ * Licensed under the MIT license: http://www.opensource.org/licenses/mit-license.php
+ * The MIT License (MIT)
+ * 
+ * Copyright (c) 2011 SRI International
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+ * associated  documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the  Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
+
+(function() {
+
+	/*
+	 * The projector used to cast rays from screen space into 3D space.
+	 * @type THREE.Projector
+	 */
+	var projector = new THREE.Projector();
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Client class
+////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	/**
-	 * @class A Loop contains a start time and stop time as well as the number of
-	 * iterations to perform for the Loop.
-	 * @memberOf hemi.animation
+	 * @class Client represents a viewable 3D element on a webpage. It encapsulates all of the
+	 * single components necessary for rendering such as Scene and Camera.
+	 * 
+	 * @param {boolean} opt_init optional flag indicating if the Client should create its own Camera
+	 *     and Scene
 	 */
-	hemi.animation.Loop = function() {
-		/**
-		 * The name of the Loop.
-		 * @type string
-		 * @default ''
+	var Client = function(opt_init) {
+		/*
+		 * The opacity of the background, between 0 and 1. This should not be set directly.
+		 * @type number
+		 * @default 1
 		 */
-		this.name = '';
-		
-		/**
-		 * The time in an Animation that the Loop begins at.
+		this._bgAlpha = 1;
+
+		/*
+		 * The color of the background, in hex. This should not be set directly.
 		 * @type number
 		 * @default 0
 		 */
-		this.startTime = 0;
-		
+		this._bgColor = 0;
+
 		/**
-		 * The time in an Animation that the Loop ends at.
-		 * @type number
-		 * @default 0
+		 * The Camera that represents the viewing position and direction.
+		 * @type hemi.Camera
 		 */
-		this.stopTime = 0;
-		
+		this.camera = opt_init ? new hemi.Camera() : null;
+
+		/**
+		 * The Scene containing all 3D elements to be rendered.
+		 * @type hemi.Scene
+		 */
+		this.scene = opt_init ? new hemi.Scene() : null;
+
+		/**
+		 * The Picker that manages mouse picking of 3D elements.
+		 * @type hemi.Picker
+		 */
+		this.picker = new hemi.Picker(this.scene, this.camera);
+
+		/**
+		 * The renderer which performs the actual work to render a 3D image.
+		 * @type THREE.WebGLRenderer
+		 */
+		this.renderer = null;
+
+		if (opt_init) {
+			this.useCameraLight(true);
+			this.scene.add(this.camera.threeCamera);
+		}
+
+		hemi.clients.push(this);
+	};
+
+	/*
+	 * Remove all references in the Client.
+	 */
+	Client.prototype._clean = function() {
+		var ndx = hemi.clients.indexOf(this);
+
+		if (ndx !== -1) {
+			hemi.clients.splice(ndx, 1);
+		}
+
+		this.picker.cleanup();
+		this.picker = null;
+		this.camera = null;
+		this.scene = null;
+		this.renderer = null;
+	};
+
+	/*
+	 * Assign the renderer associated with the given DOM id to the Client.
+	 * 
+	 * @param {string} domId id of the parent node of the renderer DOM element
+	 */
+	Client.prototype._init = function(domId) {
+		var renderer = hemi._getRenderer(domId);
+
+		if (renderer) {
+			this.setRenderer(renderer);
+		} else {
+			console.log('Unable to find renderer for Client with id ' + client._getId());
+		}
+	};
+
+	/*
+	 * Octane properties for Client.
+	 * 
+	 * @return {Object[]} array of Octane properties
+	 */
+	Client.prototype._octane = function() {
+		return [
+			{
+				name: '_bgColor',
+				val: this._bgColor
+			}, {
+				name: '_bgAlpha',
+				val: this._bgAlpha
+			}, {
+				name: 'setScene',
+				arg: [hemi.dispatch.ID_ARG + this.scene._getId()]
+			}, {
+				name: 'setCamera',
+				arg: [hemi.dispatch.ID_ARG + this.camera._getId()]
+			}, {
+				name: '_init',
+				arg: [this.renderer.domElement.parentNode.id]
+			}
+		];
+	};
+
+	/*
+	 * Update the Client's renderer, Camera, and Picker with the current size of the viewport.
+	 */
+	Client.prototype._resize = function() {
+		var dom = this.renderer.domElement,
+			width = dom.clientWidth > 1 ? dom.clientWidth : 1,
+			height = dom.clientHeight > 1 ? dom.clientHeight : 1;
+
+		this.renderer.setSize(width, height);
+		this.camera.threeCamera.aspect = width / height;
+		this.camera.threeCamera.updateProjectionMatrix();
+		this.picker.width = width;
+		this.picker.height = height;
+	};
+
+	/**
+	 * Add a quick grid to the XZ plane of the Client's Scene.
+	 */
+	Client.prototype.addGrid = function() {
+		var line_material = new THREE.LineBasicMaterial({ color: 0xcccccc, opacity: 0.2 }),
+			geometry = new THREE.Geometry(),
+			floor = -0.04, step = 1, size = 14;
+
+		for (var i = 0, il = size / step * 2; i <= il; ++i) {
+			geometry.vertices.push(new THREE.Vertex(new THREE.Vector3(-size, floor, i * step - size)));
+			geometry.vertices.push(new THREE.Vertex(new THREE.Vector3(size, floor, i * step - size)));
+			geometry.vertices.push(new THREE.Vertex(new THREE.Vector3(i * step - size, floor, -size)));
+			geometry.vertices.push(new THREE.Vertex(new THREE.Vector3(i * step - size, floor,  size)));
+		}
+
+		var line = new THREE.Line(geometry, line_material, THREE.LinePieces);
+		this.scene.add(line);
+	};
+
+	/**
+	 * Create a ray from the Camera's position, through the given screen coordinates, and into the
+	 * 3D scene.
+	 * 
+	 * @param {number} x x screen coordinate
+	 * @param {number} y y screen coordinate
+	 * @return {THREE.Ray} the new ray
+	 */
+	Client.prototype.castRay = function(clientX, clientY) {
+		var dom = this.renderer.domElement,
+			x = (clientX / dom.clientWidth) * 2 - 1,
+			y = -(clientY / dom.clientHeight) * 2 + 1,
+			projVector = new THREE.Vector3(x, y, 0.5),
+			threeCam = this.camera.threeCamera;
+
+		projector.unprojectVector(projVector, threeCam);
+		projVector.subSelf(threeCam.position).normalize();
+		return new THREE.Ray(threeCam.position, projVector);
+	};
+
+	/**
+	 * Get the width of the client's viewport in pixels.
+	 * 
+	 * @return {number} width of the client viewport
+	 */
+	Client.prototype.getWidth = function() {
+		return this.renderer.domElement.clientWidth;
+	};
+
+	/**
+	 * Get the height of the client's viewport in pixels.
+	 * 
+	 * @return {number} height of the client viewport
+	 */
+	Client.prototype.getHeight = function() {
+		return this.renderer.domElement.clientHeight;
+	};
+
+	/**
+	 * Use the Client's renderer to render its Scene from the perspective of its Camera.
+	 */
+	Client.prototype.onRender = function() {
+		this.renderer.render(this.scene, this.camera.threeCamera);
+	};
+
+	/**
+	 * Set the color and opacity of the background of the Client.
+	 * 
+	 * @param {number} hex the background color in hex
+	 * @param {number} opt_alpha optional alpha value between 0 and 1
+	 */
+	Client.prototype.setBGColor = function(hex, opt_alpha) {
+		this._bgColor = hex;
+		this._bgAlpha = opt_alpha === undefined ? 1 : opt_alpha;
+		this.renderer.setClearColorHex(this._bgColor, this._bgAlpha);
+	};
+
+	/**
+	 * Set the given Camera to be the viewing Camera for the Client.
+	 * 
+	 * @param {hemi.Camera} the new Camera to use
+	 */
+	Client.prototype.setCamera = function(camera) {
+		if (this.scene) {
+			if (this.camera) {
+				this.scene.remove(this.camera.threeCamera);
+				this.scene.remove(this.camera.light);
+			}
+
+			this.scene.add(camera.threeCamera);
+			this.scene.add(camera.light);
+		}
+		if (this.camera) {
+			this.camera.cleanup();
+		}
+
+		this.picker.camera = camera;
+		this.camera = camera;
+	};
+
+	/**
+	 * Set the given renderer for the Client to use. Typically a WebGLRenderer.
+	 * 
+	 * @param {THREE.WebGLRenderer} renderer renderer to use
+	 */
+	Client.prototype.setRenderer = function(renderer) {
+		renderer.setClearColorHex(this._bgColor, this._bgAlpha);
+		this.renderer = renderer;
+		this._resize();
+
+		// Allow the HUD manager to add the 2D hud canvas
+		hemi.hudManager.addClient(this);
+	};
+
+	/**
+	 * Set the given Scene for the Client to render.
+	 * 
+	 * @param {hemi.Scene} scene scene to render
+	 */
+	Client.prototype.setScene = function(scene) {
+		if (this.scene) {
+			if (this.camera) {
+				this.scene.remove(this.camera.threeCamera);
+				this.scene.remove(this.camera.light);
+			}
+
+			this.scene.cleanup();
+		}
+		if (this.camera) {
+			scene.add(this.camera.threeCamera);
+			scene.add(this.camera.light);
+		}
+
+		this.picker.scene = scene;
+		this.scene = scene;
+	};
+
+	/**
+	 * Set whether the Client should use the Camera's light (always the same position and direction
+	 * as the Camera to guarantee visibility).
+	 * 
+	 * @param {boolean} useLight flag indicating if Camera light should be used
+	 */
+	Client.prototype.useCameraLight = function(useLight) {
+		if (useLight) {
+			this.scene.add(this.camera.light);
+		} else {
+			this.scene.remove(this.camera.light);
+		}
+	};
+
+	hemi.makeCitizen(Client, 'hemi.Client', {
+		cleanup: Client.prototype._clean,
+		toOctane: Client.prototype._octane
+	});
+
+})();
+/*
+ * Licensed under the MIT license: http://www.opensource.org/licenses/mit-license.php
+ * The MIT License (MIT)
+ * 
+ * Copyright (c) 2011 SRI International
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+ * associated  documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the  Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
+
+(function() {
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Loop class
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	/**
+	 * @class A Loop contains a start time and stop time as well as the number of iterations to
+	 * perform for the Loop.
+	 */
+	var Loop = function() {
+		/*
+		 * The current iteration.
+		 * @type number
+		 */
+		this._current = 0;
+
 		/**
 		 * The number of times the Loop repeats.
 		 * @type number
 		 * @default -1 (infinite)
 		 */
 		this.iterations = -1;
-		
-		this.current = 0;
-	};
-	
-	hemi.animation.Loop.prototype = {
+
 		/**
-		 * Get the Octane structure for the Loop.
-	     *
-	     * @return {Object} the Octane structure representing the Loop
-		 */
-		toOctane: function(){
-			var octane = {
-				type: 'hemi.animation.Loop',
-				props: [{
-					name: 'startTime',
-					val: this.startTime
-				},{
-					name: 'stopTime',
-					val: this.stopTime
-				},{
-					name: 'iterations',
-					val: this.iterations
-				}, {
-					name: 'name',
-					val: this.name
-				}]
-			};
-			
-			return octane;
-		}
-	};
-	
-	/**
-	 * @class An Animation contains a target to animate, a begin time, an end
-	 * time, and Loops for repeating sections of the Animation.
-	 * @extends hemi.world.Citizen
-	 */
-	hemi.animation.Animation = hemi.world.Citizen.extend({
-		init: function() {
-			this._super();
-			
-			/**
-			 * The target of the Animation. It should have an 'isAnimating'
-			 * property.
-			 * @type Object
-			 */
-			this.target = null;
-			
-			/**
-			 * The time the Animation begins at.
-			 * @type number
-			 * @default 0
-			 */
-			this.beginTime = 0;
-			
-			/**
-			 * The time the Animation ends at.
-			 * @type number
-			 * @default 0
-			 */
-			this.endTime = 0;
-			
-			this.currentTime = 0;
-			this.loops = [];
-		},
-		
-        /**
-         * Overwrites hemi.world.Citizen.citizenType.
+		 * The name of the Loop.
 		 * @type string
-         */
-        citizenType: 'hemi.animation.Animation',
-		
-		/**
-		 * Send a cleanup Message and remove all references in the Animation.
+		 * @default ''
 		 */
-		cleanup: function() {
-			if (this.target.isAnimating) {
-				this.stop();
-			}
-			
-			this._super();
-			this.target = null;
-			this.loops = [];
-		},
-		
-		/**
-		 * Get the Octane structure for the Animation.
-	     *
-	     * @return {Object} the Octane structure representing the Animation
-		 */
-		toOctane: function(){
-			var octane = this._super();
-			
-			octane.props.push({
-				name: 'target',
-				id: this.target.getId()
-			});
-			
-			octane.props.push({
-				name: 'beginTime',
-				val: this.beginTime
-			});
-			
-			octane.props.push({
-				name: 'endTime',
-				val: this.endTime
-			});
-			
-			octane.props.push({
-				name: 'currentTime',
-				val: this.beginTime
-			});
-			
-			var loopsEntry = {
-				name: 'loops',
-				oct: []
-			};
-			
-			for (var ndx = 0, len = this.loops.length; ndx < len; ndx++) {
-				loopsEntry.oct.push(this.loops[ndx].toOctane());
-			}
-			
-			octane.props.push(loopsEntry);
-			
-			return octane;
-		},
-		
-		/**
-		 * Add the given Loop to the Animation.
-		 *
-		 * @param {hemi.animation.Loop} loop the Loop to add
-		 */
-		addLoop: function(loop){
-			this.loops.push(loop);
-		},
+		this.name = '';
 
 		/**
-		 * Remove the given Loop from the Animation.
-		 * 
-		 * @param {hemi.animation.Loop} loop the Loop to remove
-		 * @return {hemi.animation.Loop} the removed Loop or null
+		 * The time in an Animation that the Loop begins at.
+		 * @type number
+		 * @default 0
 		 */
-		removeLoop: function(loop) {			
-			var found = null;
-			var ndx = this.loops.indexOf(loop);
-			
-			if (ndx != -1) {
-				var spliced = this.loops.splice(ndx, 1);
-				
-				if (spliced.length == 1) {
-					found = spliced[0];
-				}
-			}
-			
-			return found;
-		},
+		this.startTime = 0;
 
 		/**
-		 * Check if the current time of the Animation needs to be reset by any
-		 * of its Loops. If a Loop resets the current time, increment that
-		 * Loop's iteration counter.
+		 * The time in an Animation that the Loop ends at.
+		 * @type number
+		 * @default 0
 		 */
-		checkLoops: function() {
-			for (var ndx = 0; ndx < this.loops.length; ndx++) {
-				var loop = this.loops[ndx];
-				
-				if (loop.current != loop.iterations) {
-					if (this.currentTime >= loop.stopTime) {
-						this.currentTime = loop.startTime;
-						loop.current++;
-					}
-				}
-			}
-		},
+		this.stopTime = 0;
+	};
 
-		/**
-		 * Reset the Animation and its Loops to their initial states.
-		 */
-		reset: function() {
-			this.currentTime = this.beginTime;
-			
-			for (var ndx = 0; ndx < this.loops.length; ndx++) {
-				this.loops[ndx].current = 0;
-			}
-		},
+	Loop.prototype._octane = ['iterations', 'name', 'startTime', 'stopTime'];
 
-		/**
-		 * If the Animation's target is not currently animating, start the
-		 * Animation.
-		 */
-		start: function(){
-			if (!this.target.isAnimating) {
-				this.target.isAnimating = true;
-				this.updateTarget(this.currentTime);
-				hemi.view.addRenderListener(this);
-				
-				this.send(hemi.msg.start, {});
-			}
-		},
+	hemi.Loop = Loop;
+	hemi.makeOctanable(hemi.Loop, 'hemi.Loop', hemi.Loop.prototype._octane);
 
-		/**
-		 * If the Animation is currently running, stop it.
-		 */
-		stop: function(){
-			var listener = hemi.view.removeRenderListener(this);
-			this.target.isAnimating = false;
-			
-			this.send(hemi.msg.stop, {});
-		},
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// AnimationGroup class
+////////////////////////////////////////////////////////////////////////////////////////////////////
 
-		/**
-		 * Update the Animation's current time with the amount of elapsed time
-		 * in the RenderEvent. If the Animation has not yet ended, update the
-		 * Animation's target with the current animation time. Otherwise end
-		 * the Animation.
-		 *
-		 * @param {o3d.RenderEvent} renderEvent the event containing
-		 *		  information about the render
-		 */
-		onRender: function(renderEvent){
-			this.currentTime += renderEvent.elapsedTime;
-			this.checkLoops();
-			if (this.currentTime < this.endTime) {
-				this.updateTarget(this.currentTime);
-			} else {
-				this.updateTarget(this.endTime);
-				this.stop();
-				this.reset();
-			}
-		},
-		
-		/**
-		 * Update the target with the given animation time.
-		 * 
-		 * @param {number} currentTime current animation time
-		 */
-		updateTarget: function(currentTime) {
-			this.target.setAnimationTime(currentTime);
-		}
-	});
-	
-	hemi.animation.Animation.prototype.msgSent =
-		hemi.animation.Animation.prototype.msgSent.concat([
-			hemi.msg.start,
-			hemi.msg.stop]);
 	/**
-	 * Create an Animation for the given Model.
+	 * @class An AnimationGroup contains a group of animations to animate together as well as Loops
+	 * for repeating sections of the AnimationGroup.
+	 * 
+	 * @param {number} opt_beginTime optional time to start animating
+	 * @param {number} opt_endTime optional time to stop animating
+	 * @param {hemi.Model} opt_model optional Model to grab KeyFrameAnimations from
+	 */
+	var AnimationGroup = function(opt_beginTime, opt_endTime, opt_model) {
+		/*
+		 * The current animation time.
+		 * @type number
+		 */
+		this._currentTime = opt_beginTime ? opt_beginTime : 0;
+
+		/*
+		 * Flag indicating if the AnimationGroup is currently playing.
+		 * @type boolean
+		 */
+		this._isAnimating = false;
+	
+		/**
+		 * The model used in animation. Contains the THREE.KeyAnimations[]
+		 * @type Hemi.Model
+		 */
+		this.model = opt_model ? opt_model : null;
+
+		/**
+		 * The time the AnimationGroup begins at.
+		 * @type number
+		 * @default 0
+		 */
+		this.beginTime = opt_beginTime ? opt_beginTime : 0;
+
+		/**
+		 * The time the AnimationGroup ends at.
+		 * @type number
+		 * @default 0
+		 */
+		this.endTime = opt_endTime ? opt_endTime : 0;
+
+		/**
+		 * Any loops in the AnimationGroup.
+		 * @type hemi.Loop[]
+		 */
+		this.loops = [];
+
+        
+	};
+
+	/*
+	 * Remove all references in the AnimationGroup.
+	 */
+	AnimationGroup.prototype._clean = function() {
+		if (this._isAnimating) {
+			this.stop();
+		}
+
+		this.model = null;
+		this.loops = [];
+	};
+
+	/*
+	 * Array of Hemi Messages that AnimationGroup is known to send.
+	 * @type string[]
+	 */
+	AnimationGroup.prototype._msgSent = [hemi.msg.animate, hemi.msg.start, hemi.msg.stop];
+
+	/*
+	 * Octane properties for AnimationGroup.
+	 * @type string[]
+	 */
+	AnimationGroup.prototype._octane = ['beginTime', 'endTime', 'loops', 'reset','model'];
+	// TODO: how to get animations in octane?
+
+	/**
+	 * Add the given Loop to the AnimationGroup.
 	 *
-	 * @param {hemi.model.Model} model Model to animate
-	 * @param {number} beginTime time within the Model to start animating
-	 * @param {number} endTime time within the Model to stop animating
-	 * @return {hemi.animation.Animation} the newly created animation
+	 * @param {hemi.Loop} loop the Loop to add
 	 */
-	hemi.animation.createModelAnimation = function(model, beginTime, endTime) {
-		var anim = new hemi.animation.Animation();
-		anim.target = model;
-		anim.beginTime = beginTime;
-		anim.currentTime = beginTime;
-		anim.endTime = endTime;
-
-		return anim;
+	AnimationGroup.prototype.addLoop = function(loop){
+		if (this.loops.indexOf(loop) === -1) {
+			this.loops.push(loop);
+		}
 	};
 
-	return hemi;
-})(hemi || {});
-/* 
- * Kuda includes a library and editor for authoring interactive 3D content for the web.
- * Copyright (C) 2011 SRI International.
- *
- * This program is free software; you can redistribute it and/or modify it under the terms
- * of the GNU General Public License as published by the Free Software Foundation; either 
- * version 2 of the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
- * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
- * See the GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License along with this program; 
- * if not, write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, 
- * Boston, MA 02110-1301 USA.
- */
-
-/**
- * @fileoverview Motion describes classes for automatically translating
- * 		and rotating objects in the scene.
- */
-
-var hemi = (function(hemi) {
 	/**
-	 * @namespace A module for moving and rotating objects in the scene.
-	 */
-	hemi.motion = hemi.motion || {};
-	
-	/**
-	 * @class A Rotator makes automated rotation easier by allowing simple
-	 * calls such as setVel to begin the automated spinning of a Transform.
-	 * @extends hemi.world.Citizen
+	 * Update the AnimationGroup's current time with the amount of elapsed time in the render event.
+	 * Update the AnimationGroup's animations with the current animation time.
 	 * 
-	 * @param {o3d.Transform} opt_tran optional transform that will be spinning
-	 * @param {Object} opt_config optional configuration for the Rotator
+	 * @param {Object} event event containing information about the render
 	 */
-	hemi.motion.Rotator = hemi.world.Citizen.extend({
-		init: function(opt_tran, opt_config) {
-			this._super();
-			
-			var cfg = opt_config || {};
-			
-			this.accel = cfg.accel || [0,0,0];
-			this.angle = cfg.angle || [0,0,0];
-			this.origin = cfg.origin || [0,0,0];
-			this.vel = cfg.vel || [0,0,0];
-	
-			this.offset = hemi.core.math.mulScalarVector(-1,this.origin);
-			this.time = 0;
-			this.stopTime = 0;
-			this.steadyRotate = false;
-			this.mustComplete = false;
-			this.startAngle = this.angle;
-			this.stopAngle = this.angle;
-			this.toLoad = {};
-			this.transformObjs = [];
-		
-			if (opt_tran != null) {
-				this.addTransform(opt_tran);
-			}
-	
-			this.enable();
-		},
-		
-		/**
-		 * Add a Transform to the list of Transforms that will be spinning. A
-		 * child Transform is created to allow the Rotator to spin about an
-		 * arbitray axis.
-		 *
-		 * @param {o3d.Transform} transform the Transform to add
-		 */
-		addTransform : function(transform) {
-			hemi.world.tranReg.register(transform, this);
-			var param = transform.getParam('ownerId'),
-				obj = {},
-				oid = null,
-				owner = null;
-			
-			if (param !== null) {
-				oid = param.value;
-				owner = hemi.world.getCitizenById(oid);
-			}
-			
-			if (hemi.utils.isAnimated(transform)) {
-				var tran1 = hemi.core.mainPack.createObject('Transform'),
-					tran2 = hemi.utils.fosterTransform(transform);
-				
-				tran1.name = transform.name + ' Rotator';
-				tran2.name = transform.name + ' Offset';
-				param = tran1.createParam('ownerId', 'o3d.ParamInteger');
-				param.value = oid;
-				param = tran2.createParam('ownerId', 'o3d.ParamInteger');
-				param.value = oid;
-				
-				tran1.parent = transform;
-				tran2.parent = tran1;
-				
-				obj.rotTran = tran1;
-				obj.offTran = tran2;
-				obj.parent = transform;
-				obj.foster = true;
-			} else {
-				var tran1 = hemi.core.mainPack.createObject('Transform'),
-					tran2 = hemi.core.mainPack.createObject('Transform');
-				
-				tran1.name = transform.name + ' Rotator';
-				tran2.name = transform.name + ' Offset';
-				param = tran1.createParam('ownerId', 'o3d.ParamInteger');
-				param.value = oid;
-				param = tran2.createParam('ownerId', 'o3d.ParamInteger');
-				param.value = oid;
-				
-				tran1.parent = transform.parent;
-				tran2.parent = tran1;
-				transform.parent = tran2;
-				tran1.localMatrix = hemi.utils.clone(transform.localMatrix);
-				transform.identity();
-				
-				obj.rotTran = tran2;
-				obj.offTran = transform;
-				obj.parent = tran1;
-				obj.foster = false;
-			}
-			
-			if (owner) {
-				var that = this;
-				obj.owner = owner;
-				obj.msg = owner.subscribe(hemi.msg.cleanup, function(msg) {
-					that.removeTransforms(msg.src);
-				});
-			}
-			
-			this.transformObjs.push(obj);
-			applyRotator.call(this, [ obj ]);
-		},
-		
-        /**
-         * Overwrites hemi.world.Citizen.citizenType
-         * @string
-         */
-        citizenType: 'hemi.motion.Rotator',
-		
-		/**
-		 * Send a cleanup Message and remove all references in the Rotator.
-		 */
-		cleanup: function() {
-			this.disable();
-			this._super();
-			this.clearTransforms();
-		},
-		
-		/**
-		 * Clear properties like acceleration, velocity, etc.
-		 */
-		clear: function() {
-			this.accel = [0,0,0];
-			this.angle = [0,0,0];
-			this.offset = [0,0,0];
-			this.origin = [0,0,0];
-			this.vel = [0,0,0];
-		},
-		
-		/**
-		 * Clear the list of spinning Transforms.
-		 */
-		clearTransforms: function() {
-			while (this.transformObjs.length > 0) {
-				removeRotateTransforms.call(this, this.transformObjs[0]);
-			}
-		},
-		
-		/**
-		 * Disable mouse interaction for the Rotator. 
-		 */
-		disable: function() {
-			if (this.enabled) {
-				hemi.view.removeRenderListener(this);
-				this.enabled = false;
-			}
-		},
-		
-		/**
-		 * Enable mouse interaction for the Rotator. 
-		 */
-		enable: function() {
-			this.enabled = true;
-			shouldRender.call(this);
-		},
-		
-		/**
-		 * Get the Transforms that the Rotator currently contains.
-		 * 
-		 * @return {o3d.Transform[]} array of Transforms
-		 */
-		getTransforms: function() {
-			var trans = [];
-			
-			for (var i = 0, il = this.transformObjs.length; i < il; i++) {
-				var obj = this.transformObjs[i];
-				
-				if (obj.foster) {
-					trans.push(obj.rotTran.parent);
-				} else {
-					trans.push(obj.offTran);
-				}
-			}
+	AnimationGroup.prototype.onRender = function(event){
+		var previous = this._currentTime,
+			delta = event.elapsedTime;
 
-			return trans;
-		},
-		
-		/**
-		 * Make the Rotator rotate the specified amount in the specified amount
-		 * of time.
-		 * 
-		 * @param {number[3]} theta XYZ amounts to rotate (in radians)
-		 * @param {number} time number of seconds for the rotation to take
-		 * @param {boolean} opt_mustComplete optional flag indicating that no
-		 *     other rotations can be started until this one finishes
-		 */
-		rotate: function(theta,time,opt_mustComplete) {
-			if (!this.enabled || this.mustComplete) return false;
-			this.time = 0;
-			this.stopTime = time || 0.001;
-			this.steadyRotate = true;
-			this.startAngle = this.angle;
-			this.mustComplete = opt_mustComplete || false;
-			this.stopAngle = hemi.core.math.addVector(this.angle,theta);
-			hemi.view.addRenderListener(this);
-			this.send(hemi.msg.start,{});
-			return true;
-		},
-		
-		/**
-		 * Render event listener - Perform Newtonian calculations on the 
-		 * rotating object, starting with the angular velocity.
-		 * 
-		 * @param {o3d.Event} event message describing the render event
-		 */
+
+		this._currentTime += delta;
+		checkLoops.call(this);        
+
+
+        if (this._currentTime !== previous + delta) {
+            delta = 0;
+        }
+        var animations = [];
+        if (this.model) {
+            animations = this.model.animations;
+
+            if (delta === 0) {
+                this.send(hemi.msg.animate,
+                    {
+                        previous: this._currentTime,
+                        time: this._currentTime
+                    });
+                for (var i = 0, il = animations.length; i < il; ++i) {
+                    animations[i].stop();
+                }
+                for (var i = 0, il = animations.length; i < il; ++i) {
+                    animations[i].play(false, this._currentTime);
+                }
+            } else {
+                this.send(hemi.msg.animate,
+                    {
+                        previous: previous,
+                        time: this._currentTime
+                    });
+
+                if (this._currentTime >= this.endTime) {
+                    delta = this.endTime - previous;
+                    this.stop();
+                    this.reset();
+                }
+
+                for (var i = 0, il = animations.length; i < il; ++i) {
+                    animations[i].update(delta);
+                }
+            }
+        }
+	};
+
+	/**
+	 * Remove the given Loop from the AnimationGroup.
+	 * 
+	 * @param {hemi.Loop} loop the Loop to remove
+	 * @return {hemi.Loop} the removed Loop or null
+	 */
+	AnimationGroup.prototype.removeLoop = function(loop) {
+		var ndx = this.loops.indexOf(loop),
+			found = null;
+
+		if (ndx !== -1) {
+			found = this.loops.splice(ndx, 1)[0];
+		}
+
+		return found;
+	};
+
+	/**
+	 * Reset the AnimationGroup and its Loops to their initial states.
+	 */
+	AnimationGroup.prototype.reset = function() {
+		this._currentTime = this.beginTime;
+
+		for (var i = 0, il = this.loops.length; i < il; ++i) {
+			this.loops[i]._current = 0;
+		}
+	};
+
+	/**
+	 * If the AnimationGroup is not currently animating, start it.
+	 */
+	AnimationGroup.prototype.start = function() {
+		if (!this._isAnimating) {
+            var animations = [];
+            
+            if (this.model)  {
+                animations = this.model.animations;
+            
+            
+                for (var i = 0, il = animations.length; i < il; ++i) {
+                    var animation = animations[i];
+                    for ( var h = 0, hl = animation.hierarchy.length; h < hl; h++ ) {
+
+                        var keys = animation.data.hierarchy[h].keys,
+                            sids = animation.data.hierarchy[h].sids,
+                            obj = animation.hierarchy[h];
+
+                        if ( keys.length && sids ) {
+
+                            for ( var s = 0; s < sids.length; s++ ) {
+
+                                var sid = sids[ s ],
+                                    next = animation.getNextKeyWith( sid, h, 0 );
+
+                                if ( next ) {
+                                    next.apply( sid );
+                                }
+                            }
+                            obj.matrixAutoUpdate = false;
+                            animation.data.hierarchy[h].node.updateMatrix();
+                            obj.matrixWorldNeedsUpdate = true;
+
+                        }
+
+                    }
+                    animation.play(false, this._currentTime);
+                }
+
+                this._isAnimating = true;
+                hemi.addRenderListener(this);
+                this.send(hemi.msg.start, {});
+            }
+		}
+        
+	};
+
+	/**
+	 * If the AnimationGroup is currently running, stop it.
+	 */
+	AnimationGroup.prototype.stop = function() {
+		if (this._isAnimating) {
+            var animations = [];
+            if (this.model) {
+                animations = this.model.animations;
+                for (var i = 0, il = animations.length; i < il; ++i) {
+                    animations[i].stop();
+                }
+
+                hemi.removeRenderListener(this);
+                this._isAnimating = false;
+                this.send(hemi.msg.stop, {});
+            }
+		}
+	};
+
+// Private functions for AnimationGroup
+
+	/*
+	 * Check if the current time of the AnimationGroup needs to be reset by any of its Loops. If a
+	 * Loop resets the current time, increment that Loop's iteration counter.
+	 */
+	function checkLoops() {
+		for (var i = 0, il = this.loops.length; i < il; ++i) {
+			var loop = this.loops[i];
+			
+			if (loop._current !== loop.iterations && this._currentTime >= loop.stopTime) {
+				this._currentTime = loop.startTime;
+				loop._current++;
+			}
+		}
+	};
+
+	hemi.makeCitizen(AnimationGroup, 'hemi.AnimationGroup', {
+		cleanup: AnimationGroup.prototype._clean,
+		toOctane: AnimationGroup.prototype._octane
+	});
+
+})();
+/*
+ * Licensed under the MIT license: http://www.opensource.org/licenses/mit-license.php
+ * The MIT License (MIT)
+ * 
+ * Copyright (c) 2011 SRI International
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+ * associated  documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the  Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
+
+(function() {
+
+	var defaultParticleSystem = new hemi.particles.System(),
+		_vector = new THREE.Vector3();
+
+	// The default particle system updates using render time.
+	hemi.addRenderListener({
+		isParticleSystem: true,
 		onRender: function(event) {
-			if (this.transformObjs.length > 0) {
-				var t = event.elapsedTime;
-				if (this.steadyRotate) {
-					this.time += t;
-					if (this.time >= this.stopTime) {
-						this.time = this.stopTime;
-						this.steadyRotate = this.mustComplete = false;
-						hemi.view.removeRenderListener(this);
-						this.send(hemi.msg.stop,{});
-					}
-					var t1 = this.time/this.stopTime;
-					this.angle = hemi.core.math.lerpVector(
-						this.startAngle,
-						this.stopAngle,
-						t1);
-				} else {
-					this.vel = hemi.core.math.addVector(
-							this.vel,
-							hemi.core.math.mulScalarVector(t,this.accel));
-					this.angle = hemi.core.math.addVector(
-							this.angle,
-							hemi.core.math.mulScalarVector(t,this.vel));
-				}
-
-				applyRotator.call(this);
-			}
-		},
-		
-		/**
-		 * Receive the given Transform from the TransformRegistry.
-		 * 
-		 * @param {o3d.Transform} transform the Transform
-		 */
-		receiveTransform: function(transform) {
-			this.addTransform(transform);
-			var matrices = this.toLoad[transform.name];
-			
-			if (matrices != null) {
-				var tranObj = this.transformObjs[this.transformObjs.length - 1],
-					origTran = tranObj.offTran,
-					rotTran = tranObj.rotTran;
-				
-				rotTran.parent.localMatrix = matrices[0];
-				rotTran.localMatrix = matrices[1];
-				origTran.localMatrix = matrices[2];
-				delete this.toLoad[transform.name];
-			}
-		},
-		
-		/**
-		 * Remove Transforms belonging to the specified owner from the Rotator.
-		 * 
-		 * @param {hemi.world.Citizen} owner owner to remove Transforms for
-		 */
-		removeTransforms: function(owner) {
-			for (var i = 0; i < this.transformObjs.length; ++i) {
-				var obj = this.transformObjs[i];
-				
-				if (owner === obj.owner) {
-					removeRotateTransforms.call(this, obj);
-					// Update index to reflect removed obj
-					--i;
-				}
-			}
-		},
-		
-		/**
-		 * Set the angular acceleration.
-		 * 
-		 * @param {number[3]} accel XYZ angular acceleration (in radians)
-		 */
-		setAccel: function(accel) {
-			this.accel = accel;
-			shouldRender.call(this);
-		},
-		
-		/**
-		 * Set the current rotation angle.
-		 * 
-		 * @param {number[3]} theta XYZ rotation angle (in radians)
-		 */
-		setAngle: function(theta) {
-			this.angle = theta;
-			applyRotator.call(this);
-		},
-		
-		/**
-		 * Set the origin of the Rotator Transform.
-		 * 
-		 * @param {number[3]} origin XYZ origin
-		 */
-		setOrigin: function(origin) {
-			this.origin = origin;
-			this.offset = hemi.core.math.mulScalarVector(-1, origin);
-		},
-		
-		/**
-		 * Set the angular velocity.
-		 * 
-		 * @param {number[3]} vel XYZ angular velocity (in radians)
-		 */
-		setVel: function(vel) {
-			this.vel = vel;
-			shouldRender.call(this);
-		},
-		
-		/**
-		 * Get the Octane structure for the Rotator.
-	     *
-	     * @return {Object} the Octane structure representing the Rotator
-		 */
-		toOctane: function() {
-			var octane = this._super(),
-				valNames = ['accel', 'angle', 'vel'];
-			
-			for (var ndx = 0, len = valNames.length; ndx < len; ndx++) {
-				var name = valNames[ndx];
-				
-				octane.props.push({
-					name: name,
-					val: this[name]
-				});
-			}
-			
-			octane.props.push({
-				name: 'setOrigin',
-				arg: [this.origin]
-			});
-			
-			// Save the local matrices of the transforms so we can restore them
-			var tranOct = {};
-			
-			for (var i = 0, il = this.transformObjs.length; i < il; i++) {
-				var tranObj = this.transformObjs[i],
-					origTran = tranObj.offTran,
-					rotTran = tranObj.rotTran;
-				
-				// Note: this will break if the Rotator has more than one
-				// transform with the same name
-				tranOct[origTran.name] = [
-					tranObj.parent.localMatrix,
-					rotTran.localMatrix,
-					origTran.localMatrix
-				];
-			}
-			
-			octane.props.push({
-				name: 'toLoad',
-				val: tranOct
-			});
-			
-			return octane;
+			defaultParticleSystem.update(event.elapsedTime);
 		}
 	});
-	
-	hemi.motion.Rotator.prototype.msgSent =
-		hemi.motion.Rotator.prototype.msgSent.concat([
-			hemi.msg.start,
-			hemi.msg.stop]);
 
-	/**
-	 * @class A Translator provides easy setting of linear velocity and
-	 * acceleration of shapes and transforms in the 3d scene.
-	 * @extends hemi.world.Citizen
-	 * 
-	 * @param {o3d.Transform} opt_tran optional Transform that will be moving
-	 * @param {Object} opt_config optional configuration for the Translator
-	 */
-	hemi.motion.Translator = hemi.world.Citizen.extend({
-		init: function(opt_tran, opt_config) {
-			this._super();
-			
-			var cfg = opt_config || {};
-			
-			this.pos = cfg.pos || [0,0,0];
-			this.vel = cfg.vel || [0,0,0];
-			this.accel = cfg.accel || [0,0,0];
-	
-			this.time = 0;
-			this.stopTime = 0;
-			this.mustComplete = false;
-			this.steadyMove = false;
-			this.startPos = this.pos;
-			this.stopPos = this.pos;
-			this.toLoad = {};
-			this.transformObjs = [];
-			
-			if (opt_tran != null) {
-				this.addTransform(opt_tran);
-			}
-	
-			this.enable();
-		},
-		
-		/**
-		 * Add the Transform to the list of Transforms that will be moving.
-		 *
-		 * @param {o3d.Transform} transform the Transform to add
-		 */
-		addTransform: function(transform) {
-			hemi.world.tranReg.register(transform, this);
-			var param = transform.getParam('ownerId'),
-				obj = {},
-				oid = null,
-				owner = null;
-			
-			if (param !== null) {
-				oid = param.value;
-				owner = hemi.world.getCitizenById(oid);
-			}
-			
-			if (hemi.utils.isAnimated(transform)) {
-				obj.tran = hemi.utils.fosterTransform(transform);
-				obj.tran.name = transform.name + ' Translator';
-				param = obj.tran.createParam('ownerId', 'o3d.ParamInteger');
-				param.value = oid;
-				obj.parent = transform.parent;
-				obj.foster = true;
-			} else {
-				var tran = hemi.core.mainPack.createObject('Transform');
-				tran.name = transform.name + ' Translator';
-				param = tran.createParam('ownerId', 'o3d.ParamInteger');
-				param.value = oid;
-				tran.parent = transform.parent;
-				transform.parent = tran;
-				tran.localMatrix = hemi.utils.clone(transform.localMatrix);
-				transform.identity();
-				
-				obj.tran = transform;
-				obj.parent = tran;
-				obj.foster = false;
-			}
-			
-			if (owner) {
-				var that = this;
-				obj.owner = owner;
-				obj.msg = owner.subscribe(hemi.msg.cleanup, function(msg) {
-					that.removeTransforms(msg.src);
-				});
-			}
-			
-			this.transformObjs.push(obj);
-			applyTranslator.call(this, [ obj ]);
-		},
-		
-        /**
-         * Overwrites hemi.world.Citizen.citizenType
-         * @string
-         */
-        citizenType: 'hemi.motion.Translator',
-		
-		/**
-		 * Send a cleanup Message and remove all references in the Translator.
-		 */
-		cleanup: function() {
-			this.disable();
-			this._super();
-			this.clearTransforms();
-		},
-		
-		/**
-		 * Clear properties like acceleration, velocity, etc.
-		 */
-		clear: function() {
-			this.pos = [0,0,0];
-			this.vel = [0,0,0];
-			this.accel = [0,0,0];
-		},
-		
-		/**
-		 * Clear the list of translating Transforms.
-		 */
-		clearTransforms: function() {
-			while (this.transformObjs.length > 0) {
-				removeTranslateTransforms.call(this, this.transformObjs[0]);
-			}
-		},
-		
-		/**
-		 * Disable mouse interaction for the Translator. 
-		 */
-		disable: function() {
-			if (this.enabled) {
-				hemi.view.removeRenderListener(this);
-				this.enabled = false;
-			}
-		},
-		
-		/**
-		 * Enable mouse interaction for the Translator. 
-		 */
-		enable: function() {
-			this.enabled = true;
-			shouldRender.call(this);
-		},
-		
-		/**
-		 * Get the Transforms that the Translator currently contains.
-		 * 
-		 * @return {o3d.Transform[]} array of Transforms
-		 */
-		getTransforms: function() {
-			var trans = [];
-			
-			for (var i = 0, il = this.transformObjs.length; i < il; i++) {
-				var obj = this.transformObjs[i];
-				
-				if (obj.foster) {
-					trans.push(obj.tran.parent);
-				} else {
-					trans.push(obj.tran);
-				}
-			}
-			
-			return trans;
-		},
-		
-		/**
-		 * Make the Translator translate the specified amount in the specified
-		 * amount of time.
-		 * 
-		 * @param {number[3]} delta XYZ amount to translate
-		 * @param {number} time number of seconds for the translation to take
-		 * @param {boolean} opt_mustComplete optional flag indicating that no
-		 *     other translations can be started until this one finishes
-		 */
-		move : function(delta,time,opt_mustComplete) {
-			if (!this.enabled || this.mustComplete) return false;
-			this.time = 0;
-			this.stopTime = time || 0.001;
-			this.steadyMove = true;
-			this.startPos = this.pos;
-			this.mustComplete = opt_mustComplete || false;
-			this.stopPos = hemi.core.math.addVector(this.pos,delta);
-			hemi.view.addRenderListener(this);
-			this.send(hemi.msg.start,{});
-			return true;
-		},
-	
-		/**
-		 * Render event listener - calculate the position of the Translator,
-		 * based on the acceleration and velocity.
-		 * 
-		 * @param {o3d.Event} event message describing render event
-		 */
-		onRender : function(event) {
-			if (this.transformObjs.length > 0) {
-				var t = event.elapsedTime;
-				if (this.steadyMove) {
-					this.time += t;
-					if (this.time >= this.stopTime) {
-						this.time = this.stopTime;
-						this.steadyMove = this.mustComplete = false;
-						hemi.view.removeRenderListener(this);
-						this.send(hemi.msg.stop,{});
-					}
-					var t1 = this.time/this.stopTime;
-					this.pos = hemi.core.math.lerpVector(
-						this.startPos,
-						this.stopPos,
-						t1);
-				} else {
-					this.vel = hemi.core.math.addVector(
-							this.vel,
-							hemi.core.math.mulScalarVector(t,this.accel));
-					this.pos = hemi.core.math.addVector(
-							this.pos,
-							hemi.core.math.mulScalarVector(t,this.vel));
-				}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Constants
+////////////////////////////////////////////////////////////////////////////////////////////////////
 
-				applyTranslator.call(this);
-			}
-		},
-		
-		/**
-		 * Receive the given Transform from the TransformRegistry.
-		 * 
-		 * @param {o3d.Transform} transform the Transform
-		 */
-		receiveTransform: function(transform) {
-			this.addTransform(transform);
-			var matrices = this.toLoad[transform.name];
-			
-			if (matrices != null) {
-				transform.parent.localMatrix = matrices[0];
-				transform.localMatrix = matrices[1];
-				delete this.toLoad[transform.name];
-			}
-		},
-		
-		/**
-		 * Remove Transforms belonging to the specified owner from the
-		 * Translator.
-		 * 
-		 * @param {hemi.world.Citizen} owner owner to remove Transforms for
-		 */
-		removeTransforms: function(owner) {
-			for (var i = 0; i < this.transformObjs.length; ++i) {
-				var obj = this.transformObjs[i];
-				
-				if (owner === obj.owner) {
-					removeTranslateTransforms.call(this, obj);
-					// Update index to reflect removed obj
-					--i;
-				}
-			}
-		},
-		
-		/**
-		 * Set the acceleration.
-		 * 
-		 * @param {number[3]} a XYZ acceleration vector
-		 */
-		setAccel: function(a) {
-			this.accel = a;
-			shouldRender.call(this);
-		},
-		
-		/**
-		 * Set the position.
-		 * 
-		 * @param {number[3]} x XYZ position
-		 */
-		setPos: function(x) {
-			this.pos = x;
-			applyTranslator.call(this);
-		},
-		
-		/**
-		 * Set the velocity.
-		 * @param {number[3]} v XYZ velocity vector
-		 */
-		setVel: function(v) {
-			this.vel = v;
-			shouldRender.call(this);
-		},
-		
-		/**
-		 * Get the Octane structure for the Translator.
-	     *
-	     * @return {Object} the Octane structure representing the Translator
-		 */
-		toOctane: function() {
-			var octane = this._super(),
-				valNames = ['pos', 'vel', 'accel'];
-			
-			for (var ndx = 0, len = valNames.length; ndx < len; ndx++) {
-				var name = valNames[ndx];
-				
-				octane.props.push({
-					name: name,
-					val: this[name]
-				});
-			}
-			
-			// Save the local matrices of the transforms so we can restore them
-			var tranOct = {};
-			
-			for (var i = 0, il = this.transformObjs.length; i < il; i++) {
-				var tranObj = this.transformObjs[i],
-					origTran = tranObj.tran;
-				
-				// Note: this will break if the Translator has more than one
-				// transform with the same name
-				tranOct[origTran.name] = [
-					tranObj.parent.localMatrix,
-					origTran.localMatrix
-				];
-			}
-			
-			octane.props.push({
-				name: 'toLoad',
-				val: tranOct
-			});
-			
-			return octane;
-		}
-	});
-	
-	hemi.motion.Translator.prototype.msgSent =
-		hemi.motion.Translator.prototype.msgSent.concat([
-			hemi.msg.start,
-			hemi.msg.stop]);
-	
-	///////////////////////////////////////////////////////////////////////////
-	// Private functions
-	///////////////////////////////////////////////////////////////////////////
-
-	var removeRotateTransforms = function(tranObj) {
-		var rotTran = tranObj.rotTran,
-			offTran = tranObj.offTran,
-			origTran;
-		
-		if (tranObj.foster) {
-			origTran = rotTran.parent;
-			rotTran.parent = null;
-			offTran.parent = origTran;
-			
-			hemi.core.mainPack.removeObject(rotTran);
-			hemi.utils.unfosterTransform(offTran);
-		} else {
-			var parTran = tranObj.parent,
-				pChild = parTran.children[0],
-				rChild = rotTran.children[0];
-
-			if (pChild) {
-				pChild.parent = parTran.parent;
-			}
-			if (rChild) {
-				rChild.localMatrix = parTran.localMatrix;
-				rChild.parent = rotTran.parent;
-			}
-			
-			origTran = offTran;
-			
-			parTran.parent = rotTran.parent = null;
-			hemi.core.mainPack.removeObject(parTran);
-			hemi.core.mainPack.removeObject(rotTran);
-		}
-		
-		hemi.world.tranReg.unregister(origTran, this);
-		var ndx = this.transformObjs.indexOf(tranObj);
-		
-		if (ndx > -1) {
-			this.transformObjs.splice(ndx, 1);
-		}
-		
-		if (tranObj.owner && tranObj.msg) {
-			tranObj.owner.unsubscribe(tranObj.msg, hemi.msg.cleanup);
-		}
-	},
-	
-	applyRotator = function(opt_objs) {
-		var objs = this.transformObjs;
-
-		if (opt_objs) {
-			objs = opt_objs;
-		}
-
-		for (var i = 0, il = objs.length; i < il; i++) {
-			var transformObj = objs[i];
-			transformObj.offTran.identity();
-			transformObj.offTran.translate(this.offset);
-			transformObj.rotTran.identity();
-			transformObj.rotTran.translate(this.origin);
-			transformObj.rotTran.rotateZYX(this.angle);
-		}
-	},
-
-
-	shouldRender = function() {
-		if (!this.enabled ||  (this.accel.join() === '0,0,0' && this.vel.join() === '0,0,0')) {
-			hemi.view.removeRenderListener(this);
-		} else {
-			hemi.view.addRenderListener(this);
-		}
-	},
-
-	applyTranslator = function(opt_objs) {
-		var objs = this.transformObjs;
-
-		if (opt_objs) {
-			objs = opt_objs;
-		}
-
-		for (var i = 0, il = objs.length; i < il; i++) {
-			var transform = objs[i].tran;
-			transform.identity();
-			transform.translate(this.pos);
-		}
-	},
-
-	removeTranslateTransforms = function(tranObj) {
-		var origTran;
-		
-		if (tranObj.foster) {
-			origTran = hemi.utils.unfosterTransform(tranObj.tran);
-		} else {
-			var parTran = tranObj.parent,
-				child = parTran.children[0];
-
-			if (child) {
-				child.localMatrix = parTran.localMatrix;
-				child.parent = parTran.parent;
-			}
-			
-			origTran = tranObj.tran;
-			parTran.parent = null;
-			hemi.core.mainPack.removeObject(parTran);
-		}
-		
-		hemi.world.tranReg.unregister(origTran, this);
-		var ndx = this.transformObjs.indexOf(tranObj);
-		
-		if (ndx > -1) {
-			this.transformObjs.splice(ndx, 1);
-		}
-		
-		if (tranObj.owner && tranObj.msg) {
-			tranObj.owner.unsubscribe(tranObj.msg, hemi.msg.cleanup);
-		}
-	};
-	
-	return hemi;
-})(hemi || {});/* 
- * Kuda includes a library and editor for authoring interactive 3D content for the web.
- * Copyright (C) 2011 SRI International.
- *
- * This program is free software; you can redistribute it and/or modify it under the terms
- * of the GNU General Public License as published by the Free Software Foundation; either 
- * version 2 of the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
- * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
- * See the GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License along with this program; 
- * if not, write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, 
- * Boston, MA 02110-1301 USA.
- */
-
-var hemi = (function(hemi) {
-	
-	/**
-	 * @namespace A module for generating particle effects.
-	 */
-	hemi.effect = hemi.effect || {};
-	
 	/**
 	 * A set of names of predefined per-particle parameter setting functions.
-	 * <ul><pre>
-	 * <li>hemi.effect.ParticleFunctionName.Acceleration
-	 * <li>hemi.effect.ParticleFunctionName.Puff
-	 * </ul></pre>
 	 */
-	hemi.effect.ParticleFunctions = {
+	hemi.ParticleFunctionIds = {
 		Acceleration : 'Acceleration',
 		Puff: 'Puff'
 	};
-	
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// ParticleFunction class
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
 	/**
-	 * @class A ParticleFunction specifies a predefined per-particle parameter
-	 * setting function and any properties it might require.
+	 * @class A ParticleFunction specifies a predefined per-particle parameter setting function and
+	 * any properties it might require.
 	 * @example
 	 * Each function must be of the form:
 	 * 
 	 * function(number, hemi.core.particles.ParticleSpec): void
 	 * 
-	 * The number is the index of the particle being created. The ParticleSpec
-	 * is a set of parameters for that particular particle.
+	 * The number is the index of the particle being created. The ParticleSpec is a set of
+	 * parameters for that particular particle.
 	 */
-	hemi.effect.ParticleFunction = function() {
+	var ParticleFunction = function() {
 		/**
 		 * The name of the predefined parameter setting function.
-		 * @type hemi.effect.ParticleFunctions
+		 * @type hemi.ParticleFunctionIds
 		 */
 		this.name = null;
-		
+
 		/**
 		 * A set of options to customize values that the function uses to
 		 * calculate the particle parameters.
@@ -8937,535 +10724,507 @@ var hemi = (function(hemi) {
 		 */
 		this.options = {};
 	};
-	
-	hemi.effect.ParticleFunction.prototype = {
+
+	hemi.ParticleFunction = ParticleFunction;
+	hemi.makeOctanable(hemi.ParticleFunction, 'hemi.ParticleFunction', ['name', 'options']);
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// ParticleEmitter class
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	/**
+	 * @class A ParticleEmitter constantly generates particles.
+	 */
+	var ParticleEmitter = function(client) {
+		this._newSystem = false;
+		this._system = null;
+
 		/**
-		 * Get the Octane structure for the ParticleFunction.
-		 * 
-	     * @return {Object} the Octane structure representing the
-	     *     ParticleFunction
+		 * The blending state to use for drawing particles.
+		 * @type number
+		 * @default THREE.AdditiveBlending
 		 */
-		toOctane: function() {
-			var octane = {
-				type: 'hemi.effect.ParticleFunction',
-				props: []
-			};
-			
-			octane.props.push({
-				name: 'name',
-				val: this.name
+		this.blending = THREE.AdditiveBlending;
+
+		this.client = client;
+
+		/**
+		 * An array of colors for each particle to transition through. Each color value is in the
+		 * form RGBA.
+		 * @type number[]
+		 */
+		this.colorRamp = [];
+
+		/**
+		 * A set of parameters for the ParticleEmitter.
+		 * @type hemi.particles.Spec
+		 */
+		this.params = {};
+
+		/**
+		 * Optional specs that identify a particle updating function to use and properties to set
+		 * for it.
+		 * @type hemi.ParticleFunctionIds
+		 */
+		this.particleFunction = null;
+
+		/* The actual emitter for the ParticleEmitter */
+		this.particles = null;
+
+		/* The containing Transform for the Effect */
+		this.transform = null;
+	};
+
+	/*
+	 * Remove all references in the ParticleEmitter.
+	 */
+	ParticleEmitter.prototype._clean = function() {
+		var emitters = this._system.emitters,
+			ndx = emitters.indexOf(this.particles);
+
+		emitters.splice(ndx, 1);
+		if (this.transform) {
+			this.transform.parent.remove(this.transform);
+		}
+		this.transform = null;
+		this.particles = null;
+	};
+
+	/*
+	 * Array of Hemi Messages that ParticleEmitter is known to send.
+	 * @type string[]
+	 */
+	ParticleEmitter.prototype._msgSent = [hemi.msg.visible];
+
+	/*
+	 * Octane properties for ParticleEmitter.
+	 * @type string[]
+	 */
+	ParticleEmitter.prototype._octane = ['_newSystem', 'blending', 'client', 'colorRamp', 'params',
+		'particleFunction', 'setup'];
+
+	/**
+	 * Set the ParticleEmitter to not be visible.
+	 */
+	ParticleEmitter.prototype.hide = function() {
+		if (this.particles === null) {
+			this.setup();
+		}
+
+		if (this.transform.visible) {
+			this.transform.visible = false;
+			this.send(hemi.msg.visible, {
+				visible: false
 			});
-			
-			octane.props.push({
-				name: 'options',
-				val: this.options
-			});
-			
-			return octane;
 		}
 	};
-	
+
 	/**
-	 * @class An Effect is a 3D particle effect.
-	 * @extends hemi.world.Citizen
+	 * Set the particles up for the ParticleEmitter.
 	 */
-	hemi.effect.Effect = hemi.world.Citizen.extend({
-		init: function() {
-			this._super();
-			
-			/**
-			 * The particle state to use for drawing.
-			 * @type hemi.core.particles.ParticleStateIds
-			 * @default hemi.core.particles.ParticleStateIds.BLEND
-			 */
-			this.state = hemi.core.particles.ParticleStateIds.BLEND;
-			
-			/**
-			 * An array of colors for each particle to transition through. Each
-			 * color value is in the form RGBA.
-			 * @type number[]
-			 */
-			this.colorRamp = [];
-			
-			/**
-			 * A set of parameters for the particle emitter.
-			 * @type hemi.core.particles.ParticleSpec
-			 */
-			this.params = {};
-			
-			/**
-			 * Optional specs that identify a particle updating function to use and
-			 * properties to set for it.
-			 * @type hemi.effect.ParticleFunction
-			 */
-			this.particleFunction = null;
-			
-			/* The actual particle emitter for the Effect */
-			this.particles = null;
-			/* The containing Transform for the Effect */
-			this.transform = hemi.effect.particlePack.createObject('Transform');
-			this.transform.parent = hemi.core.client.root;
-		},
-		
-		/**
-		 * Overwrites hemi.world.Citizen.citizenType
-		 * @type string
-		 */
-		citizenType: 'hemi.effect.Effect',
-		
-		/**
-		 * Send a cleanup Message and remove all references in the Effect.
-		 */
-		cleanup: function() {
-			this._super();
-			
-			this.particles = null;
-			this.transform.parent = null;
-			hemi.effect.particlePack.removeObject(this.transform);
-			this.transform = null;
-		},
-		
-		/**
-		 * Set the particle emitter up for the Effect. Implementing subclasses
-		 * should override this.
-		 */
-		setup: function() {
-			
-		},
-		
-		/**
-		 * Get the Octane structure for the Effect.
-		 * 
-	     * @return {Object} the Octane structure representing the Effect
-		 */
-		toOctane: function() {
-			var octane = this._super();
-			
-			var valNames = ['state', 'colorRamp', 'params'];
-			
-			for (var ndx = 0, len = valNames.length; ndx < len; ndx++) {
-				var name = valNames[ndx];
-				
-				octane.props.push({
-					name: name,
-					val: this[name]
-				});
-			};
-			
-			if (this.particleFunction !== null) {
-				octane.props.push({
-					name: 'particleFunction',
-					oct: this.particleFunction.toOctane()
-				});
-			}
-			
-			octane.props.push({
-				name: 'setup',
-				arg: []
-			});
-			
-			return octane;
+	ParticleEmitter.prototype.setup = function() {
+		// Create a deep copy of the parameters since the particle emitter will mutate them as it
+		// fires.
+		var clonedParams = hemi.utils.clone(this.params),
+			paramSetter = null,
+			position = null;
+
+		// It's okay if paramSetter stays null.
+		if (this.particleFunction !== null) {
+			paramSetter = hemi.getParticleFunction(this.particleFunction);
 		}
-	});
-	
-	/**
-	 * @class An Emitter constantly generates particles.
-	 * @extends hemi.effect.Effect
-	 */
-	hemi.effect.Emitter = hemi.effect.Effect.extend({
-		init: function() {
-			this._super();
-			
-			/* Flag indicating if the Emitter is visible */
-			this.visible = false;
-		},
-		
-		/**
-		 * Overwrites hemi.world.Citizen.citizenType
-		 * @type string
-		 */
-		citizenType: 'hemi.effect.Emitter',
-		
-		/**
-		 * Set the Emitter to not be visible.
-		 */
-		hide: function() {
-			if (this.particles === null) {
-				this.setup();
-			}
-			
-			if (this.visible) {
-				this.visible = false;
-				this.transform.removeShape(this.particles.shape);
-				this.send(hemi.msg.visible,
-					{
-						visible: this.visible
-					});
-			}
-		},
-		
-		/**
-		 * Set the particle emitter up for the Emitter.
-		 */
-		setup: function() {
-			// Create a deep copy of the parameters since the particle emitter
-			// will mutate them as it fires.
-			var clonedParams = hemi.utils.clone(this.params),
-				paramSetter;
-			
-			// It's okay if paramSetter stays undefined.
-			if (this.particleFunction !== null) {
-				paramSetter = hemi.effect.getParticleFunction(this.particleFunction);
-			}
-			
-			this.particles = hemi.effect.particleSystem.createParticleEmitter();
-			this.particles.setState(this.state);
-			this.particles.setColorRamp(this.colorRamp);
-			this.particles.setParameters(clonedParams, paramSetter);
-		},
-		
-		/**
-		 * Set the Emitter to be visible.
-		 */
-		show: function() {
-			if (this.particles === null) {
-				this.setup();
-			}
-			
-			if (!this.visible) {
-				this.visible = true;
-				this.transform.addShape(this.particles.shape);
-				this.send(hemi.msg.visible,
-					{
-						visible: this.visible
-					});
-			}
+
+		if (clonedParams.position) {
+			position = clonedParams.position;
+			clonedParams.position = [0, 0, 0];
 		}
-	});
-	
-	hemi.effect.Emitter.prototype.msgSent =
-		hemi.effect.Emitter.prototype.msgSent.concat([hemi.msg.visible]);
-	
-	/**
-	 * @class A Burst generates one set of particles at a time. It can be used
-	 * for a smoke puff, explosion, firework, water drip, etc.
-	 * @extends hemi.effect.Emitter
-	 */
-	hemi.effect.Burst = hemi.effect.Emitter.extend({
-		init: function() {
-			this._super();
-			
-			/* The OneShot particle effect */
-			this.oneShot = null;
-		},
-		
-		/**
-		 * Overwrites hemi.world.Citizen.citizenType
-		 * @type string
-		 */
-		citizenType: 'hemi.effect.Burst',
-		
-		/**
-		 * Send a cleanup Message and remove all references in the Burst.
-		 */
-		cleanup: function() {
-			this._super();
-			
-			this.oneShot = null;
-		},
-		
-		/**
-		 * Set the particle emitter up for the Burst.
-		 */
-		setup: function() {
-			this._super();
-			
-			this.oneShot = this.particles.createOneShot(this.transform);
-		},
-		
-		/**
-		 * Generate the particles for the Burst.
-		 */
-		trigger: function() {
-			if (this.oneShot === null) {
-				this.setup();
-			}
-			
-			this.oneShot.trigger(this.params.position);
-			this.send(hemi.msg.burst,
-				{
-					position: this.params.position
-				});
+
+		this._system = this._newSystem ? new hemi.particles.System() : defaultParticleSystem;
+		this.particles = this._system.createEmitter(this.client.camera.threeCamera);
+		this.particles.setBlending(this.blending);
+		this.particles.setColorRamp(this.colorRamp);
+		this.particles.setParameters(clonedParams, paramSetter);
+
+		this.transform = new THREE.Mesh(this.particles.shape, this.particles.material);
+		this.transform.doubleSided = true; // turn off face culling
+		this.transform.matrixAutoUpdate = false;
+
+		if (position !== null) {
+			// This helps prevent clipping issues
+			this.transform.position.set(position[0], position[1], position[2]);
+			this.transform.updateMatrix();
 		}
-	});
-	
-	hemi.effect.Burst.prototype.msgSent =
-		hemi.effect.Burst.prototype.msgSent.concat([hemi.msg.burst]);
-	
-	/**
-	 * @class A Trail is a particle effect that can be started and stopped like
-	 * an animation. It can be used for effects like exhaust.
-	 * @extends hemi.effect.Effect
-	 */
-	hemi.effect.Trail = hemi.effect.Effect.extend({
-		init: function() {
-			this._super();
-			
-			/* A flag that indicates if the Trail is currently animating */
-			this.isAnimating = false;
-			/* The number of seconds between particle births */
-			this.fireInterval = 1;
-			this.count = 0;
-		},
-		
-		/**
-		 * Overwrites hemi.world.Citizen.citizenType
-		 * @type string
-		 */
-		citizenType: 'hemi.effect.Trail',
-		
-		/**
-		 * Render event handling function that allows the Trail to animate.
-		 * 
-		 * @param {o3d.Event} renderEvent the render event
-		 */
-		onRender: function(renderEvent) {
-			this.count += renderEvent.elapsedTime;
-			
-			if (this.count >= this.fireInterval) {
-				this.count = 0;
-				this.particles.birthParticles(this.params.position);
-			}
-		},
-		
-		/**
-		 * Set the particle emitter up for the Trail.
-		 */
-		setup: function() {
-			// Create a deep copy of the parameters since the particle emitter
-			// will mutate them as it fires.
-			var clonedParams = hemi.utils.clone(this.params),
-				paramSetter;
-			
-			// Calculate the maximum number of particles for the stream
-			var particlesPerFire = this.params.numParticles || 1,
-				maxLife = this.params.lifeTime || 1 + this.params.lifeTimeRange || 0,
-				maxFires = (maxLife / this.fireInterval) + 1,
-				maxParticles = parseInt(maxFires * particlesPerFire);
-			
-			// It's okay if paramSetter stays undefined.
-			if (this.particleFunction !== null) {
-				paramSetter = hemi.effect.getParticleFunction(this.particleFunction);
-			}
-			
-			// Intentionally left undefined for now.
-			var texture;
-			
-			this.particles = hemi.effect.particleSystem.createTrail(
-				this.transform,
-				maxParticles,
-				clonedParams,
-				texture,
-				paramSetter);
-			this.particles.setState(this.state);
-			this.particles.setColorRamp(this.colorRamp);
-		},
-		
-		/**
-		 * Start animating the Trail. It will generate particles based upon its
-		 * fireInterval property.
-		 */
-		start: function() {
-			if (this.particles === null) {
-				this.setup();
-			}
-			
-			if (!this.isAnimating) {
-				this.isAnimating = true;
-				hemi.view.addRenderListener(this);
-				this.send(hemi.msg.start, { });
-			}
-		},
-		
-		/**
-		 * Stop animating the Trail.
-		 */
-		stop: function() {
-			if (this.particles === null) {
-				this.setup();
-			}
-			
-			if (this.isAnimating) {
-				hemi.view.removeRenderListener(this);
-				this.isAnimating = false;
-				this.count = 0;
-				this.send(hemi.msg.stop, { });
-			}
-		},
-		
-		/**
-		 * Get the Octane structure for the Trail.
-		 * 
-	     * @return {Object} the Octane structure representing the Trail
-		 */
-		toOctane: function() {
-			var octane = this._super();
-			
-			octane.props.unshift({
-				name: 'fireInterval',
-				val: this.fireInterval
-			});
-			
-			return octane;
-		}
-	});
-	
-	hemi.effect.Trail.prototype.msgSent =
-		hemi.effect.Trail.prototype.msgSent.concat([
-			hemi.msg.start,
-			hemi.msg.stop]);
-	
-	/**
-	 * Initialize the resources for the effect module.
-	 */
-	hemi.effect.init = function() {
-		this.particlePack = hemi.core.client.createPack();
-		this.particleSystem = hemi.core.particles.createParticleSystem(
-			this.particlePack,
-			hemi.view.viewInfo);
+
+		this.client.scene.add(this.transform);
 	};
-	
+
 	/**
-	 * Create an Emitter effect that constantly streams particles.
+	 * Set the ParticleEmitter to be visible.
+	 */
+	ParticleEmitter.prototype.show = function() {
+		if (this.particles === null) {
+			this.setup();
+		}
+
+		if (!this.transform.visible) {
+			this.transform.visible = true;
+			this.send(hemi.msg.visible,{
+				visible: true
+			});
+		}
+	};
+
+	hemi.makeCitizen(ParticleEmitter, 'hemi.ParticleEmitter', {
+		cleanup: ParticleEmitter.prototype._clean,
+		toOctane: ParticleEmitter.prototype._octane
+	});
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// ParticleBurst class
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	/**
+	 * @class A ParticlesBurst generates one set of particles at a time. It can be used for a smoke
+	 * puff, explosion, firework, water drip, etc.
+	 * @extends hemi.ParticleEmitter
+	 */
+	var ParticleBurst = function(client) {
+		ParticleEmitter.call(this, client);
+
+		/* The OneShot particle effect */
+		this.oneShot = null;
+	};
+
+	ParticleBurst.prototype = new ParticleEmitter();
+	ParticleBurst.constructor = ParticleBurst;
+
+	/*
+	 * Remove all references in the ParticleBurst.
+	 */
+	ParticleBurst.prototype._clean = function() {
+		ParticleEmitter.prototype._clean.call(this);
+
+		this.oneShot = null;
+	};
+
+	/*
+	 * Array of Hemi Messages that ParticleBurst is known to send.
+	 * @type string[]
+	 */
+	ParticleBurst.prototype._msgSent = ParticleEmitter.prototype._msgSent.concat([hemi.msg.burst]);
+
+	/**
+	 * Set the particles up for the ParticleBurst.
+	 */
+	ParticleBurst.prototype.setup = function() {
+		// Create a deep copy of the parameters since the particle emitter
+		// will mutate them as it fires.
+		var clonedParams = hemi.utils.clone(this.params),
+			paramSetter = null,
+			position = null;
+
+		// It's okay if paramSetter stays null.
+		if (this.particleFunction !== null) {
+			paramSetter = hemi.getParticleFunction(this.particleFunction);
+		}
+
+		if (clonedParams.position) {
+			position = clonedParams.position;
+			clonedParams.position = [0, 0, 0];
+		}
+
+		this._system = this._newSystem ? new hemi.particles.System() : defaultParticleSystem;
+		this.particles = this._system.createEmitter(this.client.camera.threeCamera);
+		this.particles.setBlending(this.blending);
+		this.particles.setColorRamp(this.colorRamp);
+		this.particles.setParameters(clonedParams, paramSetter);
+
+		this.transform = new THREE.Object3D();
+		this.transform.matrixAutoUpdate = false;
+
+		if (position !== null) {
+			// This helps prevent clipping issues
+			this.transform.position.set(position[0], position[1], position[2]);
+			this.transform.updateMatrix();
+		}
+
+		this.client.scene.add(this.transform);
+		this.oneShot = this.particles.createOneShot(this.transform);
+	};
+
+	/**
+	 * Generate the particles for the ParticleBurst.
+	 */
+	ParticleBurst.prototype.trigger = function() {
+		if (this.oneShot === null) {
+			this.setup();
+		}
+
+		var pos = this.params.position;
+		this.oneShot.trigger(_vector.set(pos[0], pos[1], pos[2]));
+		this.send(hemi.msg.burst, {
+			position: this.params.position
+		});
+	};
+
+	hemi.makeCitizen(ParticleBurst, 'hemi.ParticleBurst', {
+		cleanup: ParticleBurst.prototype._clean,
+		toOctane: ParticleBurst.prototype._octane
+	});
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// ParticleTrail class
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	/**
+	 * @class A ParticleTrail is a particle effect that can be started and stopped like an
+	 * animation. It can be used for effects like exhaust.
+	 * @extends hemi.ParticleEmitter
+	 */
+	var ParticleTrail = function(client) {
+		ParticleEmitter.call(this, client);
+
+		/* A flag that indicates if the ParticleTrail is currently animating */
+		this.isAnimating = false;
+		/* The number of seconds between particle births */
+		this.fireInterval = 1;
+		this.count = 0;
+	};
+
+	ParticleTrail.prototype = new ParticleEmitter();
+	ParticleTrail.constructor = ParticleTrail;
+
+	/*
+	 * Array of Hemi Messages that ParticleTrail is known to send.
+	 * @type string[]
+	 */
+	ParticleTrail.prototype._msgSent = ParticleEmitter.prototype._msgSent.concat(
+		[hemi.msg.start, hemi.msg.stop]);
+
+	/*
+	 * Octane properties for ParticleTrail.
+	 * @type string[]
+	 */
+	ParticleTrail.prototype._octane = ['fireInterval'].concat(ParticleEmitter.prototype._octane);
+
+	/**
+	 * Render event handling function that allows the ParticleTrail to animate.
 	 * 
-	 * @param {hemi.core.particles.ParticleStateIds} state the particle state
-	 * @param {number[]} colorRamp array of color values in the form RGBA
-	 * @param {hemi.core.particles.ParticleSpec} params parameters for the
-	 *	   particle emitter
-	 * @param {hemi.effect.ParticleFunction} opt_function optional specs that
-	 *	   that identify a particle updating function to use and properties to
-	 *	   set for it
-	 * @return {hemi.effect.Emitter} the newly created Emitter
+	 * @param {Object} event the render event
 	 */
-	hemi.effect.createEmitter = function(
-			state,
-			colorRamp,
-			params,
-			opt_function) {
-		var emitter = new hemi.effect.Emitter();
-		emitter.state = state;
+	ParticleTrail.prototype.onRender = function(event) {
+		this.count += event.elapsedTime;
+
+		if (this.count >= this.fireInterval) {
+			this.count = 0;
+			this.particles.birthParticles([0, 0, 0]);
+		}
+	};
+
+	/**
+	 * Set the particle emitter up for the ParticleTrail.
+	 */
+	ParticleTrail.prototype.setup = function() {
+		// ParticleTrails use fireInterval instead of timeRange
+		this.params.timeRange = undefined;
+
+		// Create a deep copy of the parameters since the particle emitter will mutate them as it
+		// fires.
+		var clonedParams = hemi.utils.clone(this.params),
+			paramSetter = null,
+			position = null,
+			// Calculate the maximum number of particles for the stream
+			particlesPerFire = this.params.numParticles || 1,
+			maxLife = this.params.lifeTime || 1 + this.params.lifeTimeRange || 0,
+			maxFires = (maxLife / this.fireInterval) + 1,
+			maxParticles = Math.ceil(maxFires * particlesPerFire);
+
+		// It's okay if paramSetter stays undefined.
+		if (this.particleFunction !== null) {
+			paramSetter = hemi.getParticleFunction(this.particleFunction);
+		}
+
+		if (clonedParams.position) {
+			position = clonedParams.position;
+			clonedParams.position = [0, 0, 0];
+		}
+
+		this._system = this._newSystem ? new hemi.particles.System() : defaultParticleSystem;
+		this.particles = this._system.createTrail(
+			this.client.camera.threeCamera,
+			maxParticles,
+			clonedParams,
+			null,
+			paramSetter);
+		this.particles.setBlending(this.blending);
+		this.particles.setColorRamp(this.colorRamp);
+
+		this.transform = new THREE.Mesh(this.particles.shape, this.particles.material);
+		this.transform.doubleSided = true; // turn off face culling
+		this.transform.matrixAutoUpdate = false;
+
+		if (position !== null) {
+			// This helps prevent clipping issues
+			this.transform.position.set(position[0], position[1], position[2]);
+			this.transform.updateMatrix();
+		}
+
+		this.client.scene.add(this.transform);
+	};
+
+	/**
+	 * Start animating the ParticleTrail. It will generate particles based upon its fireInterval
+	 * property.
+	 */
+	ParticleTrail.prototype.start = function() {
+		if (this.particles === null) {
+			this.setup();
+		}
+
+		if (!this.isAnimating) {
+			this.isAnimating = true;
+			hemi.addRenderListener(this);
+			this.send(hemi.msg.start, { });
+		}
+	};
+
+	/**
+	 * Stop animating the ParticleTrail.
+	 */
+	ParticleTrail.prototype.stop = function() {
+		if (this.particles === null) {
+			this.setup();
+		}
+
+		if (this.isAnimating) {
+			hemi.removeRenderListener(this);
+			this.isAnimating = false;
+			this.count = 0;
+			this.send(hemi.msg.stop, { });
+		}
+	};
+
+	hemi.makeCitizen(ParticleTrail, 'hemi.ParticleTrail', {
+		cleanup: ParticleTrail.prototype._clean,
+		toOctane: ParticleTrail.prototype._octane
+	});
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Global functions
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	/**
+	 * Create a ParticleEmitter effect that constantly streams particles.
+	 * 
+	 * @param {hemi.Client} client the Client to render the effect
+	 * @param {number[]} colorRamp array of color values in the form RGBA
+	 * @param {hemi.particles.Spec} params parameters for the ParticleEmitter
+	 * @param {number} opt_blending optional blending to use to draw particles
+	 * @param {hemi.ParticleFunction} opt_function optional specs that identify a particle updating
+	 *	   function to use and properties to set for it
+	 * @return {hemi.ParticleEmitter} the newly created ParticleEmitter
+	 */
+	hemi.createParticleEmitter = function(client, colorRamp, params, opt_blending, opt_function) {
+		var emitter = new hemi.ParticleEmitter(client);
 		emitter.colorRamp = colorRamp;
 		emitter.params = params;
-		
-		if (opt_function) {
-			emitter.particleFunction = opt_function;
-		}
-		
+
+		if (opt_blending !== undefined) emitter.blending = opt_blending;
+		if (opt_function !== undefined)  emitter.particleFunction = opt_function;
+
 		emitter.setup();
 		return emitter;
 	};
-	
+
 	/**
-	 * Create a Burst effect that fires particles one shot at a time.
+	 * Create a ParticleBurst effect that fires particles one shot at a time.
 	 * 
-	 * @param {hemi.core.particles.ParticleStateIds} state the particle state
+	 * @param {hemi.Client} client the Client to render the effect
 	 * @param {number[]} colorRamp array of color values in the form RGBA
-	 * @param {hemi.core.particles.ParticleSpec} params parameters for the
-	 *	   particle emitter
-	 * @param {hemi.effect.ParticleFunction} opt_function optional specs that
-	 *	   that identify a particle updating function to use and properties to
-	 *	   set for it
-	 * @return {hemi.effect.Burst} the newly created Burst
+	 * @param {hemi.particles.Spec} params parameters for the ParticleEmitter
+	 * @param {number} opt_blending optional blending to use to draw particles
+	 * @param {hemi.ParticleFunction} opt_function optional specs that identify a particle updating
+	 *	   function to use and properties to set for it
+	 * @return {hemi.ParticleBurst} the newly created ParticleBurst
 	 */
-	hemi.effect.createBurst = function(
-			state,
-			colorRamp,
-			params,
-			opt_function) {
-		var burst = new hemi.effect.Burst();
-		burst.state = state;
+	hemi.createParticleBurst = function(client, colorRamp, params, opt_blending, opt_function) {
+		var burst = new hemi.ParticleBurst(client);
 		burst.colorRamp = colorRamp;
 		burst.params = params;
-		
-		if (opt_function) {
-			burst.particleFunction = opt_function;
-		}
-		
+
+		if (opt_blending !== undefined) burst.blending = opt_blending;
+		if (opt_function !== undefined)  burst.particleFunction = opt_function;
+
 		burst.setup();
 		return burst;
 	};
-	
+
 	/**
-	 * Create a Trail effect that fires particles at the specified interval.
+	 * Create a ParticleTrail effect that fires particles at the specified
+	 * interval.
 	 * 
-	 * @param {hemi.core.particles.ParticleStateIds} state the particle state
+	 * @param {hemi.Client} client the Client to render the effect
 	 * @param {number[]} colorRamp array of color values in the form RGBA
-	 * @param {hemi.core.particles.ParticleSpec} params parameters for the
-	 *	   particle emitter
+	 * @param {hemi.particles.Spec} params parameters for the ParticleEmitter
 	 * @param {number} fireInterval seconds to wait between firing particles
-	 * @param {hemi.effect.ParticleFunction} opt_function optional specs that
-	 *	   that identify a particle updating function to use and properties to
-	 *	   set for it
-	 * @return {hemi.effect.Trail} the newly created Trail
+	 * @param {number} opt_blending optional blending to use to draw particles
+	 * @param {hemi.ParticleFunction} opt_function optional specs that identify a particle updating
+	 *	   function to use and properties to set for it
+	 * @return {hemi.ParticleTrail} the newly created ParticleTrail
 	 */
-	hemi.effect.createTrail = function(
-			state,
-			colorRamp,
-			params,
-			fireInterval,
-			opt_function) {
-		var trail = new hemi.effect.Trail();
-		trail.state = state;
+	hemi.createParticleTrail = function(client, colorRamp, params, fireInterval, opt_blending, opt_function) {
+		var trail = new hemi.ParticleTrail(client);
 		trail.colorRamp = colorRamp;
 		trail.params = params;
 		trail.fireInterval = fireInterval;
-		
-		if (opt_function) {
-			trail.particleFunction = opt_function;
-		}
-		
+
+		if (opt_blending !== undefined) trail.blending = opt_blending;
+		if (opt_function !== undefined)  trail.particleFunction = opt_function;
+
 		trail.setup();
 		return trail;
 	};
-	
+
 	/**
-	 * Get the predefined per-particle parameter setting function for the given
-	 * specs.
+	 * Get the predefined per-particle parameter setting function for the given specs.
 	 *
-	 * @param {hemi.effect.ParticleFunction} funcSpecs specs that identify the
-	 *	   function to get and properties to set for it
-	 * @return {function(number, hemi.core.particles.ParticleSpec): void} an
-	 *	   instance of the predefined function with the appropriate properties
-	 *	   set or null if the function name is not recognized
+	 * @param {hemi.ParticleFunction} funcSpecs specs that identify the
+	 *	   particle function to get and properties to set for it
+	 * @return {function(number, hemi.particles.Spec): void} an instance of the predefined function
+	 *	   with the appropriate properties set or null if the function name is not recognized
 	 */
-	hemi.effect.getParticleFunction = function(funcSpecs) {
+	hemi.getParticleFunction = function(funcSpecs) {
 		var particleFunc;
-		
+
 		switch(funcSpecs.name) {
-			case hemi.effect.ParticleFunctions.Acceleration:
-				particleFunc = this.getAccelerationFunction(funcSpecs.options);
+			case hemi.ParticleFunctionIds.Acceleration:
+				particleFunc = getAccelerationFunction(funcSpecs.options);
 				break;
-			case hemi.effect.ParticleFunctions.Puff:
-				particleFunc = this.getPuffFunction(funcSpecs.options);
+			case hemi.ParticleFunctionIds.Puff:
+				particleFunc = getPuffFunction(funcSpecs.options);
 				break;
 			default:
 				particleFunc = null;
 				break;
 		}
-		
+
 		return particleFunc;
 	};
-	
-	/**
-	 * Get a function that sets each particle's acceleration by applying a
-	 * factor to that particle's velocity. Valid options are:
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Utility functions
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	/*
+	 * Get a function that sets each particle's acceleration by applying a factor to that particle's
+	 * velocity. Valid options are:
 	 * - factor : number[3] a factor to apply to each particle's XYZ velocity
 	 *
 	 * @param {Object} options customization options for the particle parameters
-	 * @return {function(number, hemi.core.particles.ParticleSpec): void} an
-	 *	   instance of the ParticleFunctionId.Acceleration function
+	 * @return {function(number, hemi.core.particles.ParticleSpec): void} an instance of the
+	 *	   ParticleFunctionId.Acceleration function
 	 */
-	hemi.effect.getAccelerationFunction = function(options) {
+	function getAccelerationFunction(options) {
 		var acc = function (index, parameters) {
 			parameters.acceleration = [
 				acc.factor[0] * parameters.velocity[0],
@@ -9473,22 +11232,22 @@ var hemi = (function(hemi) {
 				acc.factor[2] * parameters.velocity[2]
 			];
 		};
-		
+
 		acc.factor = options.factor === undefined ? [0, 0, 0] : options.factor;
 		return acc;
-	};
-	
-	/**
-	 * Get a function that sets each particle's velocity and acceleration to
-	 * create a windblown puff effect. Valid options are:
+	}
+
+	/*
+	 * Get a function that sets each particle's velocity and acceleration to create a windblown puff
+	 * effect. Valid options are:
 	 * - wind : number[3] an XYZ acceleration to apply to each particle
 	 * - size : number a factor to determine the size of the puff
 	 * 
 	 * @param {Object} options customization options for the particle parameters
-	 * @return {function(number, hemi.core.particles.ParticleSpec): void} an
-	 *	   instance of the ParticleFunctionId.Puff function
+	 * @return {function(number, hemi.core.particles.ParticleSpec): void} an instance of the
+	 *	   ParticleFunctionId.Puff function
 	 */
-	hemi.effect.getPuffFunction = function(options) {
+	function getPuffFunction(options) {
 		var puff = function (index, parameters) {
 			var angle = Math.random() * 2 * Math.PI,
 				speed = 0.8 * puff.size,
@@ -9508,3624 +11267,3316 @@ var hemi = (function(hemi) {
 				parameters.acceleration,
 				puff.wind);
 		};
-		
+
 		puff.wind = options.wind === undefined ? [0, 0, 0] : options.wind;
 		puff.size = options.size === undefined ? 1 : options.size;
 		return puff;
-	};
-	
-	return hemi;
-})(hemi || {});
-/* 
- * Kuda includes a library and editor for authoring interactive 3D content for the web.
- * Copyright (C) 2011 SRI International.
- *
- * This program is free software; you can redistribute it and/or modify it under the terms
- * of the GNU General Public License as published by the Free Software Foundation; either 
- * version 2 of the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
- * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
- * See the GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License along with this program; 
- * if not, write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, 
- * Boston, MA 02110-1301 USA.
+	}
+
+})();
+/*
+ * Licensed under the MIT license: http://www.opensource.org/licenses/mit-license.php
+ * The MIT License (MIT)
+ * 
+ * Copyright (c) 2011 SRI International
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+ * associated  documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the  Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-var hemi = (function(hemi) {
-	/**
-	 * @namespace A module for grouping world events and behavior into logical
-	 * scenes.
-	 */	
-	hemi.scene = hemi.scene || {};
+(function() {
 	
 	/**
-	 * @class A Scene represents a logical grouping of behavior, events, and
+	 * @class A State represents a logical grouping of behavior, events, and
 	 * interactions. It can be used to determine when various interactions are
 	 * valid or if various events should be enabled.
-	 * @extends hemi.world.Citizen
 	 */
-	hemi.scene.Scene = hemi.world.Citizen.extend({
-		init: function() {
-			this._super();
+	var State = function() {
+		/**
+		 * Flag indicating if the State is currently loaded.
+		 * @type boolean
+		 * @default false
+		 */
+		this.isLoaded = false;
+		
+		/**
+		 * The next State to move to after this one.
+		 * @type hemi.State
+		 */
+		this.next = null;
+		
+		/**
+		 * The previous State that occurred before this one.
+		 * @type hemi.State
+		 */
+		this.prev = null;
+        
+        
+	};
+		
+	/** 
+     * Remove all references in the State
+     */
+     State.prototype._clean = function() {
+		if (this.next !== null) {
+			this.next.prev = this.prev;
+		}
+		if (this.prev !== null) {
+			this.prev.next = this.next;
+		}
+		
+		this.next = null;
+		this.prev = null;
+	};
+		
+	/**
+	 * Load the State.
+	 */
+	State.prototype.load = function() {
+		if (!this.isLoaded) {
+			this.isLoaded = true;
 			
-			/**
-			 * Flag indicating if the Scene is currently loaded.
-			 * @type boolean
-			 * @default false
-			 */
+			this.send(hemi.msg.load, {});
+		}
+	};
+	
+	/**
+	 * Unload the State.
+	 */
+	State.prototype.unload = function() {
+		if (this.isLoaded) {
 			this.isLoaded = false;
 			
-			/**
-			 * The next Scene to move to after this one.
-			 * @type hemi.scene.Scene
-			 */
-			this.next = null;
-			
-			/**
-			 * The previous Scene that occurred before this one.
-			 * @type hemi.scene.Scene
-			 */
-			this.prev = null;
-		},
-		
-        /**
-         * Overwrites hemi.world.Citizen.citizenType.
-         * @string
-         */
-        citizenType: 'hemi.scene.Scene',
-		
-		/**
-		 * Send a cleanup Message and remove all references in the Scene.
-		 */
-		cleanup: function() {
-			this._super();
-			
-			if (this.next !== null) {
-				this.next.prev = this.prev;
-			}
-			if (this.prev !== null) {
-				this.prev.next = this.next;
-			}
-			
-			this.next = null;
-			this.prev = null;
-		},
-	
-		/**
-		 * Get the Octane structure for the Scene.
-	     *
-	     * @return {Object} the Octane structure representing the Scene
-		 */
-		toOctane: function() {
-			var octane = this._super();
-			
-			if (this.next === null) {
-				octane.props.push({
-					name: 'next',
-					val: null
-				});
-			} else {
-				octane.props.push({
-					name: 'next',
-					id: this.next.getId()
-				});
-			}
-			
-			if (this.prev === null) {
-				octane.props.push({
-					name: 'prev',
-					val: null
-				});
-			} else {
-				octane.props.push({
-					name: 'prev',
-					id: this.prev.getId()
-				});
-			}
-			
-			return octane;
-		},
-		
-		/**
-		 * Load the Scene.
-		 */
-		load: function() {
-			if (!this.isLoaded) {
-				this.isLoaded = true;
-				
-				this.send(hemi.msg.load, {});
-			}
-		},
-		
-		/**
-		 * Unload the Scene.
-		 */
-		unload: function() {
-			if (this.isLoaded) {
-				this.isLoaded = false;
-				
-				this.send(hemi.msg.unload, {});
-			}
-		},
-		
-		/**
-		 * Unload the Scene and move to the next Scene (if it has been set).
-		 */
-		nextScene: function() {
-			if (this.isLoaded && this.next != null) {
-				this.unload();
-				this.next.load();
-			}
-		},
-		
-		/**
-		 * Unload the Scene and move to the previous Scene (if it has been set).
-		 */
-		previousScene: function() {
-			if (this.isLoaded && this.prev != null) {
-				this.unload();
-				this.prev.load();
-			}
+			this.send(hemi.msg.unload, {});
 		}
-	});
+	};
+		
+	/**
+	 * Unload the State and move to the next State (if it has been set).
+	 */
+	State.prototype.nextState = function() {
+		if (this.isLoaded && this.next != null) {
+			this.unload();
+			this.next.load();
+		}
+	};
 	
-	hemi.scene.Scene.prototype.msgSent =
-		hemi.scene.Scene.prototype.msgSent.concat([hemi.msg.load, hemi.msg.unload]);
-	
-	return hemi;
-})(hemi || {});
-/* 
- * Kuda includes a library and editor for authoring interactive 3D content for the web.
- * Copyright (C) 2011 SRI International.
- *
- * This program is free software; you can redistribute it and/or modify it under the terms
- * of the GNU General Public License as published by the Free Software Foundation; either 
- * version 2 of the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
- * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
- * See the GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License along with this program; 
- * if not, write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, 
- * Boston, MA 02110-1301 USA.
+	/**
+	 * Unload the State and move to the previous State (if it has been set).
+	 */
+	State.prototype.previousState = function() {
+		if (this.isLoaded && this.prev != null) {
+			this.unload();
+			this.prev.load();
+		}
+	};
+    /**
+	 * Octane properties for State.
+	 * 
+	 * @type String[]
+	 */
+	State.prototype._octane = ['next', 'prev'];
+    
+    /**
+     * Message types sent by State.
+     *
+     * @return (Object[]} Array of message types sent.
+     */
+    State.prototype._msgSent = [hemi.msg.load, hemi.msg.unload];
+    
+	hemi.makeCitizen(State, 'hemi.State', {
+		toOctane: State.prototype._octane,
+        cleanup: State.prototype._clean
+	});	
+})();
+/*
+ * Licensed under the MIT license: http://www.opensource.org/licenses/mit-license.php
+ * The MIT License (MIT)
+ * 
+ * Copyright (c) 2011 SRI International
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+ * associated  documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the  Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-var hemi = (function(hemi) {
-	/**
-	 * @namespace A module for heads up display (HUD) creation and
-	 * manipulation.
-	 */
-	hemi.hud = hemi.hud || {};
+(function() {
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// HudTheme class
+////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	/**
-	 * Creates the HudManager (which handles all HUD operations) and the Pack
-	 * for HUD objects.
+	 * @class A HudTheme contains configuration options for displaying HUD elements like pages and
+	 * text.
 	 */
-	hemi.hud.init = function() {
-		this.pack = hemi.core.client.createPack();
-		this.theme = new hemi.hud.Theme();
-		this.theme.name = 'Default';
-		this.hudMgr = new hemi.hud.HudManager();
-	};
-	
-	/**
-	 * Clean up objects created by the HUD Pack.
-	 */
-	hemi.hud.cleanup = function() {
-		this.pack.destroy();
-		this.pack = null;
-		this.hudMgr = null;
-		this.theme = null;
-	};
-	
-	/**
-	 * Set the current theme for HUD displays.
-	 * 
-	 * @param {hemi.hud.Theme} theme display options for HUD elements
-	 */
-	hemi.hud.setTheme = function(theme) {
-		this.theme = theme;
-	};
-	
-	/**
-	 * @class A Theme contains configuration options for displaying HUD elements
-	 * like pages and text.
-	 * @extends hemi.world.Citizen
-	 */
-	hemi.hud.Theme = hemi.world.Citizen.extend({
-		init: function() {
-			this._super();
-			
+	var HudTheme = function() {
+		/**
+		 * Configuration options for an image foreground overlay.
+		 * @type Object
+		 */
+		this.image = {
 			/**
-			 * Configuration options for an image foreground overlay.
+			 * Options for a blur shadow effect on the image. Set radius to 0 to cancel.
 			 * @type Object
 			 */
-			this.image = {
-				/**
-				 * Options for a blur shadow effect on the image. Set radius to 0 to
-				 * cancel.
-				 * @type Object
-				 */
-				shadow: {
-					radius: 0,
-					offsetY: 0,
-					offsetX: 0,
-					color: [0, 0, 0, 1]
-				}
-			};
-			
+			shadow: {
+				radius: 0,
+				offsetY: 0,
+				offsetX: 0,
+				color: [0, 0, 0, 1]
+			}
+		};
+
+		/**
+		 * Configuration options for a rectangular background overlay.
+		 * @type Object
+		 */
+		this.page = {
 			/**
-			 * Configuration options for a rectangular background overlay.
+			 * The color and opacity of the rectangular overlay in RGBA format.
+			 * @type number[4]
+			 * @default [0, 0, 0, 0.45]
+			 */
+			color: [0, 0, 0, 0.45],
+
+			/**
+			 * The amount of curving to apply to the corners of the page. Range is from 0.0 to 1.0
+			 * where 0 is a plain rectangle and 1 is an oval.
+			 * @type number
+			 * @default 0
+			 */
+			curve: 0,
+
+			/**
+			 * Options for a blur shadow effect on the page. This is mutually exclusive to outline.
+			 * Set radius to 0 to cancel.
 			 * @type Object
 			 */
-			this.page = {
-				/**
-				 * The color and opacity of the rectangular overlay in RGBA format.
-				 * @type number[4]
-				 * @default [0, 0, 0, 0.45]
-				 */
-				color: [0, 0, 0, 0.45],
-				
-				/**
-				 * The amount of curving to apply to the corners of the page. Range
-				 * is from 0.0 to 1.0 where 0 is a plain rectangle and 1 is an oval.
-				 */
-				curve: 0,
-				
-				/**
-				 * Options for a blur shadow effect on the page. This is mutually
-				 * exclusive to outline. Set radius to 0 to cancel.
-				 * @type Object
-				 */
-				shadow: {
-					radius: 0,
-					offsetY: 0,
-					offsetX: 0,
-					color: [0, 0, 0, 0]
-				},
-				
-				/**
-				 * Optional outline for the page in RGBA format. This is mutually
-				 * exclusive to shadow. Set to null to cancel.
-				 * @type number[4]
-				 */
-				outline: null
-			};
-			
+			shadow: {
+				radius: 0,
+				offsetY: 0,
+				offsetX: 0,
+				color: [0, 0, 0, 0]
+			},
+
 			/**
-			 * Configuration options for a textual foreground overlay.
-			 * @type Object
+			 * Optional outline for the page in RGBA format. This is mutually exclusive to shadow.
+			 * Set to null to cancel.
+			 * @type number[4]
 			 */
-			this.text = {
-				/**
-				 * The font size of the text.
-				 * @type number
-				 * @default 12
-				 */
-				textSize: 12,
-				
-				/**
-				 * The name of the font to use to paint the text.
-				 * @type string
-				 * @default 'helvetica'
-				 */
-				textTypeface: 'helvetica',
-				
-				/**
-				 * The horizontal alignment of the text.
-				 * @type string
-				 * @default 'center'
-				 */
-				textAlign: 'center',
-				
-				/**
-				 * Additional styling for the text (normal, bold, italics)
-				 * @type string
-				 * @default 'bold'
-				 */
-				textStyle: 'bold',
-				
-				/**
-				 * Flag to indicate if the HudManager should perform strict text
-				 * wrapping.
-				 * @type boolean
-				 * @default true
-				 */
-				strictWrapping: true,
-				
-				/**
-				 * Number of pixels to place between lines of text.
-				 * @type number
-				 * @default 5
-				 */
-				lineMargin: 5,
-				
-				/**
-				 * The color and opacity of the text in RGBA format.
-				 * @type number[4]
-				 * @default [1, 1, 0.6, 1]
-				 */
-				color: [1, 1, 0.6, 1],
-				
-				/**
-				 * Options for a blur shadow effect on the text. This is mutually
-				 * exclusive to outline. Set radius to 0 to cancel.
-				 * @type Object
-				 */
-				shadow: {
-					radius: 0.5,
-					offsetY: 1,
-					offsetX: 1,
-					color: [0, 0, 0, 1]
-				},
-				
-				/**
-				 * Optional outline for the text in RGBA format. This is mutually
-				 * exclusive to shadow. Set to null to cancel.
-				 * @type number[4]
-				 */
-				outline: null
-			};
-			
-			/**
-			 * Configuration options for a video foreground overlay.
-			 * @type Object
-			 */
-			this.video = {
-				/**
-				 * Options for a blur shadow effect on the video. Set radius to 0 to
-				 * cancel.
-				 * @type Object
-				 */
-				shadow: {
-					radius: 0,
-					offsetY: 0,
-					offsetX: 0,
-					color: [0, 0, 0, 1]
-				}
-			};
-		},
-		
-		/**
-		 * Overwrites hemi.world.Citizen.citizenType
-		 * @string
-		 */
-        citizenType: 'hemi.hud.Theme',
-		
-		/**
-		 * Set the Theme as the current Theme for HUD displays.
-		 */
-		load: function() {
-			hemi.hud.setTheme(this);
-		},
-		
-		/**
-		 * Get the Octane structure for the Theme.
-	     *
-	     * @return {Object} the Octane structure representing the Theme
-		 */
-		toOctane: function() {
-			var octane = this._super();
-			
-			octane.props.push({
-				name: 'image',
-				val: this.image
-			});
-			octane.props.push({
-				name: 'page',
-				val: this.page
-			});
-			octane.props.push({
-				name: 'text',
-				val: this.text
-			});
-			octane.props.push({
-				name: 'load',
-				arg: []
-			});
-			
-			return octane;
-		}
-	});
-	
-	/**
-	 * @class A HudElement contains the basics of any element to be drawn on
-	 * the canvas.
-	 * @extends hemi.world.Citizen
-	 */
-	hemi.hud.HudElement = hemi.world.Citizen.extend({
-		init: function() {
-			this._super();
-			
-			/**
-			 * Allows the element to be drawn or not
-			 * @type boolean
-			 */
-			this.visible = true;
-			
-			/**
-			 * The handler function for mouse down events that occur within the
-			 * bounds of the HudElement.
-			 * @type function(o3d.Event): void
-			 */
-			this.mouseDown = null;
-			
-			/**
-			 * The handler function for mouse up events that occur within the
-			 * bounds of the HudElement.
-			 * @type function(o3d.Event): void
-			 */
-			this.mouseUp = null;
-			
-			/**
-			 * The handler function for mouse move events. It takes the Event and a
-			 * boolean indicating if the Event occurred within the bounds of the
-			 * HudElement.
-			 * @type function(o3d.Event, boolean): void
-			 */
-			this.mouseMove = null;
-			
-			/**
-			 * The y-value of the upper boundary of the HudElement. This value
-			 * should be calculated at draw time rather than set directly.
-			 * @type number 
-			 */
-			this.top = 0;
-			
-			/**
-			 * The y-value of the lower boundary of the HudElement. This value
-			 * should be calculated at draw time rather than set directly.
-			 * @type number 
-			 */
-			this.bottom = 0;
-			
-			/**
-			 * The x-value of the left boundary of the HudElement. This value
-			 * should be calculated at draw time rather than set directly.
-			 * @type number 
-			 */
-			this.left = 0;
-			
-			/**
-			 * The x-value of the right boundary of the HudElement. This value
-			 * should be calculated at draw time rather than set directly.
-			 * @type number 
-			 */
-			this.right = 0;
-			
-			this.config = {};
-		},
-		
-		/**
-		 * Overwrites hemi.world.Citizen.citizenType
-		 * @string
-		 */
-        citizenType: 'hemi.hud.HudElement',
-		
-		/**
-		 * Send a cleanup Message and remove all references in the HudElement.
-		 */
-		cleanup: function() {
-			this._super();
-			this.mouseDown = null;
-			this.mouseUp = null;
-			this.mouseMove = null;
-			this.config = {};
-		},
-		
-		/**
-		 * Get the Octane structure for the HudElement.
-	     *
-	     * @return {Object} the Octane structure representing the HudElement
-		 */
-		toOctane: function() {
-			var octane = this._super();
-			
-			octane.props.push({
-				name: 'top',
-				val: this.top
-			});
-			octane.props.push({
-				name: 'bottom',
-				val: this.bottom
-			});
-			octane.props.push({
-				name: 'left',
-				val: this.left
-			});
-			octane.props.push({
-				name: 'right',
-				val: this.right
-			});
-			octane.props.push({
-				name: 'config',
-				val: this.config
-			});
-			
-			return octane;
-		},
-		
-		/**
-		 * Calculate the top, bottom, left, and right values for the
-		 * HudElement. This should be implemented by subclasses.
-		 */
-		calculateBounds: function() {
-			
-		},
-		
-		/**
-		 * Check if the given Event occurred within the bounds of the
-		 * HudElement.
-		 * 
-		 * @param {o3d.Event} event the event that occurred
-		 * @return {boolean} true if the event occurred within the bounds of
-		 *     the HudElement, otherwise false
-		 */
-		checkEvent: function(event) {
-			var intersected = event.x <= this.right &&
-				event.x >= this.left &&
-				event.y <= this.bottom &&
-				event.y >= this.top;
-			
-			return intersected;
-		},
-		
-		/**
-		 * Use the HudManager to draw the HudElement on screen. This should be
-		 * implemented by subclasses.
-		 */
-		draw: function() {
-			
-		},
-		
-		/**
-		 * If the given Event occurred within the bounds of this HudElement,
-		 * call the HudElement's mouse down handler function (if one was set).
-		 * 
-		 * @param {o3d.Event} event the event that occurred
-		 * @return {boolean} true if the event occurred within the bounds of
-		 *     this HudElement, otherwise false
-		 */
-		onMouseDown: function(event) {
-			var intersected = this.checkEvent(event);
-			
-			if (intersected && this.mouseDown) {
-				this.mouseDown(event);
-			}
-			
-			return intersected;
-		},
-		
-		/**
-		 * If the HudElement's mouse move handler function is set, pass it the
-		 * given Event and if it occurred within the bounds of this HudElement.
-		 * 
-		 * @param {o3d.Event} event the event that occurred
-		 */
-		onMouseMove: function(event) {
-			if (this.mouseMove) {
-				var intersected = this.checkEvent(event);
-				this.mouseMove(event, intersected);
-			}
-		},
-		
-		/**
-		 * If the given Event occurred within the bounds of this HudElement,
-		 * call the HudElement's mouse up handler function (if one was set).
-		 * 
-		 * @param {o3d.Event} event the event that occurred
-		 * @return {boolean} true if the event occurred within the bounds of
-		 *     this HudElement, otherwise false
-		 */
-		onMouseUp: function(event) {
-			var intersected = this.checkEvent(event);
-			
-			if (intersected && this.mouseUp) {
-				this.mouseUp(event);
-			}
-			
-			return intersected;
-		},
-		
-		/**
-		 * Set unique display options for this HudElement. All other display
-		 * options will be derived from the current Theme.
-		 * 
-		 * @param {Object} config configuration options
-		 */
-		setConfig: function(config) {
-			this.config = config;
-		}
-	});
-	
-	/**
-	 * @class A HudText contains formated text and display options for a single
-	 * area of text on the HUD.
-	 * @extends hemi.hud.HudElement
-	 */
-	hemi.hud.HudText = hemi.hud.HudElement.extend({
-		init: function() {
-			this._super();
-			
-			/**
-			 * The x-coordinate of the HudText. The actual on screen location will
-			 * depend on the horizontal alignment of the text.
-			 * @type number
-			 * @default 0
-			 */
-			this.x = 0;
-			
-			/**
-			 * The y-coordinate of the top of the HudText.
-			 * @type number
-			 * @default 0
-			 */
-			this.y = 0;
-			
-			/**
-			 * The formatted text that is actually drawn on screen. This property
-			 * is created whenever the text, config, or width are set. It should
-			 * typically not be set directly.
-			 * @type string[]
-			 */
-			this.wrappedText = [];
-			
-			/**
-			 * The height of the formatted text. This property is calculated
-			 * whenever the text, config, or width are set. It should typically not
-			 * be set directly.
-			 * @type number
-			 */
-			this.wrappedHeight = 0;
-			
-			/**
-			 * The width of the formatted text. This property is calculated
-			 * whenever the text, config, or width are set. It should typically not
-			 * be set directly.
-			 * @type number
-			 */
-			this.wrappedWidth = 0;
-			
-			this.text = [];
-			this.width = 0;
-		},
-		
-		/**
-		 * Overwrites hemi.world.Citizen.citizenType
-		 * @string
-		 */
-        citizenType: 'hemi.hud.HudText',
-		
-		/**
-		 * Get the Octane structure for the HudText.
-	     *
-	     * @return {Object} the Octane structure representing the HudText
-		 */
-		toOctane: function() {
-			var octane = this._super();
-			
-			octane.props.push({
-				name: 'x',
-				val: this.x
-			});
-			octane.props.push({
-				name: 'y',
-				val: this.y
-			});
-			octane.props.push({
-				name: 'setText',
-				arg: [this.text]
-			});
-			octane.props.push({
-				name: 'setWidth',
-				arg: [this.width]
-			});
-			
-			return octane;
-		},
+			outline: null
+		};
 
 		/**
-		 * Calculate the bounds of the formatted text.
-		 * @see hemi.hud.HudElement#calculateBounds
+		 * Configuration options for a textual foreground overlay.
+		 * @type Object
 		 */
-		calculateBounds: function() {
-			var align;
-			
-			if (this.config.textAlign != null) {
-				align = this.config.textAlign.toLowerCase();
-			} else {
-				align = hemi.hud.theme.text.textAlign.toLowerCase();
-			}
-			
-			this.top = this.y;
-			this.bottom = this.top + this.wrappedHeight;
-
-			switch (align) {
-				case 'left':
-					this.left = this.x;
-					this.right = this.left + this.wrappedWidth;
-					break;
-				case 'right':
-					this.right = this.x;
-					this.left = this.right - this.wrappedWidth;
-					break;
-				default:
-					var offset = this.wrappedWidth / 2;
-					this.left = this.x - offset;
-					this.right = this.x + offset;
-					break;
-			}
-		},
-
-		/**
-		 * Draw the formatted text.
-		 * @see hemi.hud.HudElement#draw
-		 */
-		draw: function() {
-			hemi.hud.hudMgr.createTextOverlay(this.wrappedText, this.config, this.x, this.y);
-		},
-
-		/**
-		 * Set unique display options for this HudText and perform text wrapping
-		 * for the new options.
-		 * 
-		 * @param {Object} config configuration options
-		 */
-		setConfig: function(config) {
-			this._super(config);
-			this.wrapText();
-		},
-
-		/**
-		 * Set the text to display for this HudText. Perform text wrapping for
-		 * the new text.
-		 * 
-		 * @param {string} text a string or array of strings to display
-		 */
-		setText: function(text) {
-			if (text instanceof Array) {
-				this.text = text;
-			} else {
-				this.text = [text];
-			}
-			
-			this.wrapText();
-		},
-		
-		/**
-		 * Set the desired width for this HudText. Perform text wrapping for
-		 * the new width.
-		 * 
-		 * @param {number} width desired width for this HudText
-		 */
-		setWidth: function(width) {
-			this.width = width;
-			this.wrapText();
-		},
-		
-		/**
-		 * Perform text wrapping on the HudText's text. This sets the
-		 * wrappedText, wrappedWidth, and wrappedHeight properties.
-		 */
-		wrapText: function() {
-			if (this.width <= 0 || this.text.length <= 0) {
-				return;
-			}
-
-			var width = 0;
-			var height = 0;
-			var wrappedText = [];
-
-			for (var ndx = 0, len = this.text.length; ndx < len; ndx++) {
-				var textObj = hemi.hud.hudMgr.doTextWrapping(this.text[ndx], this.width, this.config);
-				
-				if (textObj.width > width) {
-					width = textObj.width;
-				}
-				
-				height += textObj.height;
-				wrappedText = wrappedText.concat(textObj.text);
-			}
-
-			this.wrappedWidth = width;
-			this.wrappedHeight = height;
-			this.wrappedText = wrappedText;
-		}
-	});
-	
-	/**
-	 * @class A HudImage contains a texture and display options for a single
-	 * image on the HUD.
-	 * @extends hemi.hud.HudElement
-	 */
-	hemi.hud.HudImage = hemi.hud.HudElement.extend({
-		init: function() {
-			this._super();
-			
+		this.text = {
 			/**
-			 * The x-coordinate of the left side of the HudImage.
+			 * The font size of the text.
 			 * @type number
-			 * @default 0
+			 * @default 12
 			 */
-			this.x = 0;
-			
-			/**
-			 * The y-coordinate of the top of the HudImage.
-			 * @type number
-			 * @default 0
-			 */
-			this.y = 0;
-			
-			/**
-			 * The x-coordinate of the source image to pull image data from.
-			 * @type number
-			 * @default 0
-			 */
-			this.srcX = 0;
-			
-			/**
-			 * The y-coordinate of the source image to pull image data from.
-			 * @type number
-			 * @default 0
-			 */
-			this.srcY = 0;
-			
-			/**
-			 * The height of the image. This property is calculated when the image
-			 * URL is loaded. It should typically not be set directly.
-			 * @type number
-			 */
-			this.height = 0;
-			
-			/**
-			 * The width of the image. This property is calculated when the image
-			 * URL is loaded. It should typically not be set directly.
-			 * @type number
-			 */
-			this.width = 0;
-			
-			this.image = null;
-			this.url = null;
-		},
-		
-		/**
-		 * Overwrites hemi.world.Citizen.citizenType
-		 * @string
-		 */
-        citizenType: 'hemi.hud.HudImage',
-		
-		/**
-		 * Send a cleanup Message and remove all references in the HudImage.
-		 */
-		cleanup: function() {
-			this._super();
-			this.image = null;
-		},
-		
-		/**
-		 * Get the Octane structure for the HudImage.
-	     *
-	     * @return {Object} the Octane structure representing the HudImage
-		 */
-		toOctane: function() {
-			var octane = this._super();
-			
-			octane.props.push({
-				name: 'x',
-				val: this.x
-			});
-			octane.props.push({
-				name: 'y',
-				val: this.y
-			});
-			octane.props.push({
-				name: 'srcX',
-				val: this.srcX
-			});
-			octane.props.push({
-				name: 'srcY',
-				val: this.srcY
-			});
-			octane.props.push({
-				name: 'setImageUrl',
-				arg: [this.url]
-			});
-			
-			return octane;
-		},
-		
-		/**
-		 * Calculate the bounds of the image.
-		 * @see hemi.hud.HudElement#calculateBounds
-		 */
-		calculateBounds: function() {
-			this.top = this.y;
-			this.bottom = this.top + this.height;
-			this.left = this.x;
-			this.right = this.left + this.width;
-		},
-		
-		/**
-		 * Draw the image texture.
-		 * @see hemi.hud.HudElement#draw
-		 */
-		draw: function() {
-			if (this.width !== this.image.width ||
-				this.height !== this.image.height || this.srcX !== 0 ||
-				this.srcY !== 0) {
-				hemi.hud.hudMgr.createImageOverlay(this.image, this.config,
-					this.x, this.y, this.srcX, this.srcY, this.width,
-					this.height);
-			} else {
-				hemi.hud.hudMgr.createImageOverlay(this.image, this.config,
-					this.x, this.y);
-			}
-		},
-		
-		/**
-		 * Get the URL of the image file to load.
-		 * 
-		 * @return {string} the URL of the image file
-		 */
-		getImageUrl: function() {
-			return this.url;
-		},
-		
-		/**
-		 * Set the URL of the image file to load and begin loading it.
-		 * 
-		 * @param {string} url the URL of the image file
-		 */
-		setImageUrl: function(url) {
-			this.url = url;
-			
-			if (this.image !== null) {
-				this.image = null;
-			}
-			
-			this.loadImage();
-		},
-		
-		/**
-		 * Load the image from the image url into a texture for the HudManager
-		 * to paint. This sets the texture, height, and width properties.
-		 */
-		loadImage: function() {
-			var that = this;
-			
-			hemi.loader.loadImage(
-				this.url,
-				function(image) {
-					that.image = image;
-					that.height = image.height;
-					that.width = image.width;
-					that.send(hemi.msg.load, {});
-				});
-		}
-	});
+			textSize: 12,
 
-	hemi.hud.HudImage.prototype.msgSent =
-		hemi.hud.HudImage.prototype.msgSent.concat([hemi.msg.load]);
+			/**
+			 * The name of the font to use to paint the text.
+			 * @type string
+			 * @default 'helvetica'
+			 */
+			textTypeface: 'helvetica',
 
-	/**
-	 * @class A HudButton uses different images based on if the button is
-	 * enabled or if a mouse is hovering over it.
-	 * @extends hemi.hud.HudImage
-	 */
-	hemi.hud.HudButton = hemi.hud.HudElement.extend({
-		init: function() {
-			this._super();
-			
 			/**
-			 * The x-coordinate of the left side of the HudButton.
-			 * @type number
-			 * @default 0
+			 * The horizontal alignment of the text.
+			 * @type string
+			 * @default 'center'
 			 */
-			this.x = 0;
-			
+			textAlign: 'center',
+
 			/**
-			 * The y-coordinate of the top of the HudButton.
-			 * @type number
-			 * @default 0
+			 * Additional styling for the text (normal, bold, italics)
+			 * @type string
+			 * @default 'bold'
 			 */
-			this.y = 0;
-			
+			textStyle: 'bold',
+
 			/**
-			 * Flag indicating if the HudButton is enabled.
+			 * Flag to indicate if the HudManager should perform strict text wrapping.
 			 * @type boolean
 			 * @default true
 			 */
-			this.enabled = true;
-			
-			/**
-			 * Flag indicating if the HudButton is selected.
-			 * @type boolean
-			 * @default false
-			 */
-			this.selected = false;
-			
-			/**
-			 * Flag indicating if the mouse cursor is hovering over the HudButton.
-			 * @type boolean
-			 * @default false
-			 */
-			this.hovering = false;
-			
-			/**
-			 * The HudImage to use for the HudButton when it is enabled.
-			 * @type hemi.hud.HudImage
-			 */
-			this.enabledImg = null;
-			
-			/**
-			 * The HudImage to use for the HudButton when it is disabled.
-			 * @type hemi.hud.HudImage
-			 */
-			this.disabledImg = null;
-			
-			/**
-			 * The HudImage to use for the HudButton when it is selected.
-			 * @type hemi.hud.HudImage
-			 */
-			this.selectedImg = null;
-			
-			/**
-			 * The HudImage to use for the HudButton when it is enabled and the
-			 * mouse cursor is hovering.
-			 * @type hemi.hud.HudImage
-			 */
-			this.hoverImg = null;
-			
-			
-			var that = this;
-			
-			/**
-			 * The built-in mouse move handler for a HudButton. If the mouse move
-			 * occurred within the button's bounds, set it's hovering flag and
-			 * redraw the button.
-			 * @see hemi.hud.HudElement#mouseMove
-			 * 
-			 * @param {o3d.Event} event the mouse move event
-			 * @param {boolean} intersected true if the event occurred within the
-			 *     HudButton's bounds
-			 */
-			this.mouseMove = function(event, intersected) {
-				if (that.enabled == false || that.selected)
-					return;
-				if (intersected) {
-					if (!that.hovering) {
-						that.hovering = true;
-						that.draw();
-					}
-				} else if (that.hovering) {
-					that.hovering = false;
-					that.draw();
-				}
-			};
-		},
-		
-		/**
-		 * Send a cleanup Message and remove all references in the HudButton.
-		 */
-		cleanup: function() {
-			this._super();
-			this.mouseMove = null;
+			strictWrapping: true,
 
-			
-			if (this.enabledImg) {
-				this.enabledImg.cleanup();
-				this.enabledImg = null;
-			}
-			if (this.disabledImg) {
-				this.disabledImg.cleanup();
-				this.disabledImg = null;
-			}
-			if (this.selectedImg) {
-				this.selectedImg.cleanup();
-				this.selectedImg = null;
-			}
-			
-			if (this.hoverImg) {
-				this.hoverImg.cleanup();
-				this.hoverImg = null;
-			}
-		},
-		
-		/**
-		 * Sets whether the HudButton is selected or not and then draws it
-		 * @param {boolean} selected if the element is selected
-		 */
-		 select: function(isSelected) {
-			this.selected = isSelected;
-			this.draw();
-		 },
-		
-		/**
-		 * Get the Octane structure for the HudButton.
-	     *
-	     * @return {Object} the Octane structure representing the HudButton
-		 */
-		toOctane: function() {
-			var octane = this._super();
-			
-			octane.props.push({
-				name: 'x',
-				val: this.x
-			});
-			octane.props.push({
-				name: 'y',
-				val: this.y
-			});
-			octane.props.push({
-				name: 'enabledImg',
-				id: this.enabledImg.getId()
-			});
-			octane.props.push({
-				name: 'disabledImg',
-				id: this.disabledImg.getId()
-			});
-			octane.props.push({
-				name: 'hoverImg',
-				id: this.hoverImg.getId()
-			});
-			octane.props.push({
-				name: 'selectedImg',
-				id: this.selectedImg.getId()
-			});
-			
-			
-			return octane;
-		},
-		
-		/**
-		 * Calculate the bounds of the button.
-		 * @see hemi.hud.HudElement#calculateBounds
-		 */
-		calculateBounds: function() {
-			var img = this.getImage();
-			this.top = this.y;
-			this.bottom = this.top + img.height;
-			this.left = this.x;
-			this.right = this.left + img.width;
-		},
-		
-		/**
-		 * Set the HudButton's image based on the enabled and hovering flags
-		 * and then draw it.
-		 * @see hemi.hud.HudImage#draw
-		 */
-		draw: function() {		
-			var img = this.getImage();
-			img.x = this.x;
-			img.y = this.y;
-			img.draw();
-		},
-		
-		
-		/**
-		 * Sets the images to be used for HudButton's disabled, hover, and enabled textures
-		 * @param {string} disabledUrl the URL of the disabled image file
-		 * @param {string} enabledUrl the URL of the enabled image file
-		 * @param {string} hoverUrl the URL of the hover image file
-		 */
-		 setImages : function(disabledUrl, enabledUrl, hoverUrl, selectedUrl) {
-			var that = this;
-			if (disabledUrl != null)
-			{
-				this.disabledImg =  new hemi.hud.HudImage();
-				this.disabledImg.setImageUrl(disabledUrl);
-			}
-			
-			if (selectedUrl != null)
-			{
-				this.selectedImg =  new hemi.hud.HudImage();
-				this.selectedImg.setImageUrl(selectedUrl);
-			}
-			
-			if (enabledUrl != null)
-			{
-				this.enabledImg =  new hemi.hud.HudImage();
-				this.enabledImg.setImageUrl(enabledUrl);
-			}
-			
-			if (hoverUrl != null)
-			{
-				this.hoverImg =  new hemi.hud.HudImage();
-				this.hoverImg.setImageUrl(hoverUrl);
-			}
-		 },
-		 
-		 
-		/**
-		 * Get the image that represents the HudButton in its current state.
-		 * 
-		 * @return {hemi.hud.HudImage} the image to draw for the HudButton
-		 */
-		getImage: function() {
-			var img = this.enabledImg;
-			
-			if (!this.enabled) {
-				if (this.disabledImg) {
-					img = this.disabledImg;
-				}
-			}else if(this.selected){
-				if (this.selectedImg) {
-					img = this.selectedImg;
-				}
-			} else if (this.hovering) {
-				if (this.hoverImg) {
-					img = this.hoverImg;
-				}
-			}
-			
-			return img;
-		},
-		
-		/**
-		 * Set the source x and y coordinates for the HudButtons images.
-		 * 
-		 * @param {Object} coords structure with optional coordinates for
-		 *     different images
-		 */
-		setCoords: function(coords) {
-			var disabledCoords = coords.disabled,
-				enabledCoords = coords.enabled,
-				hoverCoords = coords.hover;
-			
-			if (this.enabledImg === null) {
-				this.enabledImg = new hemi.hud.HudImage();
-			}
-			if (this.disabledImg === null) {
-				this.disabledImg = new hemi.hud.HudImage();
-			}
-			if (this.hoverImg === null) {
-				this.hoverImg = new hemi.hud.HudImage();
-			}
-			if (enabledCoords != null) {
-				this.enabledImg.srcX = enabledCoords[0];
-				this.enabledImg.srcY = enabledCoords[1];
-			}
-			if (disabledCoords != null) {
-				this.disabledImg.srcX = disabledCoords[0];
-				this.disabledImg.srcY = disabledCoords[1];
-			}
-			if (hoverCoords != null) {
-				this.hoverImg.srcX = hoverCoords[0];
-				this.hoverImg.srcY = hoverCoords[1];
-			}
-		},
-		
-		/**
-		 * Set the image urls for the HudButtons images.
-		 * 
-		 * @param {Object} urls structure with optional urls for different
-		 *     images
-		 */
-		setUrls: function(urls) {
-			var disabledUrl = urls.disabled,
-				enabledUrl = urls.enabled,
-				hoverUrl = urls.hover,
-				that = this;
-			
-			if (!enabledUrl) {
-				return;
-			}
-			if (this.enabledImg === null) {
-				this.enabledImg = new hemi.hud.HudImage();
-			}
-			if (this.disabledImg === null) {
-				this.disabledImg = new hemi.hud.HudImage();
-			}
-			if (this.hoverImg === null) {
-				this.hoverImg = new hemi.hud.HudImage();
-			}
-			
-			var enMsg = this.enabledImg.subscribe(hemi.msg.load, function(evt) {
-				if (that.disabledImg.url === null) {
-					that.disabledImg.url = enabledUrl;
-					that.disabledImg.image = that.enabledImg.image;
-					that.disabledImg.height = that.enabledImg.height;
-					that.disabledImg.width = that.enabledImg.width;
-				}
-				if (that.hoverImg.url === null) {
-					that.hoverImg.url = enabledUrl;
-					that.hoverImg.image = that.enabledImg.image;
-					that.hoverImg.height = that.enabledImg.height;
-					that.hoverImg.width = that.enabledImg.width;
-				}
-				that.enabledImg.unsubscribe(enMsg);
-			});
-			
-			if (disabledUrl != null && disabledUrl !== enabledUrl) {
-				this.disabledImg.setImageUrl(disabledUrl);
-			}
-			if (hoverUrl != null && hoverUrl !== enabledUrl) {
-				this.hoverImg.setImageUrl(hoverUrl);
-			}
-			this.enabledImg.setImageUrl(enabledUrl);
-		}
-	});
-	
-	/**
-	 * @class A HudVideo contains a texture and display options for a single
-	 * image on the HUD.
-	 * @extends hemi.hud.HudElement
-	 */
-	hemi.hud.HudVideo = hemi.hud.HudElement.extend({
-		init: function() {
-			this._super();
-			
 			/**
-			 * The x-coordinate of the left side of the HudVideo.
-			 * @type number
-			 * @default 0
-			 */
-			this.x = 0;
-			
-			/**
-			 * The y-coordinate of the top of the HudVideo.
-			 * @type number
-			 * @default 0
-			 */
-			this.y = 0;
-			
-			/**
-			 * The height of the video. Call setHeight to change.
-			 * @type number
-			 */
-			this.height = 0;
-			
-			/**
-			 * The width of the video. Call setWidth to change.
-			 * @type number
-			 */
-			this.width = 0;
-			
-			this.urls = [];
-			this.video = document.createElement('video');
-			var vid = this.video,
-				that = this;
-			
-			this.video.onloadeddata = function() {
-				if (that.height === 0) {
-					that.height = vid.videoHeight;
-				} else {
-					vid.setAttribute('height', '' + that.height);
-				}
-				if (that.width === 0) {
-					that.width = vid.videoWidth;
-				} else {
-					vid.setAttribute('width', '' + that.width);
-				}
-				that.send(hemi.msg.load, {
-					src: vid.currentSrc
-				});
-			};
-		},
-		
-		/**
-		 * Overwrites hemi.world.Citizen.citizenType
-		 * @string
-		 */
-        citizenType: 'hemi.hud.HudVideo',
-		
-		/**
-		 * Add the given URL as a source for the video file to load.
-		 * 
-		 * @param {string} url the URL of the video file
-		 * @param {string} type the type of the video file (ogv, mp4, etc)
-		 */
-		addVideoUrl: function(url, type) {
-			var src = document.createElement('source'),
-				loadUrl = hemi.loader.getPath(url);
-			
-			src.setAttribute('src', loadUrl);
-			src.setAttribute('type', 'video/' + type);
-			this.video.appendChild(src);
-			this.urls.push({
-				url: url,
-				type: type,
-				node: src
-			});
-		},
-		
-		/**
-		 * Send a cleanup Message and remove all references in the HudVideo.
-		 */
-		cleanup: function() {
-			this._super();
-			this.video = null;
-			this.urls = [];
-		},
-		
-		/**
-		 * Get the Octane structure for the HudVideo.
-	     *
-	     * @return {Object} the Octane structure representing the HudVideo
-		 */
-		toOctane: function() {
-			var octane = this._super();
-			
-			octane.props.push({
-				name: 'x',
-				val: this.x
-			});
-			octane.props.push({
-				name: 'y',
-				val: this.y
-			});
-			
-			for (var i = 0, il = this.urls.length; i < il; i++) {
-				var urlObj = this.urls[i];
-				
-				octane.props.push({
-					name: 'addVideoUrl',
-					arg: [urlObj.url, urlObj.type]
-				});
-			}
-			
-			return octane;
-		},
-		
-		/**
-		 * Calculate the bounds of the video.
-		 * @see hemi.hud.HudElement#calculateBounds
-		 */
-		calculateBounds: function() {
-			this.top = this.y;
-			this.bottom = this.top + this.height;
-			this.left = this.x;
-			this.right = this.left + this.width;
-		},
-		
-		/**
-		 * Draw the video.
-		 * @see hemi.hud.HudElement#draw
-		 */
-		draw: function() {
-			hemi.hud.hudMgr.createVideoOverlay(this.video, this.config, this.x,
-				this.y, this.width, this.height);
-		},
-		
-		/**
-		 * Remove the given URL as a source for the video file to load.
-		 * 
-		 * @param {string} url the URL to remove
-		 */
-		removeVideoUrl: function(url) {
-			for (var i = 0, il = this.urls.length; i < il; i++) {
-				var urlObj = this.urls[i];
-				
-				if (urlObj.url === url) {
-					this.video.removeChild(urlObj.node);
-					this.urls.splice(i, 1);
-					break;
-				}
-			}
-		},
-		
-		/**
-		 * Set the height for the video to be displayed at.
-		 * 
-		 * @param {number} height the height to set for the video
-		 */
-		setHeight: function(height) {
-			this.height = height;
-			if (this.video !== null) {
-				this.video.setAttribute('height', '' + height);
-			}
-		},
-		
-		/**
-		 * Set the width for the video to be displayed at.
-		 * 
-		 * @param {number} width the width to set for the video
-		 */
-		setWidth: function(width) {
-			this.width = width;
-			if (this.video !== null) {
-				this.video.setAttribute('width', '' + width);
-			}
-		}
-	});
-
-	hemi.hud.HudVideo.prototype.msgSent =
-		hemi.hud.HudVideo.prototype.msgSent.concat([hemi.msg.load]);
-	
-	/**
-	 * @class A HudPage contains other HudElements and display options for
-	 * drawing a single page on the HUD.
-	 * @extends hemi.hud.HudElement
-	 */
-	hemi.hud.HudPage = hemi.hud.HudElement.extend({
-		init: function() {
-			this._super();
-			
-			/**
-			 * Flag indicating if a background rectangle should be drawn for the
-			 * HudPage.
-			 * @type boolean
-			 * @default true
-			 */
-			this.drawBackground = true;
-			
-			/**
-			 * The number of pixels to add as padding around the bounds of the
-			 * HudPage's elements when drawing the background rectangle.
+			 * Number of pixels to place between lines of text.
 			 * @type number
 			 * @default 5
 			 */
-			this.margin = 5;
-			
-			this.elements = [];
-			this.auto = true;
-		},
-		
-		/**
-		 * Overwrites hemi.world.Citizen.citizenType
-		 * @string
-		 */
-        citizenType: 'hemi.hud.HudPage',
-		
-		/**
-		 * Send a cleanup Message and remove all references in the HudPage.
-		 */
-		cleanup: function() {
-			this._super();
-			
-			for (var ndx = 0, len = this.elements.length; ndx < len; ndx++) {
-				this.elements[ndx].cleanup();
-			}
-			
-			this.elements = [];
-		},
-		
-		/**
-		 * Get the Octane structure for the HudPage.
-	     *
-	     * @return {Object} the Octane structure representing the HudPage
-		 */
-		toOctane: function() {
-			var octane = this._super();
-			
-			octane.props.push({
-				name: 'auto',
-				val: this.auto
-			});
-			octane.props.push({
-				name: 'drawBackground',
-				val: this.drawBackground
-			});
-			octane.props.push({
-				name: 'margin',
-				val: this.margin
-			});
-			
-			var elemsEntry = {
-				name: 'elements',
-				id: []
-			};
-			
-			for (var ndx = 0, len = this.elements.length; ndx < len; ndx++) {
-				elemsEntry.id.push(this.elements[ndx].getId());
-			}
-			
-			octane.props.push(elemsEntry);
-			
-			return octane;
-		},
-		
-		/**
-		 * Automatically set the size of the HudPage to contain all of its
-		 * HudElements.
-		 */
-		autosize: function() {
-			this.auto = true;
-		},
-		
-		/**
-		 * Calculate the bounds of the HudElements of the HudPage.
-		 * @see hemi.hud.HudElement#calculateBounds
-		 */
-		calculateBounds: function() {
-			var ndx, len = this.elements.length;
-			
-			if (len <= 0) {
-				this.top = 0;
-				this.bottom = 0;
-				this.left = 0;
-				this.right = 0;
-				return;
-			}
-			
-			for (ndx = 0; ndx < len; ndx++) {
-				this.elements[ndx].calculateBounds();
-			}
-			
-			if (this.auto) {
-				var element = this.elements[0];
-				this.top = element.top;
-				this.bottom = element.bottom;
-				this.left = element.left;
-				this.right = element.right;
-				
-				for (ndx = 1; ndx < len; ndx++) {
-					element = this.elements[ndx];
-					
-					if (element.top < this.top) {
-						this.top = element.top;
-					}
-					if (element.bottom > this.bottom) {
-						this.bottom = element.bottom;
-					}
-					if (element.left < this.left) {
-						this.left = element.left;
-					}
-					if (element.right > this.right) {
-						this.right = element.right;
-					}
-				}
-				
-				this.top -= this.margin;
-				this.bottom += this.margin;
-				this.left -= this.margin;
-				this.right += this.margin;
-			}
-		},
-		
-		/**
-		 * Draw the background (if any) and HudElements of the HudPage.
-		 * @see hemi.hud.HudElement#draw
-		 */
-		draw: function() {
-			this.calculateBounds();
-			
-			if (this.drawBackground) {				
-				hemi.hud.hudMgr.createRectangleOverlay(this, this.config);
-			}
-			
-			for (var ndx = 0, len = this.elements.length; ndx < len; ndx++) {
-				if (this.elements[ndx].visible)
-					this.elements[ndx].draw();
-			}
-		},
-		
-		/**
-		 * Add the given HudElement to the HudPage for displaying.
-		 * 
-		 * @param {hemi.hud.HudElement} element element to add
-		 */
-		addElement: function(element) {
-			var ndx = this.elements.indexOf(element);
-			
-			if (ndx == -1) {
-				this.elements.push(element);
-			}
-		},
-		
-		/**
-		 * Remove all HudElements from the HudPage.
-		 */
-		clearElements: function() {
-			this.elements = [];
-		},
-		
-		/**
-		 * Remove the specified HudElement from the HudPage.
-		 * 
-		 * @param {hemi.hud.HudElement} element element to remove
-		 * @return {hemi.hud.HudElement} the removed element or null
-		 */
-		removeElement: function(element) {
-        	var found = null;
-			var ndx = this.elements.indexOf(element);
-			
-			if (ndx != -1) {
-				var spliced = this.elements.splice(ndx, 1);
-				
-				if (spliced.length == 1) {
-					found = spliced[0];
-				}
-			}
-			
-			return found;
-		},
-		
-		/**
-		 * Check if the given Event occurred within the bounds of any of the
-		 * HudElements of the HudPage. If it did, pass the Event to that
-		 * HudElement. If not, call the HudPage's mouse down handler function
-		 * (if one was set).
-		 * 
-		 * @param {o3d.Event} event the event that occurred
-		 * @return {boolean} true if the event occurred within the bounds of
-		 *     the HudPage, otherwise false
-		 */
-		onMouseDown: function(event) {
-			if (!this.visible)
-				return false;
-			
-			var intersected = this.checkEvent(event);
-			
-			if (intersected || !this.auto) {
-				var caught = false;
-				var len = this.elements.length;
-				
-				for (var ndx = 0; ndx < len && !caught; ndx++) {
-					if (this.elements[ndx].visible)
-						caught = this.elements[ndx].onMouseDown(event);
-				}
-				
-				if (intersected && !caught && this.mouseDown) {
-					this.mouseDown(event);
-				}
-			}
-			
-			return intersected;
-		},
-		
-		/**
-		 * Pass the given Event to all of the HudPage's HudElements. If the
-		 * HudPage's mouse move handler function is set, pass it the Event and
-		 * if it occurred within the bounds of the HudPage.
-		 * 
-		 * @param {o3d.Event} event the event that occurred
-		 */
-		onMouseMove: function(event) {
-			if (!this.visible)
-				return;
-				
-			for (var ndx = 0, len = this.elements.length; ndx < len; ndx++) {
-				if (this.elements[ndx].visible)
-					this.elements[ndx].onMouseMove(event);
-			}
-			
-			if (this.mouseMove) {
-				var intersected = this.checkEvent(event);
-				this.mouseMove(event, intersected);
-			}
-		},
-		
-		/**
-		 * Check if the given Event occurred within the bounds of any of the
-		 * HudElements of the HudPage. If it did, pass the Event to that
-		 * HudElement. If not, call the HudPage's mouse up handler function (if
-		 * one was set).
-		 * 
-		 * @param {o3d.Event} event the event that occurred
-		 * @return {boolean} true if the event occurred within the bounds of
-		 *     this HudPage, otherwise false
-		 */
-		onMouseUp: function(event) {
-			var intersected = this.checkEvent(event);
-			
-			if (intersected || !this.auto) {
-				var caught = false;
-				var len = this.elements.length;
-				
-				for (var ndx = 0; ndx < len && !caught; ndx++) {
-					caught = this.elements[ndx].onMouseUp(event);
-				}
-				
-				if (intersected && !caught && this.mouseUp) {
-					this.mouseUp(event);
-				}
-			}
-			
-			return intersected;
-		},
-		
-		/**
-		 * Manually set the size of the HudPage. This will prevent it from
-		 * autosizing itself to fit all of the HudElements added to it.
-		 * 
-		 * @param {number} top the y coordinate of the top
-		 * @param {number} bottom the y coordinate of the bottom
-		 * @param {number} left the x coordinate of the left
-		 * @param {number} right the x coordinate of the right
-		 */
-		setSize: function(top, bottom, left, right) {
-			this.top = top;
-			this.bottom = bottom;
-			this.left = left;
-			this.right = right;
-			this.auto = false;
-		}
-	});
-	
-	/**
-	 * @class A HudDisplay contains one or more HudPages to display
-	 * sequentially.
-	 * @extends hemi.world.Citizen
-	 */
-	hemi.hud.HudDisplay = hemi.world.Citizen.extend({
-		init: function() {
-			this._super();
-			
-			this.visible = false;
-			this.pages = [];
-			this.currentPage = 0;
-		},
-		
-		/**
-		 * Overwrites hemi.world.Citizen.citizenType
-		 * @string
-		 */
-        citizenType: 'hemi.hud.HudDisplay',
-		
-		/**
-		 * Send a cleanup Message and remove all references in the HudDisplay.
-		 */
-		cleanup: function() {
-			this._super();
-			
-			for (var ndx = 0, len = this.pages.length; ndx < len; ndx++) {
-				this.pages[ndx].cleanup();
-			}
-			
-			this.pages = [];
-		},
-		
-		/**
-		 * Get the Octane structure for the HudDisplay.
-	     *
-	     * @return {Object} the Octane structure representing the HudDisplay
-		 */
-		toOctane: function() {
-			var octane = this._super();
-			
-			var pagesEntry = {
-				name: 'pages',
-				id: []
-			};
-			
-			for (var ndx = 0, len = this.pages.length; ndx < len; ndx++) {
-				pagesEntry.id.push(this.pages[ndx].getId());
-			}
-			
-			octane.props.push(pagesEntry);
-			
-			return octane;
-		},
-		
-		/**
-		 * Check to see if the HudDisplay is currently visible.
-		 * 
-		 * @return {boolean} true if the HudDisplay is currently being displayed
-		 */
-		isVisible: function() {
-			return this.visible;
-		},
-		
-		/**
-		 * Add the given HudPage to the HudDisplay.
-		 * 
-		 * @param {hemi.hud.HudPage} page page to add
-		 */
-		addPage: function(page) {
-			var ndx = this.pages.indexOf(page);
-			
-			if (ndx == -1) {
-				this.pages.push(page);
-			}
-		},
-		
-		/**
-		 * Remove the specified HudPage from the HudDisplay.
-		 * 
-		 * @param {hemi.hud.HudPage} page page to remove
-		 * @return {hemi.hud.HudPage} the removed page or null
-		 */
-		removePage: function(page) {
-        	var found = null;
-			var ndx = this.pages.indexOf(page);
-			
-			if (ndx != -1) {
-				if (this.visible && ndx === this.currentPage) {
-					if (ndx !== 0) {
-						this.previousPage();
-					} else if (this.pages.length > 1) {
-						this.nextPage();
-					} else  {
-						this.hide();
-					}
-				}
-				
-				var spliced = this.pages.splice(ndx, 1);
-				
-				if (spliced.length == 1) {
-					found = spliced[0];
-				}
-			}
-			
-			return found;
-		},
-		
-		/**
-		 * Remove all HudPages from the HudDisplay.
-		 */
-		clearPages: function() {
-			if (this.visible) {
-				this.hide();
-			}
-			
-			this.pages = [];
-		},
-		
-		/**
-		 * Get the currently displayed HudPage.
-		 * 
-		 * @return {hemi.hud.HudPage} currently displayed page
-		 */
-		getCurrentPage: function() {
-			var page = null;
-			
-			if (this.currentPage < this.pages.length) {
-				page = this.pages[this.currentPage];
-			}
-			
-			return page;
-		},
-		
-		/**
-		 * Get the number of HudPages in the HudDisplay.
-		 * 
-		 * @return {number} the number of HudPages
-		 */
-		getNumberOfPages: function() {
-			return this.pages.length;
-		},
-		
-		/**
-		 * Display the next HudPage in the HudDisplay.
-		 */
-		nextPage: function() {
-			var numPages = this.pages.length;
-			this.currentPage++;
-			
-			if (this.currentPage >= numPages) {
-				this.currentPage = numPages - 1;
-			} else {
-				this.showPage();
-			}
-		},
-		
-		/**
-		 * Display the previous HudPage in the HudDisplay.
-		 */
-		previousPage: function() {
-			this.currentPage--;
-			
-			if (this.currentPage < 0) {
-				this.currentPage = 0;
-			} else {
-				this.showPage();
-			}
-		},
-		
-		/**
-		 * Show the first HudPage of the HudDisplay and bind the mouse handlers
-		 * for interaction.
-		 */
-		show: function() {
-			if (!this.visible) {
-				this.visible = true;
-				this.showPage();
-				hemi.input.addMouseDownListener(this);
-				hemi.input.addMouseUpListener(this);
-				hemi.input.addMouseMoveListener(this);
-			}
-		},
+			lineMargin: 5,
+
+			/**
+			 * The color and opacity of the text in RGBA format.
+			 * @type number[4]
+			 * @default [1, 1, 0.6, 1]
+			 */
+			color: [1, 1, 0.6, 1],
+
+			/**
+			 * Options for a blur shadow effect on the text. This is mutually exclusive to outline.
+			 * Set radius to 0 to cancel.
+			 * @type Object
+			 */
+			shadow: {
+				radius: 0.5,
+				offsetY: 1,
+				offsetX: 1,
+				color: [0, 0, 0, 1]
+			},
+
+			/**
+			 * Optional outline for the text in RGBA format. This is mutually exclusive to shadow.
+			 * Set to null to cancel.
+			 * @type number[4]
+			 */
+			outline: null
+		};
 
 		/**
-		 * Show the current page of the HudDisplay and add paging info if
-		 * specified.
+		 * Configuration options for a video foreground overlay.
+		 * @type Object
 		 */
-		showPage: function() {
-			hemi.hud.hudMgr.clearDisplay();
-			var page = this.getCurrentPage();
-			page.draw();
+		this.video = {
+			/**
+			 * Options for a blur shadow effect on the video. Set radius to 0 to cancel.
+			 * @type Object
+			 */
+			shadow: {
+				radius: 0,
+				offsetY: 0,
+				offsetX: 0,
+				color: [0, 0, 0, 1]
+			}
+		};
+	};
+
+	/*
+	 * Octane properties for the HudTheme.
+	 */
+	HudTheme.prototype._octane = ['image', 'page', 'text', 'load'];
+
+	/**
+	 * Set the HudTheme as the current theme for HUD displays.
+	 */
+	HudTheme.prototype.load = function() {
+		hemi.setHudTheme(this);
+	};
+
+	hemi.HudTheme = HudTheme;
+	hemi.makeOctanable(hemi.HudTheme, 'hemi.HudTheme', hemi.HudTheme.prototype._octane);
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// HudElement class
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	/*
+	 * @class A HudElement contains the basics of any element to be drawn on the canvas.
+	 */
+	var HudElement = function() {
+		/*
+		 * The y-value of the lower boundary of the HudElement. This value should be calculated at
+		 * draw time rather than set directly.
+		 * @type number 
+		 */
+		this._bottom = 0;
+
+		/*
+		 * The x-value of the left boundary of the HudElement. This value should be calculated at
+		 * draw time rather than set directly.
+		 * @type number 
+		 */
+		this._left = 0;
+
+		/*
+		 * The x-value of the right boundary of the HudElement. This value should be calculated at
+		 * draw time rather than set directly.
+		 * @type number 
+		 */
+		this._right = 0;
+
+		/*
+		 * The y-value of the upper boundary of the HudElement. This value should be calculated at
+		 * draw time rather than set directly.
+		 * @type number 
+		 */
+		this._top = 0;
+
+		/**
+		 * Unique display options for the HudElement. All other display options will be derived from
+		 * the current theme.
+		 * @type {Object}
+		 */
+		this.config = {};
+
+		/**
+		 * The handler function for mouse down events that occur within the bounds of the
+		 * HudElement.
+		 * @type function(Object): void
+		 */
+		this.mouseDown = null;
+
+		/**
+		 * The handler function for mouse up events that occur within the bounds of the HudElement.
+		 * @type function(Object): void
+		 */
+		this.mouseUp = null;
+
+		/**
+		 * The handler function for mouse move events. It takes the Event and a boolean indicating
+		 * if the Event occurred within the bounds of the HudElement.
+		 * @type function(Object, boolean): void
+		 */
+		this.mouseMove = null;
+
+		/**
+		 * Allows the element to be drawn or not.
+		 * @type boolean
+		 */
+		this.visible = true;
+	};
+
+	/*
+	 * Check if the given Event occurred within the bounds of the HudElement.
+	 * 
+	 * @param {Object} event the event that occurred
+	 * @return {boolean} true if the event occurred within the bounds of the HudElement, otherwise
+	 *     false
+	 */
+	HudElement.prototype._checkEvent = function(event) {
+		return event.x <= this._right &&
+			event.x >= this._left &&
+			event.y <= this._bottom &&
+			event.y >= this._top;
+	};
+
+	/*
+	 * Octane properties for the HudElement.
+	 */
+	HudElement.prototype._octane = ['_bottom', '_left', '_right', '_top', 'config'];
+
+	/**
+	 * Remove all references in the HudElement.
+	 */
+	HudElement.prototype.cleanup = function() {
+		this.mouseDown = null;
+		this.mouseUp = null;
+		this.mouseMove = null;
+		this.config = {};
+	};
+
+	/**
+	 * If the given Event occurred within the bounds of this HudElement, call the HudElement's mouse
+	 * down handler function (if one was set).
+	 * 
+	 * @param {Object} event the event that occurred
+	 * @return {boolean} true if the event occurred within the bounds of this HudElement, otherwise
+	 *     false
+	 */
+	HudElement.prototype.onMouseDown = function(event) {
+		var intersected = this._checkEvent(event);
+
+		if (intersected && this.mouseDown) {
+			this.mouseDown(event);
+		}
+
+		return intersected;
+	};
+
+	/**
+	 * If the HudElement's mouse move handler function is set, pass it the given Event and if it
+	 * occurred within the bounds of this HudElement.
+	 * 
+	 * @param {Object} event the event that occurred
+	 */
+	HudElement.prototype.onMouseMove = function(event) {
+		if (this.mouseMove) {
+			var intersected = this._checkEvent(event);
+			this.mouseMove(event, intersected);
+		}
+	};
+
+	/**
+	 * If the given Event occurred within the bounds of this HudElement, call the HudElement's mouse
+	 * up handler function (if one was set).
+	 * 
+	 * @param {Object} event the event that occurred
+	 * @return {boolean} true if the event occurred within the bounds of this HudElement, otherwise
+	 *     false
+	 */
+	HudElement.prototype.onMouseUp = function(event) {
+		var intersected = this._checkEvent(event);
+
+		if (intersected && this.mouseUp) {
+			this.mouseUp(event);
+		}
+
+		return intersected;
+	};
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// HudText class
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	/**
+	 * @class A HudText contains formated text and display options for a single area of text on the
+	 * HUD.
+	 * @extends HudElement
+	 */
+	var HudText = function() {
+		HudElement.call(this);
+
+		/*
+		 * The original text before it is wrapped to fit into the given width. It should typically
+		 * not be set directly.
+		 * @type string[]
+		 */
+		this._text = [];
+
+		/*
+		 * The maximum width that the text should span before being wrapped. It should typically not
+		 * be set directly.
+		 * @type number
+		 */
+		this._width = 0;
+
+		/*
+		 * The height of the formatted text. This property is calculated whenever the text, config,
+		 * or width are set. It should typically not be set directly.
+		 * @type number
+		 */
+		this._wrappedHeight = 0;
+
+		/*
+		 * The formatted text that is actually drawn on screen. This property is created whenever
+		 * the text, config, or width are set. It should typically not be set directly.
+		 * @type string[]
+		 */
+		this._wrappedText = [];
+
+		/*
+		 * The width of the formatted text. This property is calculated whenever the text, config,
+		 * or width are set. It should typically not be set directly.
+		 * @type number
+		 */
+		this._wrappedWidth = 0;
+
+		/**
+		 * The x-coordinate of the HudText. The actual on screen location will depend on the
+		 * horizontal alignment of the text.
+		 * @type number
+		 * @default 0
+		 */
+		this.x = 0;
+
+		/**
+		 * The y-coordinate of the top of the HudText.
+		 * @type number
+		 * @default 0
+		 */
+		this.y = 0;
+	};
+
+	HudText.prototype = new HudElement();
+	HudText.constructor = HudText;
+
+	/*
+	 * Octane properties for the HudText.
+	 */
+	HudText.prototype._octane = HudElement.prototype._octane.concat([
+		'_text', '_width', 'x', 'y', 'wrapText']);
+
+	/**
+	 * Calculate the bounds of the formatted text.
+	 */
+	HudText.prototype.calculateBounds = function() {
+		var align;
+
+		if (this.config.textAlign != null) {
+			align = this.config.textAlign.toLowerCase();
+		} else {
+			align = currentTheme.text.textAlign.toLowerCase();
+		}
+
+		this._top = this.y;
+		this._bottom = this._top + this._wrappedHeight;
+
+		switch (align) {
+			case 'left':
+				this._left = this.x;
+				this._right = this._left + this._wrappedWidth;
+				break;
+			case 'right':
+				this._right = this.x;
+				this._left = this._right - this._wrappedWidth;
+				break;
+			default: // center
+				var offset = this._wrappedWidth / 2;
+				this._left = this.x - offset;
+				this._right = this.x + offset;
+				break;
+		}
+	};
+
+	/**
+	 * Draw the formatted text.
+	 */
+	HudText.prototype.draw = function() {
+		hemi.hudManager.createTextOverlay(this, this.config);
+	};
+
+	/**
+	 * Set unique display options for the HudText and perform text wrapping for the new options.
+	 * 
+	 * @param {Object} config configuration options
+	 */
+	HudText.prototype.setConfig = function(config) {
+		this.config = config;
+		this.wrapText();
+	};
+
+	/**
+	 * Set the text to display for this HudText. Perform text wrapping for the new text.
+	 * 
+	 * @param {string} text a string or array of strings to display
+	 */
+	HudText.prototype.setText = function(text) {
+		this._text = hemi.utils.isArray(text) ? text : [text];
+		this.wrapText();
+	};
+
+	/**
+	 * Set the desired width for the HudText. Perform text wrapping for the new width.
+	 * 
+	 * @param {number} width desired width for the HudText
+	 */
+	HudText.prototype.setWidth = function(width) {
+		this._width = width;
+		this.wrapText();
+	};
+
+	/**
+	 * Perform text wrapping on the HudText's text. This sets the wrapped text, width, and height
+	 * properties.
+	 */
+	HudText.prototype.wrapText = function() {
+		if (this._width <= 0 || this._text.length === 0) {
+			return;
+		}
+
+		var width = 0,
+			height = 0,
+			wrappedText = [];
+
+		for (var i = 0, il = this._text.length; i < il; ++i) {
+			var textObj = hemi.hudManager.doTextWrapping(this._text[i], this._width, this.config);
+
+			if (textObj.width > width) {
+				width = textObj.width;
+			}
+
+			height += textObj.height;
+			wrappedText = wrappedText.concat(textObj.text);
+		}
+
+		this._wrappedWidth = width;
+		this._wrappedHeight = height;
+		this._wrappedText = wrappedText;
+	};
+
+	hemi.HudText = HudText;
+	hemi.makeOctanable(hemi.HudText, 'hemi.HudText', hemi.HudText.prototype._octane);
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// HudImage class
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	/**
+	 * @class A HudImage contains a texture and display options for a single image on the HUD.
+	 * @extends HudElement
+	 */
+	var HudImage = function() {
+		HudElement.call(this);
+
+		/*
+		 * The height of the image. This property is calculated when the image URL is loaded. It
+		 * should typically not be set directly.
+		 * @type number
+		 */
+		this._height = 0;
+
+		/*
+		 * The loaded image data.
+		 * @type Image
+		 */
+		this._image = null;
+
+		/*
+		 * The width of the image. This property is calculated when the image URL is loaded. It
+		 * should typically not be set directly.
+		 * @type number
+		 */
+		this._width = 0;
+
+		/**
+		 * The x-coordinate of the source image to pull image data from.
+		 * @type number
+		 * @default 0
+		 */
+		this.srcX = 0;
+
+		/**
+		 * The y-coordinate of the source image to pull image data from.
+		 * @type number
+		 * @default 0
+		 */
+		this.srcY = 0;
+
+		/**
+		 * The URL of the image file.
+		 * @type string
+		 */
+		this.url = null;
+
+		/**
+		 * The x-coordinate of the left side of the HudImage.
+		 * @type number
+		 * @default 0
+		 */
+		this.x = 0;
+
+		/**
+		 * The y-coordinate of the top of the HudImage.
+		 * @type number
+		 * @default 0
+		 */
+		this.y = 0;
+	};
+
+	HudImage.prototype = new HudElement();
+	HudImage.constructor = HudImage;
+
+	/*
+	 * Octane properties for the HudImage.
+	 */
+	HudImage.prototype._octane = HudElement.prototype._octane.concat([
+		'srcX', 'srcY', 'url', 'x', 'y', 'loadImage']);
+
+	/**
+	 * Calculate the bounds of the image.
+	 */
+	HudImage.prototype.calculateBounds = function() {
+		this._top = this.y;
+		this._bottom = this._top + this._height;
+		this._left = this.x;
+		this._right = this._left + this._width;
+	};
+
+	/**
+	 * Remove all references in the HudImage.
+	 */
+	HudImage.prototype.cleanup = function() {
+		HudElement.prototype.cleanup.call(this);
+		this._image = null;
+	};
+
+	/**
+	 * Draw the image texture.
+	 */
+	HudImage.prototype.draw = function() {
+		hemi.hudManager.createImageOverlay(this, this.config);
+	};
+
+	/**
+	 * Load the image from the image url into a texture for the HudManager to paint. This sets the
+	 * texture, height, and width properties.
+	 * 
+	 * @param {function(hemi.HudImage):void} opt_callback optional callback function to pass the
+	 *     HudImage when it is done loading
+	 */
+	HudImage.prototype.loadImage = function(opt_callback) {
+		var that = this;
+
+		hemi.loadImage(this.url, function(image) {
+				that._image = image;
+				that._height = image.height;
+				that._width = image.width;
+
+				if (opt_callback) opt_callback(that);
+			});
+	};
+
+	/**
+	 * Set the URL of the image file to load and begin loading it.
+	 * 
+	 * @param {string} url the URL of the image file
+	 * @param {function(hemi.HudImage):void} opt_callback optional callback function to pass the
+	 *     HudImage when it is done loading
+	 */
+	HudImage.prototype.setUrl = function(url, opt_callback) {
+		this.url = url;
+		this.loadImage(opt_callback);
+	};
+
+	hemi.HudImage = HudImage;
+	hemi.makeOctanable(hemi.HudImage, 'hemi.HudImage', hemi.HudImage.prototype._octane);
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// HudButton class
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	/**
+	 * @class A HudButton uses different images based on if the button is enabled or if a mouse is
+	 * hovering over it, etc.
+	 * @extends HudElement
+	 */
+	var HudButton = function() {
+		HudElement.call(this);
+
+		/**
+		 * The HudImage to use for the HudButton when it is disabled.
+		 * @type hemi.HudImage
+		 */
+		this.disabledImg = null;
+
+		/**
+		 * Flag indicating if the HudButton is enabled.
+		 * @type boolean
+		 * @default true
+		 */
+		this.enabled = true;
+
+		/**
+		 * The HudImage to use for the HudButton when it is enabled.
+		 * @type hemi.HudImage
+		 */
+		this.enabledImg = null;
+
+		/**
+		 * Flag indicating if the mouse cursor is hovering over the HudButton.
+		 * @type boolean
+		 * @default false
+		 */
+		this.hovering = false;
+
+		/**
+		 * The HudImage to use for the HudButton when it is enabled and the mouse cursor is
+		 * hovering.
+		 * @type hemi.HudImage
+		 */
+		this.hoverImg = null;
+
+		/**
+		 * Flag indicating if the HudButton is selected.
+		 * @type boolean
+		 * @default false
+		 */
+		this.selected = false;
+
+		/**
+		 * The HudImage to use for the HudButton when it is selected.
+		 * @type hemi.HudImage
+		 */
+		this.selectedImg = null;
+
+		/**
+		 * The x-coordinate of the left side of the HudButton.
+		 * @type number
+		 * @default 0
+		 */
+		this.x = 0;
+
+		/**
+		 * The y-coordinate of the top of the HudButton.
+		 * @type number
+		 * @default 0
+		 */
+		this.y = 0;
+
+		var that = this;
+
+		/**
+		 * The built-in mouse move handler for a HudButton. If the mouse move occurred within the
+		 * button's bounds, set it's hovering flag and redraw the button.
+		 * 
+		 * @param {Object} event the mouse move event
+		 * @param {boolean} intersected true if the event occurred within the HudButton's bounds
+		 */
+		this.mouseMove = function(event, intersected) {
+			if (!that.enabled || that.selected)
+				return;
+			if (intersected) {
+				if (!that.hovering) {
+					that.hovering = true;
+					that.draw();
+				}
+			} else if (that.hovering) {
+				that.hovering = false;
+				that.draw();
+			}
+		};
+	};
+
+	HudButton.prototype = new HudElement();
+	HudButton.constructor = HudButton;
+
+	/*
+	 * Octane properties for the HudButton.
+	 */
+	HudButton.prototype._octane = HudElement.prototype._octane.concat([
+		'disabledImg', 'enabledImg', 'hoverImg', 'selectedImg', 'x', 'y']);
+
+	/**
+	 * Calculate the bounds of the button.
+	 */
+	HudButton.prototype.calculateBounds = function() {
+		var img = this.getImage();
+		this._top = this.y;
+		this._bottom = this._top + img._height;
+		this._left = this.x;
+		this._right = this._left + img._width;
+	};
+
+	/**
+	 * Remove all references in the HudButton.
+	 */
+	HudButton.prototype.cleanup = function() {
+		HudElement.prototype.cleanup.call(this);
+		this.mouseMove = null;
+
+		if (this.enabledImg) {
+			this.enabledImg.cleanup();
+			this.enabledImg = null;
+		}
+		if (this.disabledImg) {
+			this.disabledImg.cleanup();
+			this.disabledImg = null;
+		}
+		if (this.selectedImg) {
+			this.selectedImg.cleanup();
+			this.selectedImg = null;
+		}
+		if (this.hoverImg) {
+			this.hoverImg.cleanup();
+			this.hoverImg = null;
+		}
+	};
+
+	/**
+	 * Set the HudButton's image based on its flags and then draw it.
+	 */
+	HudButton.prototype.draw = function() {		
+		var img = this.getImage();
+		img.x = this.x;
+		img.y = this.y;
+		img.draw();
+	};
+
+	/**
+	 * Get the image that represents the HudButton in its current state.
+	 * 
+	 * @return {hemi.HudImage} the image to draw for the HudButton
+	 */
+	HudButton.prototype.getImage = function() {
+		var img = this.enabledImg;
+
+		if (!this.enabled) {
+			if (this.disabledImg) {
+				img = this.disabledImg;
+			}
+		} else if (this.selected) {
+			if (this.selectedImg) {
+				img = this.selectedImg;
+			}
+		} else if (this.hovering) {
+			if (this.hoverImg) {
+				img = this.hoverImg;
+			}
+		}
+
+		return img;
+	};
+
+	/**
+	 * Set whether the HudButton is selected or not and then draw it.
+	 * 
+	 * @param {boolean} selected if the button is selected
+	 */
+	HudButton.prototype.select = function(isSelected) {
+		this.selected = isSelected;
+		this.draw();
+	};
+
+	/**
+	 * Set the source x and y coordinates for the HudButton's images.
+	 * 
+	 * @param {Object} coords structure with optional coordinates for different images
+	 */
+	HudButton.prototype.setSrcCoords = function(coords) {
+		var disabledCoords = coords.disabled,
+			enabledCoords = coords.enabled,
+			hoverCoords = coords.hover,
+			selectedCoords = coords.selected;
+
+		if (enabledCoords != null) {
+			if (this.enabledImg === null) {
+				this.enabledImg = new hemi.HudImage();
+			}
+
+			this.enabledImg.srcX = enabledCoords[0];
+			this.enabledImg.srcY = enabledCoords[1];
+		}
+		if (disabledCoords != null) {
+			if (this.disabledImg === null) {
+				this.disabledImg = new hemi.HudImage();
+			}
+
+			this.disabledImg.srcX = disabledCoords[0];
+			this.disabledImg.srcY = disabledCoords[1];
+		}
+		if (hoverCoords != null) {
+			if (this.hoverImg === null) {
+				this.hoverImg = new hemi.HudImage();
+			}
+
+			this.hoverImg.srcX = hoverCoords[0];
+			this.hoverImg.srcY = hoverCoords[1];
+		}
+		if (selectedCoords != null) {
+			if (this.selectedImg === null) {
+				this.selectedImg = new hemi.HudImage();
+			}
+
+			this.selectedImg.srcX = selectedCoords[0];
+			this.selectedImg.srcY = selectedCoords[1];
+		}
+	};
+
+	/**
+	 * Set the image urls for the HudButton's images.
+	 * 
+	 * @param {Object} urls structure with optional urls for different images
+	 */
+	HudButton.prototype.setUrls = function(urls) {
+		var disabledUrl = urls.disabled,
+			enabledUrl = urls.enabled,
+			hoverUrl = urls.hover,
+			selectedUrl = urls.selected;
+		
+		if (disabledUrl != null) {
+			this.disabledImg = new hemi.HudImage();
+			this.disabledImg.setUrl(disabledUrl);
+		}
+		if (enabledUrl != null) {
+			this.enabledImg =  new hemi.HudImage();
+			this.enabledImg.setUrl(enabledUrl);
+		}
+		if (hoverUrl != null) {
+			this.hoverImg = new hemi.HudImage();
+			this.hoverImg.setUrl(hoverUrl);
+		}
+		if (selectedUrl != null) {
+			this.selectedImg = new hemi.HudImage();
+			this.selectedImg.setUrl(selectedUrl);
+		}
+	};
+
+	hemi.HudButton = HudButton;
+	hemi.makeOctanable(hemi.HudButton, 'hemi.HudButton', hemi.HudButton.prototype._octane);
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// HudVideo class
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	/**
+	 * @class A HudVideo contains video data and display options for a single video on the HUD.
+	 * @extends hemi.HudElement
+	 */
+	var HudVideo = function() {
+		HudElement.call(this);
+
+		/*
+		 * The height of the video. Call setHeight to change.
+		 * @type number
+		 */
+		this._height = 0;
+
+		/*
+		 * The URLs of video files to try to load.
+		 * @type string[]
+		 */
+		this._urls = [];
+
+		/*
+		 * The video DOM element.
+		 */
+		this._video = document.createElement('video');
+
+		/*
+		 * The width of the video. Call setWidth to change.
+		 * @type number
+		 */
+		this._width = 0;
+
+		/**
+		 * The x-coordinate of the left side of the HudVideo.
+		 * @type number
+		 * @default 0
+		 */
+		this.x = 0;
+
+		/**
+		 * The y-coordinate of the top of the HudVideo.
+		 * @type number
+		 * @default 0
+		 */
+		this.y = 0;
+
+		var vid = this._video,
+			that = this;
+		
+		this._video.onloadeddata = function() {
+			if (that._height === 0) {
+				that._height = vid.videoHeight;
+			} else {
+				vid.setAttribute('height', '' + that._height);
+			}
+			if (that._width === 0) {
+				that._width = vid.videoWidth;
+			} else {
+				vid.setAttribute('width', '' + that._width);
+			}
+		};
+	};
+
+	HudVideo.prototype = new HudElement();
+	HudVideo.constructor = HudVideo;
+
+	/*
+	 * Get the Octane properties for the HudVideo.
+	 * 
+	 * @return {Object[]} array of Octane properties
+	 */
+	HudVideo.prototype._octane = function() {
+		var octane = HudElement.protothype._octane.concat(['x', 'y']);
+
+		for (var i = 0, il = this._urls.length; i < il; ++i) {
+			var urlObj = this._urls[i];
+
+			octane.push({
+				name: 'addUrl',
+				arg: [urlObj.url, urlObj.type]
+			});
+		}
+
+		return octane;
+	};
+
+	/**
+	 * Add the given URL as a source for the video file to load.
+	 * 
+	 * @param {string} url the URL of the video file
+	 * @param {string} type the type of the video file (ogv, mp4, etc)
+	 */
+	HudVideo.prototype.addUrl = function(url, type) {
+		var src = document.createElement('source'),
+			loadUrl = hemi.getLoadPath(url);
+		
+		src.setAttribute('src', loadUrl);
+		src.setAttribute('type', 'video/' + type);
+		this._video.appendChild(src);
+		this._urls.push({
+			url: url,
+			type: type,
+			node: src
+		});
+	};
+
+	/**
+	 * Calculate the bounds of the video.
+	 */
+	HudVideo.prototype.calculateBounds = function() {
+		this._top = this.y;
+		this._bottom = this._top + this._height;
+		this._left = this.x;
+		this._right = this._left + this._width;
+	};
+
+	/**
+	 * Remove all references in the HudElement.
+	 */
+	HudVideo.prototype.cleanup = function() {
+		HudElement.prototype.cleanup.call(this);
+		this._video = null;
+		this._urls = [];
+	};
+
+	/**
+	 * Draw the video's current image.
+	 */
+	HudVideo.prototype.draw = function() {
+		hemi.hudManager.createVideoOverlay(this, this.config);
+	};
+
+	/**
+	 * Remove the given URL as a source for the video file to load.
+	 * 
+	 * @param {string} url the URL to remove
+	 */
+	HudVideo.prototype.removeUrl = function(url) {
+		for (var i = 0, il = this._urls.length; i < il; ++i) {
+			var urlObj = this._urls[i];
+
+			if (urlObj.url === url) {
+				this._video.removeChild(urlObj.node);
+				this._urls.splice(i, 1);
+				break;
+			}
+		}
+	};
+
+	/**
+	 * Set the height for the video to be displayed at.
+	 * 
+	 * @param {number} height the height to set for the video
+	 */
+	HudVideo.prototype.setHeight = function(height) {
+		this._height = height;
+		if (this._video !== null) {
+			this._video.setAttribute('height', '' + height);
+		}
+	};
+
+	/**
+	 * Set the width for the video to be displayed at.
+	 * 
+	 * @param {number} width the width to set for the video
+	 */
+	HudVideo.prototype.setWidth = function(width) {
+		this._width = width;
+		if (this._video !== null) {
+			this._video.setAttribute('width', '' + width);
+		}
+	};
+
+	hemi.HudVideo = HudVideo;
+	hemi.makeOctanable(hemi.HudVideo, 'hemi.HudVideo', hemi.HudVideo.prototype._octane);
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// HudPage class
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	/**
+	 * @class A HudPage contains other HudElements and display options for  drawing a single page on
+	 * the HUD.
+	 * @extends hemi.HudElement
+	 */
+	var HudPage = function() {
+		HudElement.call(this);
+
+		/**
+		 * Flag indicating if the HudPage should automatically set its size to contain all of its
+		 * elements.
+		 * @type boolean
+		 * @default true
+		 */
+		this.auto = true;
+
+		/**
+		 * Flag indicating if a background rectangle should be drawn for the HudPage.
+		 * @type boolean
+		 * @default true
+		 */
+		this.drawBackground = true;
+
+		/**
+		 * The number of pixels to add as padding around the bounds of the HudPage's elements when
+		 * drawing the background rectangle.
+		 * @type number
+		 * @default 5
+		 */
+		this.margin = 5;
+
+		this.elements = [];
+	};
+
+	HudPage.prototype = new HudElement();
+	HudPage.constructor = HudPage;
+
+	/*
+	 * Octane properties for the HudPage.
+	 */
+	HudPage.prototype._octane = HudElement.prototype._octane.concat([
+		'auto', 'drawBackground', 'elements', 'margin']);
+
+	/**
+	 * Add the given HudElement to the HudPage for displaying.
+	 * 
+	 * @param {hemi.HudElement} element element to add
+	 */
+	HudPage.prototype.add = function(element) {
+		if (this.elements.indexOf(element) === -1) {
+			this.elements.push(element);
+		}
+	};
+
+	/**
+	 * Calculate the bounds of the HudElements of the HudPage.
+	 */
+	HudPage.prototype.calculateBounds = function() {
+		var ndx, len = this.elements.length;
+
+		if (len === 0) {
+			this._top = 0;
+			this._bottom = 0;
+			this._left = 0;
+			this._right = 0;
+			return;
+		}
+
+		for (ndx = 0; ndx < len; ndx++) {
+			this.elements[ndx].calculateBounds();
+		}
+
+		if (this.auto) {
+			var element = this.elements[0];
+			this._top = element._top;
+			this._bottom = element._bottom;
+			this._left = element._left;
+			this._right = element._right;
+
+			for (ndx = 1; ndx < len; ndx++) {
+				element = this.elements[ndx];
+
+				if (element._top < this._top) {
+					this._top = element._top;
+				}
+				if (element._bottom > this._bottom) {
+					this._bottom = element._bottom;
+				}
+				if (element._left < this._left) {
+					this._left = element._left;
+				}
+				if (element._right > this._right) {
+					this._right = element._right;
+				}
+			}
+
+			this._top -= this.margin;
+			this._bottom += this.margin;
+			this._left -= this.margin;
+			this._right += this.margin;
+		}
+	};
+
+	/**
+	 * Remove all references in the HudPage.
+	 */
+	HudPage.prototype.cleanup = function() {
+		HudElement.prototype.cleanup.call(this);
+
+		for (var i = 0, il = this.elements.length; i < il; ++i) {
+			this.elements[i].cleanup();
+		}
+
+		this.elements = [];
+	};
+
+	/**
+	 * Remove all HudElements from the HudPage.
+	 */
+	HudPage.prototype.clear = function() {
+		this.elements = [];
+	};
+
+	/**
+	 * Draw the background (if any) and HudElements of the HudPage.
+	 */
+	HudPage.prototype.draw = function() {
+		this.calculateBounds();
+
+		if (this.drawBackground) {				
+			hemi.hudManager.createRectangleOverlay(this, this.config);
+		}
+
+		for (var i = 0, il = this.elements.length; i < il; ++i) {
+			if (this.elements[i].visible)
+				this.elements[i].draw();
+		}
+	};
+
+	/**
+	 * Check if the given event occurred within the bounds of any of the HudElements of the HudPage.
+	 * If it did, pass the Event to that HudElement. If not, call the HudPage's mouse down handler
+	 * function (if one was set).
+	 * 
+	 * @param {Object} event the event that occurred
+	 * @return {boolean} true if the event occurred within the bounds of the HudPage, otherwise
+	 *     false
+	 */
+	HudPage.prototype.onMouseDown = function(event) {
+		if (!this.visible)
+			return false;
+
+		var intersected = this._checkEvent(event);
+
+		if (intersected || !this.auto) {
+			var caught = false;
+
+			for (var i = 0, il = this.elements.length; i < il && !caught; ++i) {
+				if (this.elements[i].visible)
+					caught = this.elements[i].onMouseDown(event);
+			}
+
+			if (intersected && !caught && this.mouseDown) {
+				this.mouseDown(event);
+			}
+		}
+
+		return intersected;
+	};
+
+	/**
+	 * Pass the given Event to all of the HudPage's HudElements. If the HudPage's mouse move handler
+	 * function is set, pass it the Event and if it occurred within the bounds of the HudPage.
+	 * 
+	 * @param {Object} event the event that occurred
+	 */
+	HudPage.prototype.onMouseMove = function(event) {
+		if (!this.visible)
+			return;
+
+		for (var i = 0, il = this.elements.length; i < il; ++i) {
+			if (this.elements[i].visible)
+				this.elements[i].onMouseMove(event);
+		}
+
+		if (this.mouseMove) {
+			var intersected = this._checkEvent(event);
+			this.mouseMove(event, intersected);
+		}
+	};
+
+	/**
+	 * Check if the given event occurred within the bounds of any of the HudElements of the HudPage.
+	 * If it did, pass the Event to that HudElement. If not, call the HudPage's mouse up handler
+	 * function (if one was set).
+	 * 
+	 * @param {Object} event the event that occurred
+	 * @return {boolean} true if the event occurred within the bounds of the HudPage, otherwise
+	 *     false
+	 */
+	HudPage.prototype.onMouseUp = function(event) {
+		var intersected = this._checkEvent(event);
+
+		if (intersected || !this.auto) {
+			var caught = false;
+			var len = this.elements.length;
+
+			for (var i = 0, il = this.elements.length; i < il && !caught; ++i) {
+				caught = this.elements[i].onMouseUp(event);
+			}
+
+			if (intersected && !caught && this.mouseUp) {
+				this.mouseUp(event);
+			}
+		}
+
+		return intersected;
+	};
+
+	/**
+	 * Remove the specified HudElement from the HudPage.
+	 * 
+	 * @param {hemi.HudElement} element element to remove
+	 * @return {hemi.HudElement} the removed element or null
+	 */
+	HudPage.prototype.remove = function(element) {
+		var ndx = this.elements.indexOf(element),
+			found = null;
+
+		if (ndx !== -1) {
+			found = this.elements.splice(ndx, 1)[0];
+		}
+
+		return found;
+	};
+
+	/**
+	 * Manually set the size of the HudPage. This will prevent it from  autosizing itself to fit all
+	 * of the HudElements added to it.
+	 * 
+	 * @param {number} top the y coordinate of the top
+	 * @param {number} bottom the y coordinate of the bottom
+	 * @param {number} left the x coordinate of the left
+	 * @param {number} right the x coordinate of the right
+	 */
+	HudPage.prototype.setSize = function(top, bottom, left, right) {
+		this._top = top;
+		this._bottom = bottom;
+		this._left = left;
+		this._right = right;
+		this.auto = false;
+	};
+
+	hemi.HudPage = HudPage;
+	hemi.makeOctanable(hemi.HudPage, 'hemi.HudPage', hemi.HudPage.prototype._octane);
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// HudDisplay class
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	/**
+	 * @class A HudDisplay contains one or more HudPages to display sequentially.
+	 * 
+	 * @param {hemi.Client} opt_client optional client for the HudDisplay to draw to
+	 */
+	var HudDisplay = function(opt_client) {
+		/*
+		 * Flag indicating if HudDisplay is visible. This should not be set directly.
+		 * @type boolean
+		 * @default false
+		 */
+		this._visible = false;
+		this.client = opt_client;
+		this.currentPage = 0;
+		this.pages = [];
+	};
+
+	/*
+	 * Remove all references in the HudDisplay.
+	 */
+	HudDisplay.prototype._clean = function() {
+		for (var i = 0, il = this.pages.length; i < il; ++i) {
+			this.pages[i].cleanup();
+		}
+
+		this.pages = [];
+	};
+
+	/*
+	 * Array of Hemi Messages that the Citizen is known to send.
+	 * @type string[]
+	 */
+	HudDisplay.prototype._msgSent = [hemi.msg.visible];
+
+	/*
+	 * Octane properties for the HudDisplay.
+	 */
+	HudDisplay.prototype._octane = ['client', 'pages'];
+
+	/**
+	 * Add the given HudPage to the HudDisplay.
+	 * 
+	 * @param {hemi.HudPage} page page to add
+	 */
+	HudDisplay.prototype.add = function(page) {
+		if (this.pages.indexOf(page) === -1) {
+			this.pages.push(page);
+		}
+	};
+
+	/**
+	 * Remove all HudPages from the HudDisplay.
+	 */
+	HudDisplay.prototype.clear = function() {
+		if (this._visible) {
+			this.hide();
+		}
+
+		this.pages = [];
+	};
+
+	/**
+	 * Get the currently displayed HudPage.
+	 * 
+	 * @return {hemi.HudPage} currently displayed page
+	 */
+	HudDisplay.prototype.getCurrentPage = function() {
+		return this.currentPage < this.pages.length ? this.pages[this.currentPage] : null;
+	};
+
+	/**
+	 * Get the number of HudPages in the HudDisplay.
+	 * 
+	 * @return {number} the number of HudPages
+	 */
+	HudDisplay.prototype.getNumberOfPages = function() {
+		return this.pages.length;
+	};
+
+	/**
+	 * Hide the HudDisplay and unregister its key and mouse handlers.
+	 */
+	HudDisplay.prototype.hide = function() {
+		if (this._visible) {
+			hemi.input.removeMouseMoveListener(this);
+			hemi.input.removeMouseUpListener(this);
+			hemi.input.removeMouseDownListener(this);
+			hemi.hudManager.clearDisplay();
+			this._visible = false;
+			this.currentPage = 0;
 
 			this.send(hemi.msg.visible,
 				{
-					page: this.currentPage + 1
+					page: 0
 				});
-		},
-
-		/**
-		 * Hide the HudDisplay and unregister its key and mouse handlers.
-		 */
-		hide: function() {
-			if (this.visible) {
-				hemi.input.removeMouseMoveListener(this);
-				hemi.input.removeMouseUpListener(this);
-				hemi.input.removeMouseDownListener(this);
-				hemi.hud.hudMgr.clearDisplay();
-				this.visible = false;
-				this.currentPage = 0;
-				
-				this.send(hemi.msg.visible,
-					{
-						page: 0
-					});
-			}
-		},
-
-		/**
-		 * Pass the given mouse down Event to the currently displayed HudPage
-		 * (if there is one). If the Event does not intersect it, pass it to
-		 * the HudPagingDisplay (if there is one).
-		 * 
-		 * @param {o3d.Event} event the event that occurred
-		 * @return {boolean} true if the event occurred within the bounds of
-		 *     a HudPage or HudPagingDisplay, otherwise false
-		 */
-		onMouseDown: function(event) {
-			var page = this.getCurrentPage();
-			var intersected = false;
-			
-			if (page) {
-				intersected = page.onMouseDown(event);
-			}
-			
-			return intersected;
-		},
-		
-		/**
-		 * Pass the given mouse move Event to the currently displayed HudPage
-		 * (if there is one) and the HudPagingDisplay (if there is one).
-		 * 
-		 * @param {o3d.Event} event the event that occurred
-		 */
-		onMouseMove: function(event) {
-			var page = this.getCurrentPage();
-			
-			if (page) {
-				page.onMouseMove(event);
-			}
-		},
-		
-		/**
-		 * Pass the given mouse up Event to the currently displayed HudPage
-		 * (if there is one). If the Event does not intersect it, pass it to
-		 * the HudPagingDisplay (if there is one).
-		 * 
-		 * @param {o3d.Event} event the event that occurred
-		 * @return {boolean} true if the event occurred within the bounds of
-		 *     a HudPage or HudPagingDisplay, otherwise false
-		 */
-		onMouseUp: function(event) {
-			var page = this.getCurrentPage();
-			var intersected = false;
-			
-			if (page) {
-				intersected = page.onMouseUp(event);
-			}
-			
-			return intersected;
 		}
-	});
-	
-	hemi.hud.HudDisplay.prototype.msgSent =
-		hemi.hud.HudDisplay.prototype.msgSent.concat([hemi.msg.visible]);
-	
+	};
+
 	/**
-	 * @class A HudManager creates the appropriate view components for
-	 * rendering a HUD.
-	 * @extends hemi.world.Citizen
+	 * Pass the given mouse down Event to the currently displayed HudPage (if there is one).
+	 * 
+	 * @param {Object} event the event that occurred
+	 * @return {boolean} true if the event occurred within the bounds of a HudPage, otherwise false
 	 */
-	hemi.hud.HudManager = function() {
-		var o3El = document.getElementById('o3d'),
-			o3Can = o3El.firstElementChild,
+	HudDisplay.prototype.onMouseDown = function(event) {
+		var page = this.getCurrentPage(),
+			intersected = false;
+
+		if (page) {
+			intersected = page.onMouseDown(event);
+		}
+
+		return intersected;
+	};
+
+	/**
+	 * Pass the given mouse move Event to the currently displayed HudPage (if there is one).
+	 * 
+	 * @param {Object} event the event that occurred
+	 */
+	HudDisplay.prototype.onMouseMove = function(event) {
+		var page = this.getCurrentPage();
+
+		if (page) {
+			page.onMouseMove(event);
+		}
+	};
+
+	/**
+	 * Pass the given mouse up Event to the currently displayed HudPage (if there is one).
+	 * 
+	 * @param {Object} event the event that occurred
+	 * @return {boolean} true if the event occurred within the bounds of a HudPage, otherwise false
+	 */
+	HudDisplay.prototype.onMouseUp = function(event) {
+		var page = this.getCurrentPage(),
+			intersected = false;
+
+		if (page) {
+			intersected = page.onMouseUp(event);
+		}
+
+		return intersected;
+	};
+
+	/**
+	 * Display the next HudPage in the HudDisplay.
+	 */
+	HudDisplay.prototype.nextPage = function() {
+		var numPages = this.pages.length;
+		this.currentPage++;
+		
+		if (this.currentPage >= numPages) {
+			this.currentPage = numPages - 1;
+		} else {
+			this.showPage();
+		}
+	};
+
+	/**
+	 * Display the previous HudPage in the HudDisplay.
+	 */
+	HudDisplay.prototype.previousPage = function() {
+		this.currentPage--;
+		
+		if (this.currentPage < 0) {
+			this.currentPage = 0;
+		} else {
+			this.showPage();
+		}
+	};
+
+	/**
+	 * Remove the specified HudPage from the HudDisplay.
+	 * 
+	 * @param {hemi.HudPage} page page to remove
+	 * @return {hemi.HudPage} the removed page or null
+	 */
+	HudDisplay.prototype.remove = function(page) {
+		var ndx = this.pages.indexOf(page),
+			found = null;
+
+		if (ndx !== -1) {
+			if (this._visible && ndx === this.currentPage) {
+				if (ndx !== 0) {
+					this.previousPage();
+				} else if (this.pages.length > 1) {
+					this.nextPage();
+				} else  {
+					this.hide();
+				}
+			}
+
+			found = this.pages.splice(ndx, 1)[0];
+		}
+
+		return found;
+	};
+
+	/**
+	 * Show the first HudPage of the HudDisplay and bind the mouse handlers for interaction.
+	 */
+	HudDisplay.prototype.show = function() {
+		if (!this._visible) {
+			this._visible = true;
+			hemi.input.addMouseDownListener(this);
+			hemi.input.addMouseUpListener(this);
+			hemi.input.addMouseMoveListener(this);
+		}
+
+		this.showPage();
+	};
+
+	/**
+	 * Show the current page of the HudDisplay.
+	 */
+	HudDisplay.prototype.showPage = function() {
+		if (!this.client) return;
+
+		hemi.hudManager.setClient(this.client);
+		hemi.hudManager.clearDisplay();
+		var page = this.getCurrentPage();
+		page.draw();
+
+		this.send(hemi.msg.visible,
+			{
+				page: this.currentPage + 1
+			});
+	};
+
+	hemi.makeCitizen(HudDisplay, 'hemi.HudDisplay', {
+		cleanup: HudDisplay.prototype._clean,
+		toOctane: HudDisplay.prototype._octane
+	});
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// HudManager class
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	/**
+	 * @class A HudManager creates the appropriate view components for  rendering a HUD.
+	 */
+	var HudManager = function() {
+		/*
+		 * 2D canvas contexts for the Clients the HudManager is managing.
+		 */
+		this._contexts = {};
+
+		/*
+		 * Videos that are currently playing on a HUD.
+		 */
+		this._videos = [];
+
+		/**
+		 * The current 2D canvas context that the HudManager is drawing to.
+		 */
+		this.currentContext = null;
+
+		hemi.addRenderListener(this);
+	};
+
+	/**
+	 * Set up a 2D canvas for the given Client and add it to the list of Clients that the HudManager
+	 * draws to.
+	 * 
+	 * @param {hemi.Client} client the Client to start managing
+	 */
+	HudManager.prototype.addClient = function(client) {
+		var canvas = client.renderer.domElement,
+			container = canvas.parentNode,
 			hudCan = document.createElement('canvas'),
 			style = hudCan.style;
-		
-		this.videos = [];
-		
-		style.left = o3Can.offsetLeft + 'px';
+
+		style.left = canvas.offsetLeft + 'px';
 		style.position = 'absolute';
-		style.top = o3Can.offsetTop + 'px';
+		style.top = canvas.offsetTop + 'px';
 		style.zIndex = '10';
-		
-		hudCan.height = o3Can.height;
-		hudCan.width = o3Can.width;
-		
-		o3El.appendChild(hudCan);
-		this.canvas = hudCan.getContext('2d');
-		// In our coordinate system, y indicates the top of the first line
-		// of text, so set the canvas baseline to match.
-		this.canvas.textBaseline = 'top';
-		// Since the HUD canvas obscures the GL canvas, pass mouse events
-		// through to Hemi.
-		this.wheelHandler = o3d.Client.wrapEventCallback_(hemi.input.scroll, true),
-		this.downHandler = o3d.Client.wrapEventCallback_(hemi.input.mouseDown, false),
-		this.moveHandler = o3d.Client.wrapEventCallback_(hemi.input.mouseMove, false),
-		this.upHandler = o3d.Client.wrapEventCallback_(hemi.input.mouseUp, false);
-		
-		hudCan.addEventListener('DOMMouseScroll', this.wheelHandler, true);
-		hudCan.addEventListener('mousewheel', this.wheelHandler, true);
-		hudCan.addEventListener('mousedown', this.downHandler, true);
-		hudCan.addEventListener('mousemove', this.moveHandler, true);
-		hudCan.addEventListener('mouseup', this.upHandler, true);
-		
-		this.canvasElem = hudCan;
-		hemi.view.addRenderListener(this);
+
+		hudCan.height = canvas.height;
+		hudCan.width = canvas.width;
+		// Since the HUD canvas obscures the WebGL canvas, pass mouse events through to Hemi.
+		hudCan.addEventListener('DOMMouseScroll', hemi.input.scroll, true);
+		hudCan.addEventListener('mousewheel', hemi.input.scroll, true);
+		hudCan.addEventListener('mousedown', hemi.input.mouseDown, true);
+		hudCan.addEventListener('mousemove', hemi.input.mouseMove, true);
+		hudCan.addEventListener('mouseup', hemi.input.mouseUp, true);
+		container.appendChild(hudCan);
+
+		var context = hudCan.getContext('2d'),
+			that = this;
+
+		// In our coordinate system, y indicates the top of the first line of text, so set the
+		// canvas baseline to match.
+		context.textBaseline = 'top';
+		this._contexts[client._getId()] = context;
+		this.currentContext = context;
+
+		client.subscribe(hemi.msg.cleanup, function(msg) {
+			that._contexts[msg.src._getId()] = undefined;
+		});
 	};
-	
-	hemi.hud.HudManager.prototype = {
-		/**
-		 * Set the painting properties for the HUD canvas.
-		 *
-		 * @param {Object} options the options for painting.  Valid options are
-		 * <ul>
-		 * <li>color - the color to paint with. This is an array in RGBA
-		 * format</li>
-		 * <li>shader - the shader to apply.</li>
-		 * <li>textAlign - the alignment of the text. Can be 'center', 'left',
-		 * 'right'</li>
-		 * <li>textSize - the size of the text to draw.</li>
-		 * <li>textStyle - the style of the text. Can be 'normal', 'bold',
-		 * 'italic', 'bold italic'</li>
-		 * <li>textTypeface - the type face of the text.  e.g.: 'arial'</li>
-		 * </ul>
-		 */
-		setPaintProperties: function(options) {
-			var font;
-			
-			if (options.color != null) {
-				this.canvas.fillStyle = getRgba(options.color);
+
+	/**
+	 * Clear the current overlays from the HUD.
+	 */
+	HudManager.prototype.clearDisplay = function() {
+		var context = this.currentContext,
+			canvas = context.canvas,
+			vids = this._videos;
+
+		this._videos = [];
+
+		for (var i = 0, il = vids.length; i < il; ++i) {
+			vids[i].video.pause();
+		}
+
+		context.clearRect(0, 0, canvas.width, canvas.height);
+		context.beginPath();
+	};
+
+	/**
+	 * Create a rectangular overlay from the given HudElement.
+	 *
+	 * @param {hemi.HudElement} element element with a bounding box to display
+	 * @param {Object} boxConfig unique configuration options for the rectangular overlay
+	 */
+	HudManager.prototype.createRectangleOverlay = function(element, boxConfig) {
+		var config = hemi.utils.join({}, currentTheme.page, boxConfig),
+			context = this.currentContext;
+
+		context.save();
+		setPaintProperties(context, config);
+
+		if (config.curve > 0) {
+			var curve = config.curve <= 1 ? config.curve / 2.0 : 0.5;
+			this.drawRoundRect(element, curve, true);
+
+			if (config.outline != null) {
+				this.drawRoundRect(element, curve, false);
 			}
-			if (options.outline != null) {
-				this.canvas.strokeStyle = getRgba(options.outline);
-				// If there is an outline, cancel the shadow.
-				this.canvas.shadowColor = 'rgba(0,0,0,0)';
-			} else if (options.shadow != null) {
-				var shad = options.shadow;
-				this.canvas.shadowBlur = shad.radius;
-				this.canvas.shadowColor = getRgba(shad.color);
-				this.canvas.shadowOffsetX = shad.offsetX;
-				this.canvas.shadowOffsetY = shad.offsetY;
-			} else {
-				this.canvas.shadowColor = 'rgba(0,0,0,0)';
-			}
-			if (options.textAlign != null) {
-				this.canvas.textAlign = options.textAlign;
-			}
-			if (options.textStyle != null) {
-				font = options.textStyle + ' ';
-			} else {
-				font = 'bold ';
-			}
-			if (options.textSize != null) {
-				font += options.textSize + 'px ';
-			} else {
-				font += '12px ';
-			}
-			if (options.textTypeface != null) {
-				font += '"' + options.textTypeface + '"';
-			} else {
-				font += 'helvetica';
-			}
-			if (font != null) {
-				this.canvas.font = font;
-			}
-		},
-		
-		/**
-		 * Create a rectangular overlay from the given HudElement.
-		 *
-		 * @param {hemi.hud.HudElement} element element with a bounding box to
-		 *     display
-		 * @param {Object} boxConfig unique configuration options for the
-		 *     rectangular overlay
-		 */
-		createRectangleOverlay: function(element, boxConfig) {
-			var config = hemi.utils.join({}, hemi.hud.theme.page, boxConfig);
-			this.canvas.save();
-			this.setPaintProperties(config);
-			
-			if (config.curve > 0) {
-				var curve = config.curve <= 1 ? config.curve / 2.0 : 0.5;
-				this.drawRoundRect(element, curve, true);
-				
-				if (config.outline != null) {
-					this.drawRoundRect(element, curve, false);
-				}
-			} else {
-				var x = element.left,
-					y = element.top,
-					width = element.right - x,
-					height = element.bottom - y;
-				
-				this.canvas.fillRect(x, y, width, height);
-				
-				if (config.outline != null) {
-					this.canvas.strokeRect(x, y, width, height);
-				}
-			}
-			
-			this.canvas.restore();
-		},
-		
-		/**
-		 * Create a text overlay.
-		 *
-		 * @param {string} text the text display
-		 * @param {Object} textConfig unique configuration options for the text
-		 *    overlay
-		 * @param {number} x x coordinate to draw the text at
-		 * @param {number} y y coordinate to draw the text at
-		 */
-		createTextOverlay: function(text, textConfig, x, y) {
-			var config = hemi.utils.join({}, hemi.hud.theme.text, textConfig),
-				height = config.textSize,
-				outline = config.outline != null;
-			
-			this.canvas.save();
-			this.setPaintProperties(config);
-			
-			for (var ndx = 0, len = text.length; ndx < len; ndx++) {
-				var line = text[ndx];
-				this.canvas.fillText(line, x, y);
-				
-				if (outline) {
-					this.canvas.strokeText(line, x, y);
-				}
-				
-				y += height + config.lineMargin;
-			}
-			
-			this.canvas.restore();
-		},
-		
-		/**
-		 * Create an image overlay.
-		 *
-		 * @param {Image} image the image to display
-		 * @param {Object} imgConfig unique configuration options for the image
-		 *    overlay
-		 * @param {number} x x coordinate to draw the image at
-		 * @param {number} y y coordinate to draw the image at
-		 * @param {number} srcX optional x coordinate to pull from source image
-		 * @param {number} srcY optional y coordinate to pull from source image
-		 * @param {number} width optional width of destination image
-		 * @param {number} height optional height of destination image
-		 */
-		createImageOverlay: function(image, imgConfig, x, y, srcX, srcY, width, height) {
-			var config = hemi.utils.join({}, hemi.hud.theme.image, imgConfig);
-			this.canvas.save();
-			this.setPaintProperties(config);
-			
-			if (srcX != null && srcY != null && width != null && height != null) {
-				this.canvas.drawImage(image, srcX, srcY, width, height, x, y,
-					width, height);
-			} else {
-				this.canvas.drawImage(image, x, y);
-			}
-			
-			this.canvas.restore();
-		},
-		
-		/**
-		 * Create a video overlay.
-		 *
-		 * @param {Video} video the video to display
-		 * @param {Object} vidConfig unique configuration options for the video
-		 *    overlay
-		 * @param {number} x x coordinate to draw the video at
-		 * @param {number} y y coordinate to draw the video at
-		 * @param {number} width optional width of video
-		 * @param {number} height optional height of video
-		 */
-		createVideoOverlay: function(video, vidConfig, x, y, width, height) {
-			var config = hemi.utils.join({}, hemi.hud.theme.video, vidConfig);
-			
-			this.videos.push({
-				video: video,
-				config: config,
-				x: x,
-				y: y,
-				width: width || video.videoWidth,
-				height: height || video.videoHeight
-			});
-			video.play();
-		},
-		
-		/**
-		 * Clear the current overlays from the HUD.
-		 */
-		clearDisplay: function() {
-			var can = this.canvas.canvas,
-				vids = this.videos;
-			
-			this.videos = [];
-			
-			for (var i = 0, il = vids.length; i < il; i++) {
-				vids[i].video.pause();
-			}
-			
-			this.canvas.clearRect(0, 0, can.width, can.height);
-			this.canvas.beginPath();
-		},
-		
-		/**
-		 * Calculate text wrapping and format the given string.
-		 * 
-		 * @param {string} text the text to display
-		 * @param {number} width the maximum line width before wrapping
-		 * @param {Object} textOptions unique configuration options for the text
-		 *    overlay
-		 * @return {Object} wrapped text object
-		 */
-		doTextWrapping: function(text, width, textOptions) {
-			var config = hemi.utils.join({}, hemi.hud.theme.text, textOptions),
-				wrappedText;
-			
-			this.canvas.save();
-			this.setPaintProperties(config);
-			
-			if (config.strictWrapping) {
-				wrappedText = hemi.utils.wrapTextStrict(text, width, this.canvas);
-			} else {
-				var metric = this.canvas.measureText(text),
-					charWidth = metric.width / text.length;
-				wrappedText = hemi.utils.wrapText(text, width, charWidth);
-			}
-			
-			var height = wrappedText.length * (config.textSize + config.lineMargin),
-				longestWidth = 0;
-			
-			for (var ndx = 0, len = wrappedText.length; ndx < len; ndx++) {
-				var metric = this.canvas.measureText(wrappedText[ndx]);
-				
-				if (longestWidth < metric.width) {
-					longestWidth = metric.width;
-				}
-			}
-			
-			this.canvas.restore();
-			
-			return {
-				text: wrappedText,
-				height: height,
-				width: longestWidth
-			};
-		},
-		
-		/**
-		 * Draw a rectangular overlay that has rounded corners from the given
-		 * HudElement.
-		 *
-		 * @param {hemi.hud.HudElement} element element with a bounding box to
-		 *     create the rectangle from
-		 * @param {number} curveFactor amount of curving on the corners (between
-		 *     0 and 0.5)
-		 * @param {boolean} fill flag indicating whether to fill or stroke
-		 */
-		drawRoundRect: function(element, curveFactor, fill) {
-			var hMath = hemi.core.math,
-				lt = element.left,
-				rt = element.right,
-				tp = element.top,
-				bm = element.bottom,
-				wide = rt - lt,
-				high = bm - tp,
-				inc = high > wide ? wide * curveFactor : high * curveFactor,
-				// Positions on a clock in radians :)
-				hour12 = hMath.degToRad(270),
-				hour3 = 0,
-				hour6 = hMath.degToRad(90),
-				hour9 = hMath.degToRad(180);
-			
-			this.canvas.beginPath();
-			this.canvas.moveTo(lt, tp + inc);
-			this.canvas.lineTo(lt, bm - inc);
-			this.canvas.arc(lt + inc, bm - inc, inc, hour9, hour6, true);
-			this.canvas.lineTo(rt - inc, bm);
-			this.canvas.arc(rt - inc, bm - inc, inc, hour6, hour3, true);
-			this.canvas.lineTo(rt, tp + inc);
-			this.canvas.arc(rt - inc, tp + inc, inc, hour3, hour12, true);
-			this.canvas.lineTo(lt + inc, tp);
-			this.canvas.arc(lt + inc, tp + inc, inc, hour12, hour9, true);
-			this.canvas.closePath();
-			
-			if (fill) {
-				this.canvas.fill();
-			} else {
-				this.canvas.stroke();
-			}
-		},
-		
-		/**
-		 * Copy the current image from any video elements onto the canvas on
-		 * each render.
-		 * 
-		 * @param {o3d.RenderEvent} renderEvent event containing render info
-		 */
-		onRender: function(renderEvent) {
-			var vids = this.videos,
-				can = this.canvas,
-				vid;
-			
-			for (var i = 0, il = vids.length; i < il; i++) {
-				vid = vids[i];
-				this.canvas.save();
-				this.setPaintProperties(vid.config);
-				can.drawImage(vid.video, vid.x, vid.y, vid.width, vid.height);
-				this.canvas.restore();
+		} else {
+			var x = element._left,
+				y = element._top,
+				width = element._right - x,
+				height = element._bottom - y;
+
+			context.fillRect(x, y, width, height);
+
+			if (config.outline != null) {
+				context.strokeRect(x, y, width, height);
 			}
 		}
+
+		context.restore();
 	};
-	
+
+	/**
+	 * Create a text overlay.
+	 *
+	 * @param {hemi.HudText} text the HudText to display
+	 * @param {Object} textConfig unique configuration options for the text overlay
+	 */
+	HudManager.prototype.createTextOverlay = function(text, textConfig) {
+		var config = hemi.utils.join({}, currentTheme.text, textConfig),
+			lineHeight = config.textSize + config.lineMargin,
+			context = this.currentContext,
+			textLines = text._wrappedText,
+			x = text.x,
+			y = text.y;
+
+		context.save();
+		setPaintProperties(context, config);
+
+		for (var i = 0, il = textLines.length; i < il; ++i) {
+			var line = textLines[i];
+			context.fillText(line, x, y);
+
+			if (config.outline != null) {
+				context.strokeText(line, x, y);
+			}
+
+			y += lineHeight;
+		}
+
+		context.restore();
+	};
+
+	/**
+	 * Create an image overlay.
+	 *
+	 * @param {hemi.HudImage} image the HudImage to display
+	 * @param {Object} imgConfig unique configuration options for the image overlay
+	 */
+	HudManager.prototype.createImageOverlay = function(image, imgConfig) {
+		var config = hemi.utils.join({}, currentTheme.image, imgConfig),
+			context = this.currentContext,
+			imageData = image._image;
+
+		context.save();
+		setPaintProperties(context, config);
+
+		if (image._width !== imageData.width || image._height !== imageData.height ||
+				image.srcX !== 0 || image.srcY !== 0) {
+			context.drawImage(imageData, image.srcX, image.srcY, image._width, image._height,
+				image.x, image.y, image._width, image._height);
+		} else {
+			context.drawImage(imageData, image.x, image.y);
+		}
+
+		context.restore();
+	};
+
+	/**
+	 * Create a video overlay.
+	 *
+	 * @param {hemi.HudVideo} video the HudVideo to display
+	 * @param {Object} vidConfig unique configuration options for the video overlay
+	 */
+	HudManager.prototype.createVideoOverlay = function(video, vidConfig) {
+		var config = hemi.utils.join({}, currentTheme.video, vidConfig),
+			videoData = video._video;
+
+		this._videos.push({
+			video: videoData,
+			config: config,
+			context: this.currentContext,
+			x: video.x,
+			y: video.y,
+			width: video._width || videoData.videoWidth,
+			height: video._height || videoData.videoHeight
+		});
+		videoData.play();
+	};
+
+	/**
+	 * Calculate text wrapping and format the given string.
+	 * 
+	 * @param {string} text the text to display
+	 * @param {number} width the maximum line width before wrapping
+	 * @param {Object} textOptions unique configuration options for the text overlay
+	 * @return {Object} wrapped text object
+	 */
+	HudManager.prototype.doTextWrapping = function(text, width, textOptions) {
+		var config = hemi.utils.join({}, currentTheme.text, textOptions),
+			context = this.currentContext,
+			wrappedText;
+
+		context.save();
+		setPaintProperties(context, config);
+
+		if (config.strictWrapping) {
+			wrappedText = hemi.utils.wrapTextStrict(text, width, context);
+		} else {
+			var metric = context.measureText(text),
+				charWidth = metric.width / text.length;
+			wrappedText = hemi.utils.wrapText(text, width, charWidth);
+		}
+
+		var height = wrappedText.length * (config.textSize + config.lineMargin),
+			longestWidth = 0;
+
+		for (var i = 0, il = wrappedText.length; i < il; ++i) {
+			var metric = context.measureText(wrappedText[i]);
+
+			if (longestWidth < metric.width) {
+				longestWidth = metric.width;
+			}
+		}
+
+		context.restore();
+
+		return {
+			text: wrappedText,
+			height: height,
+			width: longestWidth
+		};
+	};
+
+	/**
+	 * Draw a rectangular overlay that has rounded corners from the given HudElement.
+	 *
+	 * @param {hemi.HudElement} element element with a bounding box to create the rectangle from
+	 * @param {number} curveFactor amount of curving on the corners (between 0 and 0.5)
+	 * @param {boolean} fill flag indicating whether to fill or stroke
+	 */
+	HudManager.prototype.drawRoundRect = function(element, curveFactor, fill) {
+		var context = this.currentContext,
+			lt = element._left,
+			rt = element._right,
+			tp = element._top,
+			bm = element._bottom,
+			wide = rt - lt,
+			high = bm - tp,
+			inc = high > wide ? wide * curveFactor : high * curveFactor,
+			// Positions on a clock in radians :)
+			hour12 = 270 * hemi.DEG_TO_RAD,
+			hour3 = 0,
+			hour6 = 90 * hemi.DEG_TO_RAD,
+			hour9 = 180 * hemi.DEG_TO_RAD;
+
+		context.beginPath();
+		context.moveTo(lt, tp + inc);
+		context.lineTo(lt, bm - inc);
+		context.arc(lt + inc, bm - inc, inc, hour9, hour6, true);
+		context.lineTo(rt - inc, bm);
+		context.arc(rt - inc, bm - inc, inc, hour6, hour3, true);
+		context.lineTo(rt, tp + inc);
+		context.arc(rt - inc, tp + inc, inc, hour3, hour12, true);
+		context.lineTo(lt + inc, tp);
+		context.arc(lt + inc, tp + inc, inc, hour12, hour9, true);
+		context.closePath();
+
+		if (fill) {
+			context.fill();
+		} else {
+			context.stroke();
+		}
+	};
+
+	/**
+	 * Copy the current image from any video elements onto the canvas on each render.
+	 * 
+	 * @param {Object} renderEvent event containing render info
+	 */
+	HudManager.prototype.onRender = function(renderEvent) {
+		var vids = this._videos;
+		
+		for (var i = 0, il = vids.length; i < il; ++i) {
+			var vid = vids[i],
+				context = vid.context;
+
+			context.save();
+			setPaintProperties(context, vid.config);
+			context.drawImage(vid.video, vid.x, vid.y, vid.width, vid.height);
+			context.restore();
+		}
+	};
+
+	/**
+	 * Reset the text baseline value for all clients to 'top' (the default for the HudManager).
+	 */
+	HudManager.prototype.resetTextBaseline = function() {
+		for (var id in this._contexts) {
+			this._contexts[id].textBaseline = 'top';
+		}
+	};
+
+	/**
+	 * Set the current client for the HudManager to draw to.
+	 * 
+	 * @param {hemi.Client} client the client to draw to
+	 */
+	HudManager.prototype.setClient = function(client) {
+		this.currentContext = this._contexts[client._getId()];
+	};
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Global functions
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	/**
+	 * Get the current theme for HUD displays.
+	 * 
+	 * @return {hemi.HudTheme} the current display options for HUD elements
+	 */
+	hemi.getHudTheme = function(theme) {
+		return currentTheme;
+	};
+
+	/**
+	 * Set the current theme for HUD displays.
+	 * 
+	 * @param {hemi.HudTheme} theme display options for HUD elements
+	 */
+	hemi.setHudTheme = function(theme) {
+		currentTheme = theme;
+	};
+
+	/*
+	 * The current HUD theme being used for default properties.
+	 */
+	var currentTheme = new hemi.HudTheme();
+	currentTheme.name = 'Default';
+
+	/**
+	 * The HUD manager responsible for drawing all HUD displays, elements, etc.
+	 */
+	hemi.hudManager = new HudManager();
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Utility functions
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
 	/*
 	 * Get the CSS RGBA string for the given color array in 0-1 format.
 	 * @param {number[4]} col color array
 	 * @return {string} the equivalent RGBA string
 	 */
-	var getRgba = function(col) {
-		return 'rgba(' + Math.round(col[0]*255) + ',' + Math.round(col[1]*255) +
-			',' + Math.round(col[2]*255) + ',' + col[3] + ')';
-	};
+	function getRgba(col) {
+		return 'rgba(' + Math.round(col[0]*255) + ',' + Math.round(col[1]*255) + ',' +
+			Math.round(col[2]*255) + ',' + col[3] + ')';
+	}
 
-	return hemi;
-})(hemi || {});
-/* 
- * Kuda includes a library and editor for authoring interactive 3D content for the web.
- * Copyright (C) 2011 SRI International.
- *
- * This program is free software; you can redistribute it and/or modify it under the terms
- * of the GNU General Public License as published by the Free Software Foundation; either 
- * version 2 of the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
- * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
- * See the GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License along with this program; 
- * if not, write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, 
- * Boston, MA 02110-1301 USA.
- */
-
-/**
- * @fileoverview Manips are objects that allow shapes in a 3d scene to
- *		be clicked on and dragged around. These shapes are constrained
- *		to a 2d plane, as defined by the programmer.
- */
-
-var hemi = (function(hemi) {
-	/**
-	 * @namespace A module for defining draggable objects.
+	/*
+	 * Set the painting properties for the given 2D canvas context.
+	 * 
+	 * @param {Object} context the 2D canvas context
+	 * @param {Object} options the options for painting
 	 */
-	hemi.manip = hemi.manip || {};
+	function setPaintProperties(context, options) {
+		var font = options.textStyle == null ? '' : options.textStyle + ' ';
 
-	hemi.manip.Plane = {
+		if (options.textSize != null) {
+			font += options.textSize + 'px ';
+		} else {
+			font += '12px ';
+		}
+		if (options.textTypeface != null) {
+			font += '"' + options.textTypeface + '"';
+		} else {
+			font += 'helvetica';
+		}
+
+		context.font = font;
+
+		if (options.textAlign != null) {
+			context.textAlign = options.textAlign;
+		}
+		if (options.color != null) {
+			context.fillStyle = getRgba(options.color);
+		}
+		if (options.outline != null) {
+			context.strokeStyle = getRgba(options.outline);
+			// If there is an outline, cancel the shadow.
+			context.shadowColor = 'rgba(0,0,0,0)';
+		} else if (options.shadow != null) {
+			var shad = options.shadow;
+			context.shadowBlur = shad.radius;
+			context.shadowColor = getRgba(shad.color);
+			context.shadowOffsetX = shad.offsetX;
+			context.shadowOffsetY = shad.offsetY;
+		} else {
+			context.shadowColor = 'rgba(0,0,0,0)';
+		}
+	}
+
+})();
+/*
+ * Licensed under the MIT license: http://www.opensource.org/licenses/mit-license.php
+ * The MIT License (MIT)
+ * 
+ * Copyright (c) 2011 SRI International
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+ * associated  documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the  Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
+
+(function() {
+
+		// Static helper objects shared by all motions
+	var _plane = [new THREE.Vector3(), new THREE.Vector3(), new THREE.Vector3()],
+		_vector = new THREE.Vector3(),
+		_vec2 = new THREE.Vector2(),
+		X_AXIS = new THREE.Vector3(1, 0, 0),
+		Y_AXIS = new THREE.Vector3(0, 1, 0),
+		Z_AXIS = new THREE.Vector3(0, 0, 1),
+		XY_PLANE = [new THREE.Vector3(0,0,0), new THREE.Vector3(1,0,0), new THREE.Vector3(0,1,0)],
+		XZ_PLANE = [new THREE.Vector3(0,0,0), new THREE.Vector3(1,0,0), new THREE.Vector3(0,0,1)],
+		YZ_PLANE = [new THREE.Vector3(0,0,0), new THREE.Vector3(0,0,1), new THREE.Vector3(0,1,0)];
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Constants
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	hemi.Plane = {
 		XY : 'xy',
 		XZ : 'xz',
-		YZ : 'yz',
-		
-		get: function(val) {
-			var plane = null;
-			
-			if (hemi.utils.compareArrays(val, [[0,0,0],[1,0,0],[0,1,0]])) {
-				plane = this.XY;
-			} else if (hemi.utils.compareArrays(val, [[0,0,0],[1,0,0],[0,0,1]])) {
-				plane = this.XZ;
-			} else if (hemi.utils.compareArrays(val, [[0,0,0],[0,0,1],[0,1,0]])) {
-				plane = this.YZ;
-			}
-			
-			return plane;
-		}
+		YZ : 'yz'
 	};
-	
-	hemi.manip.Axis = {
+
+	hemi.Axis = {
 		X : 'x',
 		Y : 'y',
 		Z : 'z'
 	};
 
-	/**
-	 * @class A Draggable allows a 3d object to be dragged around the scene
-	 * with the mouse, constrained to a defined 2d plane.
-	 * @extends hemi.world.Citizen
-	 * 
-	 * @param {number[3][3]} opt_plane Array of 3 xyz points defining a plane
-	 * @param {number[4]} opt_limits An array containing 
-	 *	   [min on u, max on u, min on v, max on v]
-	 * @param {number[2]} opt_startUV Draggable's starting uv coordinate, if
-	 *		not [0,0]
-	 */
-	hemi.manip.Draggable = hemi.world.Citizen.extend({
-		init: function(opt_plane, opt_limits, opt_startUV) {
-			this._super();
-			
-			this.activeTransform = null;
-			this.dragUV = null;
-			this.enabled = false;
-			this.local = false;
-			this.msgHandler = null;
-			this.plane = null;
-			this.transformObjs = [];
-			this.umin = null;
-			this.umax = null;
-			this.uv = opt_startUV == null ? [0,0] : opt_startUV;
-			this.vmin = null;
-			this.vmax = null;
-			
-			if (opt_plane != null) {
-				this.setPlane(opt_plane);
-			}
-			if (opt_limits != null) {
-				this.setLimits(opt_limits);
-			}
-			
-			this.enable();
-		},
-
-		/**
-		 * Overwrites hemi.world.Citizen.citizenType
-		 * @string
-		 */
-		citizenType: 'hemi.manip.Draggable',
-		
-		/**
-		 * Send a cleanup Message and remove all references in the Draggable.
-		 */
-		cleanup: function() {
-			this.disable();
-			this._super();
-			this.clearTransforms();
-			this.msgHandler = null;
-		},
-		
-		/**
-		 * Get the Octane structure for the Draggable.
-	     *
-	     * @return {Object} the Octane structure representing the Draggable
-		 */
-		toOctane: function(){
-			var octane = this._super(),
-				valNames = ['local', 'plane', 'umin', 'umax', 'vmin', 'vmax'];
-			
-			for (var ndx = 0, len = valNames.length; ndx < len; ndx++) {
-				var name = valNames[ndx];
-				
-				octane.props.push({
-					name: name,
-					val: this[name]
-				});
-			}
-			
-			return octane;
-		},
-
-		/**
-		 * Add a Transform to the list of draggable Transforms.
-		 *
-		 * @param {o3d.Transform} transform the transform to add
-		 */
-		addTransform: function(transform) {
-			hemi.world.tranReg.register(transform, this);
-			var param = transform.getParam('ownerId'),
-				obj = {},
-				owner = null;
-			
-			if (param !== null) {
-				owner = hemi.world.getCitizenById(param.value);
-			}
-			
-			if (hemi.utils.isAnimated(transform)) {
-				obj.transform = hemi.utils.fosterTransform(transform);
-				obj.foster = true;
-			} else {
-				obj.transform = transform;
-				obj.foster = false;
-			}
-			
-			if (owner) {
-				var that = this;
-				obj.owner = owner;
-				obj.msg = owner.subscribe(hemi.msg.cleanup, function(msg) {
-					that.removeTransforms(msg.src);
-				});
-			}
-			
-			this.transformObjs.push(obj);
-		},
-
-		/**
-		 * Add the given UV delta to the current UV coordinates and clamp the
-		 * results.
-		 *
-		 * @param {number[2]} delta the uv change to add before clamping
-		 * @return {number[2]} the actual change in uv after clamping
-		 */
-		clamp : function(delta) {
-			var u = this.uv[0] + delta[0],
-				v = this.uv[1] + delta[1];
-			
-			if (this.umin != null && u < this.umin) {
-				u = this.umin;
-			}
-			if (this.umax != null && u > this.umax) {
-				u = this.umax;
-			}
-			if (this.vmin != null && v < this.vmin) {
-				v = this.vmin;
-			}
-			if (this.vmax != null && v > this.vmax) {
-				v = this.vmax;
-			}
-			
-			delta = [u - this.uv[0], v - this.uv[1]];
-			this.uv = [u, v];
-			
-			return delta;
-		},
-		
-		/**
-		 * Remove any previously set limits from the draggable.
-		 */
-		clearLimits: function() {
-			this.umin = null;
-			this.umax = null;
-			this.vmin = null;
-			this.vmax = null;
-		},
-		
-		/**
-		 * Clear the list of draggable Transforms.
-		 */
-		clearTransforms: function() {
-			while (this.transformObjs.length > 0) {
-				removeManipTransforms.call(this, this.transformObjs[0]);
-			}
-		},
-
-		/**
-		 * Check if a given Transform is contained within the children of the
-		 * Transforms acted upon by this Draggable.
-		 *
-		 * @param {o3d.Transform} transform transform to check against
-		 * @return {boolean} true if the Transform is found
-		 */
-		containsTransform : function(transform) {
-			for (var i = 0; i < this.transformObjs.length; i++) {
-				var children = this.transformObjs[i].transform.getTransformsInTree();
-				for (var j = 0; j < children.length; j++) {
-					if (transform.clientId === children[j].clientId) {
-						return true;
-					}
-				}
-			}
-			return false;
-		},
-		
-		/**
-		 * Disable mouse interaction for the Draggable. 
-		 */
-		disable: function() {
-			if (this.enabled) {
-				hemi.world.unsubscribe(this.msgHandler, hemi.msg.pick);
-				hemi.input.removeMouseMoveListener(this);
-				hemi.input.removeMouseUpListener(this);
-				this.enabled = false;
-			}
-		},
-		
-		/**
-		 * Enable mouse interaction for the Draggable. 
-		 */
-		enable: function() {
-			if (!this.enabled) {
-				this.msgHandler = hemi.world.subscribe(
-					hemi.msg.pick,
-					this,
-					'onPick',
-					[hemi.dispatch.MSG_ARG + 'data.pickInfo', 
-					 hemi.dispatch.MSG_ARG + 'data.mouseEvent']);
-				hemi.input.addMouseMoveListener(this);
-				hemi.input.addMouseUpListener(this);
-				this.enabled = true;
-			}
-		},
-		
-		/**
-		 * Get the two dimensional plane that the Draggable will translate its
-		 * active Transform along.
-		 * 
-		 * @return {number[3][3]} the current drag plane defined as 3 XYZ points
-		 */
-		getPlane: function() {
-			if (this.activeTransform === null) {
-				return null;
-			}
-			
-			var plane;
-			
-			if (this.local) {
-				var u = hemi.utils;
-				plane = [u.pointAsWorld(this.activeTransform, this.plane[0]),
-						 u.pointAsWorld(this.activeTransform, this.plane[1]),
-						 u.pointAsWorld(this.activeTransform, this.plane[2])];
-			} else {
-				var hMath = hemi.core.math,
-					wM = this.activeTransform.getUpdatedWorldMatrix(),
-					translation = wM[3].slice(0,3);
-				
-				plane = [hMath.addVector(this.plane[0], translation),
-						 hMath.addVector(this.plane[1], translation),
-						 hMath.addVector(this.plane[2], translation)];
-			}
-			
-			return plane;
-		},
-		
-		/**
-		 * Get the Transforms that the Draggable currently contains.
-		 * 
-		 * @return {o3d.Transform[]} array of Transforms
-		 */
-		getTransforms: function() {
-			var trans = [];
-			
-			for (var i = 0, len = this.transformObjs.length; i < len; i++) {
-				trans.push(this.transformObjs[i].transform);
-			}
-			
-			return trans;
-		},
-		
-		/**
-		 * Convert the given screen coordinates into UV coordinates on the
-		 * current dragging plane.
-		 * 
-		 * @param {number} x x screen coordinate
-		 * @param {number} y y screen coordinate
-		 * @return {number[2]} equivalent UV coordinates
-		 */
-		getUV: function(x,y) {
-			var ray = hemi.core.picking.clientPositionToWorldRay(
-					x,
-					y,
-					hemi.view.viewInfo.drawContext,
-					hemi.core.client.width,
-					hemi.core.client.height),
-				plane = this.getPlane(),
-				tuv = hemi.utils.intersect(ray, plane);
-			
-			return [tuv[1], tuv[2]];
-		},
-
-		/**
-		 * Mouse movement event listener, calculates mouse point intersection 
-		 * with this Draggable's plane, and then translates the dragging object 
-		 * accordingly.
-		 *
-		 * @param {o3d.Event} event message describing how the mouse has moved
-		 */
-		onMouseMove : function(event) {
-			if (this.dragUV === null) {
-				return;
-			}
-			
-			var uv = this.getUV(event.x, event.y),
-				delta = [uv[0] - this.dragUV[0], uv[1] - this.dragUV[1]],
-				plane = this.getPlane();
-			
-			delta = this.clamp(delta);
-			
-			var localDelta = hemi.utils.uvToXYZ(delta, plane),
-				xyzOrigin = hemi.utils.uvToXYZ([0, 0], plane),
-				xyzDelta = hemi.core.math.subVector(localDelta, xyzOrigin);
-			
-			for (var ndx = 0, len = this.transformObjs.length; ndx < len; ndx++) {
-				var tran = this.transformObjs[ndx].transform;
-				hemi.utils.worldTranslate(xyzDelta, tran);
-			}
-			
-			this.send(hemi.msg.drag, { drag: xyzDelta });
-		},
-
-		/**
-		 * Mouse-up event listener, stops dragging.
-		 *
-		 * @param {o3d.Event} event message describing the mouse behavior
-		 */
-		onMouseUp : function(event) {
-			this.activeTransform = null;
-			this.dragUV = null;
-		},
-
-		/**
-		 * Pick event listener; checks in-scene intersections, and allows 
-		 * dragging.
-		 *
-		 * @param {o3djs.picking.PickInfo} pickInfo pick event information that
-		 *		contains information on the shape and transformation picked.
-		 * @param {o3d.Event} mouseEvent message describing mouse behavior
-		 */
-		onPick : function(pickInfo, mouseEvent) {
-			var pickTran = pickInfo.shapeInfo.parent.transform;
-			
-			for (var ndx = 0, len = this.transformObjs.length; ndx < len; ndx++) {
-				if (checkTransform(this.transformObjs[ndx].transform, pickTran)) {
-					this.activeTransform = pickTran;
-					this.dragUV = this.getUV(mouseEvent.x, mouseEvent.y);
-					break;
-				}
-			}
-		},
-		
-		/**
-		 * Receive the given Transform from the TransformRegistry.
-		 * 
-		 * @param {o3d.Transform} transform the Transform
-		 */
-		receiveTransform: function(transform) {
-			this.addTransform(transform);
-		},
-		
-		/**
-		 * Remove Transforms belonging to the specified owner from the
-		 * Draggable.
-		 * 
-		 * @param {hemi.world.Citizen} owner owner to remove Transforms for
-		 */
-		removeTransforms: function(owner) {
-			for (var i = 0; i < this.transformObjs.length; ++i) {
-				var obj = this.transformObjs[i];
-				
-				if (owner === obj.owner) {
-					removeManipTransforms.call(this, obj);
-					// Update index to reflect removed obj
-					--i;
-				}
-			}
-		},
-
-		/**
-		 * Set the relative uv limits in which this Draggable can move.
-		 *
-		 * @param {number[2][2]} coords min and max uv points on the current
-		 *     plane
-		 */
-		setLimits : function(coords) {
-			this.umin = coords[0][0];
-			this.umax = coords[1][0];
-			this.vmin = coords[0][1];
-			this.vmax = coords[1][1];
-		},
-
-		/**
-		 * Set the 2d plane on which this Draggable is bound.
-		 *
-		 * @param {number[3][3]} plane array of three XYZ coordinates defining a
-		 *     plane
-		 */
-		setPlane : function(plane) {
-			switch (plane) {
-				case (hemi.manip.Plane.XY):
-					this.plane = [[0,0,0],[1,0,0],[0,1,0]];
-					break;
-				case (hemi.manip.Plane.XZ):
-					this.plane = [[0,0,0],[1,0,0],[0,0,1]];
-					break;
-				case (hemi.manip.Plane.YZ):
-					this.plane = [[0,0,0],[0,0,1],[0,1,0]];
-					break;
-				default:
-					this.plane = plane;
-			}
-		},
-		
-		/**
-		 * Set the Draggable to operate in the local space of the transform it
-		 * is translating.
-		 */
-		setToLocal: function() {
-			this.local = true;
-		},
-		
-		/**
-		 * Set the Draggable to operate in world space.
-		 */
-		setToWorld: function() {
-			this.local = false;
-		}
-	});
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Manipulator class
+////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	/**
-	 * @class A Turnable allows a Transform to be turned about an axis by the
-	 *     user clicking and dragging with the mouse.
-	 * @extends hemi.world.Citizen
-	 * 
-	 * @param {hemi.manip.Axis} opt_axis axis to rotate about
-	 * @param {number[2]} opt_limits minimum and maximum angle limits (in radians)
-	 * @param {number} opt_startAngle starting angle (in radians, default is 0)
+	 * @class A Manipulator allows a Transform to be manipulated in some way through mouse
+	 * interaction.
 	 */
-	hemi.manip.Turnable = hemi.world.Citizen.extend({
-		init: function(opt_axis, opt_limits, opt_startAngle) {
-			this._super();
-			
-			this.angle = opt_startAngle == null ? 0 : opt_startAngle;
-			this.axis = null;
-			this.activeTransform = null;
-			this.dragAngle = null;
-			this.enabled = false;
-			this.local = false;
-			this.min = null;
-			this.max = null;
-			this.msgHandler = null;
-			this.plane = null;
-			this.transformObjs = [];
-			
-			if (opt_axis != null) {
-				this.setAxis(opt_axis);
-			}
-			if (opt_limits != null) {
-				this.setLimits(opt_limits);
-			}
-			
-			this.enable();
-		},
-		
-		/**
-		 * Overwrites hemi.world.Citizen.citizenType
-		 * @string
+	var Manipulator = function() {
+		/*
+		 * The Mesh that was picked by the last mouse click and is being used to manipulate.
+		 * @type hemi.Mesh
 		 */
-		citizenType: 'hemi.manip.Turnable',
-		
-		/**
-		 * Send a cleanup Message and remove all references in the Turnable.
-		 */
-		cleanup: function() {
-			this.disable();
-			this._super();
-			this.clearTransforms();
-			this.msgHandler = null;
-		},
-		
-		/**
-		 * Get the Octane structure for the Turnable.
-	     *
-	     * @return {Object} the Octane structure representing the Turnable
-		 */
-		toOctane: function(){
-			var octane = this._super(),
-				valNames = ['min', 'max'];
-			
-			for (var ndx = 0, len = valNames.length; ndx < len; ndx++) {
-				var name = valNames[ndx];
-				
-				octane.props.push({
-					name: name,
-					val: this[name]
-				});
-			}
-			
-			octane.props.push({
-				name: 'setAxis',
-				arg: [this.axis]
-			});
-			
-			return octane;
-		},
-		
-		/**
-		 * Add a Transform to this Turnable object.
-		 * 
-		 * @param {o3d.Transform} transform the transform that will turn about
-		 *     its origin when clicked and dragged
-		 */
-		addTransform : function(transform) {
-			hemi.world.tranReg.register(transform, this);
-			var param = transform.getParam('ownerId'),
-				obj = {},
-				owner = null;
-			
-			if (param !== null) {
-				owner = hemi.world.getCitizenById(param.value);
-			}
-			
-			if (hemi.utils.isAnimated(transform)) {
-				obj.transform = hemi.utils.fosterTransform(transform);
-				obj.foster = true;
-			} else {
-				obj.transform = transform;
-				obj.foster = false;
-			}
-			
-			if (owner) {
-				var that = this;
-				obj.owner = owner;
-				obj.msg = owner.subscribe(hemi.msg.cleanup, function(msg) {
-					that.removeTransforms(msg.src);
-				});
-			}
-			
-			this.activeTransform = transform;
-			this.transformObjs.push(obj);
-		},
-		
-		/**
-		 * Remove any previously set limits from the Turnable.
-		 */
-		clearLimits: function() {
-			this.min = null;
-			this.max = null;
-		},
-		
-		/**
-		 * Clear the list of Turnable Transforms.
-		 */
-		clearTransforms: function() {
-			while (this.transformObjs.length > 0) {
-				removeManipTransforms.call(this, this.transformObjs[0]);
-			}
-			
-			this.activeTransform = null;
-		},
-		
-		/**
-		 * Check if this turnable object contains a transform within its children, and sets the
-		 *		plane offset to match that transform if found.
-		 * @param {o3d.transform} transform Transform to match against
-		 */
-		containsTransform : function(transform) {
-			for (var i = 0; i < this.transformObjs.length; i++) {
-				var family = this.transformObjs[i].transform.getTransformsInTree();
-				for (var j = 0; j < family.length; j++) {
-					if (family[j].clientId === transform.clientId) {
-						return true;
-					}
-				}
-			}
-			return false;
-		},
-		
-		/**
-		 * Disable mouse interaction for the Turnable. 
-		 */
-		disable: function() {
-			if (this.enabled) {
-				hemi.world.unsubscribe(this.msgHandler, hemi.msg.pick);
-				hemi.input.removeMouseMoveListener(this);
-				hemi.input.removeMouseUpListener(this);
-				this.enabled = false;
-			}
-		},
-		
-		/**
-		 * Enable mouse interaction for the Turnable. 
-		 */
-		enable: function() {
-			if (!this.enabled) {
-				this.msgHandler = hemi.world.subscribe(
-					hemi.msg.pick,
-					this,
-					'onPick',
-					[hemi.dispatch.MSG_ARG + 'data.pickInfo', 
-					 hemi.dispatch.MSG_ARG + 'data.mouseEvent']);
-				hemi.input.addMouseMoveListener(this);
-				hemi.input.addMouseUpListener(this);
-				this.enabled = true;
-			}
-		},
-		
-		/**
-		 * Get the relative angle of a mouse click's interception with the
-		 * active plane to the origin of that plane.
-		 * 
-		 * @param {number} x screen x-position of the mouse click event
-		 * @param {number} y screen y-position of the mouse click event
-		 * @return {number} relative angle of mouse click position on the
-		 *     Turnable's current active plane
-		 */
-		getAngle : function(x,y) {
-			if (this.activeTransform === null) {
-				return null;
-			}
-			
-			var ray = hemi.core.picking.clientPositionToWorldRay(
-					x,
-					y,
-					hemi.view.viewInfo.drawContext,
-					hemi.core.client.width,
-					hemi.core.client.height),
-				plane;
-			
-			if (this.local) {
-				var u = hemi.utils;
-				plane = [u.pointAsWorld(this.activeTransform,this.plane[0]),
-						 u.pointAsWorld(this.activeTransform,this.plane[1]),
-						 u.pointAsWorld(this.activeTransform,this.plane[2])];
-			} else {
-				var hMath = hemi.core.math,
-					wM = this.activeTransform.getUpdatedWorldMatrix(),
-					translation = wM[3].slice(0,3);
-				
-				plane = [hMath.addVector(this.plane[0], translation),
-						 hMath.addVector(this.plane[1], translation),
-						 hMath.addVector(this.plane[2], translation)];
-			}
-			
-			var tuv = hemi.utils.intersect(ray, plane);
-			return Math.atan2(tuv[2],tuv[1]);
-		},
-		
-		/**
-		 * Get the Transforms that the Turnable currently contains.
-		 * 
-		 * @return {o3d.Transform[]} array of Transforms
-		 */
-		getTransforms: function() {
-			var trans = [];		
-			for (var i = 0, len = this.transformObjs.length; i < len; i++) {
-				trans.push(this.transformObjs[i].transform);
-			}
-			return trans;
-		},
-		
-		/**
-		 * On mouse move, if the shape has been clicked and is being dragged, 
-		 * calculate intersection points with the active plane and turn the
-		 * Transform to match.
-		 * 
-		 * @param {o3d.Event} event message describing the mouse position, etc.
-		 */
-		onMouseMove : function(event) {
-			if (this.dragAngle === null) {
-				return;
-			}
-			
-			var delta = this.getAngle(event.x,event.y) - this.dragAngle,
-				axis;
-			
-			if (this.max != null && this.angle + delta >= this.max) {
-				delta = this.max - this.angle;
-			}
-			if (this.min != null && this.angle + delta <= this.min) {
-				delta = this.min - this.angle;
-			}
-			
-			this.angle += delta;
-			
-			if (!this.local) {
-				this.dragAngle += delta;
-			}
-			
-			switch(this.axis) {
-				case hemi.manip.Axis.X:
-					axis = [-1,0,0];
-					break;
-				case hemi.manip.Axis.Y:
-					axis = [0,-1,0];
-					break;
-				case hemi.manip.Axis.Z:
-					axis = [0,0,1];
-					break;
-			}
-			
-			for (var i = 0; i < this.transformObjs.length; i++) {
-				var tran = this.transformObjs[i].transform;
-				
-				if (this.local) {
-					tran.axisRotate(axis, delta);
-				} else {
-					hemi.utils.worldRotate(axis, delta, tran);
-				}
-			}
-		},
-		
-		/**
-		 * On mouse up, deactivate turning.
-		 * 
-		 * @param {o3d.Event} event message describing mouse position, etc.
-		 */
-		onMouseUp : function(event) {
-			this.dragAngle = null;
-		},
-		
-		/**
-		 * On a pick message, if it applies to this Turnable, set turning to
-		 * true and calculate the relative angle.
-		 * 
-		 * @param {o3d.PickInfo} pickInfo information about the pick event
-		 * @param {o3d.Event} event message describing mouse position, etc.
-		 */
-		onPick : function(pickInfo,event) {
-			if (this.containsTransform(pickInfo.shapeInfo.parent.transform)) {
-				this.activeTransform = pickInfo.shapeInfo.parent.transform;
-				this.dragAngle = this.getAngle(event.x,event.y);
-			}
-		},
-		
-		/**
-		 * Receive the given Transform from the TransformRegistry.
-		 * 
-		 * @param {o3d.Transform} transform the Transform
-		 */
-		receiveTransform: function(transform) {
-			this.addTransform(transform);
-		},
-		
-		/**
-		 * Remove Transforms belonging to the specified owner from the
-		 * Turnable.
-		 * 
-		 * @param {hemi.world.Citizen} owner owner to remove Transforms for
-		 */
-		removeTransforms: function(owner) {
-			for (var i = 0; i < this.transformObjs.length; ++i) {
-				var obj = this.transformObjs[i];
-				
-				if (owner === obj.owner) {
-					removeManipTransforms.call(this, obj);
-					// Update index to reflect removed obj
-					--i;
-				}
-			}
-		},
-		
-		/**
-		 * Set the axis to which this Turnable is bound.
-		 * 
-		 * @param {hemi.manip.Axis} axis axis to rotate about - x, y, or z
-		 */
-		setAxis: function(axis) {
-			this.axis = axis;
-			
-			switch(axis) {
-				case hemi.manip.Axis.X:
-					this.plane = [[0,0,0],[0,0,1],[0,1,0]];
-					break;
-				case hemi.manip.Axis.Y:
-					this.plane = [[0,0,0],[1,0,0],[0,0,1]];
-					break;
-				case hemi.manip.Axis.Z:
-					this.plane = [[0,0,0],[1,0,0],[0,1,0]];
-					break;
-			}
-		},
-		
-		/**
-		 * Set the limits to which this Turnable can rotate.
-		 * 
-		 * @param {number[2]} limits minimum and maximum angle limits (in radians)
-		 */
-		setLimits : function(limits) {
-			if (limits[0] != null) {
-				this.min = limits[0];
-			} else {
-				this.min = null;
-			}
-			
-			if (limits[1] != null) {
-				this.max = limits[1];
-			} else {
-				this.max = null;
-			}
-		},
-		
-		/**
-		 * Set the Turnable to operate in the local space of the transform it is
-		 * rotating.
-		 */
-		setToLocal: function() {
-			this.local = true;
-		},
-		
-		/**
-		 * Set the Turnable to operate in world space.
-		 */
-		setToWorld: function() {
-			this.local = false;
-		}
-		
-	});
-	
-	hemi.manip.Scalable = hemi.world.Citizen.extend({
-		init: function(axis) {
-			this._super();
-			this.activeTransform = null;
-			this.axis = null;
-			this.dragAxis = null;
-			this.dragOrigin = null;
-			this.local = false;
-			this.scale = null;
-			this.transformObjs = [];
-			
-			this.setAxis(axis);
-			this.enable();
-		},
-		
-		addTransform : function(transform) {
-			hemi.world.tranReg.register(transform, this);
-			var param = transform.getParam('ownerId'),
-				obj = {},
-				owner = null;
-			
-			if (param !== null) {
-				owner = hemi.world.getCitizenById(param.value);
-			}
-			
-			if (hemi.utils.isAnimated(transform)) {
-				obj.transform = hemi.utils.fosterTransform(transform);
-				obj.foster = true;
-			} else {
-				obj.transform = transform;
-				obj.foster = false;
-			}
-			
-			if (owner) {
-				var that = this;
-				obj.owner = owner;
-				obj.msg = owner.subscribe(hemi.msg.cleanup, function(msg) {
-					that.removeTransforms(msg.src);
-				});
-			}
-			
-			this.transformObjs.push(obj);
-		},
-		cleanup: function() {
-			this.disable();
-			this._super();
-			this.clearTransforms();
-			this.msgHandler = null;
-		},
-		/**
-		 * Clear the list of scalable transforms.
-		 */
-		clearTransforms: function() {
-			while (this.transformObjs.length > 0) {
-				removeManipTransforms.call(this, this.transformObjs[0]);
-			}
-		},
-		containsTransform : function(transform) {
-			for (var i = 0; i < this.transformObjs.length; i++) {
-				var children = this.transformObjs[i].transform.getTransformsInTree();
-				for (var j = 0; j < children.length; j++) {
-					if (transform.clientId === children[j].clientId) {
-						return true;
-					}
-				}
-			}
-			return false;
-		},
-		disable: function() {
-			if (this.enabled) {
-				hemi.world.unsubscribe(this.msgHandler, hemi.msg.pick);
-				hemi.input.removeMouseMoveListener(this);
-				hemi.input.removeMouseUpListener(this);
-				this.enabled = false;
-			}
-		},
-		enable: function() {
-			if (!this.enabled) {
-				this.msgHandler = hemi.world.subscribe(
-					hemi.msg.pick,
-					this,
-					'onPick',
-					[hemi.dispatch.MSG_ARG + 'data.pickInfo', 
-					 hemi.dispatch.MSG_ARG + 'data.mouseEvent']);
-				hemi.input.addMouseMoveListener(this);
-				hemi.input.addMouseUpListener(this);
-				this.enabled = true;
-			}
-		},
-		getScale: function(x, y) {
-			var hMath = hemi.core.math,
-				offset = [x - this.dragOrigin[0], y - this.dragOrigin[1]],
-				scale = Math.abs(hemi.core.math.dot(this.dragAxis, offset));
-			return scale;
-		},
-		onMouseMove : function(event) {
-			if (this.dragAxis === null) {
-				return;
-			}
-			
-			var scale = this.getScale(event.x, event.y),
-				f = scale/this.scale,
-				axis = [
-					this.axis[0] ? f : 1,
-					this.axis[1] ? f : 1,
-					this.axis[2] ? f : 1
-				];
-			
-			for (i=0; i<this.transformObjs.length; i++) {
-				var tran = this.transformObjs[i].transform;
-				
-				if (this.local) {
-					tran.scale(axis);
-				} else {
-					hemi.utils.worldScale(axis, tran);
-				}
-			}
-			
-			this.scale = scale;
-			
-			this.send(hemi.msg.scale, { scale: scale });
-		},
-		onMouseUp : function() {
-			this.dragAxis = null;
-			this.dragOrigin = null;
-			this.scale = null;
-		},
-		onPick : function(pickInfo,event) {
-			if (this.containsTransform(pickInfo.shapeInfo.parent.transform)) {
-				this.activeTransform = pickInfo.shapeInfo.parent.transform;
-				var axis2d = this.xyPoint(this.axis);
-				this.dragOrigin = this.xyPoint([0,0,0]);
-				this.dragAxis = hemi.core.math.normalize(
-					[axis2d[0]-this.dragOrigin[0], axis2d[1]-this.dragOrigin[1]]);
-				this.scale = this.getScale(event.x, event.y);
-			}
-		},
-		/**
-		 * Remove Transforms belonging to the specified owner from the
-		 * Scalable.
-		 * 
-		 * @param {hemi.world.Citizen} owner owner to remove Transforms for
-		 */
-		removeTransforms: function(owner) {
-			for (var i = 0; i < this.transformObjs.length; ++i) {
-				var obj = this.transformObjs[i];
-				
-				if (owner === obj.owner) {
-					removeManipTransforms.call(this, obj);
-					// Update index to reflect removed obj
-					--i;
-				}
-			}
-		},
-		setAxis : function(axis) {
-			switch(axis) {
-				case hemi.manip.Axis.X:
-					this.axis = [1,0,0];
-					break;
-				case hemi.manip.Axis.Y:
-					this.axis = [0,1,0];
-					break;
-				case hemi.manip.Axis.Z:
-					this.axis = [0,0,1];
-					break;
-				default:
-					this.axis = [0,0,0];
-			}
-		},
-		/**
-		 * Set the Scalable to operate in the local space of the transform it is
-		 * scaling.
-		 */
-		setToLocal: function() {
-			this.local = true;
-		},
-		/**
-		 * Set the Scalable to operate in world space.
-		 */
-		setToWorld: function() {
-			this.local = false;
-		},
-		xyPoint : function(p) {
-			if (this.activeTransform === null) {
-				return null;
-			}
-			
-			var u = hemi.utils,
-				point;
-			
-			if (this.local) {
-				point = u.pointAsWorld(this.activeTransform, p);
-			} else {
-				var wM = this.activeTransform.getUpdatedWorldMatrix(),
-					translation = wM[3].slice(0,3);
-				
-				point = hemi.core.math.addVector(p, translation);
-			}
-			
-			return u.worldToScreenFloat(point);
-		}
-	});
-	
-	hemi.manip.Draggable.prototype.msgSent =
-		hemi.manip.Draggable.prototype.msgSent.concat([hemi.msg.drag]);
-	
-	hemi.manip.Scalable.prototype.msgSent =
-		hemi.manip.Scalable.prototype.msgSent.concat([hemi.msg.scale]);
+		this._activeTransform = null;
 
-	///////////////////////////////////////////////////////////////////////////
-	// Private functions
-	///////////////////////////////////////////////////////////////////////////
-	
-	var removeManipTransforms = function(tranObj) {
-		var tran;
-		
-		if (tranObj.foster) {
-			tran = hemi.utils.unfosterTransform(tranObj.transform);
-		} else {
-			tran = tranObj.transform;
+		/**
+		 * The Client that the Manipulator's active Transform is being rendered by.
+		 * @type hemi.Client
+		 */
+		this._client = null;
+
+		/*
+		 * Flag indicating if interaction through the Manipulator is enabled.
+		 * @type boolean
+		 */
+		this._enabled = false;
+
+		/*
+		 * The message handler for pick messages (stored for unsubscribing).
+		 * @type hemi.dispatch.MessageTarget
+		 */
+		this._msgHandler = null;
+
+		/**
+		 * Flag indicating if the Manipulator should operate in the local space of the Transform it
+		 * is manipulating (rather than world space).
+		 * @type boolean
+		 * @default false
+		 */
+		this.local = false;
+
+		/**
+		 * An array of Transforms controlled by the Manipulator.
+		 * @type hemi.Transform[]
+		 */
+		this.transforms = [];
+	};
+
+	/**
+	 * Add a Transform to the list of Manipulator Transforms.
+	 *
+	 * @param {hemi.Transform} transform the transform to add
+	 */
+	Manipulator.prototype.addTransform = function(transform) {
+		this.transforms.push(transform);
+	};
+
+	/**
+	 * Clear the list of Manipulator Transforms.
+	 */
+	Manipulator.prototype.clearTransforms = function() {
+		this.transforms.length = 0;
+	};
+
+	/**
+	 * Check if a given Transform is contained within the children of the Transforms acted upon by
+	 * the Manipulator.
+	 *
+	 * @param {hemi.Transform} transform transform to check against
+	 * @return {boolean} true if the Transform is found
+	 */
+	Manipulator.prototype.containsTransform = function(transform) {
+		for (var i = 0, il = this.transforms.length; i < il; ++i) {
+			var children = this.transforms[i].getAllChildren();
+
+			for (var j = 0, jl = children.length; j < jl; ++j) {
+				if (transform.id === children[j].id) {
+					return true;
+				}
+			}
 		}
-		
-		hemi.world.tranReg.unregister(tran, this);
-		var ndx = this.transformObjs.indexOf(tranObj);
-		
-		if (ndx > -1) {
-			this.transformObjs.splice(ndx, 1);
-		}
-		
-		if (tranObj.owner && tranObj.msg) {
-			tranObj.owner.unsubscribe(tranObj.msg, hemi.msg.cleanup);
+
+		return false;
+	};
+
+	/**
+	 * Disable mouse interaction for the Manipulator. 
+	 */
+	Manipulator.prototype.disable = function() {
+		if (this._enabled) {
+			hemi.unsubscribe(this._msgHandler, hemi.msg.pick);
+			hemi.input.removeMouseMoveListener(this);
+			hemi.input.removeMouseUpListener(this);
+			this._enabled = false;
+			this._msgHandler = null;
 		}
 	};
-	
-	/*
-	 * Check if the pickTransform is a child, grandchild, etc. of the transform.
-	 * 
-	 * @param {o3d.Transform} transform parent transform to check
-	 * @param {o3d.Transform} pickTransform child transform to search for
-	 * @return {boolean} true if the pickTransform is contained within the
-	 *     transform
-	 */
-	function checkTransform(transform, pickTransform) {
-		var found = (transform.clientId === pickTransform.clientId);
 
-		if (!found) {
-			var children = transform.children;
-			
-			for (var ndx = 0, len = children.length; ndx < len && !found; ndx++) {
-				found = found || checkTransform(children[ndx], pickTransform);
+	/**
+	 * Enable mouse interaction for the Manipulator. 
+	*/
+	Manipulator.prototype.enable = function() {
+		if (!this._enabled) {
+			this._msgHandler = hemi.subscribe(hemi.msg.pick, this, 'onPick',
+				[hemi.dispatch.MSG_ARG + 'data.pickedMesh', 
+				 hemi.dispatch.MSG_ARG + 'data.mouseEvent']);
+
+			hemi.input.addMouseMoveListener(this);
+			hemi.input.addMouseUpListener(this);
+			this._enabled = true;
+		}
+	};
+
+	/**
+	 * Stop manipulating transforms.
+	 *
+	 * @param {Object} event the mouse up event
+	 */
+	Manipulator.prototype.onMouseUp = function(event) {
+		this._activeTransform = null;
+	};
+
+	/**
+	 * Remove the given Transform from the Manipulator.
+	 * 
+	 * @param {hemi.Transform} transform the Transform to remove
+	*/
+	Manipulator.prototype.removeTransform = function(transform) {
+		var ndx = this.transforms.indexOf(transform);
+
+		if (ndx !== -1) {
+			this.transforms.splice(ndx, 1);
+		}
+	};
+
+// Private functions
+
+	/*
+	 * Get the two dimensional plane that the Manipulator is operating on.
+	 * 
+	 * @return {THREE.Vector3[3]} the current move plane defined as 3 XYZ points
+	 */
+	function getPlane() {
+		if (this.local) {
+			var u = hemi.utils;
+			_plane[0].copy(this.plane[0]);
+			_plane[1].copy(this.plane[1]);
+			_plane[2].copy(this.plane[2]);
+
+			u.pointAsWorld(this._activeTransform, _plane[0]);
+			u.pointAsWorld(this._activeTransform, _plane[1]);
+			u.pointAsWorld(this._activeTransform, _plane[2]);
+		} else {
+			var translation = this._activeTransform.matrixWorld.getPosition();
+
+			_plane[0].add(this.plane[0], translation);
+			_plane[1].add(this.plane[1], translation);
+			_plane[2].add(this.plane[2], translation);
+		}
+
+		return _plane;
+	}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Movable class
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	/**
+	 * @class A Movable allows a 3D object to be moveed around the scene with the mouse, constrained
+	 * to a defined 2D plane.
+	 * @extends Manipulator
+	 * 
+	 * @param {Vector3[3]} opt_plane an array of 3 XYZ points defining a plane
+	 * @param {number[4]} opt_limits an array containing [min on u, max on u, min on v, max on v]
+	 */
+	var Movable = function(opt_plane, opt_limits) {
+		Manipulator.call(this);
+
+		/*
+		 * The UV coordinates of the last mouse down that picked one of the Movable's Transforms.
+		 * @type number[2]
+		 */
+		this._pickUV = null;
+
+		/*
+		 * The current UV coordinates of the Movable on its plane.
+		 * @type number[2]
+		 */
+		this._uv = [0, 0];
+
+		/**
+		 * The 2D plane that the Movable's Transforms will move along.
+		 * @type THREE.Vector3[3]
+		 */
+		this.plane = null;
+
+		/**
+		 * The minimum U coordinate for the Movable on its 2D plane.
+		 * @type number
+		 * @default null
+		 */
+		this.umin = null;
+
+		/**
+		 * The maximum U coordinate for the Movable on its 2D plane.
+		 * @type number
+		 * @default null
+		 */
+		this.umax = null;
+
+		/**
+		 * The minimum V coordinate for the Movable on its 2D plane.
+		 * @type number
+		 * @default null
+		 */
+		this.vmin = null;
+
+		/**
+		 * The maximum V coordinate for the Movable on its 2D plane.
+		 * @type number
+		 * @default null
+		 */
+		this.vmax = null;
+
+		this.setPlane(opt_plane || hemi.Plane.XZ);
+
+		if (opt_limits !== undefined) {
+			this.setLimits(opt_limits);
+		}
+
+		this.enable();
+	};
+
+	Movable.prototype = new Manipulator();
+	Movable.constructor = Movable;
+
+	/*
+	 * Octane properties for Movable.
+	 * 
+	 * @return {Object[]} array of Octane properties
+	 */
+	Movable.prototype._octane = function(){
+		var valNames = ['local', 'umin', 'umax', 'vmin', 'vmax'],
+			props = [],
+			plane = this.plane;
+
+		for (var i = 0, il = valNames.length; i < il; ++i) {
+			var name = valNames[i];
+
+			props.push({
+				name: name,
+				val: this[name]
+			});
+		}
+
+		if (plane === XY_PLANE) {
+			props.push({
+				name: 'setPlane',
+				arg: [hemi.Plane.XY]
+			});
+		} else if (plane === XZ_PLANE) {
+			props.push({
+				name: 'setPlane',
+				arg: [hemi.Plane.XZ]
+			});
+		} else if (plane === YZ_PLANE) {
+			props.push({
+				name: 'setPlane',
+				arg: [hemi.Plane.YZ]
+			});
+		} else {
+			props.push({
+				name: 'plane',
+				oct: [plane[0]._toOctane(), plane[1]._toOctane(), plane[2]._toOctane()]
+			});
+		}
+
+		return props;
+	};
+
+	/**
+	 * Clear all properties for the Movable.
+	 */
+	Movable.prototype.clear = function() {
+		this._activeTransform = null;
+		this._client = null;
+		this._uv[0] = this._uv[1] = 0;
+		this.local = false;
+
+		this.setPlane(hemi.Plane.XZ);
+		this.disable();
+		this.clearTransforms();
+		this.clearLimits();
+	};
+
+	/**
+	 * Remove any previously set limits from the Movable.
+	 */
+	Movable.prototype.clearLimits = function() {
+		this.umin = null;
+		this.umax = null;
+		this.vmin = null;
+		this.vmax = null;
+	};
+
+	/**
+	 * Get the string representation of the Movable's plane.
+	 * 
+	 * @return {hemi.Plane} the current plane for the Movable
+	 */
+	Movable.prototype.getPlaneString = function() {
+		if (this.plane === XY_PLANE) {
+			return hemi.Plane.XY;
+		} else if (this.plane === XZ_PLANE) {
+			return hemi.Plane.XZ;
+		} else if (this.plane === YZ_PLANE) {
+			return hemi.Plane.YZ;
+		} else {
+			return 'UNKNOWN';
+		}
+	};
+
+	/**
+	 * Calculate mouse point intersection with the Movable's plane and then translate the moving
+	 * Transforms accordingly.
+	 *
+	 * @param {Object} event the mouse move event
+	 */
+	Movable.prototype.onMouseMove = function(event) {
+		if (this._activeTransform === null) return;
+
+		var plane = getPlane.call(this),
+			uv = getUV.call(this, event.x, event.y, plane),
+			delta = [uv[0] - this._pickUV[0], uv[1] - this._pickUV[1]];
+
+		clampUV.call(this, delta);
+
+		var localDelta = hemi.utils.uvToXYZ(delta, plane),
+			xyzOrigin = hemi.utils.uvToXYZ([0, 0], plane),
+			xyzDelta = _vector.sub(localDelta, xyzOrigin);
+
+		for (var i = 0, il = this.transforms.length; i < il; ++i) {
+			hemi.utils.worldTranslate(xyzDelta, this.transforms[i]);
+		}
+
+		this.transforms[0].send(hemi.msg.move, { delta: xyzDelta });
+	};
+
+	/**
+	 * Check the picked mesh to see if the Movable should start moving its Transforms.
+	 *
+	 * @param {hemi.Mesh} pickedMesh the Mesh picked by the mouse click
+	 * @param {Object} mouseEvent the mouse down event
+	 */
+	Movable.prototype.onPick = function(pickedMesh, mouseEvent) {
+		var meshId = pickedMesh.id;
+
+		for (var i = 0, il = this.transforms.length; i < il; ++i) {
+			if (this.transforms[i].id === meshId) {
+				this._activeTransform = pickedMesh;
+				this._client = hemi.getClient(pickedMesh);
+				this._pickUV = getUV.call(this, mouseEvent.x, mouseEvent.y);
+				break;
 			}
 		}
-		
-		return found;
+	};
+
+	/**
+	 * Set the relative uv limits in which this Movable can move.
+	 *
+	 * @param {number[4]} limits an array containing [min on u, max on u, min on v, max on v]
+	 */
+	Movable.prototype.setLimits = function(limits) {
+		this.umin = limits[0];
+		this.umax = limits[1];
+		this.vmin = limits[2];
+		this.vmax = limits[3];
+	};
+
+	/**
+	 * Set the 2d plane on which this Movable is bound.
+	 *
+	 * @param {hemi.Plane} plane enum indicating which plane to move along
+	 */
+	Movable.prototype.setPlane = function(plane) {
+		switch (plane) {
+			case (hemi.Plane.XY):
+				this.plane = XY_PLANE;
+				break;
+			case (hemi.Plane.XZ):
+				this.plane = XZ_PLANE;
+				break;
+			case (hemi.Plane.YZ):
+				this.plane = YZ_PLANE;
+				break;
+		}
+	};
+
+// Private functions
+
+	/*
+	 * Add the given UV delta to the current UV coordinates and clamp the results.
+	 *
+	 * @param {number[2]} delta the uv change to add before clamping
+	 */
+	function clampUV(delta) {
+		var u = this._uv[0] + delta[0],
+			v = this._uv[1] + delta[1];
+
+		if (this.umin !== null && u < this.umin) {
+			u = this.umin;
+		}
+		if (this.umax !== null && u > this.umax) {
+			u = this.umax;
+		}
+		if (this.vmin !== null && v < this.vmin) {
+			v = this.vmin;
+		}
+		if (this.vmax !== null && v > this.vmax) {
+			v = this.vmax;
+		}
+
+		delta[0] = u - this._uv[0];
+		delta[1] = v - this._uv[1];
+		this._uv[0] = u;
+		this._uv[1] = v;
 	}
-	
-	return hemi;
-})(hemi || {});/* 
- * Kuda includes a library and editor for authoring interactive 3D content for the web.
- * Copyright (C) 2011 SRI International.
- *
- * This program is free software; you can redistribute it and/or modify it under the terms
- * of the GNU General Public License as published by the Free Software Foundation; either 
- * version 2 of the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
- * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
- * See the GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License along with this program; 
- * if not, write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, 
- * Boston, MA 02110-1301 USA.
- */
 
-/**
- * @fileoverview This describes the objects needed to build the hemi particle
- *		effects: Bezier curves, particles which can follow those curves, and
- *		systems to manage particles and emitters. 
- */
-
-var hemi = (function(hemi) {
-	/**
-	 * @namespace A module for curves and particle systems.
+	/*
+	 * Convert the given screen coordinates into UV coordinates on the current moving plane.
+	 * 
+	 * @param {number} x x screen coordinate
+	 * @param {number} y y screen coordinate
+	 * @return {number[2]} equivalent UV coordinates
 	 */
-	hemi.curve = hemi.curve || {};
+	function getUV(x, y, opt_plane) {
+		var ray = this._client.castRay(x, y),
+			plane = opt_plane || getPlane.call(this),
+			tuv = hemi.utils.intersect(ray, plane);
+
+		return [tuv[1], tuv[2]];
+	}
+
+	hemi.Movable = Movable;
+	hemi.makeOctanable(hemi.Movable, 'hemi.Movable', hemi.Movable.prototype._octane);
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Turnable class
+////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	/**
-	 * Enum for different curve types, described below.
-	 * <ul><pre>
-	 * <li>hemi.curve.CurveType.Linear
-	 * <li>hemi.curve.CurveType.Bezier
-	 * <li>hemi.curve.CurveType.CubicHermite
-	 * <li>hemi.curve.CurveType.LinearNorm
-	 * <li>hemi.curve.CurveType.Cardinal
-	 * <li>hemi.curve.CurveType.Custom
-	 * </ul></pre>
+	 * @class A Turnable allows a Transform to be turned about an axis by the user clicking and
+	 * dragging with the mouse.
+	 * @extends Manipulator
+	 * 
+	 * @param {hemi.Axis} opt_axis optional axis to rotate about
+	 * @param {number[2]} opt_limits optional minimum and maximum angle limits (in radians)
 	 */
-	hemi.curve.CurveType = {
+	var Turnable = function(opt_axis, opt_limits) {	
+		Manipulator.call(this);
+
+		/*
+		 * The current angle of the Turnable on its axis.
+		 * @type number
+		 */
+		this._angle = 0;
+
+		/*
+		 * The angle of the last mouse down that picked one of the Turnable's Transforms.
+		 * @type number
+		 */
+		this._pickAngle = null;
+
+		/**
+		 * The axis that the Turnable's Transforms will turn about.
+		 * @type THREE.Vector3
+		 */
+		this.axis = new THREE.Vector3();
+
+		/**
+		 * The minimum angle for the Turnable on its axis.
+		 * @type number
+		 * @default null
+		 */
+		this.min = null;
+
+		/**
+		 * The maximum angle for the Turnable on its axis.
+		 * @type number
+		 * @default null
+		 */
+		this.max = null;
+
+		/**
+		 * The 2D plane that the Movable's Transforms will move along.
+		 * @type THREE.Vector3[3]
+		 */
+		this.plane = null;
+
+		this.setAxis(opt_axis || hemi.Axis.Y);
+
+		if (opt_limits !== undefined) {
+			this.setLimits(opt_limits);
+		}
+
+		this.enable();
+	};
+
+	Turnable.prototype = new Manipulator();
+	Turnable.constructor = Turnable;
+
+	/*
+	 * Octane properties for Turnable.
+	 * 
+	 * @return {Object[]} array of Octane properties
+	 */
+	Turnable.prototype._octane = function(){
+		var valNames = ['local', 'max', 'min'],
+			props = [],
+			plane = this.plane;
+
+		for (var i = 0, il = valNames.length; i < il; ++i) {
+			var name = valNames[i];
+
+			props.push({
+				name: name,
+				val: this[name]
+			});
+		}
+
+		if (plane === XY_PLANE) {
+			props.push({
+				name: 'setAxis',
+				arg: [hemi.Axis.Z]
+			});
+		} else if (plane === XZ_PLANE) {
+			props.push({
+				name: 'setAxis',
+				arg: [hemi.Axis.Y]
+			});
+		} else if (plane === YZ_PLANE) {
+			props.push({
+				name: 'setAxis',
+				arg: [hemi.Axis.X]
+			});
+		} else {
+			props.push({
+				name: 'axis',
+				oct: this.axis._toOctane()
+			});
+			props.push({
+				name: 'plane',
+				oct: [plane[0]._toOctane(), plane[1]._toOctane(), plane[2]._toOctane()]
+			});
+		}
+
+		return props;
+	};
+
+	/**
+	 * Clear all properties for the Turnable.
+	 */
+	Turnable.prototype.clear = function() {
+		this._activeTransform = null;
+		this._angle = 0;
+		this._client = null;
+		this.local = false;
+
+		this.setAxis(hemi.Axis.Y);
+		this.disable();
+		this.clearTransforms();
+		this.clearLimits();
+	};
+
+	/**
+	 * Remove any previously set limits from the Turnable.
+	 */
+	Turnable.prototype.clearLimits = function() {
+		this.min = null;
+		this.max = null;
+	};
+
+	/**
+	 * Get the string representation of the Turnable's axis.
+	 * 
+	 * @return {hemi.Axis} the current axis for the Turnable
+	 */
+	Turnable.prototype.getAxisString = function() {
+		if (hemi.utils.vector3Equals(this.axis, _vector.set(-1, 0, 0))) {
+			return hemi.Axis.X;
+		} else if (hemi.utils.vector3Equals(this.axis, _vector.set(0, -1, 0))) {
+			return hemi.Axis.Y;
+		} else if (hemi.utils.vector3Equals(this.axis, _vector.set(0, 0, 1))) {
+			return hemi.Axis.Z;
+		} else {
+			return 'UNKNOWN';
+		}
+	};
+
+	/**
+	 * Calculate mouse point intersection with the Turnable's plane and then rotate the turning
+	 * Transforms accordingly.
+	 *
+	 * @param {Object} event the mouse move event
+	 */
+	Turnable.prototype.onMouseMove = function(event) {
+		if (this._activeTransform === null) return;
+
+		var delta = getAngle.call(this, event.x, event.y) - this._pickAngle;
+
+		if (this.max !== null && this._angle + delta >= this.max) {
+			delta = this.max - this._angle;
+		}
+		if (this.min !== null && this._angle + delta <= this.min) {
+			delta = this.min - this._angle;
+		}
+
+		this._angle += delta;
+
+		if (!this.local) {
+			this._pickAngle += delta;
+		}
+
+		for (var i = 0, il = this.transforms.length; i < il; ++i) {
+			var tran = this.transforms[i];
+
+			if (this.local) {
+				hemi.utils.axisRotate(this.axis, delta, tran);
+			} else {
+				hemi.utils.worldRotate(this.axis, delta, tran);
+			}
+		}
+	};
+
+	/**
+	 * Check the picked mesh to see if the Turnable should start turning its Transforms.
+	 *
+	 * @param {hemi.Mesh} pickedMesh the Mesh picked by the mouse click
+	 * @param {Object} mouseEvent the mouse down event
+	 */
+	Turnable.prototype.onPick = function(pickedMesh, event) {
+		var meshId = pickedMesh.id;
+
+		for (var i = 0, il = this.transforms.length; i < il; ++i) {
+			if (this.transforms[i].id === meshId) {
+				this._activeTransform = pickedMesh;
+				this._client = hemi.getClient(pickedMesh);
+				this._pickAngle = getAngle.call(this, event.x, event.y);
+				break;
+			}
+		}
+	};
+
+	/**
+	 * Set the axis to which the Turnable is bound.
+	 * 
+	 * @param {hemi.Axis} axis axis to rotate about
+	 */
+	Turnable.prototype.setAxis = function(axis) {
+		switch(axis) {
+			case hemi.Axis.X:
+				this.axis.copy(X_AXIS);
+				this.axis.x *= -1;
+				this.plane = YZ_PLANE;
+				break;
+			case hemi.Axis.Y:
+				this.axis.copy(Y_AXIS);
+				this.axis.y *= -1;
+				this.plane = XZ_PLANE;
+				break;
+			case hemi.Axis.Z:
+				this.axis.copy(Z_AXIS);
+				this.plane = XY_PLANE;
+				break;
+		}
+	};
+
+	/**
+	 * Set the limits to which the Turnable can rotate.
+	 * 
+	 * @param {number[2]} limits minimum and maximum angle limits (in radians)
+	 */
+	Turnable.prototype.setLimits = function(limits) {
+		this.min = limits[0];
+		this.max = limits[1];
+	};
+
+// Private functions
+
+	/*
+	 * Get the relative angle of a mouse click's interception with the active plane to the origin of
+	 * that plane.
+	 * 
+	 * @param {number} x screen x-position of the mouse click event
+	 * @param {number} y screen y-position of the mouse click event
+	 * @return {number} relative angle of mouse click position on the Turnable's current active
+	 *     plane
+	 */
+	function getAngle(x, y) {
+		var plane = getPlane.call(this),
+			ray = this._client.castRay(x, y),
+			tuv = hemi.utils.intersect(ray, plane);
+
+		return Math.atan2(tuv[2], tuv[1]);
+	}
+
+
+	hemi.Turnable = Turnable;
+	hemi.makeOctanable(hemi.Turnable, 'hemi.Turnable', hemi.Turnable.prototype._octane);
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Resizable class
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	/**
+	 * @class A Resizable allows a Transform to be resized along an axis by the user clicking and
+	 * dragging with the mouse.
+	 * @extends Manipulator
+	 * 
+	 * @param {hemi.Axis} opt_axis optional axis to resize along
+	 */
+	var Resizable = function(opt_axis) {
+		Manipulator.call(this);
+
+		/*
+		 * The screen XY of the origin point in the local space of the Resizable's Transform.
+		 * @type number[2]
+		 */
+		this._originXY = null;
+
+		/*
+		 * The screen XY of the last mouse down that picked one of the Resizable's Transforms.
+		 * @type THREE.Vector2
+		 */
+		this._pickXY = new THREE.Vector2();
+
+		/*
+		 * The current scale of the Resizable on its axis.
+		 * @type number
+		 */
+		this._scale = null;
+
+		/**
+		 * The axis that the Resizable's Transforms will resize along.
+		 * @type THREE.Vector3
+		 */
+		this.axis = null;
+
+		this.setAxis(opt_axis || hemi.Axis.Y);
+
+		this.enable();
+	};
+
+	Resizable.prototype = new Manipulator();
+	Resizable.constructor = Resizable;
+
+	/*
+	 * Octane properties for Resizable.
+	 * 
+	 * @return {Object[]} array of Octane properties
+	 */
+	Resizable.prototype._octane = function(){
+		// TODO
+		return [];
+	};
+
+	/**
+	 * Clear all properties for the Resizable.
+	 */
+	Resizable.prototype.clear = function() {
+		this._activeTransform = null;
+		this._scale = null;
+		this._client = null;
+		this.local = false;
+
+		this.setAxis(hemi.Axis.Y);
+		this.disable();
+		this.clearTransforms();
+	};
+
+	/**
+	 * Calculate mouse point intersection with the Turnable's plane and then rotate the turning
+	 * Transforms accordingly.
+	 *
+	 * @param {Object} event the mouse move event
+	 */
+	Resizable.prototype.onMouseMove = function(event) {
+		if (this._activeTransform === null) return;
+
+		var scale = getScale.call(this, event.x, event.y),
+			f = scale / this._scale,
+			axis = _vector.set(
+				this.axis.x ? f : 1,
+				this.axis.y ? f : 1,
+				this.axis.z ? f : 1
+			);
+
+		for (var i = 0, il = this.transforms.length; i < il; ++i) {
+			var tran = this.transforms[i];
+
+			if (this.local) {
+				tran.scale.multiplySelf(axis);
+				tran.updateMatrix();
+				tran.updateMatrixWorld(true);
+			} else {
+				hemi.utils.worldScale(axis, tran);
+			}
+		}
+
+		this._scale = scale;
+		this.transforms[0].send(hemi.msg.resize, { scale: scale });
+	};
+
+	/**
+	 * Check the picked mesh to see if the Resizable should start resizing its Transforms.
+	 *
+	 * @param {hemi.Mesh} pickedMesh the Mesh picked by the mouse click
+	 * @param {Object} mouseEvent the mouse down event
+	 */
+	Resizable.prototype.onPick = function(pickedMesh, event) {
+		var meshId = pickedMesh.id;
+
+		for (var i = 0, il = this.transforms.length; i < il; ++i) {
+			if (this.transforms[i].id === meshId) {
+				this._activeTransform = pickedMesh;
+				this._client = hemi.getClient(pickedMesh);
+				this._originXY = xyPoint.call(this, _vector.set(0,0,0));
+
+				var axis2d = xyPoint.call(this, _vector.copy(this.axis));
+				this._pickXY.set(axis2d[0] - this._originXY[0], axis2d[1] - this._originXY[1]).normalize();
+				this._scale = getScale.call(this, event.x, event.y);
+				break;
+			}
+		}
+	};
+
+	/**
+	 * Set the axis along which the Resizable will resize.
+	 * 
+	 * @param {hemi.Axis} axis axis to resize along
+	 */
+	Resizable.prototype.setAxis = function(axis) {
+		switch(axis) {
+			case hemi.Axis.X:
+				this.axis = X_AXIS;
+				break;
+			case hemi.Axis.Y:
+				this.axis = Y_AXIS;
+				break;
+			case hemi.Axis.Z:
+				this.axis = Z_AXIS;
+				break;
+		}
+	};
+
+// Private functions
+
+	/*
+	 * Get the relative scale from the given mouse event coordinates.
+	 * 
+	 * @param {number} x screen x-position of the mouse event
+	 * @param {number} y screen y-position of the mouse event
+	 * @return {number} relative scale
+	 */
+	function getScale(x, y) {
+		var offset = _vec2.set(x - this._originXY[0], y - this._originXY[1]),
+			scale = Math.abs(this._pickXY.dot(offset));
+
+		return scale;
+	}
+
+	/*
+	 * Convert the given point in the active transform's local space to screen coordinates.
+	 * 
+	 * @param {THREE.Vector3} point point in local space to convert
+	 * @return {number[2]} array of the x and y screen coordinates
+	 */
+	function xyPoint(point) {
+		if (this.local) {
+			hemi.utils.pointAsWorld(this._activeTransform, point);
+		} else {
+			point.addSelf(this._activeTransform.position);
+		}
+
+		hemi.utils.worldToScreenFloat(this._client, point);
+		return [point.x, point.y];
+	}
+
+	hemi.Resizable = Resizable;
+	hemi.makeOctanable(hemi.Resizable, 'hemi.Resizable', hemi.Resizable.prototype._octane);
+
+})();
+/*
+ * Licensed under the MIT license: http://www.opensource.org/licenses/mit-license.php
+ * The MIT License (MIT)
+ * 
+ * Copyright (c) 2011 SRI International
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+ * associated  documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the  Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
+
+(function() {
+
+	var dbgBoxMat =  new THREE.MeshPhongMaterial({
+			color: 0x000088,
+			wireframe: true,
+			wireframeLinewidth: 1
+		}),	
+		dbgBoxTransforms = {},
+		dbgLineMat = null,
+		dbgLineTransforms = [];
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// ParticleCurve shader code
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	var shaderChunks = {
+		vert: {
+			header: 
+				'uniform float sysTime; \n' +
+				'uniform float ptcMaxTime; \n' +
+				'uniform float ptcDec; \n' +
+				'uniform float numPtcs; \n' +
+				'uniform float tension; \n' +
+				'uniform mat4 viewIT; \n' +
+				'uniform vec3 minXYZ[NUM_BOXES]; \n' +
+				'uniform vec3 maxXYZ[NUM_BOXES]; \n' +
+				'attribute vec4 idOffset; \n' +
+				'varying vec4 ptcColor; \n',
+
+			headerColors:
+				'uniform vec4 ptcColors[NUM_COLORS]; \n' +
+				'uniform float ptcColorKeys[NUM_COLORS]; \n',
+
+			headerScales:
+				'uniform vec3 ptcScales[NUM_SCALES]; \n' +
+				'uniform float ptcScaleKeys[NUM_SCALES]; \n',
+
+			support:
+				'float rand(vec2 co) { \n' +
+				'  return fract(sin(dot(co.xy, vec2(12.9898,78.233))) * 43758.5453); \n' +
+				'} \n' +
+				'vec3 randXYZ(vec2 co, vec3 min, vec3 max) { \n' +
+				'  float rX = rand(vec2(co.x, co.x)); \n' +
+				'  float rY = rand(vec2(co.y, co.y)); \n' +
+				'  float rZ = rand(co); \n' +
+				'  return vec3(mix(max.x, min.x, rX), \n' +
+				'              mix(max.y, min.y, rY), \n' +
+				'              mix(max.z, min.z, rZ)); \n' +
+				'} \n' +
+				'vec3 ptcInterp(float t, vec3 p0, vec3 p1, vec3 m0, vec3 m1) { \n' +
+				'  float t2 = pow(t, 2.0); \n' +
+				'  float t3 = pow(t, 3.0); \n' +
+				'  return (2.0*t3 - 3.0*t2 + 1.0)*p0 + (t3 -2.0*t2 + t)*m0 + \n' +
+				'   (-2.0*t3 + 3.0*t2)*p1 + (t3-t2)*m1; \n' +
+				'} \n',
+
+			// Unfortunately we have to do this in the vertex shader since the pixel
+			// shader complains about non-constant indexing.
+			supportColors:
+				'void setPtcClr(float ptcTime) { \n' +
+				'  if (ptcTime > 1.0) { \n' +
+				'    ptcColor = vec4(0.0); \n' +
+				'  } else { \n' +
+				'    int ndx; \n' +
+				'    float key; \n' +
+				'    for (int i = 0; i < NUM_COLORS-1; i++) { \n' +
+				'      if (ptcColorKeys[i] < ptcTime) { \n' +
+				'        ndx = i; \n' +
+				'        key = ptcColorKeys[i]; \n' +
+				'      } \n' +
+				'    } \n' +
+				'    float t = (ptcTime - key)/(ptcColorKeys[ndx+1] - key); \n' +
+				'    ptcColor = mix(ptcColors[ndx], ptcColors[ndx+1], t); \n' +
+				'  } \n' +
+				'} \n',
+
+			supportNoColors:
+				'void setPtcClr(float ptcTime) { \n' +
+				'  if (ptcTime > 1.0) { \n' +
+				'    ptcColor = vec4(0.0); \n' +
+				'  } else { \n' +
+				'    ptcColor = vec4(1.0); \n' +
+				'  } \n' +
+				'} \n',
+
+			supportAim:
+				'mat4 getRotMat(float t, vec3 p0, vec3 p1, vec3 m0, vec3 m1) { \n' +
+				'  float tM = max(0.0,t-0.02); \n' +
+				'  float tP = min(1.0,t+0.02); \n' +
+				'  vec3 posM = ptcInterp(tM, p0, p1, m0, m1); \n' +
+				'  vec3 posP = ptcInterp(tP, p0, p1, m0, m1); \n' +
+				'  vec3 dPos = posP-posM; \n' +
+				'  float dxz = sqrt(pow(dPos.x,2.0)+pow(dPos.z,2.0)); \n' +
+				'  float dxyz = length(dPos); \n' +
+				'  float cx = dPos.y/dxyz; \n' +
+				'  float cy = dPos.z/dxz; \n' +
+				'  float sx = dxz/dxyz; \n' +
+				'  float sy = dPos.x/dxz; \n' +
+				'  return mat4(cy,0.0,-1.0*sy,0.0, \n' +
+				'   sx*sy,cx,sx*cy,0.0, \n' +
+				'   cx*sy,-1.0*sx,cx*cy,0.0, \n' +
+				'   0.0,0.0,0.0,1.0); \n' +
+				'} \n',
+
+			supportScale:
+				'vec3 getScale(float ptcTime) { \n' +
+				'  if (ptcTime > 1.0) { \n' +
+				'    return vec3(1.0); \n' +
+				'  } else { \n' +
+				'    int ndx; \n' +
+				'    float key; \n' +
+				'    for (int i = 0; i < NUM_SCALES-1; i++) { \n' +
+				'      if (ptcScaleKeys[i] < ptcTime) { \n' +
+				'        ndx = i; \n' +
+				'        key = ptcScaleKeys[i]; \n' +
+				'      } \n' +
+				'    } \n' +
+				'    float t = (ptcTime - key)/(ptcScaleKeys[ndx+1] - key); \n' +
+				'    return mix(ptcScales[ndx], ptcScales[ndx+1], t); \n' +
+				'  } \n' +
+				'} \n',
+
+			bodySetup:
+				'  float id = idOffset[0]; \n' +
+				'  float offset = idOffset[1]; \n' +
+				'  vec2 seed = vec2(id, numPtcs-id); \n' +
+				'  float ptcTime = sysTime + offset; \n' +
+				'  if (ptcTime > ptcMaxTime) { \n' +
+				'    ptcTime -= ptcDec; \n' +
+				'  } \n' +
+				'  setPtcClr(ptcTime); \n' +
+				'  if (ptcTime > 1.0) { \n' +
+				'    ptcTime = 0.0; \n' +
+				'  } \n' +
+				'  float boxT = float(NUM_BOXES-1)*ptcTime; \n' +
+				'  int ndx = int(floor(boxT)); \n' +
+				'  float t = fract(boxT); \n' +
+				'  vec3 p0 = randXYZ(seed,minXYZ[ndx],maxXYZ[ndx]); \n' +
+				'  vec3 p1 = randXYZ(seed,minXYZ[ndx+1],maxXYZ[ndx+1]); \n' +
+				'  vec3 m0; \n' +
+				'  vec3 m1; \n' +
+				'  if (ndx == 0) { \n' +
+				'    m0 = vec3(0,0,0); \n' +
+				'  } else { \n' +
+				'    vec3 pm1 = randXYZ(seed,minXYZ[ndx-1],maxXYZ[ndx-1]); \n' +
+				'    m0 = (p1-pm1)*tension; \n' +
+				'  } \n' +
+				'  if (ndx == NUM_BOXES-2) { \n' +
+				'    m1 = vec3(0,0,0); \n' +
+				'  } else { \n' +
+				'    vec3 p2 = randXYZ(seed,minXYZ[ndx+2],maxXYZ[ndx+2]); \n' +
+				'    m1 = (p2-p0)*tension; \n' +
+				'  } \n' +
+				'  vec3 pos = ptcInterp(t, p0, p1, m0, m1); \n' +
+				'  mat4 tMat = mat4(1.0,0.0,0.0,0.0, \n' +
+				'   0.0,1.0,0.0,0.0, \n' +
+				'   0.0,0.0,1.0,0.0, \n' +
+				'   pos.x,pos.y,pos.z,1.0); \n' +
+				'  mat4 tMatIT = mat4(1.0,0.0,0.0,-1.0*pos.x, \n' +
+				'   0.0,1.0,0.0,-1.0*pos.y, \n' +
+				'   0.0,0.0,1.0,-1.0*pos.z, \n' +
+				'   0.0,0.0,0.0,1.0); \n',
+
+			bodyAim:
+				'  mat4 rMat = getRotMat(t, p0, p1, m0, m1); \n',
+
+			bodyNoAim:
+				'  mat4 rMat = mat4(1.0); \n',
+
+			bodyScale:
+				'  vec3 scale = getScale(ptcTime); \n' +
+				'  mat4 sMat = mat4(scale.x,0.0,0.0,0.0, \n' +
+				'   0.0,scale.y,0.0,0.0, \n' +
+				'   0.0,0.0,scale.z,0.0, \n' +
+				'   0.0,0.0,0.0,1.0); \n',
+
+			bodyNoScale:
+				'  mat4 sMat = mat4(1.0); \n',
+
+			bodyEnd:
+				'  mat4 ptcWorld = tMat*rMat*sMat; \n' +
+				'  mat4 ptcWorldViewIT = viewIT*tMatIT*rMat*sMat; \n' +
+				'  mat3 ptcNorm = mat3(ptcWorldViewIT[0].xyz, ptcWorldViewIT[1].xyz, ptcWorldViewIT[2].xyz); \n' +
+				'  mat4 ptcWorldView = viewMatrix * ptcWorld; \n'
+		},
+		frag: {
+			header:
+				'varying vec4 ptcColor; \n',
+
+			bodySetup:
+				'  if (ptcColor.a == 0.0) {\n' +
+				'    discard;\n' +
+				'  }\n',
+
+			globNoColors:
+				'gl_FragColor.a *= ptcColor.a; \n'
+		}
+	};
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Constants
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	/**
+	 * Enum for different curve interpolation types.
+	 */
+	hemi.CurveType = {
 		Linear : 0,
 		Bezier : 1,
 		CubicHermite : 2,
@@ -13133,367 +14584,44 @@ var hemi = (function(hemi) {
 		Cardinal : 4,
 		Custom : 5
 	};
-	
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// BoundingBox class
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
 	/**
-	 * Predefined values for common shapes.
-	 * <ul><pre>
-	 * <li>hemi.curve.ShapeType.CUBE
-	 * <li>hemi.curve.ShapeType.SPHERE
-	 * <li>hemi.curve.ShapeType.ARROW
-	 * </ul></pre>
-	 */
-	hemi.curve.ShapeType = {
-		CUBE : 'cube',
-		SPHERE : 'sphere',
-		ARROW : 'arrow'
-	};
-	
-	/**
-	 * @class A Box is defined by a minimum XYZ point and a maximum XYZ point.
+	 * @class A BoundingBox is defined by a minimum XYZ point and a maximum XYZ point.
 	 * 
-	 * @param {number[3]} opt_min minimum XYZ point
-	 * @param {number[3]} opt_max maximum XYZ point
+	 * @param {THREE.Vector3} opt_min minimum XYZ point
+	 * @param {THREE.Vector3} opt_max maximum XYZ point
 	 */
-	hemi.curve.Box = function(opt_min, opt_max) {
+	hemi.BoundingBox = function(opt_min, opt_max) {
 		/**
 		 * The minimum XYZ point
-		 * @type number[3]
+		 * @type THREE.Vector3
 		 */
-		this.min = opt_min || [];
+		this.min = opt_min || new THREE.Vector3();
 		
 		/**
 		 * The maximum XYZ point
-		 * @type number[3]
+		 * @type THREE.Vector3
 		 */
-		this.max = opt_max || [];
-	};
-	
-	/**
-	 * @class A ColorKey contains a time key and a color value.
-	 * 
-	 * @param {number} key time value between 0 and 1
-	 * @param {number[4]} color RGBA color value
-	 */
-	hemi.curve.ColorKey = function(key, color) {
-		/**
-		 * The time when the ColorKey is 100% of the Curve's color value.
-		 * @type number
-		 */
-		this.key = key;
-		
-		/**
-		 * The color value for Curve particles.
-		 * @type number[4]
-		 */
-		this.value = color;
-	};
-	
-	/**
-	 * @class A ScaleKey contains a time key and a scale value.
-	 * 
-	 * @param {number} key time value between 0 and 1
-	 * @param {number[3]} scale XYZ scale value
-	 */
-	hemi.curve.ScaleKey = function(key, scale) {
-		/**
-		 * The time when the ScaleKey is 100% of the Curve's scale value.
-		 * @type number
-		 */
-		this.key = key;
-		
-		/**
-		 * The scale value for Curve particles.
-		 * @type number[3]
-		 */
-		this.value = scale;
+		this.max = opt_max || new THREE.Vector3();
 	};
 
-	/**
-	 * Render a 3D representation of a curve.
-	 *
-	 * @param {number[3][]} points array of points (not waypoints)
-	 * @param {Object} config configuration describing how the curve should look
-	 */
-	hemi.curve.drawCurve = function(points, config) {
-		if (!this.dbgLineMat) {
-			this.dbgLineMat = this.newMaterial('phong', false);
-			this.dbgLineMat.getParam('lightWorldPos').bind(hemi.world.camera.light.position);
-		}
-		
-		var eShow = (config.edges == null) ? true : config.edges,
-			eSize = config.edgeSize || 1,
-			eColor = config.edgeColor || [0.5,0,0,1],
-			jShow = (config.joints == null) ? true : config.joints,
-			jSize = config.jointSize || 1,
-			jColor = config.jointColor,
-			crvTransform = this.pack.createObject('Transform');
-		
-		for (var i = 0; i < points.length; i++) {
-			if(jShow) {
-				var transform = this.pack.createObject('Transform'),
-					joint = hemi.core.primitives.createSphere(this.pack,
-						this.dbgLineMat, jSize, 20, 20);
-				
-				transform.parent = crvTransform;
-				transform.addShape(joint);
-				transform.translate(points[i]);
-				
-				if (jColor) {
-					var param = transform.createParam('diffuse', 'o3d.ParamFloat4');
-					param.value = jColor;
-				}
-			}
-			if (eShow && i < (points.length - 1)) {
-				var edgeTran = this.drawLine(points[i], points[i+1], eSize, eColor);
-				edgeTran.parent = crvTransform;
-			}
-		}
-		
-		crvTransform.parent = hemi.core.client.root;
-		this.dbgLineTransforms.push(crvTransform);
-	};
-	
-	/**
-	 * Draw a line connecting two points.
-	 *
-	 * @param {number[]} p0 The first point
-	 * @param {number[]} p1 The second point
-	 * @param {number} opt_size Thickness of the line
-	 * @param {number[]} opt_color Color of the line
-	 * @return {o3d.Transform} the Transform containing the line shape
-	 */
-	hemi.curve.drawLine = function(p0, p1, opt_size, opt_color) {
-		if (!this.dbgLineMat) {
-			this.dbgLineMat = this.newMaterial('phong', false);
-			this.dbgLineMat.getParam('lightWorldPos').bind(hemi.world.camera.light.position);
-		}
-		
-		var size = opt_size || 1,
-			dist = hemi.core.math.distance(p0,p1),
-			midpoint = [ (p0[0]+p1[0])/2, (p0[1]+p1[1])/2, (p0[2]+p1[2])/2 ],
-			line = hemi.core.primitives.createCylinder(this.pack,
-				this.dbgLineMat, size, dist, 3, 1),
-			transform = this.pack.createObject('Transform');
-		
-		transform.addShape(line);
-		transform.translate(midpoint);
-		transform = hemi.utils.pointYAt(transform,midpoint,p0);
-		
-		if (opt_color) {
-			var param = transform.createParam('diffuse', 'o3d.ParamFloat4');
-			param.value = opt_color;
-		}
-		
-		return transform;
-	};
-	
-	/**
-	 * Remove the given curve line Transform, its shapes, and its children.
-	 * 
-	 * @param {o3d.Transform} opt_trans optional Transform to clean up
-	 */
-	hemi.curve.hideCurves = function(opt_trans) {
-		if (opt_trans) {
-			var children = opt_trans.children,
-				shapes = opt_trans.shapes;
-			
-			for (var i = 0; i < children.length; i++) {
-				this.hideCurves(children[i]);
-			}
-			for (var i = 0; i < shapes.length; i++) {
-				var shape = shapes[i];
-				opt_trans.removeShape(shape);
-				this.pack.removeObject(shape);
-			}
-			
-			opt_trans.parent = null;
-			this.pack.removeObject(opt_trans);
-		} else {
-			for (var i = 0; i < this.dbgLineTransforms.length; i++) {
-				this.hideCurves(this.dbgLineTransforms[i]);
-			}
-			
-			this.dbgLineTransforms = [];
-		}
-	};
-	
-	/**
-	 * Generate a random point within a bounding box
-	 *
-	 * @param {number[]} min Minimum point of the bounding box
-	 * @param {number[]} max Maximum point of the bounding box
-	 * @return {number[]} Randomly generated point
-	 */
-	hemi.curve.randomPoint = function(min,max) {
-		var xi = Math.random();
-		var yi = Math.random();
-		var zi = Math.random();
-		var x = xi*min[0] + (1-xi)*max[0];
-		var y = yi*min[1] + (1-yi)*max[1];
-		var z = zi*min[2] + (1-zi)*max[2];
-		return [x,y,z];
-	};
-		
-	/**
-	 * Render the bounding boxes which the curves run through, mostly for
-	 * debugging purposes.
-	 * 
-	 * @param {number[3][2][]} boxes array of pairs of XYZ coordinates, the
-	 *     first as minimum values and the second as maximum
-	 * @param {o3d.Transform} opt_trans optional parent transform for the boxes
-	 */
-	hemi.curve.showBoxes = function(boxes, opt_trans) {
-		opt_trans = opt_trans || hemi.picking.pickRoot;
-		
-		var pack = hemi.curve.pack,
-			trans = this.dbgBoxTransforms[opt_trans.clientId] || [];
-		
-		for (var i = 0; i < boxes.length; i++) {
-			var transform = pack.createObject('Transform'),
-				b = boxes[i],
-				w = b.max[0] - b.min[0],
-				h = b.max[1] - b.min[1],
-				d = b.max[2] - b.min[2],
-				x = b.min[0] + w/2,
-				y = b.min[1] + h/2,
-				z = b.min[2] + d/2,
-				box = o3djs.primitives.createBox(pack, this.dbgBoxMat, w, h, d);
-			
-			transform.addShape(box);
-			transform.translate(x,y,z);
-			transform.parent = opt_trans;
-			trans.push(transform);
-		}
-		
-		this.dbgBoxTransforms[opt_trans.clientId] = trans;
-	};
-	
-	/**
-	 * Remove the bounding boxes from view. If a parent transform is given, only
-	 * the bounding boxes under it will be removed. Otherwise all boxes will be
-	 * removed.
-	 * 
-	 * @param {o3d.Transform} opt_trans optional parent transform for the boxes
-	 */
-	hemi.curve.hideBoxes = function(opt_trans) {
-		var pack = hemi.curve.pack;
-		
-		if (opt_trans) {
-			var trans = this.dbgBoxTransforms[opt_trans.clientId] || [];
-			
-			for (var i = 0; i < trans.length; i++) {
-				var tran = trans[i],
-					shape = tran.shapes[0];
-				
-				tran.parent = null;
-				tran.removeShape(shape);
-				pack.removeObject(shape);
-				pack.removeObject(tran);
-			}
-			
-			delete this.dbgBoxTransforms[opt_trans.clientId];
-		} else {
-			// Create fake transforms and clear all the boxes out
-			for (var id in this.dbgBoxTransforms) {
-				this.hideBoxes({clientId: id});
-			}
-		}
-	};
-	
-	/**
-	 * Create a curve particle system with the given configuration.
-	 * 
-	 * @param {Object} cfg configuration options:
-	 *     aim: flag to indicate particles should orient with curve
-	 *     boxes: array of bounding boxes for particle curves to pass through
-	 *     colors: array of values for particle color ramp (use this or colorKeys)
-	 *     colorKeys: array of time keys and values for particle color ramp
-	 *     fast: flag to indicate GPU-driven particle system should be used
-	 *     life: lifetime of particle system (in seconds)
-	 *     particleCount: number of particles to allocate for system
-	 *     particleShape: enumerator for type of shape to use for particles
-	 *     particleSize: size of the particles
-	 *     scales: array of values for particle scale ramp (use this or scaleKeys)
-	 *     scaleKeys: array of time keys and values for particle size ramp
-	 *     tension: tension parameter for the curve (typically from -1 to 1)
-	 *     // JS particle system only
-	 *     parent: transform to parent the particle system under
-	 *     // GPU particle system only
-	 *     trail: flag to indicate system should have trailing start and stop
-	 * @return {Object} the created particle system
-	 */
-	hemi.curve.createSystem = function(cfg) {
-		var system;
-		
-		if (cfg.fast) {
-			if (cfg.trail) {
-				system = new hemi.curve.GpuParticleTrail(cfg);
-			} else {
-				system = new hemi.curve.GpuParticleSystem(cfg);
-			}
-		} else {
-			system = new hemi.curve.ParticleSystem(cfg);
-		}
-		
-		return system;
-	};
-	
-	/**
-	 * Create a new material for a hemi particle curve to use.
-	 * 
-	 * @param {string} opt_type optional shader type to use (defaults to phong)
-	 * @param {boolean} opt_trans optional flag indicating if material should
-	 *     support transparency (defaults to true)
-	 * @return {o3d.Material} the created material
-	 */
-	hemi.curve.newMaterial = function(opt_type, opt_trans) {
-		var trans = opt_trans == null ? true : opt_trans,
-			mat;
-		
-		switch (opt_type) {
-		case 'constant':
-			mat = hemi.core.material.createConstantMaterial(this.pack,
-				hemi.view.viewInfo, [0,0,0,1], trans);
-			break;
-		case 'lambert':
-			mat = hemi.core.material.createLambertMaterial(this.pack,
-				hemi.view.viewInfo, [0,0,0,1], trans);
-			break;
-		case 'phong':
-		default:
-			mat = hemi.core.material.createBasicMaterial(this.pack,
-				hemi.view.viewInfo, [0,0,0,1], trans);
-			break;
-		}
-		
-		return mat;
-	};
-	
-	hemi.curve.init = function() {
-		this.pack = hemi.core.client.createPack();
-		this.dbgBoxMat = hemi.core.material.createConstantMaterial(
-			this.pack,
-			hemi.view.viewInfo,
-			[0, 0, 0.5, 1]);
-		this.dbgLineMat = null;
-		
-		var state = this.pack.createObject('State');
-		state.getStateParam('PolygonOffset2').value = -1.0;
-		state.getStateParam('FillMode').value = hemi.core.o3d.State.WIREFRAME;
-		this.dbgBoxMat.state = state;
-		this.dbgBoxTransforms = {};
-		this.dbgLineTransforms = [];
-	};
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Curve class
+////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	/**
-	 * @class A Curve is used to represent and calculate different curves
-	 * including: linear, bezier, cardinal, and cubic hermite.
+	 * @class A Curve is used to represent and calculate different interpolation curves including
+	 * linear, bezier, cardinal, and cubic hermite.
 	 * 
-	 * @param {number[3][]} points List of xyz waypoints 
-	 * @param {hemi.curve.CurveType} opt_type Curve type
-	 * @param {Object} opt_config Configuration object specific to this curve
+	 * @param {THREE.Vector3[]} points array of xyz waypoints 
+	 * @param {hemi.CurveType} opt_type optional curve interpolation type
+	 * @param {Object} opt_config optional configuration object for the Curve
 	 */
-	hemi.curve.Curve = function(points,opt_type,opt_config) {
+	var Curve = function(points, opt_type, opt_config) {
 		this.count = 0;
 		this.tension = 0;
 		this.type = opt_type;
@@ -13504,7 +14632,7 @@ var hemi = (function(hemi) {
 		this.ytans = [];
 		this.zpts = [];
 		this.ztans = [];
-		
+
 		if (points) {
 			opt_config = opt_config || {};
 			opt_config.points = points;
@@ -13512,2564 +14640,1792 @@ var hemi = (function(hemi) {
 		}
 	};
 
-	hemi.curve.Curve.prototype = {
-		/**
-		 * Get the Octane structure for the Curve.
-	     *
-	     * @return {Object} the Octane structure representing the Curve
-		 */
-		toOctane : function() {
-			var names = ['count', 'tension', 'weights', 'xpts', 'xtans', 'ypts',
-					'ytans', 'zpts', 'ztans'],
-				octane = {
-					type: 'hemi.curve.Curve',
-					props: []
-				};
-			
-			for (var ndx = 0, len = names.length; ndx < len; ndx++) {
-				var name = names[ndx];
-				
-				octane.props.push({
-					name: name,
-					val: this[name]
-				});
-			}
-			
-			octane.props.push({
-				name: 'setType',
-				arg: [this.type]
+	/*
+	 * Octane properties for Curve.
+	 * @type string[]
+	 */
+	Curve.prototype._octane = function() {
+		var names = ['count', 'tension', 'weights', 'xpts', 'xtans', 'ypts', 'ytans', 'zpts', 'ztans'],
+			props = [];
+
+		for (var i = 0, il = names.length; i < il; ++i) {
+			var name = names[i];
+
+			props.push({
+				name: name,
+				val: this[name]
 			});
-			
-			return octane;
-		},
-		
-		/**
-		 * Load the given configuration options into the Curve.
+		}
+
+		props.push({
+			name: 'setType',
+			arg: [this.type]
+		});
+
+		return props;
+	};
+
+	/**
+	 * Draw the Curve using primitive shapes.
+	 * 
+	 * @param {number} samples the number of samples to use to draw
+	 * @param {Object} config configuration for how the Curve should look
+	 */
+	Curve.prototype.draw = function(samples, config) {
+		var points = [];
+
+		for (var i = 0, il = samples + 2; i < il; ++i) {
+			points[i] = this.interpolate(i / (samples + 1));
+		}
+
+		drawCurve(points, config);
+	};
+
+	/**
+	 * Get the XYZ position of the last waypoint of the Curve.
+	 * 
+	 * @return {THREE.Vector3} the position of the last waypoint
+	 */
+	Curve.prototype.getEnd = function() {
+		var end = this.count - 1;
+		return new THREE.Vector3(this.xpts[end],this.ypts[end],this.zpts[end]);
+	};
+	
+	/**
+	 * Get the XYZ position of the first waypoint of the Curve.
+	 * 
+	 * @return {THREE.Vector3} the position of the first waypoint
+	 */
+	Curve.prototype.getStart = function() {
+		return new THREE.Vector3(this.xpts[0],this.ypts[0],this.zpts[0]);
+	};
+
+	/**
+	 * Base interpolation function for this curve. Usually overwritten.
+	 *
+	 * @param {number} t time (usually between 0 and 1)
+	 * @return {THREE.Vector3} the position interpolated from the time input
+	 */
+	Curve.prototype.interpolate = function(t) {
+		return new THREE.Vector3(t,t,t);
+	};
+
+	/**
+	 * Load the given configuration options into the Curve.
+	 * 
+	 * @param {Object} cfg configuration options for the Curve
+	 */
+	Curve.prototype.loadConfig = function(cfg) {
+		var points = cfg.points,
+			type = cfg.type || this.type || hemi.CurveType.Linear;
+
+		this.setType(type);
+
+		if (points) {
+			this.count = points.length;
+
+			for (var i = 0; i < this.count; i++) {
+				this.xpts[i] = points[i][0];
+				this.ypts[i] = points[i][1];
+				this.zpts[i] = points[i][2];
+				this.xtans[i] = 0;
+				this.ytans[i] = 0;
+				this.ztans[i] = 0;
+				this.weights[i] = 1;
+			}
+		}
+
+		if (cfg.weights) {
+			for (var i = 0; i < this.count; i++) {
+				this.weights[i] = (cfg.weights[i] !== undefined) ? cfg.weights[i] : 1;
+			}
+		}
+
+		if (cfg.tangents) {
+			for (var i = 0; i < this.count; i++) {
+				if(cfg.tangents[i]) {
+					this.xtans[i] = cfg.tangents[i][0] || 0;
+					this.ytans[i] = cfg.tangents[i][1] || 0;
+					this.ztans[i] = cfg.tangents[i][2] || 0;
+				}	
+			}
+		}
+
+		if(cfg.tension) {
+			this.tension = cfg.tension;
+		}
+
+		if (this.type === hemi.CurveType.Cardinal) {
+			setTangents.call(this);
+		}
+	};
+
+	/**
+	 * Set the type of interpolation for the Curve.
+	 * 
+	 * @param {hemi.CurveType} type interpolation type
+	 */
+	Curve.prototype.setType = function(type) {
+		this.type = type;
+
+		switch (type) {
+			case hemi.CurveType.Bezier:
+				this.interpolate = interpolateBezier;
+				break;
+			case hemi.CurveType.CubicHermite:
+			case hemi.CurveType.Cardinal:
+				this.interpolate = interpolateCubicHermite;
+				break;
+			case hemi.CurveType.Linear:
+				this.interpolate = interpolateLinear;
+				break;
+			case hemi.CurveType.LinearNorm:
+				this.interpolate = interpolateLinearNorm;
+				break;
+			default:
+				break;
+		}
+	};
+
+// Private functions for Curve
+
+		/*
+		 * The bezier interpolation starts at the first waypoint and ends at the last waypoint, and
+		 * 'bends' toward the intermediate points. These points can be weighted for more bending.
 		 * 
-		 * @param {Object} cfg configuration options for the Curve
+		 * @param {number} time time (usually between 0 and 1)
+		 * @return {THREE.Vector3} the position interpolated from the time input
 		 */
-		loadConfig : function(cfg) {
-			var points = cfg.points,
-				type = cfg.type || this.type || hemi.curve.CurveType.Linear;
-			
-			this.setType(type);
-			
-			if (points) {
-				this.count = points.length;
-				
-				for (var i = 0; i < this.count; i++) {
-					this.xpts[i] = points[i][0];
-					this.ypts[i] = points[i][1];
-					this.zpts[i] = points[i][2];
-					this.xtans[i] = 0;
-					this.ytans[i] = 0;
-					this.ztans[i] = 0;
-					this.weights[i] = 1;
-				}
+	var interpolateBezier = function(time) {
+			var points = this.count,
+				x = 0,
+				y = 0,
+				z = 0,
+				w = 0;
+
+			for (var i = 0; i < points; ++i) {
+				var fac = this.weights[i] * hemi.utils.choose(points - 1, i) * Math.pow(time, i) *
+					Math.pow((1 - time), (points - 1 - i));
+
+				x += fac * this.xpts[i];
+				y += fac * this.ypts[i];
+				z += fac * this.zpts[i];
+				w += fac;
 			}
-			
-			if (cfg.weights) {
-				for (var i = 0; i < this.count; i++) {
-					this.weights[i] = (cfg.weights[i] != null) ? cfg.weights[i] : 1;
-				}
-			}
-			
-			if (cfg.tangents) {
-				for (var i = 0; i < this.count; i++) {
-					if(cfg.tangents[i]) {
-						this.xtans[i] = cfg.tangents[i][0] || 0;
-						this.ytans[i] = cfg.tangents[i][1] || 0;
-						this.ztans[i] = cfg.tangents[i][2] || 0;
-					}	
-				}
-			}
-			
-			if(cfg.tension) {
-				this.tension = cfg.tension;
-			}
-			
-			this.setTangents();
-		},
-		
-		/**
-		 * Base interpolation function for this curve. Usually overwritten.
-		 *
-		 * @param {number} t time, usually between 0 and 1
-		 * @return {number[3]} the position interpolated from the time input
-		 */
-		interpolate : function(t) {
-			return [t,t,t];
+
+			return new THREE.Vector3(x/w, y/w, z/w);
 		},
 
-		/**
+		/*
+		 * The cubic hermite function interpolates along a line that runs through the Curve's
+		 * waypoints at a predefined tangent slope through each one.
+		 * 
+		 * @param {number} time time (usually between 0 and 1)
+		 * @return {THREE.Vector3} the position interpolated from the time input
+		 */
+		interpolateCubicHermite = function(time) {
+			var last = this.count - 1,
+				ndx = Math.floor(time * last);
+
+			if (ndx >= last) {
+				ndx = last - 1;
+			}
+
+			var factor = ndx / last,
+				tt = (time - factor) / ((ndx + 1) / last - factor),
+				x = hemi.utils.cubicHermite(tt, this.xpts[ndx], this.xtans[ndx], this.xpts[ndx+1], this.xtans[ndx+1]);
+				y = hemi.utils.cubicHermite(tt, this.ypts[ndx], this.ytans[ndx], this.ypts[ndx+1], this.ytans[ndx+1]);
+				z = hemi.utils.cubicHermite(tt, this.zpts[ndx], this.ztans[ndx], this.zpts[ndx+1], this.ztans[ndx+1]);
+
+			return new THREE.Vector3(x, y, z);
+		},
+
+		/*
 		 * The linear interpolation moves on a straight line between waypoints.
 		 *
-		 * @param {number} t time, usually between 0 and 1
-		 * @return {number[3]} the position linearly interpolated from the time
-		 *     input
+		 * @param {number} time time of interpolation (usually between 0 and 1)
+		 * @return {THREE.Vector3} the position interpolated from the time input
 		 */
-		linear : function(t) {
-			var n = this.count - 1;
-			var ndx = Math.floor(t*n);
-			if (ndx >= n) ndx = n-1;
-			var tt = (t-ndx/n)/((ndx+1)/n-ndx/n);
-			var x = (1-tt)*this.xpts[ndx] + tt*this.xpts[ndx+1];
-			var y = (1-tt)*this.ypts[ndx] + tt*this.ypts[ndx+1];
-			var z = (1-tt)*this.zpts[ndx] + tt*this.zpts[ndx+1];
-			return [x,y,z];
-		},
+		interpolateLinear = function(time) {
+			var last = this.count - 1,
+				ndx = Math.floor(time * last);
 
-		/**
-		 * The bezier interpolation starts at the first waypoint, and ends at
-		 * the last waypoint, and 'bends' toward the intermediate points. These
-		 * points can be weighted for more bending.
-		 *
-		 * @param {number} t time, usually between 0 and 1
-		 * @return {number[3]} the position interpolated from the time input by
-		 *     a bezier function.
-		 */
-		bezier : function(t) {
-			var x = 0;
-			var y = 0;
-			var z = 0;
-			var w = 0;
-			var n = this.count;
-			for(var i = 0; i < n; i++) {
-				var fac = this.weights[i]*
-				          hemi.utils.choose(n-1,i)*
-					      Math.pow(t,i)*
-						  Math.pow((1-t),(n-1-i));
-				x += fac*this.xpts[i];
-				y += fac*this.ypts[i];
-				z += fac*this.zpts[i];
-				w += fac; 
+			if (ndx >= last) {
+				ndx = last - 1;
 			}
-			return [x/w,y/w,z/w];
+
+			var factor = ndx / last,
+				tt = (time - factor) / ((ndx + 1) / last - factor),
+				x = (1 - tt) * this.xpts[ndx] + tt * this.xpts[ndx+1];
+				y = (1 - tt) * this.ypts[ndx] + tt * this.ypts[ndx+1];
+				z = (1 - tt) * this.zpts[ndx] + tt * this.zpts[ndx+1];
+
+			return new THREE.Vector3(x, y, z);
 		},
 
-		/**
-		 * The cubic hermite function interpolates along a line that runs
-		 * through the Curve's waypoints at a predefined tangent slope through
-		 * each one.
+		/*
+		 * The normalized linear interpolation moves on a straight line between waypoints at a
+		 * constant velocity.
 		 *
-		 * @param {number} t time, usually between 0 and 1
-		 * @return {number[3]} the position interpolated from the time input by
-		 *     the cubic hermite function.
+		 * @param {number} time time (usually between 0 and 1)
+		 * @return {THREE.Vector3} the position interpolated from the time input
 		 */
-		cubicHermite : function(t) {
-			var n = this.count - 1;
-			var ndx = Math.floor(t*n);
-			if (ndx >= n) ndx = n-1;
-			var tt = (t-ndx/n)/((ndx+1)/n-ndx/n);
-			var x = hemi.utils.cubicHermite(tt,this.xpts[ndx],this.xtans[ndx],this.xpts[ndx+1],this.xtans[ndx+1]);
-			var y = hemi.utils.cubicHermite(tt,this.ypts[ndx],this.ytans[ndx],this.ypts[ndx+1],this.ytans[ndx+1]);
-			var z = hemi.utils.cubicHermite(tt,this.zpts[ndx],this.ztans[ndx],this.zpts[ndx+1],this.ztans[ndx+1]);
-			return [x,y,z];
-		},
-		
-		/**
-		 * The normalized linear interpolation moves on a straight line between
-		 * waypoints at a constant velocity.
-		 *
-		 * @param {number} t time, usually between 0 and 1
-		 * @return {number[3]} the position linearly interpolated from the time
-		 *     input, normalized to keep the velocity constant
-		 */
-		linearNorm : function(t) {
-			var d = 0;
-			var dpts = [];
-			dpts[0] = 0;
-			for(var i = 1; i < this.count; i++) {
-				d += hemi.core.math.distance([this.xpts[i-1],this.ypts[i-1],this.zpts[i-1]],
-											 [this.xpts[i],this.ypts[i],this.zpts[i]]);
+		interpolateLinearNorm = function(time) {
+			var dist = 0,
+				dpts = [0];
+
+			for (var i = 1, il = this.count; i < il; ++i) {
+				var xDist = this.xpts[i-1] - this.xpts[i],
+					yDist = this.ypts[i-1] - this.ypts[i],
+					zDist = this.zpts[i-1] - this.zpts[i];
+
+				dist += Math.sqrt(xDist * xDist + yDist * yDist + zDist * zDist);
 				dpts[i] = d;
 			}
-			var tt = t*d;
-			var ndx = 0;
-			for(var i = 0; i < this.count; i++) {
-				if(dpts[i] < tt) ndx = i; 
-			}
-			var lt = (tt - dpts[ndx])/(dpts[ndx+1] - dpts[ndx]);
-			var x = (1-lt)*this.xpts[ndx] + lt*this.xpts[ndx+1];
-			var y = (1-lt)*this.ypts[ndx] + lt*this.ypts[ndx+1];
-			var z = (1-lt)*this.zpts[ndx] + lt*this.zpts[ndx+1];			
-			return [x,y,z];
-		},
-		
-		/**
-		 * Calculate the tangents for a cardinal curve, which is a cubic hermite
-		 * curve where the tangents are defined by a single 'tension' factor.
-		 */
-		setTangents : function() {
-			if (this.type == hemi.curve.CurveType.Cardinal) {
-				var xpts = hemi.utils.clone(this.xpts),
-					ypts = hemi.utils.clone(this.ypts),
-					zpts = hemi.utils.clone(this.zpts);
-				
-				// Copy the first and last points in order to calculate tangents
-				xpts.unshift(xpts[0]);
-				xpts.push(xpts[xpts.length - 1]);
-				ypts.unshift(ypts[0]);
-				ypts.push(ypts[ypts.length - 1]);
-				zpts.unshift(zpts[0]);
-				zpts.push(zpts[zpts.length - 1]);
-				
-				for (var i = 0; i < this.count; i++) {
-					this.xtans[i] = (1-this.tension)*(xpts[i+2]-xpts[i])/2;
-					this.ytans[i] = (1-this.tension)*(ypts[i+2]-ypts[i])/2;
-					this.ztans[i] = (1-this.tension)*(zpts[i+2]-zpts[i])/2;
+
+			var tt = time * dist,
+				ndx = 0;
+
+			for (var i = 1, il = this.count; i < il; ++i) {
+				if (dpts[i] < tt) {
+					ndx = i;
 				}
 			}
-		},
-		
-		/**
-		 * Set the type of interpolation for the Curve.
-		 * 
-		 * @param {hemi.curve.CurveType} type interpolation type
-		 */
-		setType : function(type) {
-			this.type = type;
-			
-			switch (type) {
-				case hemi.curve.CurveType.Linear:
-					this.interpolate = this.linear;
-					break;
-				case hemi.curve.CurveType.Bezier:
-					this.interpolate = this.bezier;
-					break;
-				case hemi.curve.CurveType.CubicHermite:
-				case hemi.curve.CurveType.Cardinal:
-					this.interpolate = this.cubicHermite;
-					break;
-				case hemi.curve.CurveType.LinearNorm:
-					this.interpolate = this.linearNorm;
-					break;
-				case hemi.curve.CurveType.Custom:
-				default:
-					break;
-			}
-		},
-		
-		/**
-		 * Get the XYZ position of the last waypoint of the Curve.
-		 * 
-		 * @return {number[3]} the position of the last waypoint
-		 */
-		getEnd : function() {
-			var end = this.count - 1;
-			return [this.xpts[end],this.ypts[end],this.zpts[end]];
-		},
-		
-		/**
-		 * Get the XYZ position of the first waypoint of the Curve.
-		 * 
-		 * @return {number[3]} the position of the first waypoint
-		 */
-		getStart : function() {
-			return [this.xpts[0],this.ypts[0],this.zpts[0]];
-		},
-		
-		/**
-		 * Draw the Curve using primitive shapes.
-		 * 
-		 * @param {number} samples the number of samples to use to draw
-		 * @param {Object} config configuration for how the Curve should look
-		 */
-		draw : function(samples, config) {
-			var points = [];
-			for (var i = 0; i < samples+2; i++) {
-				points[i] = this.interpolate(i/(samples+1));
-			}
-			hemi.curve.drawCurve(points,config);
-		}
-	};
-	
-	/**
-	 * @class A Particle allows a Transform to move along a set of points.
-	 * 
-	 * @param {o3d.Transform} trans the transform to move along the curve
-	 * @param {number[3][]} points the array of points to travel through
-	 * @param {hemi.curve.ColorKey[]} colorKeys array of key-values for the 
-	 *		color of the default material
-	 * @param {hemi.curve.ScaleKey[]} scaleKeys array of key-values for the 
-	 *		scale of the transform
-	 * @param {boolean} rotate flag indicating if the Transform should rotate as
-	 *      it travels through the points
-	 */
-	hemi.curve.Particle = function(trans,points,colorKeys,scaleKeys,rotate) {
-		var pack = hemi.curve.pack,
-			m4 = hemi.core.math.matrix4;
-		
-		this.transform = pack.createObject('Transform');
-		this.transform.parent = trans;
-		this.frame = 1;
-		this.lastFrame = points.length - 2;
-		this.destroyed = false;
-        this.transform.createParam('diffuse', 'ParamFloat4').value = [0,0,0,0];		
-		this.lt = [];
-		this.matrices = [];
-		this.setColors(colorKeys);
-		
-		for (var i = this.frame; i <= this.lastFrame; i++) {
-			var L = m4.translation(points[i]);
-			
-			if (rotate) {
-				hemi.utils.pointYAt(L, points[i-1], points[i+1]);
-			}
-			
-			this.lt[i] = L;
-		}
-		this.setScales(scaleKeys);
-		this.ready = true;
-		this.active = false;
-	};
-	
-	hemi.curve.Particle.prototype = {
-		/**
-		 * Start this particle along the curve.
-		 *
-		 * @param {number} loops the number of loops to do
-		 */
-		run : function(loops) {
-			this.loops = loops;
-			this.ready = false;
-			this.active = true;
-		},
-	
-		/**
-		 * Add a shape to the particle Transform.
-		 *
-		 * @param {o3d.Shape} shape the shape to add
-		 */
-		addShape : function(shape) {
-			this.transform.addShape(shape);
-		},
-		
-		/**
-		 * Remove all shapes from the particle transform.
-		 */
-		removeShapes : function() {
-			for (var i = this.transform.shapes.length - 1; i >=0; i--) {
-				this.transform.removeShape(this.transform.shapes[i]);
-			}
-		},
-		
-		/**
-		 * Set the color gradient of this Particle.
-		 * 
-		 * @param {hemi.curve.ColorKey[]} colorKeys array of color key pairs
-		 */
-		setColors : function(colorKeys) {
-			this.colors = [];
-			if(colorKeys) {
-				this.colorKeys = [];
-				for (var i = 0; i < colorKeys.length; i++) {
-					var p = {};
-					var c = colorKeys[i];
-					p.key = c.key;
-					if (c.range) {
-						p.value = [];
-						if (typeof c.range == 'number') {
-							var offset = (Math.random()-0.5)*2*c.range;
-							for (var j = 0; j < c.value.length; j++) {
-								p.value[j] = c.value[j] + offset;
-							}
-						} else {
-							for (var j = 0; j < c.value.length; j++) {
-								p.value[j] = c.value[j] + (Math.random()-0.5)*2*c.range[j];
-							}
-						}
-					} else {
-						p.value = c.value;
-					}
-					this.colorKeys[i] = p;
-				}
-			} else {
-				this.colorKeys = [
-					{key:0,value:[0,0,0,1]},
-					{key:1,value:[0,0,0,1]}
-					];
-			}
-			for (var i = 1; i <= this.lastFrame; i++) {		
-				var time = (i-1)/(this.lastFrame-2);				
-				this.colors[i] = this.lerpValue(time,this.colorKeys);			
-			}
-			return this;
-		},
-		
-		/**
-		 * Set the scale gradient of this particle.
-		 * 
-		 * @param {hemi.curve.ScaleKey[]} scaleKeys array of scale key pairs
-		 */
-		setScales : function(scaleKeys) {
-			var m4 = hemi.core.math.matrix4;
-			this.scales = [];
-			if(scaleKeys) {
-				var sKeys = [];
-				for (var i = 0; i < scaleKeys.length; i++) {
-					var p = {};
-					var c = scaleKeys[i];
-					p.key = c.key;
-					if (c.range) {
-						p.value = [];
-						if (typeof c.range == 'number') {
-							var offset = (Math.random()-0.5)*2*c.range;
-							for (var j = 0; j < c.value.length; j++) {
-								p.value[j] = c.value[j] + offset;
-							}
-						} else {
-							for (var j = 0; j < c.value.length; j++) {
-								p.value[j] = c.value[j] + (Math.random()-0.5)*2*c.range[j];
-							}
-						}
-					} else {
-						p.value = c.value;
-					}
-					sKeys[i] = p;
-				}
-			} else {
-				sKeys = [
-					{key:0,value:[1,1,1]},
-					{key:1,value:[1,1,1]}
-				];
-			}
-			for (var i = 1; i <= this.lastFrame; i++) {
-				var time = (i-1)/(this.lastFrame-2);
-				this.scales[i] = this.lerpValue(time,sKeys);
-				this.matrices[i] = m4.scale(hemi.utils.clone(this.lt[i]),
-					this.scales[i]);
-			}
-			return this;
-		},
-	
-		/**
-		 * Translate the Particle transform in local space.
-		 *
-		 * @param {number} x x translation
-		 * @param {number} y y translation
-		 * @param {number} z z translation
-		 */
-		translate : function(x,y,z) {
-			this.transform.translate(x,y,z);
-		},
-		
-		/**
-		 * Given a set of key-values, return the interpolated value
-		 *
-		 * @param {number} time time, from 0 to 1
-		 * @param {Object[]} keySet array of key-value pairs
-		 * @return {number[]} the interpolated value
-		 */
-		lerpValue : function(time,keySet) {
-			var ndx = keySet.length - 2;
-			while(keySet[ndx].key > time) {
-				ndx--;
-			}
-			var t = (time - keySet[ndx].key)/(keySet[ndx+1].key - keySet[ndx].key);
-			return o3djs.math.lerpVector(keySet[ndx].value,keySet[ndx+1].value,t);
-		},
-		
-		/**
-		 * Update the particle (called on each render).
-		 */
-		update : function() {
-			if (!this.active) return;
-			
-			var f = this.frame;
-			this.transform.getParam('diffuse').value = this.colors[f];
-			this.transform.localMatrix = this.matrices[f];
-			this.frame++;
-			this.transform.visible = true;
-			
-			if (this.frame >= this.lastFrame) {
-				this.frame = 1;
-				this.loops--;
-				if (this.loops === 0) this.reset();
-			}
-		},
-		
-		/**
-		 * Destroy this particle and all references to it.
-		 */
-		destroy : function() {
-			if(this.destroyed) return;
-			var t = this.transform;
-			for(var i = (t.shapes.length-1); i >= 0; i--) {
-				t.removeShape(t.shapes[i]);
-			}
-			hemi.curve.pack.removeObject(t);
-			this.transform = null;
-			this.curve = null;
-			this.destroyed = true;
-		},
-		
-		/**
-		 * Reset this particle.
-		 */
-		reset : function() {
-			this.transform.visible = false;
-			this.loops = this.totalLoops;
-			this.destroyed = false;
-			this.active = false;
-			this.ready = true;
-		}
-	};
-	
-	/**
-	 * @class A ParticleSystem manages a set of Particle objects, and fires
-	 * them at the appropriate intervals.
-	 * 
-	 * @param {Object} config configuration object describing this system
-	 */
-	hemi.curve.ParticleSystem = function(config) {
-		var pack = hemi.curve.pack;
-		var view = hemi.view.viewInfo;
-		this.transform = pack.createObject('Transform');
-		this.transform.parent = config.parent || hemi.core.client.root;
-		this.active = false;
-		this.pLife = config.life || 5;
-		this.boxes = config.boxes;
-		this.maxParticles = config.particleCount || 25;
-		this.maxRate = Math.ceil(this.maxParticles / this.pLife);
-		this.particles = [];
-		this.pRate = this.maxRate;
-		this.pTimer = 0.0;
-		this.pTimerMax = 1.0 / this.pRate;
-		this.pIndex = 0;
-			
-		var shapeColor = [1,0,0,1];
-		this.shapeMaterial = o3djs.material.createBasicMaterial(pack,view,shapeColor,true);
-		var param = this.shapeMaterial.getParam('lightWorldPos'); 
-		if(param) {
-			param.bind(hemi.world.camera.light.position);
-		}
-		
-		var type = config.particleShape || hemi.curve.ShapeType.CUBE,
-			size = config.particleSize || 1;
-		this.shapes = [];
-		this.size = size;
-		
-		switch (type) {
-			case (hemi.curve.ShapeType.ARROW):
-				var halfSize = size / 2;
-				this.shapes.push(hemi.core.primitives.createPrism(pack, this.shapeMaterial,
-					[[0, size], [-size, 0], [-halfSize, 0], [-halfSize, -size],
-					[halfSize, -size], [halfSize, 0], [size, 0]], size));
-				break;
-			case (hemi.curve.ShapeType.SPHERE):
-				this.shapes.push(hemi.core.primitives.createSphere(pack,
-					this.shapeMaterial,size,24,12));
-				break;
-			case (hemi.curve.ShapeType.CUBE):
-				this.shapes.push(hemi.core.primitives.createCube(pack,
-					this.shapeMaterial,size));
-				break;
-		}
-		
-		hemi.view.addRenderListener(this);
-		
-		this.boxesOn = false;
-		
-		this.points = [];
-		this.frames = config.frames || this.pLife*hemi.view.FPS;
-		
-		for(var j = 0; j < this.maxParticles; j++) {
-			var curve = this.newCurve(config.tension || 0);
-			this.points[j] = [];
-			for(var i=0; i < this.frames; i++) {
-				this.points[j][i] = curve.interpolate((i)/this.frames);
-			}
-		}
-		
-		var colorKeys = null,
-			scaleKeys = null;
-		
-		if (config.colorKeys) {
-			colorKeys = config.colorKeys;
-		} else if (config.colors) {
-			var len = config.colors.length,
-				step = len === 1 ? 1 : 1 / (len - 1);
-			
-			colorKeys = [];
-			
-			for (var i = 0; i < len; i++) {
-				colorKeys.push({
-					key: i * step,
-					value: config.colors[i]
-				});
-			}
-		}
-		if (config.scaleKeys) {
-			scaleKeys = config.scaleKeys;
-		} else if (config.scales) {
-			var len = config.scales.length,
-				step = len === 1 ? 1 : 1 / (len - 1);
-			
-			scaleKeys = [];
-			
-			for (var i = 0; i < len; i++) {
-				scaleKeys.push({
-					key: i * step,
-					value: config.scales[i]
-				});
-			}
-		}
-		
-		for (i = 0; i < this.maxParticles; i++) {
-			this.particles[i] = new hemi.curve.Particle(
-				this.transform,
-				this.points[i],
-				colorKeys,
-				scaleKeys,
-				config.aim);
-			for (var j = 0; j < this.shapes.length; j++) {
-				this.particles[i].addShape(this.shapes[j]);
-			}
-		}
-	};
-	
-	hemi.curve.ParticleSystem.prototype = {
-		/**
-		 * Start the system.
-		 */
-		start : function() {
-			this.active = true;
-		},
-		
-		/**
-		 * Stop the system.
-		 *
-		 * @param {boolean} opt_hard If true, remove all particles immediately.
-		 *     Otherwise, stop emitting but let existing particles finish.
-		 */
-		stop : function(opt_hard) {
-			this.active = false;
-			if(opt_hard) {
-				// Destroy All Particles
-				for(var i = 0; i < this.maxParticles; i++) {
-					if(this.particles[i] != null) {
-						this.particles[i].reset();
-					}
-				}
-			}
-		},
-		
-		/**
-		 * Update all existing particles on each render and emit new ones if
-		 * needed.
-		 *
-		 * @param {o3d.RenderEvent} event event object describing details of the
-		 *     render loop
-		 */
-		onRender : function(event) {
-			for(var i = 0; i < this.maxParticles; i++) {
-				if(this.particles[i] != null) {
-					this.particles[i].update(event);
-				}
-			}
-			if(!this.active) return;
-			this.pTimer += event.elapsedTime;
-			if(this.pTimer >= this.pTimerMax) {
-				this.pTimer = 0;
-				var p = this.particles[this.pIndex];
-				if (p.ready) p.run(1);
-				this.pIndex++;
-				if(this.pIndex >= this.maxParticles) this.pIndex = 0;
-			}
-		},
-		
-		/**
-		 * Generate a new curve running through the system's bounding boxes.
-		 * 
-		 * @param {number} tension tension parameter for the Curve
-		 * @return {hemi.curve.Curve} the randomly generated Curve
-		 */
-		newCurve : function(tension) {
-			var points = [];
-			var num = this.boxes.length;
-			for (var i = 0; i < num; i++) {
-				var min = this.boxes[i].min;
-				var max = this.boxes[i].max;
-				points[i+1] = hemi.curve.randomPoint(min,max);
-			}
-			points[0] = points[1].slice(0,3);
-			points[num+1] = points[num].slice(0,3);
-			var curve = new hemi.curve.Curve(points,
-				hemi.curve.CurveType.Cardinal, {tension: tension});
-			return curve;
-		},
-		
-		/**
-		 * Remove all shapes from all particles in the system.
-		 */
-		removeShapes : function() {
-			for (var i = 0; i < this.maxParticles; i++) {
-				this.particles[i].removeShapes();
-			}
-			this.shapes = [];
-		},
-		
-		/**
-		 * Add a shape which will be added to the Transform of every particle.
-		 *
-		 * @param {number|o3d.Shape} shape either an enum for standard shapes,
-		 *     or a custom	predefined shape to add
-		 */
-		addShape : function(shape) {
-			var pack = hemi.curve.pack;
-			var startndx = this.shapes.length;
-			if (typeof shape == 'string') {
-				var size = this.size;
-				
-				switch (shape) {
-					case (hemi.curve.ShapeType.ARROW):
-						var halfSize = size / 2;
-						this.shapes.push(hemi.core.primitives.createPrism(pack, this.shapeMaterial,
-							[[0, size], [-size, 0], [-halfSize, 0], [-halfSize, -size],
-							[halfSize, -size], [halfSize, 0], [size, 0]], size));
-						break;
-					case (hemi.curve.ShapeType.SPHERE):
-						this.shapes.push(hemi.core.primitives.createSphere(pack,
-							this.shapeMaterial,size,24,12));
-						break;
-					case (hemi.curve.ShapeType.CUBE):
-						this.shapes.push(hemi.core.primitives.createCube(pack,
-							this.shapeMaterial,size));
-						break;
-				}
-			} else {
-				this.shapes.push(shape);
-			}
-			for (var i = 0; i < this.maxParticles; i++) {
-				for (var j = startndx; j < this.shapes.length; j++) {
-					this.particles[i].addShape(this.shapes[j]);
-				}
-			}
-		},
-		
-		/**
-		 * Change the rate at which particles are emitted.
-		 *
-		 * @param {number} delta the delta by which to change the rate
-		 * @return {number} the new rate
-		 */
-		changeRate : function(delta) {
-			return this.setRate(this.pRate + delta);
-		},
-		
-		/**
-		 * Set the emit rate of the system.
-		 *
-		 * @param {number} rate the rate at which to emit particles
-		 * @return {number} the new rate - may be different because of bounds
-		 */
-		setRate : function(rate) {
-			var newRate = hemi.utils.clamp(rate, 0, this.maxRate);
-			
-			if (newRate === 0) {
-				this.pTimerMax = 0;
-				this.stop();
-			} else {
-				if (this.pRate === 0 && newRate > 0) {
-					this.start();
-				}
-				this.pTimerMax = 1.0 / newRate;
-			}
-			
-			this.pRate = newRate;
-			return newRate;
-		},
-		
-		/**
-		 * Set the color gradient for this particle system.
-		 * 
-		 * @param {hemi.curve.ColorKey[]} colorKeys array of color key pairs
-		 * @return {hemi.curve.ParticleSystem} this system, for chaining
-		 */
-		setColors : function(colorKeys) {
-			for (var i = 0; i < this.maxParticles; i++) {
-				this.particles[i].setColors(colorKeys);
-			}
-			return this;
+
+			var lt = (tt - dpts[ndx]) / (dpts[ndx+1] - dpts[ndx]),
+				x = (1 - lt) * this.xpts[ndx] + lt * this.xpts[ndx+1],
+				y = (1 - lt) * this.ypts[ndx] + lt * this.ypts[ndx+1],
+				z = (1 - lt) * this.zpts[ndx] + lt * this.zpts[ndx+1];
+
+			return new THREE.Vector3(x, y, z);
 		},
 
-		/**
-		 * Set the scale gradient for this particle system.
-		 * 
-		 * @param {hemi.curve.ScaleKey[]} scaleKeys array of scale key pairs
-		 * @return {hemi.curve.ParticleSystem} this system, for chaining
-		 */		
-		setScales : function(scaleKeys) {
-			for (var i = 0; i < this.maxParticles; i++) {
-				this.particles[i].setScales(scaleKeys);
+		/*
+		 * Calculate the tangents for a cardinal curve, which is a cubic hermite curve where the
+		 * tangents are defined by a single 'tension' factor.
+		 */
+		setTangents = function() {
+			var xpts = hemi.utils.clone(this.xpts),
+				ypts = hemi.utils.clone(this.ypts),
+				zpts = hemi.utils.clone(this.zpts);
+
+			// Copy the first and last points in order to calculate tangents
+			xpts.unshift(xpts[0]);
+			xpts.push(xpts[xpts.length - 1]);
+			ypts.unshift(ypts[0]);
+			ypts.push(ypts[ypts.length - 1]);
+			zpts.unshift(zpts[0]);
+			zpts.push(zpts[zpts.length - 1]);
+
+			for (var i = 0; i < this.count; i++) {
+				this.xtans[i] = (1-this.tension)*(xpts[i+2]-xpts[i])/2;
+				this.ytans[i] = (1-this.tension)*(ypts[i+2]-ypts[i])/2;
+				this.ztans[i] = (1-this.tension)*(zpts[i+2]-zpts[i])/2;
 			}
-			return this;
-		},
-		
+		};
+
+	hemi.Curve = Curve;
+	hemi.makeOctanable(hemi.Curve, 'hemi.Curve', hemi.Curve.prototype._octane);
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// ParticleCurve class
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	/**
+	 * @class A ParticleCurve is a particle system that uses volumetric waypoints (boxes) to create
+	 * curved paths for particles to follow.
+	 * 
+	 * @param {Object} opt_cfg optional configuration object for the ParticleCurve:
+	 *     aim: flag to indicate particles should orient with curve
+	 *     boxes: array of bounding boxes for particle curves to pass through
+	 *     colors: array of values for particle color ramp (use this or colorKeys)
+	 *     colorKeys: array of time keys and values for particle color ramp
+	 *     life: lifetime of particle system (in seconds)
+	 *     particleCount: number of particles to allocate for system
+	 *     particleShape: mesh containg shape geometry to use for particles
+	 *     scales: array of values for particle scale ramp (use this or scaleKeys)
+	 *     scaleKeys: array of time keys and values for particle size ramp
+	 *     tension: tension parameter for the curve (typically from -1 to 1)
+	 *     trail: flag to indicate system should have trailing start and stop
+	 */
+	var ParticleCurve = function(client, opt_cfg) {
+		this._aim = false;
+		this._boxes = [];
+		this._colors = [];
+		this._decparam = null;
+		this._materialSrc = null;
+		this._maxTimeParam = null;
+		this._mesh = null;
+		this._particles = 0;
+		this._scales = [];
+		this._shapeConfig = null;
+		this._tension = 0;
+		this._timeParam = null;
+		this._viewITParam = null;
+
 		/**
-		 * Render the bounding boxes which the particle system's curves run
-		 * through (helpful for debugging).
+		 * Flag indicating if the ParticleCurve is currently running.
+		 * @type boolean
 		 */
-		showBoxes : function() {
-			hemi.curve.showBoxes(this.boxes, this.transform);
-		},
-	
+		this.active = false;
 		/**
-		 * Hide the particle system's bounding boxes from view.
+		 * The Client that the ParticleCurve is being rendered by.
+		 * @type hemi.Client
 		 */
-		hideBoxes : function() {
-			hemi.curve.hideBoxes(this.transform);
-		},
-		
+		this.client = client;
 		/**
-		 * Translate the entire particle system by the given amounts
-		 * 
-		 * @param {number} x amount to translate in the X direction
-		 * @param {number} y amount to translate in the Y direction
-		 * @param {number} z amount to translate in the Z direction
+		 * The lifetime of the ParticleCurve. This is the amount of time it takes a particle to
+		 * travel from the first waypoint to the last.
+		 * @type number
 		 */
-		translate: function(x, y, z) {
-			this.transform.translate(x, y, z);
+		this.life = 0;
+
+		if (opt_cfg) {
+			this.loadConfig(opt_cfg);
 		}
 	};
-	
-	// START GPU PARTICLE SYSTEM
-	
-	hemi.curve.vertHeader =
-		'uniform float sysTime; \n' +
-		'uniform float ptcMaxTime; \n' +
-		'uniform float ptcDec; \n' +
-		'uniform float numPtcs; \n' +
-		'uniform float tension; \n' +
-		'uniform vec3 minXYZ[NUM_BOXES]; \n' +
-		'uniform vec3 maxXYZ[NUM_BOXES]; \n' +
-		'uniform mat4 viewProjection; \n' +
-		'attribute vec4 TEXCOORD; \n' +
-		'varying vec4 ptcColor; \n';
-	
-	hemi.curve.vertHeaderColors =
-		'uniform vec4 ptcColors[NUM_COLORS]; \n' +
-		'uniform float ptcColorKeys[NUM_COLORS]; \n';
-	
-	hemi.curve.vertHeaderScales =
-		'uniform vec3 ptcScales[NUM_SCALES]; \n' +
-		'uniform float ptcScaleKeys[NUM_SCALES]; \n';
-	
-	hemi.curve.vertSupport =
-		'float rand(vec2 co) { \n' +
-		'  return fract(sin(dot(co.xy, vec2(12.9898,78.233))) * 43758.5453); \n' +
-		'} \n' +
-		'vec3 randXYZ(vec2 co, vec3 min, vec3 max) { \n' +
-		'  float rX = rand(vec2(co.x, co.x)); \n' +
-		'  float rY = rand(vec2(co.y, co.y)); \n' +
-		'  float rZ = rand(co); \n' +
-		'  return vec3(mix(max.x, min.x, rX), \n' +
-		'              mix(max.y, min.y, rY), \n' +
-		'              mix(max.z, min.z, rZ)); \n' +
-		'} \n' +
-		'vec3 ptcInterp(float t, vec3 p0, vec3 p1, vec3 m0, vec3 m1) { \n' +
-		'  float t2 = pow(t, 2.0); \n' +
-		'  float t3 = pow(t, 3.0); \n' +
-		'  return (2.0*t3 - 3.0*t2 + 1.0)*p0 + (t3 -2.0*t2 + t)*m0 + \n' +
-		'   (-2.0*t3 + 3.0*t2)*p1 + (t3-t2)*m1; \n' +
-		'} \n';
-	
-	// Unfortunately we have to do this in the vertex shader since the pixel
-	// shader complains about non-constant indexing.
-	hemi.curve.vertSupportColors =
-		'void setPtcClr(float ptcTime) { \n' +
-		'  if (ptcTime > 1.0) { \n' +
-		'    ptcColor = vec4(0.0); \n' +
-		'  } else { \n' +
-		'    int ndx; \n' +
-		'    float key; \n' +
-		'    for (int i = 0; i < NUM_COLORS-1; i++) { \n' +
-		'      if (ptcColorKeys[i] < ptcTime) { \n' +
-		'        ndx = i; \n' +
-		'        key = ptcColorKeys[i]; \n' +
-		'      } \n' +
-		'    } \n' +
-		'    float t = (ptcTime - key)/(ptcColorKeys[ndx+1] - key); \n' +
-		'    ptcColor = mix(ptcColors[ndx], ptcColors[ndx+1], t); \n' +
-		'  } \n' +
-		'} \n';
-	
-	hemi.curve.vertSupportNoColors =
-		'void setPtcClr(float ptcTime) { \n' +
-		'  if (ptcTime > 1.0) { \n' +
-		'    ptcColor = vec4(0.0); \n' +
-		'  } else { \n' +
-		'    ptcColor = vec4(1.0); \n' +
-		'  } \n' +
-		'} \n';
-	
-	hemi.curve.vertSupportAim =
-		'mat4 getRotMat(float t, vec3 p0, vec3 p1, vec3 m0, vec3 m1) { \n' +
-		'  float tM = max(0.0,t-0.02); \n' +
-		'  float tP = min(1.0,t+0.02); \n' +
-		'  vec3 posM = ptcInterp(tM, p0, p1, m0, m1); \n' +
-		'  vec3 posP = ptcInterp(tP, p0, p1, m0, m1); \n' +
-		'  vec3 dPos = posP-posM; \n' +
-		'  float dxz = sqrt(pow(dPos.x,2.0)+pow(dPos.z,2.0)); \n' +
-		'  float dxyz = length(dPos); \n' +
-		'  float cx = dPos.y/dxyz; \n' +
-		'  float cy = dPos.z/dxz; \n' +
-		'  float sx = dxz/dxyz; \n' +
-		'  float sy = dPos.x/dxz; \n' +
-		'  return mat4(cy,0.0,-1.0*sy,0.0, \n' +
-		'   sx*sy,cx,sx*cy,0.0, \n' +
-		'   cx*sy,-1.0*sx,cx*cy,0.0, \n' +
-		'   0.0,0.0,0.0,1.0); \n' +
-		'} \n';
-	
-	hemi.curve.vertSupportScale =
-		'vec3 getScale(float ptcTime) { \n' +
-		'  if (ptcTime > 1.0) { \n' +
-		'    return vec3(1.0); \n' +
-		'  } else { \n' +
-		'    int ndx; \n' +
-		'    float key; \n' +
-		'    for (int i = 0; i < NUM_SCALES-1; i++) { \n' +
-		'      if (ptcScaleKeys[i] < ptcTime) { \n' +
-		'        ndx = i; \n' +
-		'        key = ptcScaleKeys[i]; \n' +
-		'      } \n' +
-		'    } \n' +
-		'    float t = (ptcTime - key)/(ptcScaleKeys[ndx+1] - key); \n' +
-		'    return mix(ptcScales[ndx], ptcScales[ndx+1], t); \n' +
-		'  } \n' +
-		'} \n';
-	
-	hemi.curve.vertBodySetup =
-		'  float id = TEXCOORD[0]; \n' +
-		'  float offset = TEXCOORD[1]; \n' +
-		'  vec2 seed = vec2(id, numPtcs-id); \n' +
-		'  float ptcTime = sysTime + offset; \n' +
-		'  if (ptcTime > ptcMaxTime) { \n' +
-		'    ptcTime -= ptcDec; \n' +
-		'  } \n' +
-		'  setPtcClr(ptcTime); \n' +
-		'  if (ptcTime > 1.0) { \n' +
-		'    ptcTime = 0.0; \n' +
-		'  } \n' +
-		'  float boxT = float(NUM_BOXES-1)*ptcTime; \n' +
-		'  int ndx = int(floor(boxT)); \n' +
-		'  float t = fract(boxT); \n' +
-		'  vec3 p0 = randXYZ(seed,minXYZ[ndx],maxXYZ[ndx]); \n' +
-		'  vec3 p1 = randXYZ(seed,minXYZ[ndx+1],maxXYZ[ndx+1]); \n' +
-		'  vec3 m0; \n' +
-		'  vec3 m1; \n' +
-		'  if (ndx == 0) { \n' +
-		'    m0 = vec3(0,0,0); \n' +
-		'  } else { \n' +
-		'    vec3 pm1 = randXYZ(seed,minXYZ[ndx-1],maxXYZ[ndx-1]); \n' +
-		'    m0 = (p1-pm1)*tension; \n' +
-		'  } \n' +
-		'  if (ndx == NUM_BOXES-2) { \n' +
-		'    m1 = vec3(0,0,0); \n' +
-		'  } else { \n' +
-		'    vec3 p2 = randXYZ(seed,minXYZ[ndx+2],maxXYZ[ndx+2]); \n' +
-		'    m1 = (p2-p0)*tension; \n' +
-		'  } \n' +
-		'  vec3 pos = ptcInterp(t, p0, p1, m0, m1); \n' +
-		'  mat4 tMat = mat4(1.0,0.0,0.0,0.0, \n' +
-		'   0.0,1.0,0.0,0.0, \n' +
-		'   0.0,0.0,1.0,0.0, \n' +
-		'   pos.x,pos.y,pos.z,1.0); \n' +
-		'  mat4 tMatIT = mat4(1.0,0.0,0.0,-1.0*pos.x, \n' +
-		'   0.0,1.0,0.0,-1.0*pos.y, \n' +
-		'   0.0,0.0,1.0,-1.0*pos.z, \n' +
-		'   0.0,0.0,0.0,1.0); \n';
-	
-	hemi.curve.vertBodyAim =
-		'  mat4 rMat = getRotMat(t, p0, p1, m0, m1); \n';
-	
-	hemi.curve.vertBodyNoAim =
-		'  mat4 rMat = mat4(1.0); \n';
-	
-	hemi.curve.vertBodyScale =
-		'  vec3 scale = getScale(ptcTime); \n' +
-		'  mat4 sMat = mat4(scale.x,0.0,0.0,0.0, \n' +
-		'   0.0,scale.y,0.0,0.0, \n' +
-		'   0.0,0.0,scale.z,0.0, \n' +
-		'   0.0,0.0,0.0,1.0); \n';
-	
-	hemi.curve.vertBodyNoScale =
-		'  mat4 sMat = mat4(1.0); \n';
-	
-	hemi.curve.vertBodyEnd =
-		'  mat4 ptcWorld = tMat*rMat*sMat; \n' +
-		'  mat4 ptcWorldIT = tMatIT*rMat*sMat; \n' +
-		'  mat4 ptcWorldVP = viewProjection * ptcWorld; \n';
-	
-	hemi.curve.fragHeader =
-		'varying vec4 ptcColor; \n';
-	
-	hemi.curve.fragPreBody =
-		'  if (ptcColor.a == 0.0) {\n' +
-		'    discard;\n' +
-		'  }\n';
-	
-	hemi.curve.fragGlobNoColors =
-		'gl_FragColor.a *= ptcColor.a; \n';
-	
-	/**
-	 * @class A particle system that is GPU driven.
-	 * @extends hemi.world.Citizen
-	 * 
-	 * @param {Object} opt_cfg optional configuration object for the system
+
+	/*
+	 * Array of Hemi Messages that ParticleCurve is known to send.
+	 * @type string[]
 	 */
-	hemi.curve.GpuParticleSystem = hemi.world.Citizen.extend({
-		init: function(opt_cfg) {
-			this._super();
+	ParticleCurve.prototype._msgSent = [hemi.msg.start, hemi.msg.stop];
+
+	/*
+	 * Octane properties for ParticleCurve.
+	 * @type string[]
+	 */
+	ParticleCurve.prototype._octane = function() {
+		return [{
+			name: 'client',
+			id: this.client._getId()
+		}, {
+			name: 'loadConfig',
+			arg: [{
+				aim: this._aim,
+				boxes: this._boxes,
+				colorKeys: this._colors,
+				life: this.life,
+				particleCount: this._particles,
+				scaleKeys: this._scales,
+				tension: this._tension,
+				particleShape: this._shapeConfig
+			}]
+		}];
+	};
+
+	/**
+	 * Hide the ParticleCurve's waypoint boxes from view.
+	 */
+	ParticleCurve.prototype.hideBoxes = function() {
+		if (this._mesh) {
+			var trans = dbgBoxTransforms[this._mesh.id] || [];
+
+			for (var i = 0, il = trans.length; i < il; ++i) {
+				this._mesh.remove(trans[i]);
+			}
+
+			delete dbgBoxTransforms[this._mesh.id];
+		}
+	};
+
+	/**
+	 * Load the given configuration object and set up the ParticleCurve.
+	 * 
+	 * @param {Object} cfg configuration options:
+	 *     aim: flag to indicate particles should orient with curve
+	 *     boxes: array of bounding boxes for particle curves to pass through
+	 *     colors: array of values for particle color ramp (use this or colorKeys)
+	 *     colorKeys: array of time keys and values for particle color ramp
+	 *     life: lifetime of particle system (in seconds)
+	 *     particleCount: number of particles to allocate for system
+	 *     particleShape: hemi.ShapeType pre defined shape type
+	 *	   customMesh: Custom mesh for particles *CANNOT BE OCTANED CURRENTLY*
+	 *     scales: array of values for particle scale ramp (use this or scaleKeys)
+	 *     scaleKeys: array of time keys and values for particle size ramp
+	 *     tension: tension parameter for the curve (typically from -1 to 1)
+	 *     trail: flag to indicate system should have trailing start and stop
+	 */
+	ParticleCurve.prototype.loadConfig = function(cfg) {
+		this._aim = cfg.aim === undefined ? false : cfg.aim;
+		this._boxes = cfg.boxes ? hemi.utils.clone(cfg.boxes) : [];
+		this.life = cfg.life || 5;
+		this._particles = cfg.particleCount || 0;
+		this._tension = cfg.tension || 0;
+		this._shapeConfig = cfg.particleShape || null;
+
+		if (cfg.colorKeys) {
+			this.setColorKeys(cfg.colorKeys);
+		} else if (cfg.colors) {
+			this.setColors(cfg.colors);
+		} else {
+			this._colors = [];
+		}
+
+		if (cfg.scaleKeys) {
+			this.setScaleKeys(cfg.scaleKeys);
+		} else if (cfg.scales) {
+			this.setScales(cfg.scales);
+		} else {
+			this._scales = [];
+		}
+
+		if (cfg.particleShape) {
+			this.setParticleShape(cfg.particleShape);
+		} else if (cfg.customMesh) {
+			this.setParticleMesh(cfg.customMesh);
+		} else {
+			this._mesh = null;
+		}
+	};
+
+	/**
+	 * Update the particles on each render.
+	 * 
+	 * @param {Object} e the render event
+	 */
+	ParticleCurve.prototype.onRender = function(e) {
+		var delta = e.elapsedTime / this.life,
+			newTime = this._timeParam.value + delta;
+
+		while (newTime > 1) {
+			--newTime;
+		}
+
+		// refresh uniforms
+		this._timeParam.value = newTime;
+		this._viewITParam.value.copy(this.client.camera.threeCamera.matrixWorld).transpose();
+	};
+
+	/**
+	 * Pause the ParticleCurve.
+	 */
+	ParticleCurve.prototype.pause = function() {
+		if (this.active) {
+			hemi.removeRenderListener(this);
 			this.active = false;
-			this.aim = false;
-			this.boxes = [];
-			this.colors = [];
-			this.decParam = null;
-			this.life = 0;
-			this.material = null;
-			this.materialSrc = null;
-			this.maxTimeParam = null;
-			this.particles = 0;
-			this.ptcShape = 0;
-			this.scales = [];
-			this.size = 0;
-			this.tension = 0;
-			this.texNdx = -1;
-			this.timeParam = null;
-			this.transform = null;
-			
-			if (opt_cfg) {
-				this.loadConfig(opt_cfg);
-			}
-		},
-		
-        /**
-         * Overwrites hemi.world.Citizen.citizenType.
-		 * @type string
-         */
-        citizenType: 'hemi.curve.GpuParticleSystem',
-	
-		/**
-		 * Hide the particle system's bounding boxes from view.
-		 */
-		hideBoxes : function() {
-			hemi.curve.hideBoxes(this.transform);
-		},
-		
-		/**
-		 * Load the given configuration object and set up the GpuParticleSystem.
-		 * 
-		 * @param {Object} cfg configuration object
-		 */
-		loadConfig: function(cfg) {
-			this.aim = cfg.aim == null ? false : cfg.aim;
-			this.boxes = cfg.boxes ? hemi.utils.clone(cfg.boxes) : [];
-			this.life = cfg.life || 5;
-			this.particles = cfg.particleCount || 1;
-			this.size = cfg.particleSize || 1;
-			this.tension = cfg.tension || 0;
-			
-			if (cfg.colorKeys) {
-				this.setColorKeys(cfg.colorKeys);
-			} else if (cfg.colors) {
-				this.setColors(cfg.colors);
+		}
+	};
+
+	/**
+	 * Resume the ParticleCurve.
+	 */
+	ParticleCurve.prototype.play = function() {
+		if (!this.active) {
+			if (this._maxTimeParam.value === 1) {
+				hemi.addRenderListener(this);
+				this.active = true;
 			} else {
-				this.colors = [];
+				this.start();
 			}
-			
-			if (cfg.scaleKeys) {
-				this.setScaleKeys(cfg.scaleKeys);
-			} else if (cfg.scales) {
-				this.setScales(cfg.scales);
-			} else {
-				this.scales = [];
+		}
+	};
+
+	/**
+	 * Set whether or not particles should orient themselves along the curve they are following.
+	 * 
+	 * @param {boolean} aim flag indicating if particles should aim along the curve
+	 */
+	ParticleCurve.prototype.setAim = function(aim) {
+		if (this._aim !== aim) {
+			this._aim = aim;
+			setupShaders.call(this);
+		}
+	};
+
+	/**
+	 * Set the bounding boxes that define waypoints for the ParticleCurve's curves.
+	 * 
+	 * @param {hemi.BoundingBox[]} boxes array of boxes defining volumetric waypoints for the
+	 *     ParticleCurve
+	 */
+	ParticleCurve.prototype.setBoxes = function(boxes) {
+		var oldLength = this._boxes.length;
+		this._boxes = hemi.utils.clone(boxes);
+
+		if (this._boxes.length === oldLength) {
+			setupBounds.call(this);
+		} else {
+			setupShaders.call(this);
+		}
+	};
+
+	/**
+	 * Set the color ramp for the particles as they travel along the curve.
+	 * 
+	 * @param {number[4][]} colors array of RGBA color values
+	 */
+	ParticleCurve.prototype.setColors = function(colors) {
+		var len = colors.length,
+			step = len === 1 ? 1 : 1 / (len - 1),
+			colorKeys = [];
+
+		for (var i = 0; i < len; ++i) {
+			colorKeys.push({
+				key: i * step,
+				value: colors[i]
+			});
+		}
+
+		this.setColorKeys(colorKeys);
+	};
+
+	/**
+	 * Set the color ramp for the particles as they travel along the curve, specifying the
+	 * interpolation times for each color.
+	 * 
+	 * @param {Object[]} colorKeys array of color keys, sorted into ascending key order
+	 */
+	ParticleCurve.prototype.setColorKeys = function(colorKeys) {
+		var len = colorKeys.length;
+
+		if (len === 1) {
+			// We need at least two to interpolate
+			var clr = colorKeys[0].value;
+			this._colors = [{
+				key: 0,
+				value: clr
+			}, {
+				key: 1,
+				value: clr
+			}];
+		} else if (len > 1) {
+			// Just make sure the keys run from 0 to 1
+			colorKeys[0].key = 0;
+			colorKeys[colorKeys.length - 1].key = 1;
+			this._colors = colorKeys;
+		} else {
+			this._colors = [];
+		}
+
+		setupShaders.call(this);
+	};
+
+	/**
+	 * Set the material to use for the particles. Note that the material's shader will be modified
+	 * for the ParticleCurve.
+	 * 
+	 * @param {THREE.Material} material the material to use for particles
+	 */
+	ParticleCurve.prototype.setMaterial = function(material) {
+		if (this._mesh) {
+			this._mesh.material = material;
+
+			if (!material.program) {
+				var scene = this.client.scene;
+				this.client.renderer.initMaterial(material, scene.lights, scene.fog, this._mesh);
 			}
-			
-			this.setMaterial(cfg.material || hemi.curve.newMaterial());
-			this.setParticleShape(cfg.particleShape || hemi.curve.ShapeType.CUBE);
-		},
-		
-		/**
-		 * Update the particles on each render.
-		 * 
-		 * @param {o3d.RenderEvent} e the render event
-		 */
-		onRender: function(e) {
-			var delta = e.elapsedTime / this.life,
-				newTime = this.timeParam.value + delta;
-			
-			while (newTime > 1.0) {
-				--newTime;
-			}
-			
-			this.timeParam.value = newTime;
-		},
-		
-		/**
-		 * Pause the particle system.
-		 */
-		pause: function() {
-			if (this.active) {
-				hemi.view.removeRenderListener(this);
-				this.active = false;
-			}
-		},
-		
-		/**
-		 * Resume the particle system.
-		 */
-		play: function() {
-			if (!this.active) {
-				if (this.maxTimeParam.value === 1.0) {
-					hemi.view.addRenderListener(this);
-					this.active = true;
-				} else {
-					this.start();
-				}
-			}
-		},
-		
-		/**
-		 * Set whether or not particles should orient themselves along the curve
-		 * they are following.
-		 * 
-		 * @param {boolean} aim flag indicating if particles should aim
-		 */
-		setAim: function(aim) {
-			if (this.aim !== aim) {
-				this.aim = aim;
-				this.setupShaders();
-			}
-		},
-		
-		/**
-		 * Set the bounding boxes that define waypoints for the particle
-		 * system's curves.
-		 * 
-		 * @param {hemi.curve.Box[]} boxes array of boxes defining volumetric
-		 *     waypoints for the particle system
-		 */
-		setBoxes: function(boxes) {
-			var oldLength = this.boxes.length;
-			this.boxes = hemi.utils.clone(boxes);
-			
-			if (this.boxes.length === oldLength) {
-				setupBounds(this.material, this.boxes);
-			} else {
-				this.setupShaders();
-			}
-		},
-		
-		/**
-		 * Set the color ramp for the particles as they travel along the curve.
-		 * 
-		 * @param {number[4][]} colors array of RGBA color values
-		 */
-		setColors: function(colors) {
-			var len = colors.length,
-				step = len === 1 ? 1 : 1 / (len - 1),
-				colorKeys = [];
-			
-			for (var i = 0; i < len; i++) {
-				colorKeys.push({
-					key: i * step,
-					value: colors[i]
-				});
-			}
-			
-			this.setColorKeys(colorKeys);
-		},
-		
-		/**
-		 * Set the color ramp for the particles as they travel along the curve,
-		 * specifying the interpolation times for each color.
-		 * 
-		 * @param {hemi.curve.ColorKey[]} colorKeys array of color keys, sorted
-		 *     into ascending key order
-		 */
-		setColorKeys: function(colorKeys) {
-			var len = colorKeys.length;
-			
-			if (len === 1) {
-				// We need at least two to interpolate
-				var clr = colorKeys[0].value;
-				this.colors = [{
-					key: 0,
-					value: clr
-				}, {
-					key: 1,
-					value: clr
-				}];
-			} else if (len > 1) {
-				// Just make sure the keys run from 0 to 1
-				colorKeys[0].key = 0;
-				colorKeys[colorKeys.length - 1].key = 1;
-				this.colors = colorKeys;
-			} else {
-				this.colors = [];
-			}
-			
-			this.setupShaders();
-		},
-		
-		/**
-		 * Set the lifetime of the particle system.
-		 * 
-		 * @param {number} life the lifetime of the system in seconds
-		 */
-		setLife: function(life) {
-			if (life > 0) {
-				this.life = life;
-			}
-		},
-		
-		/**
-		 * Set the material to use for the particles. Note that the material's
-		 * shader will be modified for the particle system.
-		 * 
-		 * @param {o3d.Material} material the material to use for particles
-		 */
-		setMaterial: function(material) {
-			var shads = hemi.utils.getShaders(material);
-			
-			if (this.material) {
-				hemi.curve.pack.removeObject(this.material);
-			}
-			
-			this.material = material;
-			this.materialSrc = {
+
+			var shads = hemi.utils.getShaders(this.client, material);
+
+			this._materialSrc = {
 				frag: shads.fragSrc,
 				vert: shads.vertSrc
 			};
-			this.setupShaders();
-		},
-		
-		/**
-		 * Set the total number of particles for the system to create.
-		 *  
-		 * @param {number} numPtcs number of particles
-		 */
-		setParticleCount: function(numPtcs) {
-			this.particles = numPtcs;
-			
-			if (this.ptcShape) {
-				// Recreate the custom vertex buffers
-				this.setParticleShape(this.ptcShape);
-			}
-		},
-		
-		/**
-		 * Set the size of each individual particle. For example, this would be
-		 * the radius if the particles are spheres.
-		 * 
-		 * @param {number} size size of the particles
-		 */
-		setParticleSize: function(size) {
-			this.size = size;
-			
-			if (this.ptcShape) {
-				// Recreate the custom vertex buffers
-				this.setParticleShape(this.ptcShape);
-			}
-		},
-		
-		/**
-		 * Set the shape of the particles to one of the predefined shapes. This
-		 * may take some time as a new vertex buffer gets created.
-		 * 
-		 * @param {hemi.curve.ShapeType} type the type of shape to use
-		 */
-		setParticleShape: function(type) {
-			this.ptcShape = type;
-			
-			if (this.transform) {
-				this.transform.parent = null;
-				hemi.shape.pack.removeObject(this.transform.shapes[0]);
-				hemi.shape.pack.removeObject(this.transform);
-				this.transform = null;
-			}
-			
-			this.material = this.material || hemi.curve.newMaterial();
-			this.particles = this.particles || 1;
-			
-			switch (type) {
-				case hemi.curve.ShapeType.ARROW:
-					this.transform = hemi.shape.create({
-						shape: 'arrow',
-						mat: this.material,
-						size: this.size,
-						tail: this.size });
-					break;
-				case hemi.curve.ShapeType.SPHERE:
-					this.transform = hemi.shape.create({
-						shape: 'sphere',
-						mat: this.material,
-						radius: this.size });
-					break;
-				case hemi.curve.ShapeType.CUBE:
-				default:
-					this.transform = hemi.shape.create({
-						shape: 'cube',
-						mat: this.material,
-						size: this.size });
-					break;
-			}
-			
-			var shape = this.transform.shapes[0],
-				elements = shape.elements;
-			
-			for (var i = 0, il = elements.length; i < il; i++) {
-				var element = elements[i];
-				
-				if (element.className === 'Primitive') {
-					this.texNdx = modifyPrimitive(element, this.particles);
-				}
-			}
-			
-			this.setupShaders();
-		},
-		
-		/**
-		 * Set the scale ramp for the particles as they travel along the curve.
-		 * 
-		 * @param {number[3][]} scales array of XYZ scale values
-		 */
-		setScales: function(scales) {
-			var len = scales.length,
-				step = len === 1 ? 1 : 1 / (len - 1),
-				scaleKeys = [];
-			
-			for (var i = 0; i < len; i++) {
-				scaleKeys.push({
-					key: i * step,
-					value: scales[i]
-				});
-			}
-			
-			this.setScaleKeys(scaleKeys);
-		},
-		
-		/**
-		 * Set the scale ramp for the particles as they travel along the curve,
-		 * specifying the interpolation times for each scale.
-		 * 
-		 * @param {hemi.curve.ScaleKey[]} scaleKeys array of scale keys, sorted
-		 *     into ascending key order
-		 */
-		setScaleKeys: function(scaleKeys) {
-			var len = scaleKeys.length;
-			
-			if (len === 1) {
-				// We need at least two to interpolate
-				var scl = scaleKeys[0].value;
-				this.scales = [{
-					key: 0,
-					value: scl
-				}, {
-					key: 1,
-					value: scl
-				}];
-			} else if (len > 1) {
-				// Just make sure the keys run from 0 to 1
-				scaleKeys[0].key = 0;
-				scaleKeys[len - 1].key = 1;
-				this.scales = scaleKeys;
-			} else {
-				this.scales = [];
-			}
-			
-			this.setupShaders();
-		},
-		
-		/**
-		 * Set the tension parameter for the curve. This controls how round or
-		 * straight the curve sections are.
-		 * 
-		 * @param {number} tension tension value (typically from -1 to 1)
-		 */
-		setTension: function(tension) {
-			this.tension = tension;
-			
-			if (this.material) {
-				this.material.getParam('tension').value = (1 - this.tension) / 2;
-			}
-		},
-		
-		/**
-		 * Modify the particle material's shaders so that the particle system
-		 * can be rendered using its current configuration. At a minimum, the
-		 * material, custom texture index, and curve boxes need to be defined.
-		 */
-		setupShaders: function() {
-			if (!this.material || !this.materialSrc || this.texNdx === -1 || this.boxes.length < 2) {
-				return;
-			}
-			
-			var material = this.material,
-				fragSrc = this.materialSrc.frag,
-				vertSrc = this.materialSrc.vert,
-				numBoxes = this.boxes.length,
-				numColors = this.colors.length,
-				numScales = this.scales.length,
-				texNdx = this.texNdx,
-				addColors = numColors > 1,
-				addScale = numScales > 1,
-				shads = hemi.utils.getShaders(material),
-				fragShd = shads.fragShd,
-				vertShd = shads.vertShd,
-				dec = 1.0,
-				maxTime = 3.0,
-				time = 1.1,
-				uniforms = ['sysTime', 'ptcMaxTime', 'ptcDec', 'numPtcs',
-					'tension', 'ptcScales', 'ptcScaleKeys', 'minXYZ', 'maxXYZ',
-					'ptcColors', 'ptcColorKeys'];
-			
-			// Remove any previously existing uniforms that we created
-			for (var i = 0, il = uniforms.length; i < il; i++) {
-				var name = uniforms[i],
-					param = material.getParam(name);
-				
-				if (param) {
-					if (name === 'ptcDec') {
-						dec = param.value;
-					} else if (name === 'ptcMaxTime') {
-						maxTime = param.value;
-					} else if (name === 'sysTime') {
-						time = param.value;
-					}
-					
-					material.removeParam(param);
-				}
-			}
-			
-			// modify the vertex shader
-			if (vertSrc.search('ptcInterp') < 0) {
-				var vertHdr = hemi.curve.vertHeader.replace(/NUM_BOXES/g, numBoxes),
-					vertSprt = hemi.curve.vertSupport,
-					vertPreBody = hemi.curve.vertBodySetup.replace(/NUM_BOXES/g, numBoxes);
-				
-				vertHdr = vertHdr.replace(/TEXCOORD/g, 'texCoord' + texNdx);
-				vertPreBody = vertPreBody.replace(/TEXCOORD/g, 'texCoord' + texNdx);
-				
-				if (addColors) {
-					vertHdr += hemi.curve.vertHeaderColors.replace(/NUM_COLORS/g, numColors);
-					vertSprt += hemi.curve.vertSupportColors.replace(/NUM_COLORS/g, numColors);
-				} else {
-					vertSprt += hemi.curve.vertSupportNoColors;
-				}
-				
-				if (this.aim) {
-					vertSprt += hemi.curve.vertSupportAim;
-					vertPreBody += hemi.curve.vertBodyAim;
-				} else {
-					vertPreBody += hemi.curve.vertBodyNoAim;
-				}
-				
-				if (addScale) {
-					vertHdr += hemi.curve.vertHeaderScales.replace(/NUM_SCALES/g, numScales);
-					vertSprt += hemi.curve.vertSupportScale.replace(/NUM_SCALES/g, numScales);
-					vertPreBody += hemi.curve.vertBodyScale;
-				} else {
-					vertPreBody += hemi.curve.vertBodyNoScale;
-				}
-				
-				vertPreBody += hemi.curve.vertBodyEnd;
-				var parsedVert = hemi.utils.parseSrc(vertSrc, 'gl_Position'),
-					vertBody = parsedVert.body.replace(/world/g, 'ptcWorld')
-						.replace(/ViewProjection/g, 'VP')
-						.replace(/InverseTranspose/g, 'IT');
-				
-				parsedVert.postHdr = vertHdr;
-				parsedVert.postSprt = vertSprt;
-				parsedVert.postHdr = vertHdr;
-				parsedVert.preBody = vertPreBody;
-				parsedVert.body = vertBody;
-				vertSrc = hemi.utils.buildSrc(parsedVert);
-				
-				material.gl.detachShader(material.effect.program_, vertShd);
-				material.effect.loadVertexShaderFromString(vertSrc);
-			}
-			
-			// modify the fragment shader
-			if (fragSrc.search('ptcColor') < 0) {
-				var parsedFrag = hemi.utils.parseSrc(fragSrc, 'gl_FragColor'),
-					fragGlob = parsedFrag.glob;
-				
-				parsedFrag.postHdr = hemi.curve.fragHeader;
-				parsedFrag.preBody = hemi.curve.fragPreBody;
-				
-				if (addColors) {
-					if (fragGlob.indexOf('diffuse') !== -1) {
-						parsedFrag.glob = fragGlob.replace(/diffuse/g, 'ptcColor');
-					} else {
-						parsedFrag.glob = fragGlob.replace(/emissive/g, 'ptcColor');
-					}
-				} else {
-					parsedFrag.postGlob = hemi.curve.fragGlobNoColors;
-				}
-				
-				fragSrc = hemi.utils.buildSrc(parsedFrag);
-				material.gl.detachShader(material.effect.program_, fragShd);
-				material.effect.loadPixelShaderFromString(fragSrc);
-			}
-			
-			material.effect.createUniformParameters(material);
-			
-			// Setup params
-			material.getParam('numPtcs').value = this.particles;
-			material.getParam('tension').value = (1 - this.tension) / 2;
-			this.decParam = material.getParam('ptcDec');
-			this.maxTimeParam = material.getParam('ptcMaxTime');
-			this.timeParam = material.getParam('sysTime');
-			this.decParam.value = dec;
-			this.maxTimeParam.value = maxTime;
-			this.timeParam.value = time;
-			setupBounds(material, this.boxes);
-			
-			var needsZ = false,
-				hvv = hemi.view.viewInfo;
-			
-			for (var i = 0; i < numColors && !needsZ; i++) {
-				needsZ = this.colors[i].value[3] < 1;
-			}
-			
-			material.drawList = needsZ ? hvv.zOrderedDrawList : hvv.performanceDrawList;
-			
-			if (addColors) {
-				setupColors(material, this.colors);
-			}
-			if (addScale) {
-				setupScales(material, this.scales);
-			}
-		},
-		
-		/**
-		 * Render the bounding boxes which the particle system's curves run
-		 * through (helpful for debugging).
-		 */
-		showBoxes : function() {
-			hemi.curve.showBoxes(this.boxes, this.transform);
-		},
-		
-		/**
-		 * Start the particle system.
-		 */
-		start: function() {
-			if (!this.active) {
-				this.active = true;
-				this.timeParam.value = 1.0;
-				this.maxTimeParam.value = 1.0;
-				hemi.view.addRenderListener(this);
-			}
-		},
-		
-		/**
-		 * Stop the particle system.
-		 */
-		stop: function() {
-			if (this.active) {
-				this.active = false;
-				this.timeParam.value = 1.1;
-				this.maxTimeParam.value = 3.0;
-				hemi.view.removeRenderListener(this);
-			}
-		},
-		
-		/**
-		 * Get the Octane structure for the GpuParticleSystem.
-	     *
-	     * @return {Object} the Octane structure representing the
-	     *     GpuParticleSystem
-		 */
-		toOctane: function(){
-			var octane = this._super();
-			
-			octane.props.push({
-				name: 'loadConfig',
-				arg: [{
-					aim: this.aim,
-					boxes: this.boxes,
-					colorKeys: this.colors,
-					life: this.life,
-					particleCount: this.particles,
-					particleShape: this.ptcShape,
-					particleSize: this.size,
-					scaleKeys: this.scales,
-					tension: this.tension
-				}]
-			});
-			
-			return octane;
-		},
-		
-		/**
-		 * Translate the entire particle system by the given amounts
-		 * @param {number} x amount to translate in the X direction
-		 * @param {number} y amount to translate in the Y direction
-		 * @param {number} z amount to translate in the Z direction
-		 */
-		translate: function(x, y, z) {
-			for (var i = 0, il = this.boxes.length; i < il; i++) {
-				var box = this.boxes[i],
-					min = box.min,
-					max = box.max;
-				
-				min[0] += x;
-				max[0] += x;
-				min[1] += y;
-				max[1] += y;
-				min[2] += z;
-				max[2] += z;
-			}
-			setupBounds(this.material, this.boxes);
+
+			setupShaders.call(this);
 		}
-	});
-	
+	};
+
 	/**
-	 * @class A GPU driven particle system that has trailing starts and stops.
-	 * @extends hemi.curve.GpuParticleSystem
+	 * Set the total number of particles for the ParticleCurve to create.
+	 *  
+	 * @param {number} numPtcs number of particles
+	 */
+	ParticleCurve.prototype.setParticleCount = function(numPtcs) {
+		this._particles = numPtcs;
+
+		if (this._mesh) {
+			// Recreate the custom vertex buffers
+			this.setParticleMesh(this._mesh);
+		}
+	};
+
+	/**
+	 * Set the shape of the particles to the given shape geometry. This may take some time as a new
+	 * vertex buffer gets created.
+	 * 
+	 * @param {hemi.Mesh} mesh the mesh containing the shape geometry to use
+	 */
+	ParticleCurve.prototype.setParticleMesh = function(mesh) {			
+		if (this._mesh) {
+			if (this._mesh.parent) this.client.scene.remove(this._mesh);
+			this._mesh = null;
+		}
+
+		if (!mesh.parent) this.client.scene.add(mesh);
+
+		this._mesh = mesh;
+		this._particles = this._particles || 1;
+
+		var retVal = modifyGeometry(this._mesh.geometry, this._particles);
+		this.idArray = retVal.ids;
+		this.offsetArray = retVal.offsets;
+		this.idOffsets = retVal.idOffsets;
+
+		this.setMaterial(mesh.material || newMaterial());
+	};
+
+	/**
+	 * Sets the particle Mesh to a hemi.Shape. See hemi.createShape() for more details.
+	 * 
+	 * @param {Object} shapeConfig properties of the shape to create
+	 */
+	ParticleCurve.prototype.setParticleShape = function(shapeConfig) {
+		var mesh = hemi.createShape(shapeConfig);
+		hemi.world.removeCitizen(mesh); // We don't want it to end up in Octane
+		this._shapeConfig = shapeConfig;
+		this.setParticleMesh(mesh);
+	};
+
+	/**
+	 * Set the scale ramp for the particles as they travel along the curve.
+	 * 
+	 * @param {THREE.Vector3[]} scales array of XYZ scale values
+	 */
+	ParticleCurve.prototype.setScales = function(scales) {
+		var len = scales.length,
+			step = len === 1 ? 1 : 1 / (len - 1),
+			scaleKeys = [];
+
+		for (var i = 0; i < len; i++) {
+			scaleKeys.push({
+				key: i * step,
+				value: scales[i]
+			});
+		}
+
+		this.setScaleKeys(scaleKeys);
+	};
+
+	/**
+	 * Set the scale ramp for the particles as they travel along the curve, specifying the
+	 * interpolation times for each scale.
+	 * 
+	 * @param {Object[]} scaleKeys array of scale keys, sorted into ascending key order
+	 */
+	ParticleCurve.prototype.setScaleKeys = function(scaleKeys) {
+		var len = scaleKeys.length;
+
+		if (len === 1) {
+			// We need at least two to interpolate
+			var scl = scaleKeys[0].value;
+			this._scales = [{
+				key: 0,
+				value: scl
+			}, {
+				key: 1,
+				value: scl
+			}];
+		} else if (len > 1) {
+			// Just make sure the keys run from 0 to 1
+			scaleKeys[0].key = 0;
+			scaleKeys[len - 1].key = 1;
+			this._scales = scaleKeys;
+		} else {
+			this._scales = [];
+		}
+
+		setupShaders.call(this);
+	};
+
+	/**
+	 * Set the tension parameter for the curve. This controls how round or straight the curve
+	 * sections are.
+	 * 
+	 * @param {number} tension tension value (typically from -1 to 1)
+	 */
+	ParticleCurve.prototype.setTension = function(tension) {
+		this._tension = tension;
+
+		if (this._mesh) {
+			this._mesh.material.getParam('tension').value = (1 - this._tension) / 2;
+		}
+	};
+
+	/**
+	 * Render the waypoint boxes which the curves run through (helpful for debugging).
+	 */
+	ParticleCurve.prototype.showBoxes = function() {
+		if (this._mesh) {
+			var trans = dbgBoxTransforms[this._mesh.id] || [];
+
+			for (var i = 0; i < this._boxes.length; i++) {
+				var b = this._boxes[i],
+					w = b.max.x - b.min.x,
+					h = b.max.y - b.min.y,
+					d = b.max.z - b.min.z,
+					x = b.min.x + w/2,
+					y = b.min.y + h/2,
+					z = b.min.z + d/2,
+					box = new THREE.CubeGeometry(w, h, d),
+					mesh = new THREE.Mesh(box, dbgBoxMat);
+
+				mesh.position.addSelf(new THREE.Vector3(x, y, z));
+				this._mesh.add(mesh);
+				trans.push(mesh);
+			}
+
+			dbgBoxTransforms[this._mesh.id] = trans;
+		}
+	};
+
+	/**
+	 * Start the ParticleCurve.
+	 */
+	ParticleCurve.prototype.start = function() {
+		if (!this.active) {
+			this.active = true;
+			this._timeParam.value = 1.0;
+			this._maxTimeParam.value = 1.0;
+			hemi.addRenderListener(this);
+		}
+	};
+
+	/**
+	 * Stop the ParticleCurve.
+	 */
+	ParticleCurve.prototype.stop = function() {
+		if (this.active) {
+			this.active = false;
+			this._timeParam.value = 1.1;
+			this._maxTimeParam.value = 3.0;
+			hemi.removeRenderListener(this);
+		}
+	};
+
+	/**
+	 * Translate the entire particle system by the given amounts
+	 * @param {number} x amount to translate in the X direction
+	 * @param {number} y amount to translate in the Y direction
+	 * @param {number} z amount to translate in the Z direction
+	 */
+	ParticleCurve.prototype.translate = function(x, y, z) {
+		for (var i = 0, il = this._boxes.length; i < il; i++) {
+			var box = this._boxes[i],
+				min = box.min,
+				max = box.max;
+
+			min[0] += x;
+			max[0] += x;
+			min[1] += y;
+			max[1] += y;
+			min[2] += z;
+			max[2] += z;
+		}
+
+		setupBounds.call(this);
+	};
+
+// Private functions for ParticleCurve
+
+	/*
+	 * Modify the particle material's shaders so that the particle system can be rendered using its
+	 * current configuration. At a minimum, the mesh and curve boxes need to be defined.
+	 */
+	function setupShaders() {
+		if (!this._mesh || !this._materialSrc || this._boxes.length < 2) {
+			return;
+		}
+
+		var gl = this.client.renderer.context,
+			chunksVert = shaderChunks.vert,
+			chunksFrag = shaderChunks.frag,
+			material = this._mesh.material,
+			oldProgram = material.program,
+			program = material.program = oldProgram.isCurveGen ? oldProgram : gl.createProgram(),
+			fragSrc = this._materialSrc.frag,
+			vertSrc = this._materialSrc.vert,
+			numBoxes = this._boxes.length,
+			numColors = this._colors.length,
+			numScales = this._scales.length,
+			addColors = numColors > 1,
+			addScale = numScales > 1,
+			shads = hemi.utils.getShaders(this.client, material),
+			fragShd = shads.fragShd,
+			vertShd = shads.vertShd,
+			dec = 1.0,
+			maxTime = 3.0,
+			time = 1.1,
+			uniformNames = ['sysTime', 'ptcMaxTime', 'ptcDec', 'numPtcs',
+				'tension', 'ptcScales', 'ptcScaleKeys', 'minXYZ', 'maxXYZ',
+				'ptcColors', 'ptcColorKeys', 'viewIT'];
+
+		// Remove any previously existing uniforms that we created
+		for (var i = 0, il = uniformNames.length; i < il; ++i) {
+			var name = uniformNames[i],
+				param = material.uniforms[name];
+
+			if (param) {
+				if (name === 'ptcDec') {
+					dec = param.value;
+				} else if (name === 'ptcMaxTime') {
+					maxTime = param.value;
+				} else if (name === 'sysTime') {
+					time = param.value;
+				}
+
+				delete material.uniforms[name];
+				delete program.uniforms[name];
+			}
+		}
+
+		// modify the vertex shader
+		if (vertSrc.search('ptcInterp') < 0) {
+			var vertHdr = chunksVert.header.replace(/NUM_BOXES/g, numBoxes),
+				vertSprt = chunksVert.support,
+				vertPreBody = chunksVert.bodySetup.replace(/NUM_BOXES/g, numBoxes);
+
+			if (addColors) {
+				vertHdr += chunksVert.headerColors.replace(/NUM_COLORS/g, numColors);
+				vertSprt += chunksVert.supportColors.replace(/NUM_COLORS/g, numColors);
+			} else {
+				vertSprt += chunksVert.supportNoColors;
+			}
+
+			if (this._aim) {
+				vertSprt += chunksVert.supportAim;
+				vertPreBody += chunksVert.bodyAim;
+			} else {
+				vertPreBody += chunksVert.bodyNoAim;
+			}
+
+			if (addScale) {
+				vertHdr += chunksVert.headerScales.replace(/NUM_SCALES/g, numScales);
+				vertSprt += chunksVert.supportScale.replace(/NUM_SCALES/g, numScales);
+				vertPreBody += chunksVert.bodyScale;
+			} else {
+				vertPreBody += chunksVert.bodyNoScale;
+			}
+
+			vertPreBody += chunksVert.bodyEnd;
+			var parsedVert = hemi.utils.parseSrc(vertSrc),
+				vertBody = parsedVert.body.replace(/modelViewMatrix/g, 'ptcWorldView')
+					.replace(/objectMatrix/g, 'ptcWorld')
+					.replace(/normalMatrix/g, 'ptcNorm');
+
+			parsedVert.postSprt = vertHdr + vertSprt;
+			parsedVert.preBody = vertPreBody;
+			parsedVert.body = vertBody;
+			vertSrc = material.vertexShader = hemi.utils.buildSrc(parsedVert);
+
+			var vShader = gl.createShader(gl.VERTEX_SHADER);
+			gl.shaderSource(vShader, vertSrc);
+			gl.compileShader(vShader);
+			gl.detachShader(program, vertShd);
+			gl.attachShader(program, vShader);
+		}
+
+		// modify the fragment shader
+		if (fragSrc.search('ptcColor') < 0) {
+			var parsedFrag = hemi.utils.parseSrc(fragSrc, 'gl_FragColor'),
+				fragGlob = parsedFrag.glob;
+
+			parsedFrag.postSprt = chunksFrag.header;
+			parsedFrag.preBody = chunksFrag.bodySetup;
+
+			if (addColors) {
+				if (parsedFrag.body.indexOf('diffuse') !== -1) {
+					parsedFrag.body = parsedFrag.body.replace(/diffuse/g, 'ptcColor.rgb');
+				} else {
+					parsedFrag.body = parsedFrag.body.replace(/emissive/g, 'ptcColor.rgb');
+				}
+			}
+
+			parsedFrag.body = parsedFrag.body.replace(/opacity/g, '(opacity * ptcColor.a)');
+			fragSrc = material.fragmentShader = hemi.utils.buildSrc(parsedFrag);
+
+			var fShader = gl.createShader(gl.FRAGMENT_SHADER);
+			gl.shaderSource(fShader, fragSrc);
+			gl.compileShader(fShader);
+			gl.detachShader(program, fragShd);
+			gl.attachShader(program, fShader);
+		}
+
+		// add the attributes and uniforms to the material
+		var attributes = {
+				idOffset: { type: 'v2', value: this.idOffsets, needsUpdate: true }
+			},
+			uniforms = {
+				sysTime: { type: 'f', value: time },
+				ptcMaxTime: { type: 'f', value: maxTime },
+				ptcDec: { type: 'f', value: dec },
+				numPtcs: { type: 'f', value: this._particles },
+				tension: { type: 'f', value: (1 - this._tension) / 2 },
+				minXYZ: { type: 'v3v', value: [] },
+				maxXYZ: { type: 'v3v', value: [] },
+				viewIT: { type: 'm4', value: new THREE.Matrix4() }
+			};
+
+		if (addColors) {
+			uniforms.ptcColors = {
+				type: 'v4v', value: []
+			};
+			uniforms.ptcColorKeys = {
+				type: 'fv1', value: []
+			};
+		}
+		if (addScale) {
+			uniforms.ptcScales = {
+				type: 'v3v', value: []
+			};
+			uniforms.ptcScaleKeys = {
+				type: 'fv1', value: []
+			};
+		}
+
+		material.uniforms = THREE.UniformsUtils.merge([material.uniforms, uniforms]);
+		material.attributes = THREE.UniformsUtils.merge([material.attributes, attributes]);
+
+		material.uniformsList = [];
+
+		gl.linkProgram(program);
+
+		if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+			hemi.error('Could not initialise shader. VALIDATE_STATUS: ' +
+				gl.getProgramParameter( program, gl.VALIDATE_STATUS ) + ', gl error [' +
+				gl.getError() + ']');
+		}
+
+		program.uniforms = {};
+		program.attributes = {};
+		program.isCurveGen = true;
+
+		for (var u in material.uniforms) {
+			material.uniformsList.push([material.uniforms[u], u]);
+		}
+
+		// update the program to point to the uniforms and attributes
+		for (var u in oldProgram.uniforms) {
+			var loc = program.uniforms[u] = gl.getUniformLocation(program, u);
+		}
+		for (var u in uniforms) {
+			program.uniforms[u] = gl.getUniformLocation(program, u);
+		}
+		for (var a in oldProgram.attributes) {
+			var loc = program.attributes[a] = gl.getAttribLocation(program, a);
+			gl.enableVertexAttribArray(loc);
+		}
+		for (var a in attributes) {
+			var loc = program.attributes[a] = gl.getAttribLocation(program, a);
+			gl.enableVertexAttribArray(loc);
+		}
+
+		// setup params
+		this._decparam = material.uniforms.ptcDec;
+		this._maxTimeParam = material.uniforms.ptcMaxTime;
+		this._timeParam = material.uniforms.sysTime;
+		this._viewITParam = material.uniforms.viewIT;
+
+		setupBounds.call(this);
+
+		var needsZ = false;
+
+		for (var i = 0; i < numColors && !needsZ; i++) {
+			needsZ = this._colors[i].value[3] < 1;
+		}
+
+		material.transparent = needsZ;
+
+		if (addColors) {
+			setupColors(material, this._colors);
+		}
+		if (addScale) {
+			setupScales(material, this._scales);
+		}
+
+		// force rebuild of buffers
+		this._mesh.dynamic = true;
+		this._mesh.__webglInit = this._mesh.__webglActive = false;
+		delete this._mesh.geometry.geometryGroups;
+		delete this._mesh.geometry.geometryGroupsList;
+		this.client.scene.__objectsAdded.push(this._mesh);
+	}
+
+	/*
+	 * Set the parameters for the ParicleCurve's Material so that it supports a curve through its
+	 * bounding boxes.
+	 */
+	function setupBounds() {
+		if (this._mesh) {
+			var material = this._mesh.material,
+				boxes = this._boxes,
+				minParam = material.uniforms.minXYZ,
+				maxParam = material.uniforms.maxXYZ;
+
+			minParam._array = new Float32Array(3 * boxes.length);
+			maxParam._array = new Float32Array(3 * boxes.length);
+
+			for (var i = 0, il = boxes.length; i < il; ++i) {
+				var box = boxes[i];
+
+				minParam.value[i] = box.min;
+				maxParam.value[i] = box.max;
+			}
+		}
+	}
+
+	hemi.makeCitizen(ParticleCurve, 'hemi.ParticleCurve', {
+		toOctane: ParticleCurve.prototype._octane
+	});
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// ParticleCurveTrail class
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	/**
+	 * @class A ParticleCurve that has trailing starts and stops.
+	 * @extends hemi.ParticleCurve
 	 * 
 	 * @param {Object} opt_cfg the configuration object for the system
 	 */
-	hemi.curve.GpuParticleTrail = hemi.curve.GpuParticleSystem.extend({
-		init: function(opt_cfg) {
-			this._super(opt_cfg);
-			
-			this.endTime = 1.0;
-			this.starting = false;
-			this.stopping = false;
-		},
-		
-		/**
-		 * Update the particles on each render.
-		 * 
-		 * @param {o3d.RenderEvent} e the render event
-		 */
-		onRender: function(e) {
-			var delta = e.elapsedTime / this.life,
-				newTime = this.timeParam.value + delta;
-			
-			if (newTime > this.endTime) {
-				if (this.stopping) {
-					this.active = false;
-					this.stopping = false;
-					this.maxTimeParam.value = 3.0;
-					hemi.view.removeRenderListener(this);
-					newTime = 1.1;
-				} else {
-					if (this.starting) {
-						this.starting = false;
-						this.endTime = 1.0;
-						this.decParam.value = 1.0;
-						this.maxTimeParam.value = 1.0;
-					}
-					
-					while (--newTime > this.endTime) {}
-				}
-			}
-			
+	var ParticleCurveTrail = function(client, opt_cfg) {
+		ParticleCurve.call(this, client, opt_cfg);
+
+		this.endTime = 1.0;
+		this.starting = false;
+		this.stopping = false;
+	};
+
+	ParticleCurveTrail.prototype = new ParticleCurve();
+	ParticleCurveTrail.prototype.constructor = ParticleCurveTrail;
+
+	/**
+	 * Update the particles on each render.
+	 * 
+	 * @param {Object} e the render event
+	 */
+	ParticleCurveTrail.prototype.onRender = function(e) {
+		var delta = e.elapsedTime / this.life,
+			newTime = this._timeParam.value + delta;
+
+		if (newTime > this.endTime) {
 			if (this.stopping) {
-				this.maxTimeParam.value += delta;
-			}
-			
-			this.timeParam.value = newTime;
-		},
-		
-		/**
-		 * Resume the particle system.
-		 */
-		play: function() {
-			if (!this.active) {
-				if (this.starting || this.stopping || this.maxTimeParam.value === 1.0) {
-					hemi.view.addRenderListener(this);
-					this.active = true;
-				} else {
-					this.start();
-				}
-			}
-		},
-		
-		/**
-		 * Start the particle system.
-		 */
-		start: function() {
-			if (this.stopping) {
-				hemi.view.removeRenderListener(this);
 				this.active = false;
 				this.stopping = false;
-			}
-			if (!this.active) {
-				this.active = true;
-				this.starting = true;
-				this.stopping = false;
-				this.endTime = 2.0;
-				this.decParam.value = 2.0;
-				this.maxTimeParam.value = 2.0;
-				this.timeParam.value = 1.0;
-				hemi.view.addRenderListener(this);
-			}
-		},
-		
-		/**
-		 * Stop the particle system.
-		 * 
-		 * @param {boolean} opt_hard optional flag to indicate a hard stop (all
-		 *     particles disappear at once)
-		 */
-		stop: function(opt_hard) {
-			if (this.active) {
-				if (opt_hard) {
-					this.endTime = -1.0;
-				} else if (!this.stopping) {
-					this.endTime = this.timeParam.value + 1.0;
+				this._maxTimeParam.value = 3.0;
+				hemi.removeRenderListener(this);
+				newTime = 1.1;
+			} else {
+				if (this.starting) {
+					this.starting = false;
+					this.endTime = 1.0;
+					this._decparam.value = 1.0;
+					this._maxTimeParam.value = 1.0;
 				}
-				
-				this.starting = false;
-				this.stopping = true;
+
+				while (--newTime > this.endTime) {}
 			}
 		}
-	});
-	
-	/*
-	 * Take the existing vertex buffer in the given primitive and copy the data
-	 * once for each of the desired number of particles. Add a texture
-	 * coordinate stream to feed particle id/offset data through.
+
+		if (this.stopping) {
+			this._maxTimeParam.value += delta;
+		}
+
+		this._timeParam.value = newTime;
+		this._viewITParam.value.copy(this.client.camera.threeCamera.matrixWorld).transpose();
+	};
+
+	/**
+	 * Resume the ParticleCurveTrail.
+	 */
+	ParticleCurveTrail.prototype.play = function() {
+		if (!this.active) {
+			if (this.starting || this.stopping || this._maxTimeParam.value === 1.0) {
+				hemi.addRenderListener(this);
+				this.active = true;
+			} else {
+				this.start();
+			}
+		}
+	};
+
+	/**
+	 * Start the ParticleCurveTrail.
+	 */
+	ParticleCurveTrail.prototype.start = function() {
+		if (this.stopping) {
+			hemi.removeRenderListener(this);
+			this.active = false;
+			this.stopping = false;
+		}
+		if (!this.active) {
+			this.active = true;
+			this.starting = true;
+			this.stopping = false;
+			this.endTime = 2.0;
+			this._decparam.value = 2.0;
+			this._maxTimeParam.value = 2.0;
+			this._timeParam.value = 1.0;
+			hemi.addRenderListener(this);
+		}
+	};
+
+	/**
+	 * Stop the ParticleCurveTrail.
 	 * 
-	 * @param {o3d.Primitive} primitive the primitive to modify
+	 * @param {boolean} opt_hard optional flag to indicate a hard stop (all particles disappear at
+	 *     once)
+	 */
+	ParticleCurveTrail.prototype.stop = function(opt_hard) {
+		if (this.active) {
+			if (opt_hard) {
+				this.endTime = -1.0;
+			} else if (!this.stopping) {
+				this.endTime = this._timeParam.value + 1.0;
+			}
+
+			this.starting = false;
+			this.stopping = true;
+		}
+	};
+
+	hemi.makeCitizen(ParticleCurveTrail, 'hemi.ParticleCurveTrail', {
+		toOctane: ParticleCurveTrail.prototype._octane
+	});
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Utility Methods
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	/**
+	 * Render a 3D representation of a curve.
+	 *
+	 * @param {THREE.Vector3[]} points array of points (not waypoints)
+	 * @param {Object} config configuration describing how the curve should look
+	 */
+	function drawCurve(points, config) {
+//		if (!this.dbgLineMat) {
+//			this.dbgLineMat = this.newMaterial('phong', false);
+//			this.dbgLineMat.getParam('lightWorldPos').bind(hemi.world.camera.light.position);
+//		}
+//		
+//		var eShow = (config.edges == null) ? true : config.edges,
+//			eSize = config.edgeSize || 1,
+//			eColor = config.edgeColor || [0.5,0,0,1],
+//			jShow = (config.joints == null) ? true : config.joints,
+//			jSize = config.jointSize || 1,
+//			jColor = config.jointColor,
+//			crvTransform = this.pack.createObject('Transform');
+//		
+//		for (var i = 0; i < points.length; i++) {
+//			if(jShow) {
+//				var transform = this.pack.createObject('Transform'),
+//					joint = hemi.core.primitives.createSphere(this.pack,
+//						this.dbgLineMat, jSize, 20, 20);
+//				
+//				transform.parent = crvTransform;
+//				transform.addShape(joint);
+//				transform.translate(points[i]);
+//				
+//				if (jColor) {
+//					var param = transform.createParam('diffuse', 'o3d.ParamFloat4');
+//					param.value = jColor;
+//				}
+//			}
+//			if (eShow && i < (points.length - 1)) {
+//				var edgeTran = this.drawLine(points[i], points[i+1], eSize, eColor);
+//				edgeTran.parent = crvTransform;
+//			}
+//		}
+//		
+//		crvTransform.parent = hemi.core.client.root;
+//		this.dbgLineTransforms.push(crvTransform);
+	}
+
+	/**
+	 * Draw a line connecting two points.
+	 *
+	 * @param {number[]} p0 The first point
+	 * @param {number[]} p1 The second point
+	 * @param {number} opt_size Thickness of the line
+	 * @param {number[]} opt_color Color of the line
+	 * @return {o3d.Transform} the Transform containing the line shape
+	 */
+	function drawLine(p0, p1, opt_size, opt_color) {
+//		if (!this.dbgLineMat) {
+//			this.dbgLineMat = this.newMaterial('phong', false);
+//			this.dbgLineMat.getParam('lightWorldPos').bind(hemi.world.camera.light.position);
+//		}
+//		
+//		var size = opt_size || 1,
+//			dist = hemi.core.math.distance(p0,p1),
+//			midpoint = [ (p0[0]+p1[0])/2, (p0[1]+p1[1])/2, (p0[2]+p1[2])/2 ],
+//			line = hemi.core.primitives.createCylinder(this.pack,
+//				this.dbgLineMat, size, dist, 3, 1),
+//			transform = this.pack.createObject('Transform');
+//		
+//		transform.addShape(line);
+//		transform.translate(midpoint);
+//		transform = hemi.utils.pointYAt(transform,midpoint,p0);
+//		
+//		if (opt_color) {
+//			var param = transform.createParam('diffuse', 'o3d.ParamFloat4');
+//			param.value = opt_color;
+//		}
+//		
+//		return transform;
+	}
+
+	/**
+	 * Remove the given curve line Transform, its shapes, and its children.
+	 * 
+	 * @param {o3d.Transform} opt_trans optional Transform to clean up
+	 */
+	function hideCurves(opt_trans) {
+//		if (opt_trans) {
+//			var children = opt_trans.children,
+//				shapes = opt_trans.shapes;
+//			
+//			for (var i = 0; i < children.length; i++) {
+//				this.hideCurves(children[i]);
+//			}
+//			for (var i = 0; i < shapes.length; i++) {
+//				var shape = shapes[i];
+//				opt_trans.removeShape(shape);
+//				this.pack.removeObject(shape);
+//			}
+//			
+//			opt_trans.parent = null;
+//			this.pack.removeObject(opt_trans);
+//		} else {
+//			for (var i = 0; i < this.dbgLineTransforms.length; i++) {
+//				this.hideCurves(this.dbgLineTransforms[i]);
+//			}
+//			
+//			this.dbgLineTransforms = [];
+//		}
+	}
+
+	/*
+	 * Take the existing vertex buffer in the given primitive and copy the data once for each of the
+	 * desired number of particles. 
+	 * 
+	 * @param {THREE.Geometry} geometry the geoemtry to modify
 	 * @param {number} numParticles the number of particles to create vertex
 	 *     data for
-	 * @return {number} the id of the created texture coordinate stream
 	 */
-	var modifyPrimitive = function(primitive, numParticles) {
-		var TEXCOORD = hemi.core.o3d.Stream.TEXCOORD,
-			indexBuffer = primitive.indexBuffer,
-			streamBank = primitive.streamBank,
-			streams = streamBank.vertexStreams,
-			numVerts = streams[0].getMaxVertices_(),
-			vertexBuffer = streams[0].field.buffer,
-			origStreams = [],
-			idOffNdx = -1,
-			idOffStream;
-		
-		// Create progress task for this
-		var taskName = 'GpuParticles',
-			taskDiv = numParticles / 3,
-			taskInc = 0,
-			taskProg = 10;
-		
-		hemi.loader.createTask(taskName, vertexBuffer);
-		
-		// Find the first unused texture coordinate stream and create it
-		do {
-			idOffStream = streamBank.getVertexStream(TEXCOORD, ++idOffNdx);
-		} while (idOffStream !== null);
-		
-		var idOffsetField = vertexBuffer.createField('FloatField', 2);
-		streamBank.setVertexStream(TEXCOORD, idOffNdx, idOffsetField, 0);
-		
-		// Copy the contents of all of the existing vertex streams
-		for (var i = 0, il = streams.length; i < il; i++) {
-			var stream = streams[i];
-			
-			origStreams.push({
-				stream: stream,
-				vals: stream.field.getAt(0, numVerts)
-			});
+	function modifyGeometry(geometry, numParticles) {
+		var verts = geometry.vertices,
+			faces = geometry.faces,
+			faceVertexUvs = geometry.faceVertexUvs,
+			numVerts = verts.length,
+			numFaces = faces.length,
+			ids = [],
+			offsets = [],
+			idOffsets = [];
+
+		for (var i = 0; i < numVerts; i++) {
+			ids.push(0);
+			offsets.push(0);
+			idOffsets.push(new THREE.Vector2());
 		}
-		
-		vertexBuffer.allocateElements(numVerts * numParticles);
-		hemi.loader.updateTask(taskName, taskProg);
-		
-		// Create a copy of each stream's contents for each particle
-		var indexArr = indexBuffer.array_,
-			newIndexArr = [];
-		
-		for (var i = 0; i < numParticles; i++) {
-			// Index buffer entry
+
+		for (var i = 1; i < numParticles; i++) {
 			var vertOffset = i * numVerts,
-				timeOffset = i / numParticles;
-			
-			for (var j = 0, jl = indexArr.length; j < jl; j++) {
-				newIndexArr.push(indexArr[j] + vertOffset);
-			}
-			// Original vertex data
-			for (var j = 0, jl = origStreams.length; j < jl; j++) {
-				var obj = origStreams[j],
-					vals = obj.vals,
-					field = obj.stream.field;
-				
-				field.setAt(vertOffset, vals);
-			}
-			// New "particle system" vertex data
+				timeOffset = i / numParticles,
+				newVerts = [],
+				newFaces = [];
+
 			for (var j = 0; j < numVerts; j++) {
-				idOffsetField.setAt(vertOffset + j, [i, timeOffset]);
+				ids.push(i);
+				offsets.push(timeOffset);
+				idOffsets.push(new THREE.Vector2(i, timeOffset));
+				var vert = verts[j].position,
+					newVert = new THREE.Vector3(vert.x, vert.y, vert.z);
+				newVerts.push(new THREE.Vertex(newVert));
 			}
-			
-			if (++taskInc >= taskDiv) {
-				taskInc = 0;
-				taskProg += 30;
-				hemi.loader.updateTask(taskName, taskProg);
+
+			for (var j = 0; j < numFaces; j++) {
+				var face = faces[j],
+					newFace = null;
+
+				if (face instanceof THREE.Face3) {
+					newFace = new THREE.Face3(face.a + vertOffset,
+						face.b + vertOffset,
+						face.c + vertOffset,
+						null, null, face.material);
+				}
+				else {
+					newFace = new THREE.Face4(face.a + vertOffset,
+						face.b + vertOffset,
+						face.c + vertOffset,
+						face.d + vertOffset,
+						null, null, face.material);
+				}
+				newFaces.push(newFace);
 			}
+
+			// dupe the vertices
+			geometry.vertices = geometry.vertices.concat(newVerts);
+
+			// dupe the faces	
+			geometry.faces = geometry.faces.concat(newFaces);
+
+			// dupe the uvs
+			geometry.faceVertexUvs = geometry.faceVertexUvs.concat(faceVertexUvs);
 		}
-		
-		indexBuffer.set(newIndexArr);
-		// Update the primitive and vertex counts
-		primitive.numberPrimitives *= numParticles;
-  		primitive.numberVertices *= numParticles;
-		hemi.loader.updateTask(taskName, 100);
-		return idOffNdx;
-	};
-	
+
+		geometry.computeCentroids();
+		geometry.computeFaceNormals();
+
+		return {
+			ids: ids,
+			offsets: offsets,
+			idOffsets: idOffsets
+		};
+	}
+
 	/*
-	 * Set the parameters for the given Material so that it supports a curve
-	 * through the given bounding boxes.
+	 * Create a new material for a ParticleCurve to use.
 	 * 
-	 * @param {o3d.Material} material material to set parameters for
-	 * @param {hemi.curve.Box[]} boxes array of min and max XYZ coordinates
+	 * @param {string} opt_type optional shader type to use (defaults to phong)
+	 * @param {boolean} opt_trans optional flag indicating if material should support transparency
+	 *     (defaults to true)
+	 * @return {THREE.Material} the created material
 	 */
-	var setupBounds = function(material, boxes) {
-		var minParam = material.getParam('minXYZ'),
-			maxParam = material.getParam('maxXYZ'),
-			minArr = hemi.curve.pack.createObject('ParamArray'),
-			maxArr = hemi.curve.pack.createObject('ParamArray');
-		
-		minArr.resize(boxes.length, 'ParamFloat3');
-		maxArr.resize(boxes.length, 'ParamFloat3');
-		
-		for (var i = 0, il = boxes.length; i < il; ++i) {
-			var box = boxes[i];
-			minArr.getParam(i).value = box.min;
-			maxArr.getParam(i).value = box.max;
+	function newMaterial(opt_type, opt_trans) {
+		var params = {
+				color: 0xff0000,
+				opacity: 1,
+				transparent: opt_trans === undefined ? true : opt_trans
+			},
+			mat;
+
+		if (opt_type === 'lambert') {
+			mat = new THREE.MeshLambertMaterial(params);
+		} else {
+			mat = new THREE.MeshPhongMaterial(params);
 		}
-		
-		minParam.value = minArr;
-		maxParam.value = maxArr;
-	};
-	
+
+		return mat;
+	}
+
 	/*
-	 * Set the parameters for the given Material so that it adds a color ramp to
-	 * the particles using it.
+	 * Set the parameters for the given Material so that it adds a color ramp to the particles using
+	 * it.
 	 * 
-	 * @param {o3d.Material} material material to set parameters for
+	 * @param {THREE.Material} material material to set parameters for
 	 * @param {Object[]} colors array of RGBA color values and keys
 	 */
-	var setupColors = function(material, colors) {
-		var clrParam = material.getParam('ptcColors'),
-			keyParam = material.getParam('ptcColorKeys'),
-			clrArr = hemi.curve.pack.createObject('ParamArray'),
-			keyArr = hemi.curve.pack.createObject('ParamArray');
-		
-		clrArr.resize(colors.length, 'ParamFloat4');
-		keyArr.resize(colors.length, 'ParamFloat');
-		
+	function setupColors(material, colors) {
+		var clrParam = material.uniforms.ptcColors,
+			keyParam = material.uniforms.ptcColorKeys;
+
+		clrParam._array = new Float32Array(4 * colors.length);
+
 		for (var i = 0, il = colors.length; i < il; ++i) {
-			clrArr.getParam(i).value = colors[i].value;
-			keyArr.getParam(i).value = colors[i].key;
+			var obj = colors[i],
+				offset = i * 4;
+
+			clrParam.value[i] = new THREE.Vector4(obj.value[0], obj.value[1], 
+				obj.value[2], obj.value[3]);
+			keyParam.value[i] = obj.key;
 		}
-		
-		clrParam.value = clrArr;
-		keyParam.value = keyArr;
-	};
-	
+	}
+
 	/*
-	 * Set the parameters for the given Material so that it adds a scale ramp to
-	 * the particles using it.
+	 * Set the parameters for the given Material so that it adds a scale ramp to the particles using
+	 * it.
 	 * 
-	 * @param {o3d.Material} material material to set parameters for
+	 * @param {THREE.Material} material material to set parameters for
 	 * @param {Object[]} scales array of XYZ scale values and keys
 	 */
-	var setupScales = function(material, scales) {
-		var sclParam = material.getParam('ptcScales'),
-			keyParam = material.getParam('ptcScaleKeys'),
-			sclArr = hemi.curve.pack.createObject('ParamArray'),
-			keyArr = hemi.curve.pack.createObject('ParamArray');
-		
-		sclArr.resize(scales.length, 'ParamFloat3');
-		keyArr.resize(scales.length, 'ParamFloat');
-		
+	function setupScales(material, scales) {
+		var sclParam = material.uniforms.ptcScales,
+			keyParam = material.uniforms.ptcScaleKeys;
+
+		sclParam._array = new Float32Array(3 * scales.length);
+
 		for (var i = 0, il = scales.length; i < il; ++i) {
-			sclArr.getParam(i).value = scales[i].value;
-			keyArr.getParam(i).value = scales[i].key;
+			var obj = scales[i];
+
+			sclParam.value[i] = obj.value;
+			keyParam.value[i] = obj.key;
 		}
-		
-		sclParam.value = sclArr;
-		keyParam.value = keyArr;
-	};
-	
-	return hemi;
-})(hemi || {});
-/* 
- * Kuda includes a library and editor for authoring interactive 3D content for the web.
- * Copyright (C) 2011 SRI International.
- *
- * This program is free software; you can redistribute it and/or modify it under the terms
- * of the GNU General Public License as published by the Free Software Foundation; either 
- * version 2 of the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
- * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
- * See the GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License along with this program; 
- * if not, write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, 
- * Boston, MA 02110-1301 USA.
+	}
+
+})();
+/*
+ * Licensed under the MIT license: http://www.opensource.org/licenses/mit-license.php
+ * The MIT License (MIT)
+ * 
+ * Copyright (c) 2011 SRI International
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+ * associated  documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the  Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-/**
- * @fileoverview The Sprite class allows for the easy creation of 2d animated sprites
- *		and billboards in the 3d world.
- */
+(function() {
 
-var hemi = (function(hemi) {
-	/**
-	 * @namespace A module for defining animated sprites and billboards.
-	 */
-	hemi.sprite = hemi.sprite || {};
-	
-	hemi.sprite.header =
-		'uniform mat4 projection; \n' +
-		'uniform mat4 worldView; \n';
-	
-	hemi.sprite.vertBody =
-		'  vec4 pos = position + vec4(worldView[3].xyz,0); \n';
-	
-	hemi.sprite.vertGlob =
-		'  gl_Position = pos*projection; \n';
-	
-	hemi.sprite.init = function() {
-		this.pack = hemi.core.client.createPack();
-	};
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Sprite class
+////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	/**
-	 * @class A Sprite can display a 2d image on a plane with several options.
-	 * The image can be made to always face the camera, and it can scale to
-	 * stay the same size in the viewer. It can also cycle through a series of
-	 * frames to create an animation effect, for a number of cycles or
+	 * @class A Sprite can display a 2d image on a plane with several options. The image can be made
+	 * to always face the camera, and it can scale to stay the same size in the viewer. It can also
+	 * cycle through a series of frames to create an animation effect, for a number of cycles or
 	 * indefinitely.
 	 * 
 	 * @param {number} width the width of the sprite
 	 * @param {number} height the height of the sprite
 	 * @param {string} opt_source the location of a source image to start with (not implemented)
 	 */
-	hemi.sprite.Sprite = function(width,height,opt_source) {
-		var core = hemi.core;
-		var pack = hemi.sprite.pack;
-		var viewInfo = hemi.view.viewInfo;
-		this.material = pack.createObject('Material');
-		this.material.createParam('emissiveSampler','o3d.ParamSampler');
-		core.material.attachStandardEffect(pack,this.material,viewInfo,'constant');
-		this.material.getParam('o3d.drawList').value = viewInfo.zOrderedDrawList;
-		var shads = hemi.utils.getShaders(this.material);
-		this.materialSrc = {
-			frag: shads.fragSrc,
-			vert: shads.vertSrc
-		};
-		// Rotate the Sprite's plane so that it faces the Z axis
-		var m4 = core.math.matrix4.rotationX(Math.PI/2);
-		this.plane = core.primitives.createPlane(pack,this.material,width,height,1,1,m4);
-		this.transform = pack.createObject('Transform');
-		this.transform.addShape(this.plane);
-		this.parent(core.client.root);
-		this.cycle = 0;
-		this.maxCycles = 0;
-		this.clock = 0;
+	var Sprite = function(client, parameters) {
+		// before super(), set up all the maps and then assign the first in the series as the map
+		var maps = parameters.maps,
+			count = 0;
+
+		/*
+		 * The current animation time for the Sprite.
+		 * @type number
+		 */
+		this._clock = 0;
+		/*
+		 * The current animation cycle for the Sprite.
+		 * @type number
+		 */
+		this._cycle = 0;
+		/*
+		 * Array of textures to display as animation frames.
+		 */
+		this._maps = [];
+		/*
+		 * The number of cycles to run for before the Sprite stops animating.
+		 * @type number
+		 */
+		this._maxCycles = 0;
+		/*
+		 * Flag indicating if Sprite animation is currently running.
+		 * @type boolean
+		 */
+		this._running = false;
+		/**
+		 * The Client that the Sprite is being rendered by.
+		 * @type hemi.Client
+		 */
+		this.client = client;
+		/**
+		 * The period of time that each frame of the Sprite's animation will display, in seconds.
+		 * @type number
+		 */
 		this.period = 1;
-		this.running = false;
-		this.samplers = [];
-		this.lookAtCam = false;
-		this.constSize = false;
+
+		for (var i = 0, il = maps.length; i < il; ++i) {
+			var map = maps[i];
+
+			if (map instanceof THREE.Texture) {
+				this._maps.push(map);
+				handleTexture();
+			} else {
+				this.addFrame(map, handleTexture);
+			}
+
+			if (i === 0) {
+				parameters.map = this._maps[0];
+				THREE.Sprite.call(this, parameters);
+			}
+		}
+
+		function handleTexture() {
+			if (++count >= maps.length && parameters.callback) {
+				parameters.callback();
+			}
+		}
+
+		client.scene.add(this);
 	};
 
-	hemi.sprite.Sprite.prototype = {
-		/**
-		 * Add an image to be used as a frame in the animation, or as a
-		 * standalone image.
-		 *
-		 * @param {string} path the path to the image source
-		 * @param {function(number,hemi.sprite.Sprite):void} opt_callback a
-		 * function to call and pass the index and sprite
-		 */
-		addFrame : function(path, opt_callback) {
-			hemi.loader.loadTexture(path,
-				function(texture) {
-					var sampler = hemi.sprite.pack.createObject('Sampler');
-					sampler.texture = texture;
-					this.samplers.push(sampler);
-					if (opt_callback) opt_callback(this.samplers.length - 1, this);
-				}, this);
-		},
+	Sprite.prototype = new THREE.Sprite({ map: new THREE.Texture(new Image()) });
+	Sprite.prototype.constructor = Sprite;
 
-		/**
-		 * Set the Sprite to be a constant size in the viewer.
-		 *
-		 * @param {boolean} enable If true, keep sprite size constant
-		 */
-		constantSize : function(enable) {
-			this.constSize = enable;
-		},
-
-		/**
-		 * Set the Sprite to always look at the camera.
-		 *
-		 * @param {boolean} enable If true, always look at camera
-		 */
-		lookAtCamera : function(enable) {
-			if (this.lookAtCam !== enable) {
-				var material = this.material,
-					shads = hemi.utils.getShaders(material),
-					vertShd = shads.vertShd,
-					vertSrc = this.materialSrc.vert,
-					uniforms = [];
-				
-				// Remove any previously existing uniforms that we created
-				for (var i = 0, il = uniforms.length; i < il; i++) {
-					var name = uniforms[i],
-						param = material.getParam(name);
-					
-					if (param) {
-						material.removeParam(param);
-					}
+	/**
+	 * Add an image to be used as a frame in the animation, or as a standalone image.
+	 *
+	 * @param {string} path the path to the image source
+	 */
+	Sprite.prototype.addFrame = function(path, opt_callback) {
+		var texture = hemi.loadTextureSync(path, function(texture) {
+				if (opt_callback) {
+					opt_callback(texture);
 				}
-				
-				if (enable) {
-					// modify the vertex shader
-					vertSrc = hemi.utils.combineVertSrc(vertSrc, {
-						postHdr: hemi.sprite.header,
-						preBody: hemi.sprite.vertBody,
-						glob: hemi.sprite.vertGlob
-					});
-				}
-				
-				material.gl.detachShader(material.effect.program_, vertShd);
-				material.effect.loadVertexShaderFromString(vertSrc);
-				material.effect.createUniformParameters(material);
-				this.lookAtCam = enable;
+			});
+
+		this._maps.push(texture);
+	};
+
+	/**
+	 * Function to call on every render cycle. Scale or rotate the Sprite if needed, and update the
+	 * frame if needed.
+	 *
+	 *	@param {Object} e render event
+	 */
+	Sprite.prototype.onRender = function(e) {
+		if (!this._running) return;
+
+		this._clock += e.elapsedTime;
+
+		if (this._clock >= this.period) {
+			this._cycle++;
+
+			if (this._cycle === this._maxCycles) {
+				this.stop();
+			} else {
+				this.setFrame(this._cycle);
+				this._clock %= this.period;
 			}
-		},
-
-		/**
-		 * Function to call on every render cycle. Scale or rotate the Sprite if
-		 * needed, and update the frame if needed.
-		 *
-		 *	@param {o3d.RenderEvent} e Message describing this render loop
-		 */
-		onRender : function(e) {
-			var p0 = this.transform.getUpdatedWorldMatrix()[3].slice(0,3);
-			if (this.constSize) {
-				//TODO: Implement in shader
-//				var scale = hemi.core.math.distance(hemi.world.camera.getEye(),p0) *
-//							Math.asin(hemi.world.camera.fov.current);
-//				this.transform.scale([scale,1,scale]);
-			}
-			if (!this.running) {
-				return;
-			}
-			this.clock += e.elapsedTime;
-			if (this.clock >= this.period) {
-				this.cycle++;
-				if (this.cycle == this.maxCycles) {
-					this.stop();
-				} else {
-					this.setFrame(this.cycle);
-					this.clock %= this.period;
-				}
-			}
-		},
-
-		/**
-		 * Set the parent of the Sprite to a Transform.
-		 *
-		 * @param {o3d.Transform} transform Transform to be the new parent
-		 */
-		parent : function(transform) {
-			this.transform.parent = transform;
-		},
-
-		/**
-		 * Start the Sprite animating, for a set number of cycles, or pass in -1
-		 * for infinite looping.
-		 *
-		 * @param {number} opt_cycles Number of cycles, defaults to one loop
-		 *     through the frames
-		 */
-		run : function(opt_cycles) {
-			this.cycle = 0;
-			this.maxCycles = opt_cycles || this.samplers.length;
-			this.clock = 0;
-			this.setFrame(0);
-			this.running = true;
-			hemi.view.addRenderListener(this);
-		},
-
-		/**
-		 * Set the Sprite to display one of it's frames.
-		 *
-		 * @param {number} index Index of desired frame
-		 */
-		setFrame : function(index) {
-			if (this.samplers.length > 0) {
-				var ndx = index%this.samplers.length;
-				var sampler = this.samplers[ndx];
-				this.material.getParam('emissiveSampler').value = sampler;
-			}
-		},
-
-		/**
-		 * Set the period of time, in seconds, that each frame of the Sprite's
-		 * animation will display.
-		 *
-		 * @param {number} period Period, in seconds
-		 */
-		setPeriod : function(period) {
-			this.period = period;
-		},
-
-		/**
-		 * Stop the animating frames.
-		 */
-		stop : function() {
-			this.running = false;
 		}
 	};
 
-	return hemi;
-})(hemi || {});/* 
- * Kuda includes a library and editor for authoring interactive 3D content for the web.
- * Copyright (C) 2011 SRI International.
- *
- * This program is free software; you can redistribute it and/or modify it under the terms
- * of the GNU General Public License as published by the Free Software Foundation; either 
- * version 2 of the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
- * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
- * See the GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License along with this program; 
- * if not, write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, 
- * Boston, MA 02110-1301 USA.
+	/**
+	 * Start the Sprite animating, for a set number of cycles, or pass in -1 for infinite looping.
+	 *
+	 * @param {number} opt_cycles number of cycles, defaults to one loop through the frames
+	 */
+	Sprite.prototype.run = function(opt_cycles) {
+		if (!this._running) {
+			this._cycle = 0;
+			this._maxCycles = opt_cycles || this.samplers.length;
+			this._clock = 0;
+			this.setFrame(0);
+			this._running = true;
+			hemi.addRenderListener(this);
+		}
+	};
+
+	/**
+	 * Set the Sprite to display one of its frames.
+	 *
+	 * @param {number} index index of desired frame
+	 */
+	Sprite.prototype.setFrame = function(index) {
+		// set the map to the frame at the given index
+		if (this._maps.length > 0) {
+			var ndx = index % this._maps.length;
+			this.map = this._maps[ndx];
+		}
+	};
+
+	/**
+	 * Stop the animating frames.
+	 */
+	Sprite.prototype.stop = function() {
+		if (this._running) {
+			this._running = false;
+			hemi.removeRenderListener(this);
+		}
+	}; 
+
+	hemi.makeCitizen(Sprite, 'hemi.Sprite', {
+	});
+
+})();
+/*
+ * Licensed under the MIT license: http://www.opensource.org/licenses/mit-license.php
+ * The MIT License (MIT)
+ * 
+ * Copyright (c) 2011 SRI International
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+ * associated  documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the  Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-var hemi = (function(hemi) {
+(function () {
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Constants
+////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	/**
-	 * @namespace A module for easily creating primitives in Kuda.
+	 * Enum for different geometry shape types.
 	 */
-	hemi.shape = hemi.shape || {};
-	
-	hemi.shape.BOX = 'box';
-	hemi.shape.CUBE = 'cube';
-	hemi.shape.SPHERE = 'sphere';
-	hemi.shape.CYLINDER = 'cylinder';
-	hemi.shape.CONE = 'cone';
-	hemi.shape.ARROW = 'arrow';
-	hemi.shape.TETRA = 'tetra';
-	hemi.shape.OCTA = 'octa';
-	hemi.shape.PYRAMID = 'pyramid';
-	hemi.shape.CUSTOM = 'custom';
-	hemi.shape.SHAPE_ROOT = "ShapeRoot";
-	
-	/**
-	 * @class A TransformUpdate allows changes to the Transform in a Shape to be
-	 * persisted through Octane.
-	 */
-	hemi.shape.TransformUpdate = function() {
-		/**
-		 * The updated position, rotation, and scale of the Transform.
-		 * @type number[4][4]
-		 */
-		this.localMatrix = null;
-		/**
-		 * A flag indicating if the Transform is visible.
-		 * @type boolean
-		 */
-		this.visible = null;
-		/**
-		 * A flag indicating if the Transform is able to be picked.
-		 * @type boolean
-		 */
-		this.pickable = null;
+	hemi.ShapeType = {
+		ARROW: 'arrow',
+		BOX: 'box',
+		CONE: 'cone',
+		CUBE: 'cube',
+		CUSTOM: 'custom',
+		CYLINDER: 'cylinder',
+		OCTA: 'octa',
+		PLANE: 'plane',
+		PYRAMID: 'pyramid',
+		SPHERE: 'sphere',
+		TETRA: 'tetra'
 	};
 
-	hemi.shape.TransformUpdate.prototype = {
-		/**
-		 * Apply the changes in the TransformUpdate to the given Transform.
-		 * 
-		 * @param {o3d.Transform} transform the Transform to update
-		 */
-		apply: function(transform) {
-			if (this.localMatrix != null) {
-				transform.localMatrix = this.localMatrix;
-			}
-			
-			if (this.pickable != null) {
-				hemi.picking.setPickable(transform, this.pickable, true);
-			}
-			
-			if (this.visible != null) {
-				transform.visible = this.visible;
-			}
-		},
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Shape class
+////////////////////////////////////////////////////////////////////////////////////////////////////
 
-		/**
-		 * Check if the TransformUpdate has been modified.
-		 * 
-		 * @return {boolean} true if the Transform has been changed
-		 */
-		isModified: function() {
-			return this.localMatrix != null || this.pickable != null || this.visible != null;
-		},
-		
-		/**
-		 * Reset the TransformUpdate to its unmodified state.
-		 */
-		reset: function() {
-			this.localMatrix = this.pickable = this.visible = null;
-		},
-
-		/**
-		 * Get the Octane structure for the TransformUpdate.
-		 *
-		 * @return {Object} the Octane structure representing the TransformUpdate
-		 */
-		toOctane: function() {
-			var octane = {
-					type: 'hemi.shape.TransformUpdate',
-					props: []
-				},
-				valNames = ['localMatrix', 'visible', 'pickable'];
-			
-			for (var i = 0, il = valNames.length; i < il; i++) {
-				var name = valNames[i];
-				octane.props.push({
-					name: name,
-					val: this[name]
-				});
-			};
-
-			return octane;
-		}
-	};
-	
 	/**
-	 * @class A Shape is a wrapper class around basic geometric shapes such as
-	 * cubes and spheres that allows them to interact with the World in complex
-	 * ways.
-	 * @extends hemi.world.Citizen
+	 * @class A Shape is a wrapper class around basic geometric shapes such as cubes and spheres
+	 * that allows them to interact with the World in complex ways.
 	 * 
+	 * @param {hemi.Client} client the Client that will render the Shape
 	 * @param {Object} opt_config optional configuration for the Shape
 	 */
-	hemi.shape.Shape = hemi.world.Citizen.extend({
-		init: function(opt_config) {
-			this._super();
-			
-			this.color = null;
-			this.dim = {};
-			this.shapeType = null;
-			this.transform = null;
-			this.tranUp = new hemi.shape.TransformUpdate();
-			
-			if (opt_config != null) {
-				this.loadConfig(opt_config);
-			}
-			if (this.color && this.shapeType) {
-				this.create();
-			}
-		},
-		
-        /**
-         * Overwrites hemi.world.Citizen.citizenType.
-         * @string
-         */
-        citizenType: 'hemi.shape.Shape',
-		
-		/**
-		 * Send a cleanup Message and remove all references in the Shape.
-		 */
-		cleanup: function() {
-			this._super();
-			
-			if (this.transform !== null) {
-				destroyTransform(this.transform);
-			}
-			
-			this.color = null;
-			this.dim = {};
-			this.shapeType = null;
-			this.transform = null;
-			this.tranUp = null;
-		},
-		
-		/**
-		 * Get the Octane structure for the Shape.
-	     *
-	     * @return {Object} the Octane structure representing the Shape
-		 */
-		toOctane: function(){
-			var octane = this._super(),
-				valNames = ['color', 'dim', 'shapeType'];
-			
-			for (var i = 0, il = valNames.length; i < il; i++) {
-				var name = valNames[i];
-				octane.props.push({
-					name: name,
-					val: this[name]
-				});
-			};
-			
-			if (this.tranUp.isModified()) {
-				octane.props.push({
-					name: 'tranUp',
-					oct: this.tranUp.toOctane()
-				});
-			}
-			
-			octane.props.push({
-				name: 'create',
-				arg: []
-			});
-			
-			return octane;
-		},
-		
-		/**
-		 * Change the existing Shape to a new type of Shape using the given
-		 * configuration.
-		 * 
-		 * @param {Object} cfg configuration options for the Shape
-		 */
-		change: function(cfg) {
-			this.loadConfig(cfg);
-			
-			var config = hemi.utils.join({
-						shape: this.shapeType,
-						color: this.color
-					},
-					this.dim),
-				newTran = hemi.shape.create(config),
-				oldTran = this.transform,
-				oldShapes = oldTran.shapes.slice(0),
-				newShapes = newTran.shapes.slice(0);
-			
-			while (oldShapes.length === 0) {
-				oldTran = oldTran.children[0];
-				oldShapes = oldTran.shapes;
-			}
-			
-			for (var i = 0, il = newShapes.length; i < il; i++) {
-				oldTran.addShape(newShapes[i]);
-				newTran.removeShape(newShapes[i]);
-			}
-			
-			for (var i = 0, il = oldShapes.length; i < il; i++) {
-				newTran.addShape(oldShapes[i]);
-				oldTran.removeShape(oldShapes[i]);
-			}
-			
-			applyColor(this.transform, this.color);
-			
-			destroyTransform(newTran);
-		},
-		
-		/**
-		 * Create the actual shape and transform for the Shape.
-		 */
-		create: function() {
-			var config = hemi.utils.join({
-					shape: this.shapeType,
-					color: this.color
-				},
-				this.dim);
-			
-			if (this.transform !== null) {
-				destroyTransform(this.transform);
-			}
-			
-			this.transform = hemi.shape.create(config);
-			this.tranUp.apply(this.transform);
-			this.setName(this.name);
-			
-			this.ownerId = this.transform.createParam('ownerId', 'o3d.ParamInteger');
-			this.ownerId.value = this.getId();
-			hemi.world.tranReg.distribute(this);
-		},
-		
-		/**
-		 * Load the given configuration object.
-		 * 
-		 * @param {Object} config configuration options for the Shape
-		 */
-		loadConfig: function(config) {
-			this.tranUp.reset();
-			this.dim = {};
-			
-			for (t in config) {
-				if (t === 'color') {
-					this.color = config[t];
-				} else if (t === 'type') {
-					this.shapeType = config[t];
-				} else {
-					this.dim[t] = config[t];
-				}
-			}
-		},
-		
-		/**
-		 * Overwrites Citizen.setId() so that the internal transform gets the
-		 * new id as well.
-		 * 
-		 * @param {number} id the new id
-		 */
-		setId: function(id) {
-			this._super(id);
-			
-			if (this.ownerId) {
-				this.ownerId.value = id;
-			}
-		},
-		
-		/**
-		 * Sets the transform and shape names as well as the overall name for
-		 * this shape.
-		 * 
-		 * @param {string} name the new name
-		 */
-		setName: function(name) {
-			this.name = name;
-			this.transform.name = this.name + ' Transform';
-			this.transform.shapes[0].name = this.name + ' Shape';
-		},
-		
-		/**
-		 * Get the transform for the Shape.
-		 * 
-		 * @return {o3d.Transform} the transform for the Shape
-		 */
-		getTransform: function() {
-			return this.transform;
-		},
-		
-		/**
-		 * Rotate the Transforms in the Shape.
-		 * 
-		 * @param {Object} config configuration options
-		 */
-		rotate: function(config) {
-			var axis = config.axis.toLowerCase(),
-				rad = config.rad;
-			
-			switch(axis) {
-				case 'x':
-					this.transform.rotateX(rad);
-					break;
-				case 'y':
-					this.transform.rotateY(rad);
-					break;
-				case 'z':
-					this.transform.rotateZ(rad);
-					break;
-			}
-			
-			this.tranUp.localMatrix = hemi.utils.clone(this.transform.localMatrix);
-		},
-		
-		/**
-		 * Scale the Transforms in the Shape.
-		 * 
-		 * @param {Object} config configuration options
-		 */
-		scale: function(config) {
-			this.transform.scale(config.x, config.y, config.z);
-			this.tranUp.localMatrix = hemi.utils.clone(this.transform.localMatrix);
-		},
+	var Shape = function(client, opt_config) {
+		this.client = client;
+		this.config = opt_config || {};
+		this.mesh = null;
 
-		/**
-		 * Set the pickable flag for the Transforms in the Shape.
-		 *
-		 * @param {Object} config configuration options
-		 */
-		setPickable: function(config) {
-			hemi.picking.setPickable(this.transform, config.pick, true);
-			this.tranUp.pickable = config.pick ? null : false;
-		},
-
-		/**
-		 * Set the Shape Transform's matrix to the new matrix.
-		 * 
-		 * @param {number[4][4]} matrix the new local matrix
-		 */
-		setMatrix: function(matrix) {			
-			this.transform.localMatrix = matrix;
-			this.tranUp.localMatrix = hemi.utils.clone(matrix);
-		},
-		
-		/**
-		 * Set the visible flag for the Transforms in the Shape.
-		 *
-		 * @param {Object} config configuration options
-		 */
-		setVisible: function(config) {
-			this.transform.visible = config.vis;
-			this.tranUp.visible = config.vis ? null : false;
-		},
-		
-		/**
-		 * Translate the Shape by the given amounts.
-		 * 
-		 * @param {number} x amount to translate on the x axis
-		 * @param {number} y amount to translate on the y axis
-		 * @param {number} z amount to translate on the z axis
-		 */
-		translate: function(x, y, z) {
-			if (this.transform !== null) {
-				this.transform.translate(x, y, z);
-				this.tranUp.localMatrix = hemi.utils.clone(this.transform.localMatrix);
-			}
+		if (this.config.shape) {
+			this.create();
 		}
-	});
-	
-	/**
-	 * Initialize a local root transform and pack.
+	};
+
+	/*
+	 * Remove all references in the Shape.
 	 */
-	hemi.shape.init = function() {
-		hemi.shape.root = hemi.core.mainPack.createObject('Transform');
-		hemi.shape.root.name = hemi.shape.SHAPE_ROOT;
-		hemi.shape.root.parent = hemi.picking.pickRoot;
-		hemi.shape.pack = hemi.core.mainPack;
-		hemi.shape.material = hemi.core.material.createBasicMaterial(
-			hemi.shape.pack,
-			hemi.view.viewInfo,
-			[0,0,0,1],
-			false);
-		hemi.shape.transMaterial = hemi.core.material.createBasicMaterial(
-			hemi.shape.pack,
-			hemi.view.viewInfo,
-			[0,0,0,1],
-			true);
-		
-		hemi.world.addCamCallback(function(camera) {
-			var pos = camera.light.position,
-				param = hemi.shape.material.getParam('lightWorldPos');
+	Shape.prototype._clean = function() {
+		if (this.mesh !== null) {
+			this.mesh.cleanup();
+			this.mesh = null;
+		}
+
+		this.client = null;
+		this.config = {};
+	};
+
+	/*
+	 * Octane properties for Shape.
+	 * 
+	 * @return {Object[]} array of Octane properties
+	 */
+	Shape.prototype._octane = ['client', 'config', 'mesh', 'create'];
+
+	/**
+	 * Create the actual geometry for the Shape.
+	 */
+	Shape.prototype.create = function() {
+		var renderer = this.client.renderer,
+			scene = this.client.scene;
 			
-			if (param) {
-				param.bind(pos);
-			}
-			
-			param = hemi.shape.transMaterial.getParam('lightWorldPos'); 
-			if (param) {
-				param.bind(pos);
-			}
-		});
+		if (this.mesh === null) {
+			this.mesh = new hemi.Mesh();
+		} else if (this.mesh.__webglInit) {
+			// cleanup
+			scene.__objectsRemoved.push(this.mesh);
+			renderer.initWebGLObjects(scene);
+			renderer.deallocateObject(this.mesh);
+		}
+
+		hemi.createShape(this.config, this.mesh);
+		this.setName(this.name);
+
+		if (this.mesh.parent === undefined) {
+			// updateMatrix() call is due to a specific case for when loading from octane
+			this.mesh.updateMatrix();
+
+			scene.add(this.mesh);
+		} else {
+			// need the renderer to do some setup
+			scene.__objectsAdded.push(this.mesh);
+			renderer.initWebGLObjects(scene);
+		}
+	};
+
+	/**
+	 * Set the color of the Shape.
+	 * 
+	 * @param {number} color the new color (in hex)
+	 */
+	Shape.prototype.setColor = function(color) {
+		if (this.config.material) {
+			this.config.material.color = color;
+		} else {
+			this.config.color = color;
+			this.mesh.material.color = color;
+		}
+	};
+
+	/**
+	 * Set the name for the Shape as well as its Mesh and geometry.
+	 * 
+	 * @param {string} name the new name
+	 */
+	Shape.prototype.setName = function(name) {
+		this.name = name;
+		this.mesh.name = this.name + ' Mesh';
+		this.mesh.geometry.name = this.name + ' Geometry';
+	};
+
+	/**
+	 * Set the opacity of the Shape.
+	 * 
+	 * @param {number} opacity the new opacity (0 to 1)
+	 */
+	Shape.prototype.setOpacity = function(opacity) {
+		this.config.opacity = opacity;
+		this.mesh.material.opacity = opacity;
+		this.mesh.material.transparent = opacity < 1;
+	};
+
+	/**
+	 * Set the shape type of the Shape.
+	 * 
+	 * @param {string} type the new shape type
+	 */
+	Shape.prototype.setType = function(type) {
+		this.config.shape = type;
+		this.create();
 	};
 	
+	/**
+	 * Convenience method for translating the mesh.
+	 * 
+	 * @param {number} x amount to translate in the x direction 
+	 * @param {number} y amount to translate in the y direction
+	 * @param {number} z amount to translate in the z direction
+	 */
+	Shape.prototype.translate = function(x, y, z) {
+		this.mesh.translateX(x);
+		this.mesh.translateY(y);
+		this.mesh.translateZ(z);
+		this.mesh.updateMatrix();
+		this.mesh.updateMatrixWorld(true);
+	};
+
+	hemi.makeCitizen(Shape, 'hemi.Shape', {
+		cleanup: Shape.prototype._clean,
+		toOctane: Shape.prototype._octane
+	});
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Global functions
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
 	/**
 	 * Create a geometric shape with the given properties. Valid properties:
 	 * shape: the type of shape to create
-	 * color: the color of the shape to create
-	 * mat: the Material to use for the shape (overrides color)
+	 * color: the color of the shape
+	 * opacity: the opacity of the shape
+	 * material: the Material to use for the shape (overrides color and opacity)
 	 * height/h: height of the shape
 	 * width/w: width of the shape
 	 * depth/d: depth of the shape
@@ -16079,1066 +16435,886 @@ var hemi = (function(hemi) {
 	 * radiusT/r2: top radius of the shape
 	 * tail: length of the tail of the shape
 	 * vertices/v: a series of vertices defining the shape
+	 * faces/f: a series of faces referencing three vertices each
+	 * faceVertexUvs/uvs: a series of uv coordinates
 	 * 
 	 * @param {Object} shapeInfo properties of the shape to create
-	 * @return {o3d.Transform} the parent Transform of the created geometry
+	 * @param {hemi.Mesh} opt_mesh optional Mesh to contain the geometry
+	 * @return {THREE.Mesh} the parent Mesh of the created geometry
 	 */
-	hemi.shape.create = function(shapeInfo) {
-		var transform = null,
-			shapeType = shapeInfo.shape,
-			color = null,
-			material;
-		
-		if (shapeInfo.mat != null) {
-			material = shapeInfo.mat;
-			
-			var param = material.getParam('lightWorldPos'); 
-			if (param) {
-				param.bind(hemi.world.camera.light.position);
-			}
+	hemi.createShape = function(shapeInfo, opt_mesh) {
+		var mesh = opt_mesh || new hemi.Mesh(),
+			shapeType = shapeInfo.shape || hemi.ShapeType.Box,
+			color = shapeInfo.color || 0x000000,
+			opacity = shapeInfo.opacity === undefined ? 1 : shapeInfo.opacity;
+
+		if (shapeInfo.material !== undefined) {
+			mesh.material = shapeInfo.material;
 		} else {
-			color = shapeInfo.color;
-			
-			if (color[3] < 1) {
-				material = hemi.shape.transMaterial;
-			}
-			else {
-				material = hemi.shape.material;
-			}
+			mesh.material = new THREE.MeshPhongMaterial({
+				color: color,
+				opacity: opacity,
+				transparent: opacity < 1
+			});
 		}
-		
+
 		switch (shapeType.toLowerCase()) {
-			case hemi.shape.BOX:
-				transform = hemi.shape.createBox(
-					shapeInfo.height != null ? shapeInfo.height :
-						shapeInfo.h != null ? shapeInfo.h : 1,
-					shapeInfo.width != null ? shapeInfo.width :
-						shapeInfo.w != null ? shapeInfo.w : 1,
-					shapeInfo.depth != null ? shapeInfo.depth :
-						shapeInfo.d != null ? shapeInfo.d : 1,
-					material);
+			case hemi.ShapeType.BOX:
+				var w = shapeInfo.width !== undefined ? shapeInfo.width :
+						shapeInfo.w !== undefined ? shapeInfo.w : 1,
+					h = shapeInfo.height !== undefined ? shapeInfo.height :
+						shapeInfo.h !== undefined ? shapeInfo.h : 1,
+					d = shapeInfo.depth !== undefined ? shapeInfo.depth :
+						shapeInfo.d !== undefined ? shapeInfo.d : 1;
+
+				mesh.geometry = new THREE.CubeGeometry(w, h, d);
 				break;
-			case hemi.shape.CUBE:
-				transform = hemi.shape.createCube(
-					shapeInfo.size != null ? shapeInfo.size : 1,
-					material);
+			case hemi.ShapeType.CUBE:
+				var size = shapeInfo.size !== undefined ? shapeInfo.size : 1;
+
+				mesh.geometry = new THREE.CubeGeometry(size, size, size);
 				break;
-			case hemi.shape.SPHERE:
-				transform = hemi.shape.createSphere(
-					shapeInfo.radius != null ? shapeInfo.radius :
-						shapeInfo.r != null ? shapeInfo.r : 1,
-					material);
+			case hemi.ShapeType.SPHERE:
+				var r = shapeInfo.radius !== undefined ? shapeInfo.radius :
+						shapeInfo.r !== undefined ? shapeInfo.r : 1;
+
+				mesh.geometry = new THREE.SphereGeometry(r, 24, 12);
 				break;
-			case hemi.shape.CYLINDER:
-				transform = hemi.shape.createCylinder(
-					shapeInfo.radiusB != null ? shapeInfo.radiusB :
-							shapeInfo.r1 != null ? shapeInfo.r1 :
-							shapeInfo.radius != null ? shapeInfo.radius :
-							shapeInfo.r != null ? shapeInfo.r : 1,
-					shapeInfo.radiusT != null ? shapeInfo.radiusT :
-							shapeInfo.r2 != null ? shapeInfo.r2 :
-							shapeInfo.radius != null ? shapeInfo.radius :
-							shapeInfo.r != null ? shapeInfo.r : 1,
-					shapeInfo.height != null ? shapeInfo.height : 
-						shapeInfo.h != null ? shapeInfo.h : 1,
-					material);
+			case hemi.ShapeType.CYLINDER:
+				var r1 = shapeInfo.radiusB !== undefined ? shapeInfo.radiusB :
+						shapeInfo.r1 !== undefined ? shapeInfo.r1 : 1,
+					r2 = shapeInfo.radiusT !== undefined ? shapeInfo.radiusT :
+						shapeInfo.r2 !== undefined ? shapeInfo.r2 : 1,
+					h = shapeInfo.height !== undefined ? shapeInfo.height :
+						shapeInfo.h !== undefined ? shapeInfo.h : 1;
+
+				mesh.geometry = new THREE.CylinderGeometry(r1, r2, h, 24);
 				break;
-			case hemi.shape.CONE:
-				transform = hemi.shape.createCone(
-					shapeInfo.radius != null ? shapeInfo.radius :
-							shapeInfo.r != null ? shapeInfo.r : 1,
-					shapeInfo.height != null ? shapeInfo.height : 
-						shapeInfo.h != null ? shapeInfo.h : 1,
-					material);
+			case hemi.ShapeType.CONE:
+				var r = shapeInfo.radius !== undefined ? shapeInfo.radius :
+						shapeInfo.r !== undefined ? shapeInfo.r : 1,
+					h = shapeInfo.height !== undefined ? shapeInfo.height :
+						shapeInfo.h !== undefined ? shapeInfo.h : 1;
+
+				mesh.geometry = new THREE.CylinderGeometry(0, r, h, 24);
 				break;
-			case hemi.shape.ARROW:
-				transform = hemi.shape.createArrow(
-					shapeInfo.size != null ? shapeInfo.size : 1,
-					shapeInfo.tail != null ? shapeInfo.tail : 1,
-					material);
+			case hemi.ShapeType.PLANE:
+				var w = shapeInfo.width !== undefined ? shapeInfo.width :
+						shapeInfo.w !== undefined ? shapeInfo.w : 1,
+					h = shapeInfo.height !== undefined ? shapeInfo.height :
+						shapeInfo.h !== undefined ? shapeInfo.h : 1;
+
+				mesh.geometry = new THREE.PlaneGeometry(w, h);
 				break;
-			case hemi.shape.TETRA:
-				transform = hemi.shape.createTetra(
-					shapeInfo.size != null ? shapeInfo.size : 1,
-					material);
+			case hemi.ShapeType.ARROW:
+				mesh.geometry = createArrow(
+					shapeInfo.size !== undefined ? shapeInfo.size : 1,
+					shapeInfo.tail !== undefined ? shapeInfo.tail : 1,
+					shapeInfo.depth !== undefined ? shapeInfo.depth : 1);
 				break;
-			case hemi.shape.OCTA:
-				transform = hemi.shape.createOcta(
-					shapeInfo.size != null ? shapeInfo.size : 1,
-					material);
+			case hemi.ShapeType.TETRA:
+				mesh.geometry = createTetra(shapeInfo.size !== undefined ? shapeInfo.size : 1);
 				break;
-			case hemi.shape.PYRAMID:
-				transform = hemi.shape.createPyramid(
-					shapeInfo.height != null ? shapeInfo.height :
-						shapeInfo.h != null ? shapeInfo.h : 1,
-					shapeInfo.width != null ? shapeInfo.width :
-						shapeInfo.w != null ? shapeInfo.w : 1,
-					shapeInfo.depth != null ? shapeInfo.depth :
-						shapeInfo.d != null ? shapeInfo.d : 1,
-					material);
+			case hemi.ShapeType.OCTA:
+				var size = shapeInfo.size !== undefined ? shapeInfo.size : 1;
+
+				mesh.geometry = new THREE.OctahedronGeometry(size/2, 0);
 				break;
-			case hemi.shape.CUSTOM:
-				transform = hemi.shape.createCustom(
-					shapeInfo.vertices != null ? shapeInfo.vertices :
-						shapeInfo.v != null ? shapeInfo.v : [[0,0,0]],
-					material);
+			case hemi.ShapeType.PYRAMID:
+				mesh.geometry = createPyramid(
+					shapeInfo.height !== undefined ? shapeInfo.height :
+						shapeInfo.h !== undefined ? shapeInfo.h : 1,
+					shapeInfo.width !== undefined ? shapeInfo.width :
+						shapeInfo.w !== undefined ? shapeInfo.w : 1,
+					shapeInfo.depth !== undefined ? shapeInfo.depth :
+						shapeInfo.d !== undefined ? shapeInfo.d : 1);
+				break;
+			case hemi.ShapeType.CUSTOM:
+				mesh.geometry = createCustom(
+					shapeInfo.vertices !== undefined ? shapeInfo.vertices :
+						shapeInfo.v !== undefined ? shapeInfo.v : [],
+					shapeInfo.faces !== undefined ? shapeInfo.faces :
+						shapeInfo.f !== undefined ? shapeInfo.f : [],
+					shapeInfo.faceVertexUvs !== undefined ? shapeInfo.faceVertexUvs :
+						shapeInfo.uvs !== undefined ? shapeInfo.uvs : []);
 				break;
 		}
-		
-		if (transform !== null && color != null) {
-			applyColor(transform, color);
-		}
-		
-		return transform;
+
+		mesh.geometry.computeBoundingSphere();
+		mesh.geometry.computeBoundingBox();
+		mesh.boundRadius = mesh.geometry.boundingSphere.radius;
+		return mesh;
 	};
-	
-	/**
-	 * Create a box.
-	 * 
-	 * @param {number} h height of box (along y-axis)
-	 * @param {number} w width of box (along x-axis)
-	 * @param {number} d depth of box (along z-axis)
-	 * @param {o3d.Material} material material to use on box
-	 * @return {o3d.Transform} the Transform containing the created box
-	 */
-	hemi.shape.createBox = function(h, w, d, material) {
-		var pack = hemi.shape.pack,
-			trans = pack.createObject('Transform'),
-			shape = hemi.core.primitives.createBox(pack, material, w, h, d);
-		
-		trans.parent = hemi.shape.root;
-		trans.addShape(shape);
-		
-		return trans;
-	};
-	
-	/**
-	 * Create a cube.
-	 * 
-	 * @param {number} size dimensions of cube
-	 * @param {o3d.Material} material material to use on cube
-	 * @return {o3d.Transform} the Transform containing the created cube
-	 */
-	hemi.shape.createCube = function(size, material) {
-		var pack = hemi.shape.pack,
-			trans = pack.createObject('Transform'),
-			shape = hemi.core.primitives.createBox(pack, material, size, size,
-				size);
-		
-		trans.parent = hemi.shape.root;
-		trans.addShape(shape);
-		
-		return trans;
-	};
-	
-	/**
-	 * Create a cylinder.
-	 * 
-	 * @param {number} r1 Radius at bottom
-	 * @param {number} r2 Radius at top
-	 * @param {number} h height (along y-axis)
-	 * @param {o3d.Material} material material to use on cylinder
-	 * @return {o3d.Transform} the Transform containing the created cylinder
-	 */
-	hemi.shape.createCylinder = function(r1, r2, h, material) {
-		var pack = hemi.shape.pack,
-			trans = pack.createObject('Transform'),
-			shape = hemi.core.primitives.createTruncatedCone(pack, material, r1,
-				r2, h, 24, 1);
-		
-		trans.parent = hemi.shape.root;
-		trans.addShape(shape);
-		
-		return trans;
-	};
-	
-	/**
-	 * Create a cone.
-	 * 
-	 * @param {number} r radius of the base
-	 * @param {number} h height (along y-axis)
-	 * @param {o3d.Material} material material to use on cone
-	 * @return {o3d.Transform} the Transform containing the created cone
-	 */
-	hemi.shape.createCone = function(r, h, material) {
-		var pack = hemi.shape.pack,
-			trans = pack.createObject('Transform'),
-			shape = hemi.core.primitives.createTruncatedCone(pack, material, r,
-					0, h, 24, 1);
-		
-		trans.parent = hemi.shape.root;
-		trans.addShape(shape);
-		
-		return trans;
-	};
-	
-	/**
-	 * Create a sphere.
-	 * 
-	 * @param {number} r radius of sphere
-	 * @param {o3d.Material} material material to use on sphere
-	 * @return {o3d.Transform} the Transform containing the created sphere
-	 */
-	hemi.shape.createSphere = function(r, material) {
-		var pack = hemi.shape.pack,
-			trans = pack.createObject('Transform'),
-			shape = hemi.core.primitives.createSphere(pack, material, r, 24, 12);
-		
-		trans.parent = hemi.shape.root;
-		trans.addShape(shape);
-		
-		return trans;
-	};
-	
-	/**
-	 * Create an arrow.
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Utility functions
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	/*
+	 * Create arrow geometry.
 	 * 
 	 * @param {number} size the scale of the arrow head on each axis
 	 * @param {number} tail the length of the arrow tail
-	 * @param {o3d.Material} material material to use on arrow
-	 * @return {o3d.Transform} the Transform containing the created sphere
+	 * @param {number} depth the depth to extrude the arrow
+	 * @return {THREE.Geometry} the arrow geometry
 	 */
-	hemi.shape.createArrow = function(size, tail, material) {
-		var pack = hemi.shape.pack,
-			trans = pack.createObject('Transform'),
+	function createArrow(size, tail, depth) {
+		var totalWidth = size + tail,
 			halfSize = size / 2,
-			shape = hemi.core.primitives.createPrism(pack, material, [[0, size],
-				[-size, 0], [-halfSize, 0], [-halfSize, -tail],
-				[halfSize, -tail], [halfSize, 0], [size, 0]], size);
-		
-		trans.parent = hemi.shape.root;
-		trans.addShape(shape);
-		
-		return trans;
-	};
-	
+			halfWidth = totalWidth / 2,
+			heightDif = halfSize / 2,
+			curX = 0,
+			curY = halfWidth,
+			points = [
+				new THREE.Vector2(curX, curY),
+				new THREE.Vector2(curX += halfSize, curY -= size),
+				new THREE.Vector2(curX -= heightDif, curY),
+				new THREE.Vector2(curX, curY -= tail),
+				new THREE.Vector2(curX -= halfSize, curY),
+				new THREE.Vector2(curX, curY += tail),
+				new THREE.Vector2(curX -= heightDif, curY),
+				new THREE.Vector2(curX += halfSize, curY += size)
+			],
+			shape = new THREE.Shape(points);
+
+		return shape.extrude({amount: depth, bevelEnabled: false});
+	}
+
 	/**
-	 * Create a tetrahedron.
+	 * Create custom geometry from lists of vertices, faces, and uvs.
 	 * 
-	 * @param {number} size size of cube in which tetrahedron will be inscribed
-	 * @param {o3d.Material} material material to use on tetrahedron
-	 * @return {o3d.Transform} the Transform containing the created tetrahedron
+	 * @param {THREE.Vertex[]} verts list of vertices
+	 * @param {THREE.Face3[]} faces list of faces. The normal is determined by right-hand rule (i.e.
+	 *     polygon will be visible from side from which vertices are listed in counter-clockwise
+	 *     order)
+	 * @param {THREE.UV[3][]} faceUvs list of face vertex uvs
+	 * @return {THREE.Geometry} the custom geometry
 	 */
-	hemi.shape.createTetra = function(size, material) {
-		var halfSize = size / 2,
-			v = [[halfSize, halfSize, halfSize],
-				 [-halfSize, -halfSize, halfSize],
-				 [-halfSize, halfSize, -halfSize],
-				 [halfSize, -halfSize, -halfSize]],
-			verts = [[v[0], v[2], v[1]],
-					 [v[0], v[1], v[3]],
-					 [v[0], v[3], v[2]],
-					 [v[1], v[2], v[3]]];
-			trans = hemi.shape.createCustom(verts, material);
-		
-		return trans;
-	};
-	
+	function createCustom(verts, faces, faceUvs) {
+		var geo = new THREE.Geometry();
+
+		geo.vertices = verts;	
+		geo.faces = faces;
+		geo.faceVertexUvs[0] = faceUvs;
+
+		for (var i = 0, il = faces.length; i < il; ++i) {
+			var face = faces[i],
+				normal = hemi.utils.computeNormal(verts[face.a], verts[face.b], verts[face.c]);
+
+			face.normal.copy(normal);
+			face.vertexNormals.push(normal.clone(), normal.clone(), normal.clone());
+		}
+
+		geo.computeCentroids();
+		geo.mergeVertices();
+		return geo;
+	}
+
 	/**
-	 * Create a stellated octahedron.
-	 * 
-	 * @param {number} size size of cube on which octahedron will be inscribed
-	 * @param {o3d.Material} material material to use on octahedron
-	 * @return {o3d.Transform} the Transform containing the created octahedron
-	 */
-	hemi.shape.createOcta = function(size, material) {
-		var pack = hemi.shape.pack,
-			trans = pack.createObject('Transform'),
-			t1 = hemi.shape.createTetra(size, material),
-			t2 = hemi.shape.createTetra(size, material);
-		
-		t1.parent = trans;
-		t2.parent = trans;
-		t2.rotateY(Math.PI/2);
-		trans.parent = hemi.shape.root;
-		
-		return trans;
-	};
-	
-	/**
-	 * Create a pyramid.
+	 * Create pyramid geometry.
 	 * 
 	 * @param {number} h height of pyramid (along z-axis)
 	 * @param {number} w width of pyramid (along x-axis)
 	 * @param {number} d depth of pyramid (along y-axis)
-	 * @param {o3d.Material} material material to use on pyramid
-	 * @return {o3d.Transform} the Transform containing the created pyramid
+	 * @return {THREE.Geometry} the pyramid geometry
 	 */
-	hemi.shape.createPyramid = function(h, w, d, material) {
+	function createPyramid(h, w, d) {
 		var halfH = h / 2,
 			halfW = w / 2,
 			halfD = d / 2,
-			v = [[halfW, -halfH, halfD],
-				[-halfW, -halfH, halfD],
-				[-halfW, -halfH, -halfD],
-				[halfW, -halfH, -halfD],
-				[0, halfH, 0]];
-			verts = [[v[0],v[1],v[2]],
-					 [v[0],v[2],v[3]],
-					 [v[1],v[0],v[4]],
-					 [v[2],v[1],v[4]],
-					 [v[3],v[2],v[4]],
-					 [v[0],v[3],v[4]]];
-			trans = hemi.shape.createCustom(verts, material);
-		
-		return trans;
-	};
-	
-	/**
-	 * Create a custom shape from a list of vertices.
-	 * 
-	 * @param {number[3][3][]} verts list of triples of xyz coordinates. Each
-	 *     triple represents a polygon, with the normal determined by right-hand
-	 *     rule (i.e. polygon will be visible from side from which vertices are
-	 *     listed in counter-clockwise order).
-	 * @param {o3d.Material} material material to apply to custom shape. Note -
-	 *     UV mapping is a simple [0,0],[0,1],[1,0], so most complicated
-	 *     textures will not look good
-	 * @return {o3d.Transform} the Transform containing the created custom shape
-	 */
-	hemi.shape.createCustom = function(verts, material) {
-		var pack = hemi.shape.pack,
-			trans = pack.createObject('Transform'),
-			vertexInfo = hemi.core.primitives.createVertexInfo(),
-			positionStream = vertexInfo.addStream(3, o3djs.base.o3d.Stream.POSITION),
-			normalStream = vertexInfo.addStream(3, o3djs.base.o3d.Stream.NORMAL),
-			texCoordStream = vertexInfo.addStream(2, o3djs.base.o3d.Stream.TEXCOORD, 0);
+			v = [new THREE.Vertex(new THREE.Vector3(halfW, -halfH, halfD)),
+				 new THREE.Vertex(new THREE.Vector3(-halfW, -halfH, halfD)),
+				 new THREE.Vertex(new THREE.Vector3(-halfW, -halfH, -halfD)),
+				 new THREE.Vertex(new THREE.Vector3(halfW, -halfH, -halfD)),
+				 new THREE.Vertex(new THREE.Vector3(0, halfH, 0))],
+			f = [new THREE.Face3(0, 1, 2),
+				 new THREE.Face3(0, 2, 3),
+				 new THREE.Face3(1, 0, 4),
+				 new THREE.Face3(2, 1, 4),
+				 new THREE.Face3(3, 2, 4),
+				 new THREE.Face3(0, 3, 4)],
+			uvs = [[new THREE.UV(0, 0), new THREE.UV(0, 1), new THREE.UV(1, 0)], 
+				   [new THREE.UV(0, 0), new THREE.UV(0, 1), new THREE.UV(1, 0)], 
+				   [new THREE.UV(0, 0), new THREE.UV(0, 1), new THREE.UV(1, 0)], 
+				   [new THREE.UV(0, 0), new THREE.UV(0, 1), new THREE.UV(1, 0)], 
+				   [new THREE.UV(0, 0), new THREE.UV(0, 1), new THREE.UV(1, 0)], 
+				   [new THREE.UV(0, 0), new THREE.UV(0, 1), new THREE.UV(1, 0)]];
 
-		for (var i = 0, il = verts.length; i < il; i++) {
-			var normal = hemi.core.math.cross(
-				hemi.core.math.normalize([verts[i][1][0] - verts[i][0][0],
-										  verts[i][1][1] - verts[i][0][1],
-										  verts[i][1][2] - verts[i][0][2]]),
-				hemi.core.math.normalize([verts[i][2][0] - verts[i][0][0],
-										  verts[i][2][1] - verts[i][0][1],
-										  verts[i][2][2] - verts[i][0][2]]));
-			positionStream.addElementVector(verts[i][0]);
-			normalStream.addElementVector(normal);
-			texCoordStream.addElement(0, 1);
-			positionStream.addElementVector(verts[i][1]);
-			normalStream.addElementVector(normal);
-			texCoordStream.addElement(1, 0);
-			positionStream.addElementVector(verts[i][2]);
-			normalStream.addElementVector(normal);
-			texCoordStream.addElement(0, 0);
-			vertexInfo.addTriangle(i*3,i*3+1,i*3+2);
-		}
-		
-		var shape = vertexInfo.createShape(pack, material);
-		trans.parent = hemi.shape.root;
-		trans.addShape(shape);
-		
-		return trans;
-	};
-	
-	// Internal functions
-	
+		return createCustom(v, f, uvs);
+	}
+
 	/*
-	 * Apply the given color to the given transform.
+	 * Create tetrahedron geometry.
 	 * 
-	 * @param {o3d.Transform} transform transform to apply color to
-	 * @param {number[4]} color RGBA color to apply
+	 * @param {number} size size of cube in which tetrahedron will be inscribed
+	 * @return {THREE.Geometry} the tetrahedron geometry
 	 */
-	var applyColor = function(transform, color) {
-		var children = transform.children,
-			param = transform.getParam('diffuse');
-		
-		if (param === null) {
-			param = transform.createParam('diffuse', 'o3d.ParamFloat4');
-		}
-		
-		param.value = color;
-		
-		for (var i = 0, il = children.length; i < il; i++) {
-			applyColor(children[i], color);
-		}
-	};
-	
-	/*
-	 * Remove the given transform and any child transforms or shapes from the
-	 * shape pack.
-	 * 
-	 * @param {o3d.Transform} transform transform to destroy
-	 */
-	var destroyTransform = function(transform) {
-		var children = transform.children,
-			shapes = transform.shapes;
-		
-		transform.parent = null;
-		
-		for (var i = 0, il = children.length; i < il; i++) {
-			destroyTransform(children[i]);
-		}
-		
-		for (var i = 0, il = shapes.length; i < il; i++) {
-			hemi.shape.pack.removeObject(shapes[i]);
-		}
-		
-		hemi.shape.pack.removeObject(transform);
-	};
-	
-	return hemi;
-})(hemi || {});/* 
- * Kuda includes a library and editor for authoring interactive 3D content for the web.
- * Copyright (C) 2011 SRI International.
- *
- * This program is free software; you can redistribute it and/or modify it under the terms
- * of the GNU General Public License as published by the Free Software Foundation; either 
- * version 2 of the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
- * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
- * See the GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License along with this program; 
- * if not, write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, 
- * Boston, MA 02110-1301 USA.
+	function createTetra(size) {
+		var halfSize = size / 2,
+			v = [new THREE.Vertex(new THREE.Vector3(halfSize, halfSize, halfSize)),
+				 new THREE.Vertex(new THREE.Vector3(-halfSize, -halfSize, halfSize)),
+				 new THREE.Vertex(new THREE.Vector3(-halfSize, halfSize, -halfSize)),
+				 new THREE.Vertex(new THREE.Vector3(halfSize, -halfSize, -halfSize))],
+			f = [new THREE.Face3(0, 2, 1),
+				 new THREE.Face3(0, 1, 3),
+				 new THREE.Face3(0, 3, 2),
+				 new THREE.Face3(1, 2, 3)],
+			uvs = [[new THREE.UV(0, 0), new THREE.UV(0, 1), new THREE.UV(1, 0)], 
+				   [new THREE.UV(0, 0), new THREE.UV(0, 1), new THREE.UV(1, 0)], 
+				   [new THREE.UV(0, 0), new THREE.UV(0, 1), new THREE.UV(1, 0)], 
+				   [new THREE.UV(0, 0), new THREE.UV(0, 1), new THREE.UV(1, 0)]];
+
+		return createCustom(v, f, uvs);
+	}
+
+})();
+/*
+ * Licensed under the MIT license: http://www.opensource.org/licenses/mit-license.php
+ * The MIT License (MIT)
+ * 
+ * Copyright (c) 2011 SRI International
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+ * associated  documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the  Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-var hemi = (function(hemi) {
+(function() {
+
+	var clientData = [];
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Global functions
+////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	hemi.fx = hemi.fx || {};
 
+	hemi.fx.cleanup = function() {
+		clientData = [];
+	};
+
 	/**
-	 * 	{
-	 *		type      : string ->
-	 *			'texture','phong','lambert','basic','custom'
-	 *		color     : float4
-	 * 		color1    : float4
-	 *      color2    : float4
-	 * 		diffuse   : [float4 | url]
-	 *		ambient   : [float4 | url]
-	 *		emissive  : [float4 | url]
-	 *		shader    : [string | url]
-	 *		opacity   : float
-	 *      light     : boolean (light object?)
-	 *		wireframe : boolean
-	 *		specular  : float4
-	 *		shininess : float
-	 *		texture   : url
-	 *		texture1  : url
-	 *		texture2  : url
-	 *      weight    : float
-	 *		normalmap : url
-	 *      fog       : boolean
-	 *	}
-	 *
-	 */
-	
-	/**
-	 * Add parameters to the given Material that will allow the user to define a
-	 * fog effect for it. The returned object will have these parameters:
-	 * color: array of floats defining fog color in RGBA format
-	 * start: float defining distance from the camera that fog starts
-	 * end: float defining distance from the camera that fog becomes opaque
+	 * Removes the fog for the given client
 	 * 
-	 * @param {o3d.Material} material the Material to create opacity for
-	 * @return {Object} an object containing the ParamObjects listed above
+	 * @param {hemi.Client} client the client view to clear fog for
 	 */
-	hemi.fx.addFog = function(material) {
-		// get the source
-		var gl = material.gl,
-			program = material.effect.program_,
-			shad = hemi.utils.getShaders(material),
-			fragShd = shad.fragShd,
-			fragSrc = shad.fragSrc,
-			vertShd = shad.vertShd,
-			vertSrc = shad.vertSrc;
-		
-		// modify the shaders
-		if (vertSrc.search('fog') < 0) {
-			var vertHdr =
-					'uniform float fogStart;\n' +
-					'uniform float fogEnd;\n' +
-					'varying float fogAlpha;\n',
-				vertSprt =
-					'void setFogAlpha(float z) {\n' +
-					'  fogAlpha = (z - fogStart)/(fogEnd - fogStart);\n' +
-					'  fogAlpha = clamp(fogAlpha,0.0,1.0);\n' +
-					'}\n';
-				vertGlob =
-					'setFogAlpha(gl_Position.z);\n';
-			
-			vertSrc = hemi.utils.combineVertSrc(vertSrc, {
-				postHdr: vertHdr,
-				postSprt: vertSprt,
-				postGlob: vertGlob
-			});
-			gl.detachShader(program, vertShd);
-			material.effect.loadVertexShaderFromString(vertSrc);
+	hemi.fx.clearFog = function(client) {
+		var data = findData(client);
+
+		if (data && data.fog) {
+			client.scene.fog = undefined;
+			client.setBGColor(data.oldBGHex);
+
+			// now change the materials
+			for (var i = 0, il = data.materials.length; i < il; i++) {
+				var matData = data.materials[i];
+
+				client.renderer.initMaterial(matData.mat, client.scene.lights, client.scene.fog, matData.obj);
+			}
 		}
-		if (fragSrc.search('fog') < 0) {
-			var fragHdr =
-					'uniform vec4 fogColor;\n' +
-					'varying float fogAlpha;\n',
-				fragGlob =
-					'gl_FragColor = mix(gl_FragColor, fogColor, fogAlpha);\n';
-			
-			fragSrc = hemi.utils.combineFragSrc(fragSrc, {
-				postHdr: fragHdr,
-				postGlob: fragGlob
-			});
-			gl.detachShader(program, fragShd);
-			material.effect.loadPixelShaderFromString(fragSrc);
-		}
-		
-		material.effect.createUniformParameters(material);
-		return {
-			start: material.getParam('fogStart'),
-			end: material.getParam('fogEnd'),
-			color: material.getParam('fogColor')
-		};
 	};
-	
+
 	/**
-	 * Add an opacity parameter to the given Material that will allow
-	 * transparency to be set for it. Transparency ranges from 0.0 to 1.0.
+	 * Sets the fog for the given client to the following parameters
 	 * 
-	 * @param {o3d.Material} material the Material to create opacity for
-	 * @return {o3d.ParamObject} a ParamObject linked to opacity
+	 * @param {hemi.Client} client the client view to set fog for 
+	 * @param {number} color the hex (begins with 0x) color value
+	 * @param {number} alpha the alpha value of the color between 0 and 1
+	 * @param {number} near the viewing distance where the fog obscuring starts  
+	 * @param {number} far the viewing distance where fog opacity obscures the subject
 	 */
-	hemi.fx.addOpacity = function(material) {
-		// get the source
-		var gl = material.gl,
-			program = material.effect.program_,
-			shad = hemi.utils.getShaders(material),
-			fragShd = shad.fragShd,
-			fragSrc = shad.fragSrc;
-		
-		// modify the pixel shader
-		if (fragSrc.search('opacity') < 0) {
-			var fragHdr = 'uniform float opacity;\n',
-				fragGlob = 'gl_FragColor.a *= opacity;\n';
-			
-			fragSrc = hemi.utils.combineFragSrc(fragSrc, {
-				postHdr: fragHdr,
-				postGlob: fragGlob
-			});
-			gl.detachShader(program, fragShd);
-			material.effect.loadPixelShaderFromString(fragSrc);
-			
-			material.effect.createUniformParameters(material);
-			material.getParam('o3d.drawList').value = hemi.view.viewInfo.zOrderedDrawList;
+	hemi.fx.setFog = function(client, color, near, far) {
+		var data = findData(client),
+			objs = client.scene.__webglObjects.concat(client.scene.__webglObjectsImmediate),
+			mats = [],
+			refresh = false;
+
+		if (!data) {
+			data = {
+				client: client
+			};
+			clientData.push(data);
 		}
-		
-		
-		var opacity = material.getParam('opacity');
-		opacity.value = 1.0;		
-		
-		return opacity;
+
+		if (!data.fog) {
+			data.fog = new THREE.Fog();
+
+			// save the old background color
+			data.oldBGHex = client.renderer.getClearColor().getHex();
+			refresh = true;
+		}
+
+		data.fog.color.setHex(color);
+		data.fog.near = near;
+		data.fog.far = far;
+
+		client.scene.fog = data.fog;
+		client.setBGColor(color);
+
+		if (refresh) {
+			// go through all the materials and update
+			// first get the materials
+			for (var i = 0, il = objs.length; i < il; i++) {
+				var webglObject = objs[i], 
+					object = webglObject.object, 
+					opaque = webglObject.opaque, 
+					transparent = webglObject.transparent;
+
+				if (opaque) {
+					mats.push({
+						mat: opaque,
+						obj: object
+					});
+				}
+				if (transparent) {
+					mats.push({
+						mat: transparent,
+						obj: object
+					});
+				}
+			}
+
+			// save the materials for later
+			data.materials = mats;
+		}
+
+		// now change the materials
+		for (var i = 0, il = data.materials.length; i < il; i++) {
+			var matData = data.materials[i],
+				material = matData.mat,
+				object = matData.obj,
+				fog = client.scene.fog;
+
+			if (refresh) {
+				client.renderer.initMaterial(material, client.scene.lights, 
+					fog, object);
+			}
+			else {
+				var uniforms = material.uniforms;
+				
+				uniforms.fogColor.value = fog.color;		
+				uniforms.fogNear.value = fog.near;
+				uniforms.fogFar.value = fog.far;
+			}
+		}
 	};
-	
-	/*
-	 * The following functions may be out-dated and need some work before using.
+
+	/**
+	 * Sets the opacity for the given object.
+	 * 
+	 * @param {THREE.Mesh} object the object whose material's opacity we're changing
+	 * @param {number} opacity the opacity value between 0 and 1
 	 */
-	
-	hemi.fx.create = function(spec,callback) {
-		switch (spec.type) {
-			case 'constant':
-				if (spec.texture) {
-					return hemi.fx.createConstantTexture(spec.texture, callback);
-				} else {
-					callback(hemi.core.material.createConstantMaterial(
-						hemi.core.mainPack,
-						hemi.view.viewInfo,
-						spec.color,
-						spec.color[3] < 1));
-					return;
-				}
-				break;
-			case 'basic':
-				if (spec.texture) {
-					return hemi.fx.createBasicTexture(spec.texture, callback);
-				} else {
-					callback(hemi.core.material.createBasicMaterial(
-						hemi.core.mainPack,
-						hemi.view.viewInfo,
-						spec.color,
-						spec.color[3] < 1));
-					return;
-				}
-				break;
+	hemi.fx.setOpacity = function(mesh, opacity) {
+		var material = mesh.material;
+
+		if (mesh._opacity === null) {
+			// Assume that the material is shared and therefore the Mesh should have its own copy.
+			material = mesh.material = hemi.utils.cloneMaterial(material);
 		}
+
+		mesh._opacity = material.opacity = opacity;
+		material.transparent = opacity < 1.0;
 	};
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Utility functions
+////////////////////////////////////////////////////////////////////////////////////////////////////
 	
-	hemi.fx.modify = function(material, spec) {
-		switch (spec.type) {
-			case 'constant':
-				material.effect = null;
-				var diffuseParam = material.getParam('diffuseSampler');
-				if (diffuseParam) {
-					var paramSampler = material.createParam('emissiveSampler', 'ParamSampler');
-					paramSampler.value = diffuseParam.value;
-					material.removeParam(diffuseParam);
-				}
-				o3djs.material.attachStandardEffect(
-					hemi.core.mainPack,
-					material,
-					hemi.view.viewInfo,
-					'constant');
-				return material;
-				break;
+	function findData(client) {
+		var retVal = null;
+		for (var i = 0, il = clientData.length; i < il && retVal === null; i++) {
+			if (clientData[i].client === client) {
+				retVal = clientData[i];
+			}
 		}
-	};
+		return retVal;
+	}
 	
-	hemi.fx.createConstantTexture = function(path, callback) {
-		var url = o3djs.util.getCurrentURI() + path;
-		var material;
-		hemi.core.io.loadTexture(hemi.core.mainPack,url,function(texture, e) {
-			if (e) {
-				alert(e);
-			} else {
-				material = hemi.core.material.createConstantMaterial(
-					hemi.core.mainPack,
-					hemi.view.viewInfo,
-					texture);
-				callback(material);
-			}
-		});
-	};
-	
-	hemi.fx.createBasicTexture = function(path, callback) {
-		var url = o3djs.util.getCurrentURI() + path;
-		var material;
-		hemi.core.io.loadTexture(hemi.core.mainPack,url,function(texture, e) {
-			if (e) {
-				alert(e);
-			} else {
-				material = hemi.core.material.createBasicMaterial(
-					hemi.core.mainPack,
-					hemi.view.viewInfo,
-					texture);
-				callback(material);
-			}
-		});
-	};
-	
-	return hemi;
-})(hemi || {});/* 
- * Kuda includes a library and editor for authoring interactive 3D content for the web.
- * Copyright (C) 2011 SRI International.
- *
- * This program is free software; you can redistribute it and/or modify it under the terms
- * of the GNU General Public License as published by the Free Software Foundation; either 
- * version 2 of the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
- * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
- * See the GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License along with this program; 
- * if not, write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, 
- * Boston, MA 02110-1301 USA.
+})();
+/*
+ * Licensed under the MIT license: http://www.opensource.org/licenses/mit-license.php
+ * The MIT License (MIT)
+ * 
+ * Copyright (c) 2011 SRI International
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+ * associated  documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the  Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-var hemi = (function(hemi) {
+(function() {
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// TextureSet class
+////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	/**
-	 * @namespace A module for texture set management, specifically designed
-	 * to handle shader sampling and texture maps.  An o3d.Material will have
-	 * a parameter that is a sampler when a material is using a texture.  The
-	 * paramter is either an emmissive, or diffuse sampler.  This module makes
-	 * easy to swap textures dynamically on Models.  See the lighting sample.
-	 */
-	hemi.texture = hemi.texture || {};
-
-	/**
-	 * @class A TestureSampler contains a texture URL and a value.  The value is
-	 * the o3d.Sampler which can be assigned to a shader's sampler parameter.
+	 * @class A TextureSet can manage Textures that are part of a set as defined by the user. It
+	 * will handle loading them and notify the author upon completion.
 	 * 
-	 * @param {string} url the texture URL
+	 * @param {Object} opt_urls optional object map of Texture names to urls to load
+	 * @param {function(Object):void} opt_callback function to receive loaded Textures
 	 */
-	hemi.texture.TextureSampler = function(url) {
-		/**
-		 * The url of the texture image file
-		 * @type string
-		 * @default ''
+	var TextureSet = function(opt_urls, opt_callback) {
+		/*
+		 * The function to pass the loaded Textures once they are all ready.
+		 * @type function(Object):void
 		 */
-		this.textureURL = url || '';
-		this.value = hemi.core.mainPack.createObject('Sampler');
-	};
-
-	/**
-	 * @class A TextureSet can manage TextureSamplers that are part of a set as
-	 * defined by the author.  It will handle loading them and notify the author
-	 * upon completion.
-	 * 
-	 * @param {number} count number of TextureSamplers in the set
-	 * @param {function(Object):void} opt_callback callback to receive loaded
-	 *     TextureSamplers
-	 */
-	hemi.texture.TextureSet = function(count, opt_callback) {
+		this._callback = opt_callback || null;
 		/**
-		 * An object literal that maps a given name for the TextureSampler to
-		 * its instance for easy access.
-		 * @type Object
-		 * @default
-		 */
-		this.samplers = { length: 0 };
-		/**
-		 * The total number of TextureSamplers in this set.
+		 * The total number of loaded and not-yet-loaded Textures in the TextureSet.
 		 * @type number
 		 * @default 0
 		 */
-		this.count = count || 0;
-		this.callback = opt_callback || function() {};
-	};
-
-	hemi.texture.TextureSet.prototype = {
-		/**
-		 * Add a named texture file at the given url to this set.
-		 *
-		 * @param {string} name the name for the texture
-		 * @param {string} url the url of the image
+		this.count = 0;
+		/*
+		 * The number of loaded/ready Textures in the TextureSet.
+		 * @type number
 		 */
-		addTexture: function(name, url) {
-			this.count++;
-			this.loadTexture(name, url);
-		},
+		this.loaded = 0;
 		/**
-		 * Add the given TextureSampler to this set.
-		 *
-		 * @param {string} name the name of the TextureSampler
-		 * @param {hemi.texture.TextureSampler} texSampler the TextureSampler
+		 * An object that maps a given name for a Texture to its instance for easy access.
+		 * @type Object
 		 */
-		addTextureSampler: function(name, texSampler) {
-			this.count++;
+		this.textures = {};
 
-			if (!texSampler.value.texture) {
-				this.loadTextureSampler(texSampler);
+		if (opt_urls) {
+			for (var name in opt_urls) {
+				this.addTexture(name, opt_urls[name]);
 			}
-
-			this.samplers[name] = texSampler;
-		},
-		/**
-		 * Get the TextureSampler with the name in this set.
-		 *
-		 * @param {string} name the name it was given when added.
-		 * @return {hemi.texture.TextureSampler} the TextureSampler
-		 */
-		getTextureSampler: function(name) {
-			return this.samplers[name];
-		},
-		/**
-		 * Get the O3D Sampler from the named TextureSampler
-		 *
-		 * @param {string} name the name of the TextureSampler
-		 * @return {o3d.Sampler} the O3D sampler
-		 */
-		getSamplerValue: function(name) {
-			return this.samplers[name].value;
-		},
-		/**
-		 * Load a texture from the given url and associate it in this set with
-		 * the given name.
-		 *
-		 * @param {string} name the name of the texture
-		 * @param {string} url the url to load the image from
-		 */
-		loadTexture: function(name, url) {
-			var texSampler = new hemi.texture.TextureSampler(url);
-			this.samplers[name] = texSampler;
-			this.loadTextureSampler(texSampler);
-		},
-		/**
-		 * Load a TextureSampler's texture image file and set the texture on the
-		 * value, which is an O3D Sampler, once loaded.
-		 *
-		 * @param {hemi.texture.TextureSampler} texSampler the TextureSampler to
-		 *     load and set the texture on
-		 */
-		loadTextureSampler: function(texSampler) {
-			hemi.loader.loadTexture(texSampler.textureURL,
-				function(texture) {
-					texSampler.value.texture = texture;
-					this.samplers.length++;
-
-					if (this.samplers.length === this.count) {
-						this.callback(this.samplers);
-					}
-				}, this);
 		}
 	};
 
 	/**
-	 * Create multiple texture sets using a simple object literal that maps
-	 * distinct meaningful names to the urls of the images.
+	 * Add the given Texture to the TextureSet.
 	 *
-	 * @param {Object} urls An object literal with properties of urls to load
-	 *     into the set
-	 * @param {function(Object):void} callback a function to call and pass the
-	 *     samplers
-	 * @return {hemi.texture.TextureSet} the TextureSet
+	 * @param {string} name the name of the Texture
+	 * @param {THREE.Texture} texture the Texture
 	 */
-	hemi.texture.createTextureSet = function(urls, callback) {
-		var urls = urls || {},
-			count = 0,
-			texSet;
-
-		if (typeof Object.keys === 'function') {
-			count = Object.keys(urls).length;
-		} else {
-			for (var p in urls) {
-				if (urls.hasOwnProperty(p)) count++;
-			}
-		}
-
-		texSet = new hemi.texture.TextureSet(count, callback);
-
-		for (var name in urls) {
-			texSet.loadTexture(name, urls[name]);
-		}
-
-		return texSet;
+	TextureSet.prototype.addLoadedTexture = function(name, texture) {
+		this.count++;
+		this.loaded++;
+		this.textures[name] = texture;
 	};
-	
+
 	/**
-	 * Get the texture uv coordinates of the given element.
-	 * 
-	 * @param {o3d.Element} element The element from which to extract uv
-	 *     coordinates
-	 * @return {Object} {field: Field object used to reapply coordinates,
-	 *				     uv: Float array of uv coordinates}
+	 * Load a Texture from the given file url into the TextureSet.
+	 *
+	 * @param {string} name the name for the texture
+	 * @param {string} url the url of the image
 	 */
-	hemi.texture.getUV = function(element) {
-		var stream = element.streamBank.getVertexStream(hemi.core.o3d.Stream.TEXCOORD,0);
-		return stream?{field:stream.field,
-					   uv:stream.field.getAt(0,element.numberVertices)}:null;
+	TextureSet.prototype.addTexture = function(name, url) {
+		var that = this;
+		this.count++;
+
+		hemi.loadTexture(url, function(texture) {
+				that.textures[name] = texture;
+				that.loaded++;
+
+				if (that.loaded === that.count && that._callback) {
+					that._callback(that.textures);
+				}
+			});
 	};
-	
-	hemi.texture.reportUV = function(element) {
-		var uv = hemi.texture.getUV(element).uv;
-		console.log(element);
-		for (var i = 0; i < uv.length; i+=3) {
-			console.log(uv[i] + ',' + uv[i+1] + ',' + uv[i+2]);
-		}
-	};
-	
+
 	/**
-	 * Scale the texture uv coordinates of the given element.
-	 * 
-	 * @param {o3d.Element} element The element to scale the texture on
-	 * @param {number} x Amount to scale by along x-axis
-	 * @param {number} y Amoung to scale by along y-axis
+	 * Get the Texture with the given name in the TextureSet.
+	 *
+	 * @param {string} name the name the Texture was given when added
+	 * @return {THREE.Texture} the Texture
 	 */
-	hemi.texture.scale = function(element,x,y) {
-		var set = hemi.texture.getUV(element);
-		for (var i = 0; i < set.uv.length; i+=set.field.numComponents) {
-			set.uv[i] *= x;
-			set.uv[i+1] *= y;
-		}
-		set.field.setAt(0,set.uv);
+	TextureSet.prototype.getTexture = function(name) {
+		return this.textures[name];
 	};
 
-	/**
-	 * Translate the texture uv coordinates of the given element.
-	 * 
-	 * @param {o3d.Element} element The element to translate the texture on
-	 * @param {number} x Distance to translate along x-axis
-	 * @param {number} y Distance to translate along y-axis
-	 */	
-	hemi.texture.translate = function(element,x,y) {
-		var set = hemi.texture.getUV(element);
-		for (var i = 0; i < set.uv.length; i+=set.field.numComponents) {
-			set.uv[i] += x;
-			set.uv[i+1] += y;
-		}	
-		set.field.setAt(0,set.uv);
-	};
+	hemi.TextureSet = TextureSet;
 
-	/**
-	 * Rotate the texture uv coordinates of the given element.
-	 * 
-	 * @param {o3d.Element} element The element to rotate the texture on
-	 * @param {number} theta Radians to rotate texture, counter-clockwise
-	 */	
-	hemi.texture.rotate = function(element,theta) {
-		var set = hemi.texture.getUV(element);
-		for (var i = 0; i < set.uv.length; i+=set.field.numComponents) {
-			var x = set.uv[i];
-			var y = set.uv[i+1];
-			set.uv[i] = x*Math.cos(theta) - y*Math.sin(theta);
-			set.uv[i+1] = x*Math.sin(theta) + y*Math.cos(theta);
-		}	
-		set.field.setAt(0,set.uv);	
-	};
-
-	return hemi;
-})(hemi || {});
-/* 
- * Kuda includes a library and editor for authoring interactive 3D content for the web.
- * Copyright (C) 2011 SRI International.
- *
- * This program is free software; you can redistribute it and/or modify it under the terms
- * of the GNU General Public License as published by the Free Software Foundation; either 
- * version 2 of the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
- * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
- * See the GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License along with this program; 
- * if not, write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, 
- * Boston, MA 02110-1301 USA.
+})();
+/*
+ * Licensed under the MIT license: http://www.opensource.org/licenses/mit-license.php
+ * The MIT License (MIT)
+ * 
+ * Copyright (c) 2011 SRI International
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+ * associated  documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the  Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-var hemi = (function(hemi) {
+(function() {
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Timer class
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
 	/**
-	 * @namespace A module for creating timers that can be used for scripting
-	 * and behavior.
-	 */	
-	hemi.time = hemi.time || {};
-	
-	/**
-	 * @class A Timer is a simple countdown timer that can be used to script
-	 * behavior and sequence events.
-	 * @extends hemi.world.Citizen
+	 * @class A Timer is a simple countdown timer that can be used to script behavior and sequence
+	 * events.
 	 */
-	hemi.time.Timer = hemi.world.Citizen.extend({
-		init: function() {
-			this._super();
-		
-			/*
-			 * The epoch time that this Timer was last started (or resumed)
-			 * @type number
-			 */
-			this._started = null;
-			/*
-			 * The elapsed time (not including any currently running JS timer)
-			 * @type number
-			 */
-			this._time = 0;
-			/*
-			 * The id of the current JS timer
-			 * @type number
-			 */
+	var Timer = function() {
+		/*
+		 * The epoch time that this Timer was last started (or resumed).
+		 * @type number
+		 */
+		this._started = null;
+		/*
+		 * The elapsed time (not including any currently running JS timer).
+		 * @type number
+		 */
+		this._time = 0;
+		/*
+		 * The id of the current JS timer.
+		 * @type number
+		 */
+		this._timeId = null;
+		/**
+		 * The time the timer will start counting down from (milliseconds).
+		 * @type number
+		 * @default 1000
+		 */
+		this.startTime = 1000;
+	};
+
+	/*
+	 * Remove all references in the Timer.
+	 */
+	Timer.prototype._clean = function() {
+		if (this._timeId !== null) {
+			clearTimeout(this._timeId);
 			this._timeId = null;
-			/**
-			 * The time the timer will start counting down from (milliseconds).
-			 * @type number
-			 * @default 1000
-			 */
-			this.startTime = 1000;
-		},
-		
-        /**
-         * Overwrites hemi.world.Citizen.citizenType.
-         * @string
-         */
-        citizenType: 'hemi.time.Timer',
-		
-		/**
-		 * Send a cleanup Message and remove all references in the Timer.
-		 */
-		cleanup: function() {
-			this._super();
-			
-			if (this._timeId !== null) {
-				clearTimeout(this._timeId);
-				this._timeId = null;
-				this._started = null;
-			}
-		},
-		
-		/**
-		 * Pause the Timer if it is currently running.
-		 */
-		pause: function() {
-			if (this._timeId !== null) {
-				clearTimeout(this._timeId);
-				this._timeId = null;
-				
-				var stopped = (new Date()).getTime();
-				this._time += (stopped - this._started);
-			}
-		},
-		
-		/**
-		 * Reset the Timer so it is ready to count down again.
-		 */
-		reset: function() {
 			this._started = null;
-			this._time = 0;
-			this._timeId = null;
-		},
-		
-		/**
-		 * Resume the Timer's count down if it is currently paused.
-		 */
-		resume: function() {
-			if (this._timeId === null && this._started !== null) {
-				this._timeId = setTimeout(handleTimeout,
-					this.startTime - this._time, this);
-				this._started = (new Date()).getTime();
-			}
-		},
-		
-		/**
-		 * Start the Timer's count down. If it is currently running, restart the
-		 * Timer from its initial count down value.
-		 */
-		start: function() {
-			if (this._timeId !== null) {
-				clearTimeout(this._timeId);
-			}
-			
-			this._time = 0;
-			this.send(hemi.msg.start, {
-				time: this.startTime
-			});
-			this._timeId = setTimeout(handleTimeout, this.startTime, this);
-			this._started = (new Date()).getTime();
-		},
-		
-		/**
-		 * Stop the Timer if it is currently running or paused. This resets any
-		 * currently elapsed time on the Timer.
-		 */
-		stop: function() {
-			if (this._timeId !== null) {
-				clearTimeout(this._timeId);
-				var stopped = (new Date()).getTime();
-				this._time += (stopped - this._started);
-			}
-			
-			if (this._started !== null) {
-				var elapsed = this._time;
-				this.reset();
-				this.send(hemi.msg.stop, {
-					time: elapsed
-				});
-			}
-		},
-		
-		/**
-		 * Get the Octane structure for the Timer.
-	     *
-	     * @return {Object} the Octane structure representing the Timer
-		 */
-		toOctane: function() {
-			var octane = this._super();
-			
-			octane.props.push({
-				name: 'startTime',
-				val: this.startTime
-			});
-			
-			return octane;
 		}
+	};
+
+	/*
+	 * Array of Hemi Messages that Timer is known to send.
+	 * @type string[]
+	 */
+	Timer.prototype._msgSent = [hemi.msg.start, hemi.msg.stop];
+
+	/*
+	 * Octane properties for Timer.
+	 * @type string[]
+	 */
+	Timer.prototype._octane = ['startTime'];
+
+	/**
+	 * Pause the Timer if it is currently running.
+	 */
+	Timer.prototype.pause = function() {
+		if (this._timeId !== null) {
+			clearTimeout(this._timeId);
+			this._timeId = null;
+
+			var stopped = (new Date()).getTime();
+			this._time += (stopped - this._started);
+		}
+	};
+
+	/**
+	 * Reset the Timer so it is ready to count down again.
+	 */
+	Timer.prototype.reset = function() {
+		this._started = null;
+		this._time = 0;
+		this._timeId = null;
+	};
+
+	/**
+	 * Resume the Timer's count down if it is currently paused.
+	 */
+	Timer.prototype.resume = function() {
+		if (this._timeId === null && this._started !== null) {
+			this._timeId = setTimeout(handleTimeout, this.startTime - this._time, this);
+			this._started = (new Date()).getTime();
+		}
+	};
+
+	/**
+	 * Start the Timer's count down. If it is currently running, restart the Timer from its initial
+	 * count down value.
+	 */
+	Timer.prototype.start = function() {
+		if (this._timeId !== null) {
+			clearTimeout(this._timeId);
+		}
+
+		this._time = 0;
+		this.send(hemi.msg.start, {
+			time: this.startTime
+		});
+		this._timeId = setTimeout(handleTimeout, this.startTime, this);
+		this._started = (new Date()).getTime();
+	};
+
+	/**
+	 * Stop the Timer if it is currently running or paused. This resets any currently elapsed time
+	 * on the Timer.
+	 */
+	Timer.prototype.stop = function() {
+		if (this._timeId !== null) {
+			clearTimeout(this._timeId);
+			var stopped = (new Date()).getTime();
+			this._time += (stopped - this._started);
+		}
+
+		if (this._started !== null) {
+			var elapsed = this._time;
+			this.reset();
+			this.send(hemi.msg.stop, {
+				time: elapsed
+			});
+		}
+	};
+
+	hemi.makeCitizen(Timer, 'hemi.Timer', {
+		cleanup: Timer.prototype._clean,
+		toOctane: Timer.prototype._octane
 	});
-	
-	hemi.time.Timer.prototype.msgSent =
-		hemi.time.Timer.prototype.msgSent.concat([hemi.msg.start, hemi.msg.stop]);
-	
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Utility functions
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
 	/*
 	 * Utility to handle the Timer naturally finishing its countdown.
 	 */
-	var handleTimeout = function(timer) {
+	function handleTimeout(timer) {
 		timer.reset();
 		timer.send(hemi.msg.stop, {
 			time: timer.startTime
 		});
+	}
+
+})();
+/*
+ * Licensed under the MIT license: http://www.opensource.org/licenses/mit-license.php
+ * The MIT License (MIT)
+ * 
+ * Copyright (c) 2011 SRI International
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+ * associated  documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the  Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
+
+(function() {
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// ValueCheck class
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	/**
+	 * @class A ValueCheck handler checks a set of values against a specified set of values from the
+	 * Message to handle. If the values all match, the Message is passed to the actual handler.
+	 */
+	var ValueCheck = function() {
+		/**
+		 * A Citizen that the ValueCheck may be using.
+		 * @type hemi.world.Citizen
+		 */
+		this.citizen = null;
+		/**
+		 * The values to check for.
+		 * @type Object[]
+		 */
+		this.values = [];
+		/**
+		 * The parameter names to use to get the values to check.
+		 * @type string[]
+		 */
+		this.valueParams = [];
+		/**
+		 * The handler object for the Message.
+		 * @type Object
+		 */
+		this.handler = null;
+		/**
+		 * The name of the object function to pass the Message to.
+		 * @type string
+		 */
+		this.func = null;
+		/**
+		 * Optional array to specify arguments to pass to the handler. Otherwise
+		 * just pass it the Message.
+		 * @type string[]
+		 */
+		this.args = [];
 	};
-	
-	return hemi;
-})(hemi || {});
+
+	/*
+	 * Remove all references in the ValueCheck.
+	 */
+	ValueCheck.prototype._clean = function() {
+		this.citizen = null;
+		this.values = [];
+		this.handler = null;
+		this.args = [];
+	};
+
+	/*
+	 * Octane properties for ValueCheck.
+	 * 
+	 * @return {Object[]} array of Octane properties
+	 */
+	ValueCheck.prototype._octane = function() {
+		var valNames = ['values', 'valueParams', 'func', 'args'],
+			props = [];
+
+		for (var i = 0, il = valNames.length; i < il; ++i) {
+			var name = valNames[i];
+
+			props.push({
+				name: name,
+				val: this[name]
+			});
+		}
+
+		props.push({
+			name: 'handler',
+			id: this.handler._getId()
+		});
+
+		if (this.citizen) {
+			props.push({
+				name: 'citizen',
+				id: this.citizen._getId()
+			});
+		}
+
+		return props;
+	};
+
+	/**
+	 * Check the ValueCheck's value parameters against it's expected values to determine if the
+	 * given Message should be passed to the handler object.
+	 * 
+	 * @param {hemi.dispatch.Message} message the Message to handle
+	 */
+	ValueCheck.prototype.handleMessage = function(message) {
+		var values = hemi.dispatch.getArguments(message, this.valueParams),
+			match = true;
+
+		for (var i = 0, il = values.length; match && i < il; ++i) {
+			var val = values[i];
+
+			if (val && val._getId !== undefined) {
+				match = this.values[i] === val._getId();
+			} else {
+				match = this.values[i] === val;
+			}
+		}
+
+		if (match) {
+			var args = hemi.dispatch.getArguments(message, this.args);
+			this.handler[this.func].apply(this.handler, args);
+		}
+	};
+
+	hemi.makeCitizen(ValueCheck, 'hemi.ValueCheck', {
+		cleanup: ValueCheck.prototype._clean,
+		toOctane: ValueCheck.prototype._octane
+	});
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Global functions
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	/**
+	 * Create a ValueCheck handler that will check pick Messages for the given shape name.
+	 * 
+	 * @param {hemi.Model} model the Model containing the Mesh to pick
+	 * @param {string} meshName the Mesh name to check for
+	 * @param {Object} handler handler object for the Message.
+	 * @param {string} func name of the object function to pass the Message to
+	 * @param {string[]} opt_args optional array to specify arguments to pass to the handler.
+	 *     Otherwise just pass it the Message.
+	 * @return {hemi.ValueCheck} the created ValueCheck handler
+	 */
+	hemi.handlePick = function(model, meshName, handler, func, opt_args) {
+		var valCheck = new hemi.ValueCheck();
+		valCheck.citizen = model;
+		valCheck.values = [meshName];
+		valCheck.valueParams = [hemi.dispatch.MSG_ARG + 'data.pickedMesh.name'];
+		valCheck.handler = handler;
+		valCheck.func = func;
+
+		if (opt_args) {
+			valCheck.args = opt_args;
+		}
+
+		return hemi.subscribe(hemi.msg.pick, valCheck, 'handleMessage');
+	};
+
+	/**
+	 * Create a ValueCheck handler that will check Camera move Messages for the given viewpoint.
+	 * 
+	 * @param {hemi.Camera} camera the camera to receive Messages from
+	 * @param {hemi.Viewpoint} viewpoint the viewpoint to check for
+	 * @param {Object} handler handler object for the Message.
+	 * @param {string} func name of the object function to pass the Message to
+	 * @param {string[]} opt_args optional array to specify arguments to pass to the handler.
+	 *     Otherwise just pass it the Message.
+	 * @return {hemi.ValueCheck} the created ValueCheck handler
+	 */
+	hemi.handleCameraMove = function(camera, viewpoint, handler, func, opt_args) {
+		var valCheck = new hemi.ValueCheck();
+		valCheck.citizen = camera;
+		valCheck.values = [viewpoint._getId()];
+		valCheck.valueParams = [hemi.dispatch.MSG_ARG + 'data.viewpoint'];
+		valCheck.handler = handler;
+		valCheck.func = func;
+
+		if (opt_args) {
+			valCheck.args = opt_args;
+		}
+
+		return camera.subscribe(hemi.msg.stop, valCheck, 'handleMessage');
+	};
+
+})();

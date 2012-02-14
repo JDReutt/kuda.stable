@@ -17,6 +17,8 @@
 
 var hext = (function(hext) {
 
+	var _vector = new THREE.Vector3();
+
 	/**
 	 * @namespace A module for pre-defined household objects, with standard
 	 * 		behaviors attached.
@@ -26,17 +28,17 @@ var hext = (function(hext) {
 	/**
 	 * @class Door is a standard door that swings 90 degrees when clicked on.
 	 * @extends hemi.world.Citizen
-	 * @param {o3d.transform} transform The transform containing the door shape
+	 * @param {THREE.Object3D} transform The transform containing the door shape
 	 * @param {float} opt_angle Number of degrees to swing open
 	 * @param {float} opt_time How many seconds the swing shall take by default
 	 */
 	hext.house.Door = function(transform, opt_angle, opt_time) {
-		this.rotator = new hemi.motion.Rotator(transform);
+		this.transform = transform;
 		this.closed = true;
-		this.angle = opt_angle || Math.PI/2.0;
+		this.angle = new THREE.Vector3(0, opt_angle || hemi.HALF_PI, 0);
 		this.time = opt_time || 1;
 		var that = this;
-		hemi.world.subscribe(hemi.msg.pick, function(msg) {
+		hemi.subscribe(hemi.msg.pick, function(msg) {
 				that.pickCallback.call(that, msg);
 			});
 	};
@@ -51,9 +53,7 @@ var hext = (function(hext) {
 			var time = opt_time || this.time;
 			if (this.closed) {
 				this.closed = false;
-				if(!this.rotator.rotate([0,this.angle,0],time,true)) {
-					this.closed = true;
-				}
+				this.transform.turn(this.angle, time, true);
 			}
 		},
 		
@@ -65,9 +65,7 @@ var hext = (function(hext) {
 			var time = opt_time || this.time;
 			if (!this.closed) {
 				this.closed = true;
-				if(!this.rotator.rotate([0,-this.angle,0],time,true)) {
-					this.closed = false;
-				}
+				this.transform.turn(_vector.copy(this.angle).multiplyScalar(-1), time, true);
 			}		
 		},
 		
@@ -89,7 +87,7 @@ var hext = (function(hext) {
 		 */
 		onOpening : function(callback) {
 			var that = this;
-			this.rotator.subscribe(hemi.msg.start, function(msg) {
+			this.transform.subscribe(hemi.msg.start, function(msg) {
 				if (!that.closed) callback(msg);
 				});
 		},
@@ -100,7 +98,7 @@ var hext = (function(hext) {
 		 */		
 		onOpen : function(callback) {
 			var that = this;
-			this.rotator.subscribe(hemi.msg.stop, function(msg) {
+			this.transform.subscribe(hemi.msg.stop, function(msg) {
 				if (!that.closed) callback(msg);
 			});		
 		},
@@ -111,7 +109,7 @@ var hext = (function(hext) {
 		 */		
 		onClosing : function(callback) {
 			var that = this;
-			this.rotator.subscribe(hemi.msg.start, function(msg) {
+			this.transform.subscribe(hemi.msg.start, function(msg) {
 				if (that.closed) callback(msg);
 			});	
 		},
@@ -122,7 +120,7 @@ var hext = (function(hext) {
 		 */		
 		onClosed : function(callback) {
 			var that = this;
-			this.rotator.subscribe(hemi.msg.stop, function(msg) {
+			this.transform.subscribe(hemi.msg.stop, function(msg) {
 				if (that.closed) callback(msg);
 			});			
 		},
@@ -140,32 +138,31 @@ var hext = (function(hext) {
 		 * @param {hemi.dispatch.Message} msg Message generated describing a pick event
 		 */
 		pickCallback : function(msg) {
-			if (msg.data.pickInfo.shapeInfo.parent.transform.clientId ==
-				this.rotator.transformObjs[0].offTran.clientId) {
-					this.swing();
+			if (msg.data.pickedMesh === this.transform) {
+				this.swing();
 			}
 		}
 	
 	};
-	
+
 	/**
 	 * @class Window is a pre-defined window that slides to a given point when clicked on
 	 * @extends hemi.world.Citizen
-	 * @param {o3d.transform} transform The transform containing the window shape
-	 * @param {float} openPoint [x,y,z] point at which the window will be open
+	 * @param {THREE.Object3D} transform The transform containing the window shape
+	 * @param {THREE.Vector3} openPoint XYZ point at which the window will be open
 	 * @param {float} opt_time How many seconds the slide shall take by default
 	 */	
-	hext.house.Window = function(transform,openPoint,opt_time) {
-		this.translator = new hemi.motion.Translator(transform);
+	hext.house.Window = function(transform, openPoint, opt_time) {
+		this.transform = transform;
 		this.openPoint = openPoint;
 		this.time = opt_time || 1;
 		this.closed = true;
 		var that = this;
-		hemi.world.subscribe(hemi.msg.pick, function(msg) {
+		hemi.subscribe(hemi.msg.pick, function(msg) {
 				that.pickCallback.call(that, msg);
 			});		
 	};
-	
+
 	hext.house.Window.prototype = {
 
 		/** 
@@ -176,12 +173,10 @@ var hext = (function(hext) {
 			var time = opt_time || this.time;
 			if (this.closed) {
 				this.closed = false;
-				if(!this.translator.move(this.openPoint,time,true)) {
-					this.closed = true;
-				}
+				this.transform.move(this.openPoint, time, true);
 			}
 		},
-		
+
 		/**
 		 * Close the window.
 		 * @param {float} opt_time How many seconds the closing slide shall take
@@ -190,12 +185,10 @@ var hext = (function(hext) {
 			var time = opt_time || this.time;
 			if (!this.closed) {
 				this.closed = true;
-				if(!this.translator.move(hemi.core.math.mulScalarVector(-1,this.openPoint),time,true)) {
-					this.closed = false;
-				}
+				this.transform.move(_vector.copy(this.openPoint).multiplyScalar(-1), time, true);
 			}		
 		},
-		
+
 		/**
 		 * Slide the window, toggling the open/closed state.
 		 * @param {float} opt_time How many seconds the slide shall take
@@ -207,25 +200,25 @@ var hext = (function(hext) {
 				this.close(opt_time);
 			}
 		},
-	
+
 		/**
 		 * Set the callback to be executed when the window begins opening.
 		 * @param {function(hemi.dispatch.Message)} callback Function to execute
 		 */
 		onOpening : function(callback) {
 			var that = this;
-			this.translator.subscribe(hemi.msg.start, function(msg) {
+			this.transform.subscribe(hemi.msg.start, function(msg) {
 				if (!that.closed) callback(msg);
 				});
 		},
-		
+
 		/**
 		 * Set the callback to be executed when the window finishes opening.
 		 * @param {function(hemi.dispatch.Message)} callback Function to execute
 		 */		
 		onOpen : function(callback) {
 			var that = this;
-			this.translator.subscribe(hemi.msg.stop, function(msg) {
+			this.transform.subscribe(hemi.msg.stop, function(msg) {
 				if (!that.closed) callback(msg);
 			});		
 		},
@@ -236,7 +229,7 @@ var hext = (function(hext) {
 		 */		
 		onClosing : function(callback) {
 			var that = this;
-			this.translator.subscribe(hemi.msg.start, function(msg) {
+			this.transform.subscribe(hemi.msg.start, function(msg) {
 				if (that.closed) callback(msg);
 			});	
 		},
@@ -247,7 +240,7 @@ var hext = (function(hext) {
 		 */		
 		onClosed : function(callback) {
 			var that = this;
-			this.translator.subscribe(hemi.msg.stop, function(msg) {
+			this.transform.subscribe(hemi.msg.stop, function(msg) {
 				if (that.closed) callback(msg);
 			});
 		},
@@ -259,19 +252,18 @@ var hext = (function(hext) {
 		onPick : function(callback) {
 			this.pickCallback = callback;
 		},
-		
+
 		/**
 		 * Default pick message callback, slides the window if the translator transform has been picked.
 		 * @param {hemi.dispatch.Message} msg Message generated describing a pick event
 		 */
 		pickCallback : function(msg) {
-			if (msg.data.pickInfo.shapeInfo.parent.transform.clientId ==
-				this.translator.transformObjs[0].tran.clientId) {
-					this.slide();
+			if (msg.data.pickedMesh === this.transform) {
+				this.slide();
 			}
-		}		
-	
+		}
+
 	};
-	
+
 	return hext;
 })(hext || {});

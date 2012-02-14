@@ -24,29 +24,30 @@
 	var house;
 	var houseWindow;
 	var blowerFan;
+	var client;
 
 	function init(clientElements) {
-		hemi.core.init(clientElements[0]);	
-		hemi.view.setBGColor([1, 1, 1, 1]);
-		hemi.loader.loadPath = '../../';
+		client = hemi.makeClients()[0];
+		client.setBGColor(0xb2cbff, 1);
+		hemi.loadPath = '../../';
 		
-		house = new hemi.model.Model();
-		house.setFileName('assets/TinyHouse_v07/scene.json');
+		house = new hemi.Model(client);
+		house.setFileName('assets/TinyHouse_v07/TinyHouse_v07.dae');
 		
-		hemi.world.subscribe(hemi.msg.ready,
+		hemi.subscribe(hemi.msg.ready,
 			function(msg) {
 				setupScene();
 			});
 		
-		hemi.world.ready();
+		hemi.ready();
 	}
 
 	function setupScene() {
-		house.setTransformVisible(house.getTransforms('spinDisk')[0], false);
-		house.setTransformVisible(house.getTransforms('fan_ring1')[0], false);
-		house.setTransformVisible(house.getTransforms('cam_Eye')[0], false);
-		house.setTransformVisible(house.getTransforms('cam_Target')[0], false);
-		house.setTransformVisible(house.getTransforms('SO_window')[0], false);
+		house.getTransform('spinDisk').visible = false;
+		house.getTransform('fan_ring1').visible = false;
+		house.getTransform('cam_Eye').visible = false;
+		house.getTransform('cam_Target').visible = false;
+		house.getTransform('SO_window').visible = false;
 
 		var winWidth = 16; // Typical window width
 		var engine = new hext.engines.PressureEngine();
@@ -55,14 +56,15 @@
 		var outside = hext.engines.createOutsideLocation();
 
 		blowerFan = {
-			rotator: new hemi.motion.Rotator(house.getTransforms('fan_blades')[0], { origin: [19.9943, 41.8675, 0] }),
+			transform: house.getTransform('fan_blades'),
 			msgHandler: function(msg) {
-				blowerFan.rotator.setVel([0, 0, 0.3 * msg.data.speed]);
+				blowerFan.transform.setTurning(new THREE.Vector3(0, 0, 0.3 * msg.data.speed));
 			},
 			// A fan is a special case where it has an active portal and a leaking portal
 			portal: new hext.engines.Portal(),
 			leakPortal: new hext.engines.Portal(),
 			init: function() {
+				hemi.utils.centerGeometry(this.transform);
 				this.portal.locationA = inside;
 				this.portal.locationB = outside;
 				this.portal.setWidth(winWidth * 1.1);
@@ -76,27 +78,21 @@
 		}.init();
 
 		houseWindow = {
-			transform: house.getTransforms('SO_window')[0],
-			// Y always maps to the V coordinate, so this defines a Draggable on
-			// the YZ plane that can be dragged from 0 to 0 on the Z plane and 0
-			// to 55 on the Y plane.
-			draggable: new hemi.manip.Draggable(hemi.manip.Plane.YZ, [[0, 0], [0, 55]]),
+			transform: house.getTransform('SO_window'),
 			msgHandler: function(msg) {
-				houseWindow.portal.adjustOpening(msg.data.drag);
+				houseWindow.portal.adjustOpening(msg.data.delta);
 			},
 			portal: new hext.engines.Portal(),
 			init: function() {
 				this.portal.locationA = inside;
 				this.portal.locationB = outside;
 				this.portal.setWidth(winWidth);
-				this.portal.setClosedPosition([166, 0, 0]);
-				// Create the select object, since the model did not come with one
-				var pack = hemi.core.mainPack;
-				var pickMat = hemi.core.material.createBasicMaterial(pack, hemi.view.viewInfo, [0, 0, 0, 0], true);
-				var pickBox = hemi.core.primitives.createBox(pack, pickMat, 10, 60, 80);
-				this.draggable.addTransform(this.transform);
-				this.draggable.addTransform(house.getTransforms('tinyHouseWindow_sash')[0]);
-				this.draggable.subscribe(hemi.msg.drag, this.msgHandler);
+				this.portal.setClosedPosition(new THREE.Vector3(166, 0, 0));
+				// Make the Transform movable on the YZ plane. Y always maps to the V coordinate, so
+				// the Transform can be dragged from 0 to 0 on the Z plane and 0 to 55 on the Y
+				// plane.
+				this.transform.setMovable(hemi.Plane.YZ, [0, 0, 0, 55], house.getTransforms('tinyHouseWindow_sash'));
+				this.transform.subscribe(hemi.msg.move, this.msgHandler);
 				return this;
 			}
 		}.init();
@@ -174,20 +170,14 @@
 		hext.html.toolViews.addView(blowerDoorView);
 		hext.html.toolbar.addView(blowerDoorToolbarView);
 		// Place our camera in the desired spot
-		var viewpoint = new hemi.view.Viewpoint();
-		viewpoint.eye = [500, 300, 1300];
-		viewpoint.target = [-425,-40,200];
-		viewpoint.fov = hemi.core.math.degToRad(40);
-		hemi.world.camera.moveToView(viewpoint, 1);
+		var viewpoint = new hemi.Viewpoint();
+		viewpoint.eye = new THREE.Vector3(500, 300, 1300);
+		viewpoint.target = new THREE.Vector3(-425,-40,200);
+		viewpoint.fov = 40 * hemi.DEG_TO_RAD;
+		client.camera.moveToView(viewpoint, 1);
 	}
 
 	jQuery(window).load(function() {
-		o3djs.webgl.makeClients(init);
-	});
-
-	jQuery(window).unload(function() {
-		if (hemi.core.client) {
-			hemi.core.client.cleanup();
-		}
+		init();
 	});
 })();

@@ -1,33 +1,38 @@
-/* 
- * Kuda includes a library and editor for authoring interactive 3D content for the web.
- * Copyright (C) 2011 SRI International.
- *
- * This program is free software; you can redistribute it and/or modify it under the terms
- * of the GNU General Public License as published by the Free Software Foundation; either 
- * version 2 of the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
- * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
- * See the GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License along with this program; 
- * if not, write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, 
- * Boston, MA 02110-1301 USA.
+/*
+ * Licensed under the MIT license: http://www.opensource.org/licenses/mit-license.php
+ * The MIT License (MIT)
+ * 
+ * Copyright (c) 2011 SRI International
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+ * associated  documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the  Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-var hemi = (function(hemi) {
+(function() {
 	/**
 	 * @namespace A module for managing the string literals for Message types.
 	 * @example
-	 * The documentation for each Message type has an example of a typical
-	 * Message body for that type (the 'data' property of a Message).
+	 * The documentation for each Message type has an example of a typical Message body for that
+	 * type (the 'data' property of a Message).
 	 */
 	hemi.msg = {
 		/**
 		 * @type string
 		 * @constant
 		 * @example
-		 * hemi.model.Model - the Model's animation time changes
+		 * hemi.Model - the Model's animation time changes
 		 * data = {
 		 *     previous: (number) the previous animation time for the Model
 		 *     time: (number) the new animation time for the Model
@@ -38,9 +43,9 @@ var hemi = (function(hemi) {
 		 * @type string
 		 * @constant
 		 * @example
-		 * hemi.effect.Burst - the Burst effect is triggered
+		 * hemi.ParticleBurst - the ParticleBurst effect is triggered
 		 * data = {
-		 *     position: (number[3]) the XYZ position the Burst was triggered at
+		 *     position: (number[3]) the XYZ position the ParticleBurst was triggered at
 		 * }
 		 */
 		burst: 'hemi.burst',
@@ -48,23 +53,10 @@ var hemi = (function(hemi) {
 		 * @type string
 		 * @constant
 		 * @example
-		 * hemi.world - the World is being cleaned up and emptied
-		 * data = { }
-		 * @example
-		 * hemi.world.Citizen - the Citizen is being removed from the World
+		 * hemi.Citizen - the Citizen is being removed from the World
 		 * data = { }
 		 */
 		cleanup: 'hemi.cleanup',
-		/**
-		 * @type string
-		 * @constant
-		 * @example
-		 * hemi.manip.Draggable - the Draggable has been dragged
-		 * data = {
-		 *     drag: (number[3]) the change in XYZ position caused by the drag
-		 * }
-		 */
-		drag: 'hemi.drag',
 		/**
 		 * @type string
 		 * @constant
@@ -79,23 +71,23 @@ var hemi = (function(hemi) {
 		 * @type string
 		 * @constant
 		 * @example
-		 * hemi.audio.Audio - the Audio's media content is loaded
+		 * hemi.Audio - the Audio's media content is loaded
 		 * data = {
 		 *     src: (string) the URL of the audio file loaded
 		 * }
 		 * @example
-		 * hemi.hud.HudImage - the HudImage's image data is loaded
+		 * hemi.HudImage - the HudImage's image data is loaded
 		 * data = { }
 		 * @example
-		 * hemi.hud.HudVideo - the HudVideo's media content is loaded
+		 * hemi.HudVideo - the HudVideo's media content is loaded
 		 * data = {
 		 *     src: (string) the URL of the video file loaded
 		 * }
 		 * @example
-		 * hemi.model.Model - the Model's 3D data is loaded
+		 * hemi.Model - the Model's 3D data is loaded
 		 * data = { }
 		 * @example
-		 * hemi.scene.Scene - the Scene is set as the "current" Scene
+		 * hemi.State - the State is set as the "current" State
 		 * data = { }
 		 */
 		load: 'hemi.load',
@@ -103,10 +95,26 @@ var hemi = (function(hemi) {
 		 * @type string
 		 * @constant
 		 * @example
-		 * hemi.world - a shape is picked by a mouse click
+		 * hemi.Mesh - the Mesh has been moved
 		 * data = {
-		 *     mouseEvent: (o3d.Event) the event generated by the mouse click
-		 *     pickInfo: (o3djs.picking.PickInfo) the info generated by the pick
+		 *     delta: (THREE.Vector3) the change in XYZ position caused by the move
+		 * }
+		 * @example
+		 * hemi.Transform - the Transform has been moved
+		 * data = {
+		 *     delta: (THREE.Vector3) the change in XYZ position caused by the move
+		 * }
+		 */
+		move: 'hemi.move',
+		/**
+		 * @type string
+		 * @constant
+		 * @example
+		 * hemi - a shape is picked by a mouse click
+		 * data = {
+		 *     mouseEvent: (Object) the mouse down event
+		 *     pickedMesh: (hemi.Mesh) the Mesh picked by the mouse click
+		 *     worldIntersectionPosition: (THREE.Vector3) the XYZ position of the pick (world space)
 		 * }
 		 */
 		pick: 'hemi.pick',
@@ -114,10 +122,10 @@ var hemi = (function(hemi) {
 		 * @type string
 		 * @constant
 		 * @example
-		 * hemi.world - a task's progress data has been updated
+		 * hemi - a task's progress data has been updated
 		 * data = {
-		 *     isTotal: (boolean) a flag indicating if percent is for a specific
-		 *                        task or a total of all current tasks
+		 *     isTotal: (boolean) a flag indicating if percent is for a specific task or a total of
+		 *                        all current tasks
 		 *     percent: (number) the task's percentage complete, 0-100
 		 *     task: (string) an id for the task, ex: url of a file being loaded
 		 * }
@@ -127,93 +135,96 @@ var hemi = (function(hemi) {
 		 * @type string
 		 * @constant
 		 * @example
-		 * hemi.world - the World's resources are loaded and ready
+		 * hemi - the World's resources are loaded and ready
 		 * data = { }
 		 */
-        ready: 'hemi.ready',
+		ready: 'hemi.ready',
 		/**
 		 * @type string
 		 * @constant
 		 * @example
-		 * hemi.manip.Scalable - the Scalable has been scaled
+		 * hemi.Mesh - the Mesh has been resized
+		 * data = {
+		 *     scale: (number) the new scale
+		 * }
+		 * @example
+		 * hemi.Transform - the Transform has been resized
 		 * data = {
 		 *     scale: (number) the new scale
 		 * }
 		 */
-        scale: 'hemi.scale',
+		resize: 'hemi.resize',
 		/**
 		 * @type string
 		 * @constant
 		 * @example
-		 * hemi.animation.Animation - the Animation starts
+		 * hemi.AnimationGroup - the AnimationGroup starts
 		 * data = { }
 		 * @example
-		 * hemi.audio.Audio - the Audio starts playing
+		 * hemi.Audio - the Audio starts playing
 		 * data = { }
 		 * @example
-		 * hemi.effect.Trail - the Trail effect starts generating particles
+		 * hemi.Camera - the Camera starts moving to a Viewpoint
+		 * data = {
+		 *     viewpoint: (hemi.view.Viewpoint) the Viewpoint the Camera is moving to
+		 * }
+		 * @example
+		 * hemi.Mesh - the Mesh starts a motion
 		 * data = { }
 		 * @example
-		 * hemi.motion.Rotator - the Rotator starts rotating
+		 * hemi.ParticleTrail - the ParticleTrail effect starts generating particles
 		 * data = { }
 		 * @example
-		 * hemi.motion.Translator - the Translator starts translating
-		 * data = { }
-		 * @example
-		 * hemi.time.Timer - the Timer starts counting down
+		 * hemi.Timer - the Timer starts counting down
 		 * data = {
 		 *     time: (number) the milliseconds the Timer will count down for
 		 * }
 		 * @example
-		 * hemi.view.Camera - the Camera starts moving to a Viewpoint
-		 * data = {
-		 *     viewpoint: (hemi.view.Viewpoint) the Viewpoint the Camera is
-		 *                                      moving to
-		 * }
+		 * hemi.Transform - the Transform starts a motion
+		 * data = { }
 		 */
 		start: 'hemi.start',
 		/**
 		 * @type string
 		 * @constant
 		 * @example
-		 * hemi.animation.Animation - the Animation finishes or is stopped
+		 * hemi.AnimationGroup - the AnimationGroup finishes or is stopped
 		 * data = { }
 		 * @example
-		 * hemi.audio.Audio - the Audio finishes playing
+		 * hemi.Audio - the Audio finishes playing
 		 * data = { }
 		 * @example
-		 * hemi.effect.Trail - the Trail effect stops generating particles
+		 * hemi.Camera - the Camera arrives at a Viewpoint
+		 * data = {
+		 *     viewpoint: (hemi.view.Viewpoint) the Viewpoint the Camera moved to
+		 * }
+		 * @example
+		 * hemi.Mesh - the Mesh finishes a motion
 		 * data = { }
 		 * @example
-		 * hemi.motion.Rotator - the Rotator stops rotating
+		 * hemi.ParticleTrail - the ParticleTrail effect stops generating particles
 		 * data = { }
 		 * @example
-		 * hemi.motion.Translator - the Translator stops translating
-		 * data = { }
-		 * @example
-		 * hemi.time.Timer - the Timer stops counting down
+		 * hemi.Timer - the Timer stops counting down
 		 * data = {
 		 *     time: (number) the milliseconds the Timer counted down
 		 * }
 		 * @example
-		 * hemi.view.Camera - the Camera arrives at a Viewpoint
-		 * data = {
-		 *     viewpoint: (hemi.view.Viewpoint) the Viewpoint the Camera moved
-		 *                                      to
-		 * }
+		 * hemi.Transform - the Transform finishes a motion
+		 * data = { }
 		 */
 		stop: 'hemi.stop',
 		/**
 		 * @type string
 		 * @constant
 		 * @example
-		 * hemi.audio.Audio - the Audio's media content is unloaded
+		 * hemi.Audio - the Audio's media content is unloaded
 		 * data = { }
 		 * @example
-		 * hemi.model.Model - the Model's 3D data is unloaded
+		 * hemi.Model - the Model's 3D data is unloaded
 		 * data = { }
 		 * @example
-		 * hemi.scene.Scene - the Scene is set to not be the "current" Scene
+		 * hemi.State - the State is set to not be the "current" State
 		 * data = { }
 		 */
 		unload: 'hemi.unload',
@@ -221,15 +232,14 @@ var hemi = (function(hemi) {
 		 * @type string
 		 * @constant
 		 * @example
-		 * hemi.effect.Emitter - the Emitter is shown or hidden
+		 * hemi.ParticleEmitter - the ParticleEmitter is shown or hidden
 		 * data = {
 		 *     visible: (boolean) a flag indicating if the Emitter is visible
 		 * }
 		 * @example
-		 * hemi.hud.HudDisplay - the HudDisplay shows a page or is hidden
+		 * hemi.HudDisplay - the HudDisplay shows a page or is hidden
 		 * data = {
-		 *     page: (number) the page number being shown or 0 if the HudDisplay
-		 *                    is hidden
+		 *     page: (number) the page number being shown or 0 if the HudDisplay is hidden
 		 * }
 		 * @example
 		 * hext.tools.BaseTool - the tool is shown or hidden
@@ -238,46 +248,13 @@ var hemi = (function(hemi) {
 		 * }
 		 */
 		visible: 'hemi.visible',
-		
-		// Wildcard functions
 		/**
-		 * Register the given handler to receive Messages of the specified type
-		 * from any source. This creates a MessageTarget.
-		 * 
-		 * @param {string} type type of Message to handle
-		 * @param {Object} handler either a function or an object
-		 * @param {string} opt_func name of the function to call if handler is
-		 *     an object
-		 * @param {string[]} opt_args optional array of names of arguments to
-		 *     pass to the handler. Otherwise the entire Message is just passed
-		 *     in.
-		 * @return {hemi.dispatch.MessageTarget} the created MessageTarget
+		 * @type string
+		 * @constant
+		 * @example
+		 * hemi - the World is being cleaned up and emptied.
 		 */
-		subscribe: function(type, handler, opt_func, opt_args) {
-			return hemi.dispatch.registerTarget(hemi.dispatch.WILDCARD, type,
-				handler, opt_func, opt_args);
-		},
-		
-		/**
-		 * Remove the given MessageTarget for the specified Message type. Note
-		 * that this removes a MessageTarget registered with the wildcard as the
-		 * source id. It does not remove the MessageTarget from any Citizens it
-		 * may be directly registered with.
-		 * 
-		 * @param {hemi.dispatch.MessageTarget} target the MessageTarget to
-		 *     remove from the Dispatch
-		 * @param {string} opt_type Message type the MessageTarget was
-		 *     registered for
-		 * @return {hemi.dispatch.MessageTarget} the removed MessageTarget or
-		 *     null
-		 */
-		unsubscribe: function(target, opt_type) {
-			return hemi.dispatch.removeTarget(target, {
-				src: hemi.dispatch.WILDCARD,
-				msg: opt_type
-			});
-		}
+		worldCleanup: 'hemi.worldCleanup'
 	};
 
-	return hemi;
-})(hemi || {});
+})();

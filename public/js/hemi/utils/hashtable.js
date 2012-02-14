@@ -1,36 +1,45 @@
-/* 
- * Kuda includes a library and editor for authoring interactive 3D content for the web.
- * Copyright (C) 2011 SRI International.
- *
- * This program is free software; you can redistribute it and/or modify it under the terms
- * of the GNU General Public License as published by the Free Software Foundation; either 
- * version 2 of the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
- * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
- * See the GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License along with this program; 
- * if not, write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, 
- * Boston, MA 02110-1301 USA.
+/*
+ * Licensed under the MIT license: http://www.opensource.org/licenses/mit-license.php
+ * The MIT License (MIT)
+ * 
+ * Copyright (c) 2011 SRI International
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+ * associated  documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the  Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-var hemi = (function(hemi) {
+(function() {
+
 	/**
 	 * @namespace A module to provide various utilities for Hemi.
 	 */
 	hemi.utils = hemi.utils || {};
-	
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Hashtable class
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
 	/*
-	 * Here we extend Hashtable to allow it to be queried for Object attributes
-	 * that are not the Hash key.
+	 * Here we extend Hashtable to allow it to be queried for Object attributes that are not the
+	 * Hash key.
 	 */
 	hemi.utils.Hashtable = Hashtable;
-	
+
 	/**
-	 * Search the Hashtable for values with attributes that match the given
-	 * set of attributes. The attributes may be single values or arrays of
-	 * values which are alternatives.
+	 * Search the Hashtable for values with attributes that match the given set of attributes. The
+	 * attributes may be single values or arrays of values which are alternatives.
 	 * @example
 	 * query({
 	 *     a: 1
@@ -55,30 +64,30 @@ var hemi = (function(hemi) {
 			aN,
 			aL,
 			match;
-		
-		// Copy the property names out of the attributes object just once
-		// since this is less efficient than a simple array.
-		for (x in attributes) {
+
+		// Copy the property names out of the attributes object just once since this is less
+		// efficient than a simple array.
+		for (var x in attributes) {
 			if (hemi.utils.isArray(attributes[x])) {
 				arrProps.push(x);
 			} else {
 				props.push(x);
 			}
 		}
-		
+
 		var pLen = props.length,
 			aLen = arrProps.length;
-		
-		for (var ndx = 0, len = values.length; ndx < len; ndx++) {
-			value = values[ndx];
+
+		for (var i = 0, il = values.length; i < il; ++i) {
+			value = values[i];
 			match = true;
 			// First test the single value properties.
-			for (pN = 0; match && pN < pLen; pN++) {
+			for (pN = 0; match && pN < pLen; ++pN) {
 				propName = props[pN];
 				match = value[propName] === attributes[propName];
 			}
 			// Next test the array of value properties.
-			for (pN = 0; match && pN < aLen; pN++) {
+			for (pN = 0; match && pN < aLen; ++pN) {
 				match = false;
 				propName = arrProps[pN];
 				propVal = value[propName];
@@ -86,7 +95,7 @@ var hemi = (function(hemi) {
 				aL = propArr.length;
 				// Search through the array until we find a match for the
 				// Hashtable value's property.
-				for (aN = 0; !match && aN < aL; aN++) {
+				for (aN = 0; !match && aN < aL; ++aN) {
 					match = propVal === propArr[aN];
 				}
 			}
@@ -95,9 +104,8 @@ var hemi = (function(hemi) {
 				results.push(value);
 			}
 		}
-		
+
 		return results;
 	};
-	
-	return hemi;
-})(hemi || {});
+
+})();

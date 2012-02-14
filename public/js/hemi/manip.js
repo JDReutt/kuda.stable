@@ -1,1114 +1,943 @@
-/* 
- * Kuda includes a library and editor for authoring interactive 3D content for the web.
- * Copyright (C) 2011 SRI International.
- *
- * This program is free software; you can redistribute it and/or modify it under the terms
- * of the GNU General Public License as published by the Free Software Foundation; either 
- * version 2 of the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
- * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
- * See the GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License along with this program; 
- * if not, write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, 
- * Boston, MA 02110-1301 USA.
+/*
+ * Licensed under the MIT license: http://www.opensource.org/licenses/mit-license.php
+ * The MIT License (MIT)
+ * 
+ * Copyright (c) 2011 SRI International
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+ * associated  documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the  Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-/**
- * @fileoverview Manips are objects that allow shapes in a 3d scene to
- *		be clicked on and dragged around. These shapes are constrained
- *		to a 2d plane, as defined by the programmer.
- */
+(function() {
 
-var hemi = (function(hemi) {
-	/**
-	 * @namespace A module for defining draggable objects.
-	 */
-	hemi.manip = hemi.manip || {};
+		// Static helper objects shared by all motions
+	var _plane = [new THREE.Vector3(), new THREE.Vector3(), new THREE.Vector3()],
+		_vector = new THREE.Vector3(),
+		_vec2 = new THREE.Vector2(),
+		X_AXIS = new THREE.Vector3(1, 0, 0),
+		Y_AXIS = new THREE.Vector3(0, 1, 0),
+		Z_AXIS = new THREE.Vector3(0, 0, 1),
+		XY_PLANE = [new THREE.Vector3(0,0,0), new THREE.Vector3(1,0,0), new THREE.Vector3(0,1,0)],
+		XZ_PLANE = [new THREE.Vector3(0,0,0), new THREE.Vector3(1,0,0), new THREE.Vector3(0,0,1)],
+		YZ_PLANE = [new THREE.Vector3(0,0,0), new THREE.Vector3(0,0,1), new THREE.Vector3(0,1,0)];
 
-	hemi.manip.Plane = {
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Constants
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	hemi.Plane = {
 		XY : 'xy',
 		XZ : 'xz',
-		YZ : 'yz',
-		
-		get: function(val) {
-			var plane = null;
-			
-			if (hemi.utils.compareArrays(val, [[0,0,0],[1,0,0],[0,1,0]])) {
-				plane = this.XY;
-			} else if (hemi.utils.compareArrays(val, [[0,0,0],[1,0,0],[0,0,1]])) {
-				plane = this.XZ;
-			} else if (hemi.utils.compareArrays(val, [[0,0,0],[0,0,1],[0,1,0]])) {
-				plane = this.YZ;
-			}
-			
-			return plane;
-		}
+		YZ : 'yz'
 	};
-	
-	hemi.manip.Axis = {
+
+	hemi.Axis = {
 		X : 'x',
 		Y : 'y',
 		Z : 'z'
 	};
 
-	/**
-	 * @class A Draggable allows a 3d object to be dragged around the scene
-	 * with the mouse, constrained to a defined 2d plane.
-	 * @extends hemi.world.Citizen
-	 * 
-	 * @param {number[3][3]} opt_plane Array of 3 xyz points defining a plane
-	 * @param {number[4]} opt_limits An array containing 
-	 *	   [min on u, max on u, min on v, max on v]
-	 * @param {number[2]} opt_startUV Draggable's starting uv coordinate, if
-	 *		not [0,0]
-	 */
-	hemi.manip.Draggable = hemi.world.Citizen.extend({
-		init: function(opt_plane, opt_limits, opt_startUV) {
-			this._super();
-			
-			this.activeTransform = null;
-			this.dragUV = null;
-			this.enabled = false;
-			this.local = false;
-			this.msgHandler = null;
-			this.plane = null;
-			this.transformObjs = [];
-			this.umin = null;
-			this.umax = null;
-			this.uv = opt_startUV == null ? [0,0] : opt_startUV;
-			this.vmin = null;
-			this.vmax = null;
-			
-			if (opt_plane != null) {
-				this.setPlane(opt_plane);
-			}
-			if (opt_limits != null) {
-				this.setLimits(opt_limits);
-			}
-			
-			this.enable();
-		},
-
-		/**
-		 * Overwrites hemi.world.Citizen.citizenType
-		 * @string
-		 */
-		citizenType: 'hemi.manip.Draggable',
-		
-		/**
-		 * Send a cleanup Message and remove all references in the Draggable.
-		 */
-		cleanup: function() {
-			this.disable();
-			this._super();
-			this.clearTransforms();
-			this.msgHandler = null;
-		},
-		
-		/**
-		 * Get the Octane structure for the Draggable.
-	     *
-	     * @return {Object} the Octane structure representing the Draggable
-		 */
-		toOctane: function(){
-			var octane = this._super(),
-				valNames = ['local', 'plane', 'umin', 'umax', 'vmin', 'vmax'];
-			
-			for (var ndx = 0, len = valNames.length; ndx < len; ndx++) {
-				var name = valNames[ndx];
-				
-				octane.props.push({
-					name: name,
-					val: this[name]
-				});
-			}
-			
-			return octane;
-		},
-
-		/**
-		 * Add a Transform to the list of draggable Transforms.
-		 *
-		 * @param {o3d.Transform} transform the transform to add
-		 */
-		addTransform: function(transform) {
-			hemi.world.tranReg.register(transform, this);
-			var param = transform.getParam('ownerId'),
-				obj = {},
-				owner = null;
-			
-			if (param !== null) {
-				owner = hemi.world.getCitizenById(param.value);
-			}
-			
-			if (hemi.utils.isAnimated(transform)) {
-				obj.transform = hemi.utils.fosterTransform(transform);
-				obj.foster = true;
-			} else {
-				obj.transform = transform;
-				obj.foster = false;
-			}
-			
-			if (owner) {
-				var that = this;
-				obj.owner = owner;
-				obj.msg = owner.subscribe(hemi.msg.cleanup, function(msg) {
-					that.removeTransforms(msg.src);
-				});
-			}
-			
-			this.transformObjs.push(obj);
-		},
-
-		/**
-		 * Add the given UV delta to the current UV coordinates and clamp the
-		 * results.
-		 *
-		 * @param {number[2]} delta the uv change to add before clamping
-		 * @return {number[2]} the actual change in uv after clamping
-		 */
-		clamp : function(delta) {
-			var u = this.uv[0] + delta[0],
-				v = this.uv[1] + delta[1];
-			
-			if (this.umin != null && u < this.umin) {
-				u = this.umin;
-			}
-			if (this.umax != null && u > this.umax) {
-				u = this.umax;
-			}
-			if (this.vmin != null && v < this.vmin) {
-				v = this.vmin;
-			}
-			if (this.vmax != null && v > this.vmax) {
-				v = this.vmax;
-			}
-			
-			delta = [u - this.uv[0], v - this.uv[1]];
-			this.uv = [u, v];
-			
-			return delta;
-		},
-		
-		/**
-		 * Remove any previously set limits from the draggable.
-		 */
-		clearLimits: function() {
-			this.umin = null;
-			this.umax = null;
-			this.vmin = null;
-			this.vmax = null;
-		},
-		
-		/**
-		 * Clear the list of draggable Transforms.
-		 */
-		clearTransforms: function() {
-			while (this.transformObjs.length > 0) {
-				removeManipTransforms.call(this, this.transformObjs[0]);
-			}
-		},
-
-		/**
-		 * Check if a given Transform is contained within the children of the
-		 * Transforms acted upon by this Draggable.
-		 *
-		 * @param {o3d.Transform} transform transform to check against
-		 * @return {boolean} true if the Transform is found
-		 */
-		containsTransform : function(transform) {
-			for (var i = 0; i < this.transformObjs.length; i++) {
-				var children = this.transformObjs[i].transform.getTransformsInTree();
-				for (var j = 0; j < children.length; j++) {
-					if (transform.clientId === children[j].clientId) {
-						return true;
-					}
-				}
-			}
-			return false;
-		},
-		
-		/**
-		 * Disable mouse interaction for the Draggable. 
-		 */
-		disable: function() {
-			if (this.enabled) {
-				hemi.world.unsubscribe(this.msgHandler, hemi.msg.pick);
-				hemi.input.removeMouseMoveListener(this);
-				hemi.input.removeMouseUpListener(this);
-				this.enabled = false;
-			}
-		},
-		
-		/**
-		 * Enable mouse interaction for the Draggable. 
-		 */
-		enable: function() {
-			if (!this.enabled) {
-				this.msgHandler = hemi.world.subscribe(
-					hemi.msg.pick,
-					this,
-					'onPick',
-					[hemi.dispatch.MSG_ARG + 'data.pickInfo', 
-					 hemi.dispatch.MSG_ARG + 'data.mouseEvent']);
-				hemi.input.addMouseMoveListener(this);
-				hemi.input.addMouseUpListener(this);
-				this.enabled = true;
-			}
-		},
-		
-		/**
-		 * Get the two dimensional plane that the Draggable will translate its
-		 * active Transform along.
-		 * 
-		 * @return {number[3][3]} the current drag plane defined as 3 XYZ points
-		 */
-		getPlane: function() {
-			if (this.activeTransform === null) {
-				return null;
-			}
-			
-			var plane;
-			
-			if (this.local) {
-				var u = hemi.utils;
-				plane = [u.pointAsWorld(this.activeTransform, this.plane[0]),
-						 u.pointAsWorld(this.activeTransform, this.plane[1]),
-						 u.pointAsWorld(this.activeTransform, this.plane[2])];
-			} else {
-				var hMath = hemi.core.math,
-					wM = this.activeTransform.getUpdatedWorldMatrix(),
-					translation = wM[3].slice(0,3);
-				
-				plane = [hMath.addVector(this.plane[0], translation),
-						 hMath.addVector(this.plane[1], translation),
-						 hMath.addVector(this.plane[2], translation)];
-			}
-			
-			return plane;
-		},
-		
-		/**
-		 * Get the Transforms that the Draggable currently contains.
-		 * 
-		 * @return {o3d.Transform[]} array of Transforms
-		 */
-		getTransforms: function() {
-			var trans = [];
-			
-			for (var i = 0, len = this.transformObjs.length; i < len; i++) {
-				trans.push(this.transformObjs[i].transform);
-			}
-			
-			return trans;
-		},
-		
-		/**
-		 * Convert the given screen coordinates into UV coordinates on the
-		 * current dragging plane.
-		 * 
-		 * @param {number} x x screen coordinate
-		 * @param {number} y y screen coordinate
-		 * @return {number[2]} equivalent UV coordinates
-		 */
-		getUV: function(x,y) {
-			var ray = hemi.core.picking.clientPositionToWorldRay(
-					x,
-					y,
-					hemi.view.viewInfo.drawContext,
-					hemi.core.client.width,
-					hemi.core.client.height),
-				plane = this.getPlane(),
-				tuv = hemi.utils.intersect(ray, plane);
-			
-			return [tuv[1], tuv[2]];
-		},
-
-		/**
-		 * Mouse movement event listener, calculates mouse point intersection 
-		 * with this Draggable's plane, and then translates the dragging object 
-		 * accordingly.
-		 *
-		 * @param {o3d.Event} event message describing how the mouse has moved
-		 */
-		onMouseMove : function(event) {
-			if (this.dragUV === null) {
-				return;
-			}
-			
-			var uv = this.getUV(event.x, event.y),
-				delta = [uv[0] - this.dragUV[0], uv[1] - this.dragUV[1]],
-				plane = this.getPlane();
-			
-			delta = this.clamp(delta);
-			
-			var localDelta = hemi.utils.uvToXYZ(delta, plane),
-				xyzOrigin = hemi.utils.uvToXYZ([0, 0], plane),
-				xyzDelta = hemi.core.math.subVector(localDelta, xyzOrigin);
-			
-			for (var ndx = 0, len = this.transformObjs.length; ndx < len; ndx++) {
-				var tran = this.transformObjs[ndx].transform;
-				hemi.utils.worldTranslate(xyzDelta, tran);
-			}
-			
-			this.send(hemi.msg.drag, { drag: xyzDelta });
-		},
-
-		/**
-		 * Mouse-up event listener, stops dragging.
-		 *
-		 * @param {o3d.Event} event message describing the mouse behavior
-		 */
-		onMouseUp : function(event) {
-			this.activeTransform = null;
-			this.dragUV = null;
-		},
-
-		/**
-		 * Pick event listener; checks in-scene intersections, and allows 
-		 * dragging.
-		 *
-		 * @param {o3djs.picking.PickInfo} pickInfo pick event information that
-		 *		contains information on the shape and transformation picked.
-		 * @param {o3d.Event} mouseEvent message describing mouse behavior
-		 */
-		onPick : function(pickInfo, mouseEvent) {
-			var pickTran = pickInfo.shapeInfo.parent.transform;
-			
-			for (var ndx = 0, len = this.transformObjs.length; ndx < len; ndx++) {
-				if (checkTransform(this.transformObjs[ndx].transform, pickTran)) {
-					this.activeTransform = pickTran;
-					this.dragUV = this.getUV(mouseEvent.x, mouseEvent.y);
-					break;
-				}
-			}
-		},
-		
-		/**
-		 * Receive the given Transform from the TransformRegistry.
-		 * 
-		 * @param {o3d.Transform} transform the Transform
-		 */
-		receiveTransform: function(transform) {
-			this.addTransform(transform);
-		},
-		
-		/**
-		 * Remove Transforms belonging to the specified owner from the
-		 * Draggable.
-		 * 
-		 * @param {hemi.world.Citizen} owner owner to remove Transforms for
-		 */
-		removeTransforms: function(owner) {
-			for (var i = 0; i < this.transformObjs.length; ++i) {
-				var obj = this.transformObjs[i];
-				
-				if (owner === obj.owner) {
-					removeManipTransforms.call(this, obj);
-					// Update index to reflect removed obj
-					--i;
-				}
-			}
-		},
-
-		/**
-		 * Set the relative uv limits in which this Draggable can move.
-		 *
-		 * @param {number[2][2]} coords min and max uv points on the current
-		 *     plane
-		 */
-		setLimits : function(coords) {
-			this.umin = coords[0][0];
-			this.umax = coords[1][0];
-			this.vmin = coords[0][1];
-			this.vmax = coords[1][1];
-		},
-
-		/**
-		 * Set the 2d plane on which this Draggable is bound.
-		 *
-		 * @param {number[3][3]} plane array of three XYZ coordinates defining a
-		 *     plane
-		 */
-		setPlane : function(plane) {
-			switch (plane) {
-				case (hemi.manip.Plane.XY):
-					this.plane = [[0,0,0],[1,0,0],[0,1,0]];
-					break;
-				case (hemi.manip.Plane.XZ):
-					this.plane = [[0,0,0],[1,0,0],[0,0,1]];
-					break;
-				case (hemi.manip.Plane.YZ):
-					this.plane = [[0,0,0],[0,0,1],[0,1,0]];
-					break;
-				default:
-					this.plane = plane;
-			}
-		},
-		
-		/**
-		 * Set the Draggable to operate in the local space of the transform it
-		 * is translating.
-		 */
-		setToLocal: function() {
-			this.local = true;
-		},
-		
-		/**
-		 * Set the Draggable to operate in world space.
-		 */
-		setToWorld: function() {
-			this.local = false;
-		}
-	});
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Manipulator class
+////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	/**
-	 * @class A Turnable allows a Transform to be turned about an axis by the
-	 *     user clicking and dragging with the mouse.
-	 * @extends hemi.world.Citizen
-	 * 
-	 * @param {hemi.manip.Axis} opt_axis axis to rotate about
-	 * @param {number[2]} opt_limits minimum and maximum angle limits (in radians)
-	 * @param {number} opt_startAngle starting angle (in radians, default is 0)
+	 * @class A Manipulator allows a Transform to be manipulated in some way through mouse
+	 * interaction.
 	 */
-	hemi.manip.Turnable = hemi.world.Citizen.extend({
-		init: function(opt_axis, opt_limits, opt_startAngle) {
-			this._super();
-			
-			this.angle = opt_startAngle == null ? 0 : opt_startAngle;
-			this.axis = null;
-			this.activeTransform = null;
-			this.dragAngle = null;
-			this.enabled = false;
-			this.local = false;
-			this.min = null;
-			this.max = null;
-			this.msgHandler = null;
-			this.plane = null;
-			this.transformObjs = [];
-			
-			if (opt_axis != null) {
-				this.setAxis(opt_axis);
-			}
-			if (opt_limits != null) {
-				this.setLimits(opt_limits);
-			}
-			
-			this.enable();
-		},
-		
-		/**
-		 * Overwrites hemi.world.Citizen.citizenType
-		 * @string
+	var Manipulator = function() {
+		/*
+		 * The Mesh that was picked by the last mouse click and is being used to manipulate.
+		 * @type hemi.Mesh
 		 */
-		citizenType: 'hemi.manip.Turnable',
-		
-		/**
-		 * Send a cleanup Message and remove all references in the Turnable.
-		 */
-		cleanup: function() {
-			this.disable();
-			this._super();
-			this.clearTransforms();
-			this.msgHandler = null;
-		},
-		
-		/**
-		 * Get the Octane structure for the Turnable.
-	     *
-	     * @return {Object} the Octane structure representing the Turnable
-		 */
-		toOctane: function(){
-			var octane = this._super(),
-				valNames = ['min', 'max'];
-			
-			for (var ndx = 0, len = valNames.length; ndx < len; ndx++) {
-				var name = valNames[ndx];
-				
-				octane.props.push({
-					name: name,
-					val: this[name]
-				});
-			}
-			
-			octane.props.push({
-				name: 'setAxis',
-				arg: [this.axis]
-			});
-			
-			return octane;
-		},
-		
-		/**
-		 * Add a Transform to this Turnable object.
-		 * 
-		 * @param {o3d.Transform} transform the transform that will turn about
-		 *     its origin when clicked and dragged
-		 */
-		addTransform : function(transform) {
-			hemi.world.tranReg.register(transform, this);
-			var param = transform.getParam('ownerId'),
-				obj = {},
-				owner = null;
-			
-			if (param !== null) {
-				owner = hemi.world.getCitizenById(param.value);
-			}
-			
-			if (hemi.utils.isAnimated(transform)) {
-				obj.transform = hemi.utils.fosterTransform(transform);
-				obj.foster = true;
-			} else {
-				obj.transform = transform;
-				obj.foster = false;
-			}
-			
-			if (owner) {
-				var that = this;
-				obj.owner = owner;
-				obj.msg = owner.subscribe(hemi.msg.cleanup, function(msg) {
-					that.removeTransforms(msg.src);
-				});
-			}
-			
-			this.activeTransform = transform;
-			this.transformObjs.push(obj);
-		},
-		
-		/**
-		 * Remove any previously set limits from the Turnable.
-		 */
-		clearLimits: function() {
-			this.min = null;
-			this.max = null;
-		},
-		
-		/**
-		 * Clear the list of Turnable Transforms.
-		 */
-		clearTransforms: function() {
-			while (this.transformObjs.length > 0) {
-				removeManipTransforms.call(this, this.transformObjs[0]);
-			}
-			
-			this.activeTransform = null;
-		},
-		
-		/**
-		 * Check if this turnable object contains a transform within its children, and sets the
-		 *		plane offset to match that transform if found.
-		 * @param {o3d.transform} transform Transform to match against
-		 */
-		containsTransform : function(transform) {
-			for (var i = 0; i < this.transformObjs.length; i++) {
-				var family = this.transformObjs[i].transform.getTransformsInTree();
-				for (var j = 0; j < family.length; j++) {
-					if (family[j].clientId === transform.clientId) {
-						return true;
-					}
-				}
-			}
-			return false;
-		},
-		
-		/**
-		 * Disable mouse interaction for the Turnable. 
-		 */
-		disable: function() {
-			if (this.enabled) {
-				hemi.world.unsubscribe(this.msgHandler, hemi.msg.pick);
-				hemi.input.removeMouseMoveListener(this);
-				hemi.input.removeMouseUpListener(this);
-				this.enabled = false;
-			}
-		},
-		
-		/**
-		 * Enable mouse interaction for the Turnable. 
-		 */
-		enable: function() {
-			if (!this.enabled) {
-				this.msgHandler = hemi.world.subscribe(
-					hemi.msg.pick,
-					this,
-					'onPick',
-					[hemi.dispatch.MSG_ARG + 'data.pickInfo', 
-					 hemi.dispatch.MSG_ARG + 'data.mouseEvent']);
-				hemi.input.addMouseMoveListener(this);
-				hemi.input.addMouseUpListener(this);
-				this.enabled = true;
-			}
-		},
-		
-		/**
-		 * Get the relative angle of a mouse click's interception with the
-		 * active plane to the origin of that plane.
-		 * 
-		 * @param {number} x screen x-position of the mouse click event
-		 * @param {number} y screen y-position of the mouse click event
-		 * @return {number} relative angle of mouse click position on the
-		 *     Turnable's current active plane
-		 */
-		getAngle : function(x,y) {
-			if (this.activeTransform === null) {
-				return null;
-			}
-			
-			var ray = hemi.core.picking.clientPositionToWorldRay(
-					x,
-					y,
-					hemi.view.viewInfo.drawContext,
-					hemi.core.client.width,
-					hemi.core.client.height),
-				plane;
-			
-			if (this.local) {
-				var u = hemi.utils;
-				plane = [u.pointAsWorld(this.activeTransform,this.plane[0]),
-						 u.pointAsWorld(this.activeTransform,this.plane[1]),
-						 u.pointAsWorld(this.activeTransform,this.plane[2])];
-			} else {
-				var hMath = hemi.core.math,
-					wM = this.activeTransform.getUpdatedWorldMatrix(),
-					translation = wM[3].slice(0,3);
-				
-				plane = [hMath.addVector(this.plane[0], translation),
-						 hMath.addVector(this.plane[1], translation),
-						 hMath.addVector(this.plane[2], translation)];
-			}
-			
-			var tuv = hemi.utils.intersect(ray, plane);
-			return Math.atan2(tuv[2],tuv[1]);
-		},
-		
-		/**
-		 * Get the Transforms that the Turnable currently contains.
-		 * 
-		 * @return {o3d.Transform[]} array of Transforms
-		 */
-		getTransforms: function() {
-			var trans = [];		
-			for (var i = 0, len = this.transformObjs.length; i < len; i++) {
-				trans.push(this.transformObjs[i].transform);
-			}
-			return trans;
-		},
-		
-		/**
-		 * On mouse move, if the shape has been clicked and is being dragged, 
-		 * calculate intersection points with the active plane and turn the
-		 * Transform to match.
-		 * 
-		 * @param {o3d.Event} event message describing the mouse position, etc.
-		 */
-		onMouseMove : function(event) {
-			if (this.dragAngle === null) {
-				return;
-			}
-			
-			var delta = this.getAngle(event.x,event.y) - this.dragAngle,
-				axis;
-			
-			if (this.max != null && this.angle + delta >= this.max) {
-				delta = this.max - this.angle;
-			}
-			if (this.min != null && this.angle + delta <= this.min) {
-				delta = this.min - this.angle;
-			}
-			
-			this.angle += delta;
-			
-			if (!this.local) {
-				this.dragAngle += delta;
-			}
-			
-			switch(this.axis) {
-				case hemi.manip.Axis.X:
-					axis = [-1,0,0];
-					break;
-				case hemi.manip.Axis.Y:
-					axis = [0,-1,0];
-					break;
-				case hemi.manip.Axis.Z:
-					axis = [0,0,1];
-					break;
-			}
-			
-			for (var i = 0; i < this.transformObjs.length; i++) {
-				var tran = this.transformObjs[i].transform;
-				
-				if (this.local) {
-					tran.axisRotate(axis, delta);
-				} else {
-					hemi.utils.worldRotate(axis, delta, tran);
-				}
-			}
-		},
-		
-		/**
-		 * On mouse up, deactivate turning.
-		 * 
-		 * @param {o3d.Event} event message describing mouse position, etc.
-		 */
-		onMouseUp : function(event) {
-			this.dragAngle = null;
-		},
-		
-		/**
-		 * On a pick message, if it applies to this Turnable, set turning to
-		 * true and calculate the relative angle.
-		 * 
-		 * @param {o3d.PickInfo} pickInfo information about the pick event
-		 * @param {o3d.Event} event message describing mouse position, etc.
-		 */
-		onPick : function(pickInfo,event) {
-			if (this.containsTransform(pickInfo.shapeInfo.parent.transform)) {
-				this.activeTransform = pickInfo.shapeInfo.parent.transform;
-				this.dragAngle = this.getAngle(event.x,event.y);
-			}
-		},
-		
-		/**
-		 * Receive the given Transform from the TransformRegistry.
-		 * 
-		 * @param {o3d.Transform} transform the Transform
-		 */
-		receiveTransform: function(transform) {
-			this.addTransform(transform);
-		},
-		
-		/**
-		 * Remove Transforms belonging to the specified owner from the
-		 * Turnable.
-		 * 
-		 * @param {hemi.world.Citizen} owner owner to remove Transforms for
-		 */
-		removeTransforms: function(owner) {
-			for (var i = 0; i < this.transformObjs.length; ++i) {
-				var obj = this.transformObjs[i];
-				
-				if (owner === obj.owner) {
-					removeManipTransforms.call(this, obj);
-					// Update index to reflect removed obj
-					--i;
-				}
-			}
-		},
-		
-		/**
-		 * Set the axis to which this Turnable is bound.
-		 * 
-		 * @param {hemi.manip.Axis} axis axis to rotate about - x, y, or z
-		 */
-		setAxis: function(axis) {
-			this.axis = axis;
-			
-			switch(axis) {
-				case hemi.manip.Axis.X:
-					this.plane = [[0,0,0],[0,0,1],[0,1,0]];
-					break;
-				case hemi.manip.Axis.Y:
-					this.plane = [[0,0,0],[1,0,0],[0,0,1]];
-					break;
-				case hemi.manip.Axis.Z:
-					this.plane = [[0,0,0],[1,0,0],[0,1,0]];
-					break;
-			}
-		},
-		
-		/**
-		 * Set the limits to which this Turnable can rotate.
-		 * 
-		 * @param {number[2]} limits minimum and maximum angle limits (in radians)
-		 */
-		setLimits : function(limits) {
-			if (limits[0] != null) {
-				this.min = limits[0];
-			} else {
-				this.min = null;
-			}
-			
-			if (limits[1] != null) {
-				this.max = limits[1];
-			} else {
-				this.max = null;
-			}
-		},
-		
-		/**
-		 * Set the Turnable to operate in the local space of the transform it is
-		 * rotating.
-		 */
-		setToLocal: function() {
-			this.local = true;
-		},
-		
-		/**
-		 * Set the Turnable to operate in world space.
-		 */
-		setToWorld: function() {
-			this.local = false;
-		}
-		
-	});
-	
-	hemi.manip.Scalable = hemi.world.Citizen.extend({
-		init: function(axis) {
-			this._super();
-			this.activeTransform = null;
-			this.axis = null;
-			this.dragAxis = null;
-			this.dragOrigin = null;
-			this.local = false;
-			this.scale = null;
-			this.transformObjs = [];
-			
-			this.setAxis(axis);
-			this.enable();
-		},
-		
-		addTransform : function(transform) {
-			hemi.world.tranReg.register(transform, this);
-			var param = transform.getParam('ownerId'),
-				obj = {},
-				owner = null;
-			
-			if (param !== null) {
-				owner = hemi.world.getCitizenById(param.value);
-			}
-			
-			if (hemi.utils.isAnimated(transform)) {
-				obj.transform = hemi.utils.fosterTransform(transform);
-				obj.foster = true;
-			} else {
-				obj.transform = transform;
-				obj.foster = false;
-			}
-			
-			if (owner) {
-				var that = this;
-				obj.owner = owner;
-				obj.msg = owner.subscribe(hemi.msg.cleanup, function(msg) {
-					that.removeTransforms(msg.src);
-				});
-			}
-			
-			this.transformObjs.push(obj);
-		},
-		cleanup: function() {
-			this.disable();
-			this._super();
-			this.clearTransforms();
-			this.msgHandler = null;
-		},
-		/**
-		 * Clear the list of scalable transforms.
-		 */
-		clearTransforms: function() {
-			while (this.transformObjs.length > 0) {
-				removeManipTransforms.call(this, this.transformObjs[0]);
-			}
-		},
-		containsTransform : function(transform) {
-			for (var i = 0; i < this.transformObjs.length; i++) {
-				var children = this.transformObjs[i].transform.getTransformsInTree();
-				for (var j = 0; j < children.length; j++) {
-					if (transform.clientId === children[j].clientId) {
-						return true;
-					}
-				}
-			}
-			return false;
-		},
-		disable: function() {
-			if (this.enabled) {
-				hemi.world.unsubscribe(this.msgHandler, hemi.msg.pick);
-				hemi.input.removeMouseMoveListener(this);
-				hemi.input.removeMouseUpListener(this);
-				this.enabled = false;
-			}
-		},
-		enable: function() {
-			if (!this.enabled) {
-				this.msgHandler = hemi.world.subscribe(
-					hemi.msg.pick,
-					this,
-					'onPick',
-					[hemi.dispatch.MSG_ARG + 'data.pickInfo', 
-					 hemi.dispatch.MSG_ARG + 'data.mouseEvent']);
-				hemi.input.addMouseMoveListener(this);
-				hemi.input.addMouseUpListener(this);
-				this.enabled = true;
-			}
-		},
-		getScale: function(x, y) {
-			var hMath = hemi.core.math,
-				offset = [x - this.dragOrigin[0], y - this.dragOrigin[1]],
-				scale = Math.abs(hemi.core.math.dot(this.dragAxis, offset));
-			return scale;
-		},
-		onMouseMove : function(event) {
-			if (this.dragAxis === null) {
-				return;
-			}
-			
-			var scale = this.getScale(event.x, event.y),
-				f = scale/this.scale,
-				axis = [
-					this.axis[0] ? f : 1,
-					this.axis[1] ? f : 1,
-					this.axis[2] ? f : 1
-				];
-			
-			for (i=0; i<this.transformObjs.length; i++) {
-				var tran = this.transformObjs[i].transform;
-				
-				if (this.local) {
-					tran.scale(axis);
-				} else {
-					hemi.utils.worldScale(axis, tran);
-				}
-			}
-			
-			this.scale = scale;
-			
-			this.send(hemi.msg.scale, { scale: scale });
-		},
-		onMouseUp : function() {
-			this.dragAxis = null;
-			this.dragOrigin = null;
-			this.scale = null;
-		},
-		onPick : function(pickInfo,event) {
-			if (this.containsTransform(pickInfo.shapeInfo.parent.transform)) {
-				this.activeTransform = pickInfo.shapeInfo.parent.transform;
-				var axis2d = this.xyPoint(this.axis);
-				this.dragOrigin = this.xyPoint([0,0,0]);
-				this.dragAxis = hemi.core.math.normalize(
-					[axis2d[0]-this.dragOrigin[0], axis2d[1]-this.dragOrigin[1]]);
-				this.scale = this.getScale(event.x, event.y);
-			}
-		},
-		/**
-		 * Remove Transforms belonging to the specified owner from the
-		 * Scalable.
-		 * 
-		 * @param {hemi.world.Citizen} owner owner to remove Transforms for
-		 */
-		removeTransforms: function(owner) {
-			for (var i = 0; i < this.transformObjs.length; ++i) {
-				var obj = this.transformObjs[i];
-				
-				if (owner === obj.owner) {
-					removeManipTransforms.call(this, obj);
-					// Update index to reflect removed obj
-					--i;
-				}
-			}
-		},
-		setAxis : function(axis) {
-			switch(axis) {
-				case hemi.manip.Axis.X:
-					this.axis = [1,0,0];
-					break;
-				case hemi.manip.Axis.Y:
-					this.axis = [0,1,0];
-					break;
-				case hemi.manip.Axis.Z:
-					this.axis = [0,0,1];
-					break;
-				default:
-					this.axis = [0,0,0];
-			}
-		},
-		/**
-		 * Set the Scalable to operate in the local space of the transform it is
-		 * scaling.
-		 */
-		setToLocal: function() {
-			this.local = true;
-		},
-		/**
-		 * Set the Scalable to operate in world space.
-		 */
-		setToWorld: function() {
-			this.local = false;
-		},
-		xyPoint : function(p) {
-			if (this.activeTransform === null) {
-				return null;
-			}
-			
-			var u = hemi.utils,
-				point;
-			
-			if (this.local) {
-				point = u.pointAsWorld(this.activeTransform, p);
-			} else {
-				var wM = this.activeTransform.getUpdatedWorldMatrix(),
-					translation = wM[3].slice(0,3);
-				
-				point = hemi.core.math.addVector(p, translation);
-			}
-			
-			return u.worldToScreenFloat(point);
-		}
-	});
-	
-	hemi.manip.Draggable.prototype.msgSent =
-		hemi.manip.Draggable.prototype.msgSent.concat([hemi.msg.drag]);
-	
-	hemi.manip.Scalable.prototype.msgSent =
-		hemi.manip.Scalable.prototype.msgSent.concat([hemi.msg.scale]);
+		this._activeTransform = null;
 
-	///////////////////////////////////////////////////////////////////////////
-	// Private functions
-	///////////////////////////////////////////////////////////////////////////
-	
-	var removeManipTransforms = function(tranObj) {
-		var tran;
-		
-		if (tranObj.foster) {
-			tran = hemi.utils.unfosterTransform(tranObj.transform);
-		} else {
-			tran = tranObj.transform;
+		/**
+		 * The Client that the Manipulator's active Transform is being rendered by.
+		 * @type hemi.Client
+		 */
+		this._client = null;
+
+		/*
+		 * Flag indicating if interaction through the Manipulator is enabled.
+		 * @type boolean
+		 */
+		this._enabled = false;
+
+		/*
+		 * The message handler for pick messages (stored for unsubscribing).
+		 * @type hemi.dispatch.MessageTarget
+		 */
+		this._msgHandler = null;
+
+		/**
+		 * Flag indicating if the Manipulator should operate in the local space of the Transform it
+		 * is manipulating (rather than world space).
+		 * @type boolean
+		 * @default false
+		 */
+		this.local = false;
+
+		/**
+		 * An array of Transforms controlled by the Manipulator.
+		 * @type hemi.Transform[]
+		 */
+		this.transforms = [];
+	};
+
+	/**
+	 * Add a Transform to the list of Manipulator Transforms.
+	 *
+	 * @param {hemi.Transform} transform the transform to add
+	 */
+	Manipulator.prototype.addTransform = function(transform) {
+		this.transforms.push(transform);
+	};
+
+	/**
+	 * Clear the list of Manipulator Transforms.
+	 */
+	Manipulator.prototype.clearTransforms = function() {
+		this.transforms.length = 0;
+	};
+
+	/**
+	 * Check if a given Transform is contained within the children of the Transforms acted upon by
+	 * the Manipulator.
+	 *
+	 * @param {hemi.Transform} transform transform to check against
+	 * @return {boolean} true if the Transform is found
+	 */
+	Manipulator.prototype.containsTransform = function(transform) {
+		for (var i = 0, il = this.transforms.length; i < il; ++i) {
+			var children = this.transforms[i].getAllChildren();
+
+			for (var j = 0, jl = children.length; j < jl; ++j) {
+				if (transform.id === children[j].id) {
+					return true;
+				}
+			}
 		}
-		
-		hemi.world.tranReg.unregister(tran, this);
-		var ndx = this.transformObjs.indexOf(tranObj);
-		
-		if (ndx > -1) {
-			this.transformObjs.splice(ndx, 1);
-		}
-		
-		if (tranObj.owner && tranObj.msg) {
-			tranObj.owner.unsubscribe(tranObj.msg, hemi.msg.cleanup);
+
+		return false;
+	};
+
+	/**
+	 * Disable mouse interaction for the Manipulator. 
+	 */
+	Manipulator.prototype.disable = function() {
+		if (this._enabled) {
+			hemi.unsubscribe(this._msgHandler, hemi.msg.pick);
+			hemi.input.removeMouseMoveListener(this);
+			hemi.input.removeMouseUpListener(this);
+			this._enabled = false;
+			this._msgHandler = null;
 		}
 	};
-	
-	/*
-	 * Check if the pickTransform is a child, grandchild, etc. of the transform.
-	 * 
-	 * @param {o3d.Transform} transform parent transform to check
-	 * @param {o3d.Transform} pickTransform child transform to search for
-	 * @return {boolean} true if the pickTransform is contained within the
-	 *     transform
-	 */
-	function checkTransform(transform, pickTransform) {
-		var found = (transform.clientId === pickTransform.clientId);
 
-		if (!found) {
-			var children = transform.children;
-			
-			for (var ndx = 0, len = children.length; ndx < len && !found; ndx++) {
-				found = found || checkTransform(children[ndx], pickTransform);
+	/**
+	 * Enable mouse interaction for the Manipulator. 
+	*/
+	Manipulator.prototype.enable = function() {
+		if (!this._enabled) {
+			this._msgHandler = hemi.subscribe(hemi.msg.pick, this, 'onPick',
+				[hemi.dispatch.MSG_ARG + 'data.pickedMesh', 
+				 hemi.dispatch.MSG_ARG + 'data.mouseEvent']);
+
+			hemi.input.addMouseMoveListener(this);
+			hemi.input.addMouseUpListener(this);
+			this._enabled = true;
+		}
+	};
+
+	/**
+	 * Stop manipulating transforms.
+	 *
+	 * @param {Object} event the mouse up event
+	 */
+	Manipulator.prototype.onMouseUp = function(event) {
+		this._activeTransform = null;
+	};
+
+	/**
+	 * Remove the given Transform from the Manipulator.
+	 * 
+	 * @param {hemi.Transform} transform the Transform to remove
+	*/
+	Manipulator.prototype.removeTransform = function(transform) {
+		var ndx = this.transforms.indexOf(transform);
+
+		if (ndx !== -1) {
+			this.transforms.splice(ndx, 1);
+		}
+	};
+
+// Private functions
+
+	/*
+	 * Get the two dimensional plane that the Manipulator is operating on.
+	 * 
+	 * @return {THREE.Vector3[3]} the current move plane defined as 3 XYZ points
+	 */
+	function getPlane() {
+		if (this.local) {
+			var u = hemi.utils;
+			_plane[0].copy(this.plane[0]);
+			_plane[1].copy(this.plane[1]);
+			_plane[2].copy(this.plane[2]);
+
+			u.pointAsWorld(this._activeTransform, _plane[0]);
+			u.pointAsWorld(this._activeTransform, _plane[1]);
+			u.pointAsWorld(this._activeTransform, _plane[2]);
+		} else {
+			var translation = this._activeTransform.matrixWorld.getPosition();
+
+			_plane[0].add(this.plane[0], translation);
+			_plane[1].add(this.plane[1], translation);
+			_plane[2].add(this.plane[2], translation);
+		}
+
+		return _plane;
+	}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Movable class
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	/**
+	 * @class A Movable allows a 3D object to be moveed around the scene with the mouse, constrained
+	 * to a defined 2D plane.
+	 * @extends Manipulator
+	 * 
+	 * @param {Vector3[3]} opt_plane an array of 3 XYZ points defining a plane
+	 * @param {number[4]} opt_limits an array containing [min on u, max on u, min on v, max on v]
+	 */
+	var Movable = function(opt_plane, opt_limits) {
+		Manipulator.call(this);
+
+		/*
+		 * The UV coordinates of the last mouse down that picked one of the Movable's Transforms.
+		 * @type number[2]
+		 */
+		this._pickUV = null;
+
+		/*
+		 * The current UV coordinates of the Movable on its plane.
+		 * @type number[2]
+		 */
+		this._uv = [0, 0];
+
+		/**
+		 * The 2D plane that the Movable's Transforms will move along.
+		 * @type THREE.Vector3[3]
+		 */
+		this.plane = null;
+
+		/**
+		 * The minimum U coordinate for the Movable on its 2D plane.
+		 * @type number
+		 * @default null
+		 */
+		this.umin = null;
+
+		/**
+		 * The maximum U coordinate for the Movable on its 2D plane.
+		 * @type number
+		 * @default null
+		 */
+		this.umax = null;
+
+		/**
+		 * The minimum V coordinate for the Movable on its 2D plane.
+		 * @type number
+		 * @default null
+		 */
+		this.vmin = null;
+
+		/**
+		 * The maximum V coordinate for the Movable on its 2D plane.
+		 * @type number
+		 * @default null
+		 */
+		this.vmax = null;
+
+		this.setPlane(opt_plane || hemi.Plane.XZ);
+
+		if (opt_limits !== undefined) {
+			this.setLimits(opt_limits);
+		}
+
+		this.enable();
+	};
+
+	Movable.prototype = new Manipulator();
+	Movable.constructor = Movable;
+
+	/*
+	 * Octane properties for Movable.
+	 * 
+	 * @return {Object[]} array of Octane properties
+	 */
+	Movable.prototype._octane = function(){
+		var valNames = ['local', 'umin', 'umax', 'vmin', 'vmax'],
+			props = [],
+			plane = this.plane;
+
+		for (var i = 0, il = valNames.length; i < il; ++i) {
+			var name = valNames[i];
+
+			props.push({
+				name: name,
+				val: this[name]
+			});
+		}
+
+		if (plane === XY_PLANE) {
+			props.push({
+				name: 'setPlane',
+				arg: [hemi.Plane.XY]
+			});
+		} else if (plane === XZ_PLANE) {
+			props.push({
+				name: 'setPlane',
+				arg: [hemi.Plane.XZ]
+			});
+		} else if (plane === YZ_PLANE) {
+			props.push({
+				name: 'setPlane',
+				arg: [hemi.Plane.YZ]
+			});
+		} else {
+			props.push({
+				name: 'plane',
+				oct: [plane[0]._toOctane(), plane[1]._toOctane(), plane[2]._toOctane()]
+			});
+		}
+
+		return props;
+	};
+
+	/**
+	 * Clear all properties for the Movable.
+	 */
+	Movable.prototype.clear = function() {
+		this._activeTransform = null;
+		this._client = null;
+		this._uv[0] = this._uv[1] = 0;
+		this.local = false;
+
+		this.setPlane(hemi.Plane.XZ);
+		this.disable();
+		this.clearTransforms();
+		this.clearLimits();
+	};
+
+	/**
+	 * Remove any previously set limits from the Movable.
+	 */
+	Movable.prototype.clearLimits = function() {
+		this.umin = null;
+		this.umax = null;
+		this.vmin = null;
+		this.vmax = null;
+	};
+
+	/**
+	 * Get the string representation of the Movable's plane.
+	 * 
+	 * @return {hemi.Plane} the current plane for the Movable
+	 */
+	Movable.prototype.getPlaneString = function() {
+		if (this.plane === XY_PLANE) {
+			return hemi.Plane.XY;
+		} else if (this.plane === XZ_PLANE) {
+			return hemi.Plane.XZ;
+		} else if (this.plane === YZ_PLANE) {
+			return hemi.Plane.YZ;
+		} else {
+			return 'UNKNOWN';
+		}
+	};
+
+	/**
+	 * Calculate mouse point intersection with the Movable's plane and then translate the moving
+	 * Transforms accordingly.
+	 *
+	 * @param {Object} event the mouse move event
+	 */
+	Movable.prototype.onMouseMove = function(event) {
+		if (this._activeTransform === null) return;
+
+		var plane = getPlane.call(this),
+			uv = getUV.call(this, event.x, event.y, plane),
+			delta = [uv[0] - this._pickUV[0], uv[1] - this._pickUV[1]];
+
+		clampUV.call(this, delta);
+
+		var localDelta = hemi.utils.uvToXYZ(delta, plane),
+			xyzOrigin = hemi.utils.uvToXYZ([0, 0], plane),
+			xyzDelta = _vector.sub(localDelta, xyzOrigin);
+
+		for (var i = 0, il = this.transforms.length; i < il; ++i) {
+			hemi.utils.worldTranslate(xyzDelta, this.transforms[i]);
+		}
+
+		this.transforms[0].send(hemi.msg.move, { delta: xyzDelta });
+	};
+
+	/**
+	 * Check the picked mesh to see if the Movable should start moving its Transforms.
+	 *
+	 * @param {hemi.Mesh} pickedMesh the Mesh picked by the mouse click
+	 * @param {Object} mouseEvent the mouse down event
+	 */
+	Movable.prototype.onPick = function(pickedMesh, mouseEvent) {
+		var meshId = pickedMesh.id;
+
+		for (var i = 0, il = this.transforms.length; i < il; ++i) {
+			if (this.transforms[i].id === meshId) {
+				this._activeTransform = pickedMesh;
+				this._client = hemi.getClient(pickedMesh);
+				this._pickUV = getUV.call(this, mouseEvent.x, mouseEvent.y);
+				break;
 			}
 		}
-		
-		return found;
+	};
+
+	/**
+	 * Set the relative uv limits in which this Movable can move.
+	 *
+	 * @param {number[4]} limits an array containing [min on u, max on u, min on v, max on v]
+	 */
+	Movable.prototype.setLimits = function(limits) {
+		this.umin = limits[0];
+		this.umax = limits[1];
+		this.vmin = limits[2];
+		this.vmax = limits[3];
+	};
+
+	/**
+	 * Set the 2d plane on which this Movable is bound.
+	 *
+	 * @param {hemi.Plane} plane enum indicating which plane to move along
+	 */
+	Movable.prototype.setPlane = function(plane) {
+		switch (plane) {
+			case (hemi.Plane.XY):
+				this.plane = XY_PLANE;
+				break;
+			case (hemi.Plane.XZ):
+				this.plane = XZ_PLANE;
+				break;
+			case (hemi.Plane.YZ):
+				this.plane = YZ_PLANE;
+				break;
+		}
+	};
+
+// Private functions
+
+	/*
+	 * Add the given UV delta to the current UV coordinates and clamp the results.
+	 *
+	 * @param {number[2]} delta the uv change to add before clamping
+	 */
+	function clampUV(delta) {
+		var u = this._uv[0] + delta[0],
+			v = this._uv[1] + delta[1];
+
+		if (this.umin !== null && u < this.umin) {
+			u = this.umin;
+		}
+		if (this.umax !== null && u > this.umax) {
+			u = this.umax;
+		}
+		if (this.vmin !== null && v < this.vmin) {
+			v = this.vmin;
+		}
+		if (this.vmax !== null && v > this.vmax) {
+			v = this.vmax;
+		}
+
+		delta[0] = u - this._uv[0];
+		delta[1] = v - this._uv[1];
+		this._uv[0] = u;
+		this._uv[1] = v;
 	}
-	
-	return hemi;
-})(hemi || {});
+
+	/*
+	 * Convert the given screen coordinates into UV coordinates on the current moving plane.
+	 * 
+	 * @param {number} x x screen coordinate
+	 * @param {number} y y screen coordinate
+	 * @return {number[2]} equivalent UV coordinates
+	 */
+	function getUV(x, y, opt_plane) {
+		var ray = this._client.castRay(x, y),
+			plane = opt_plane || getPlane.call(this),
+			tuv = hemi.utils.intersect(ray, plane);
+
+		return [tuv[1], tuv[2]];
+	}
+
+	hemi.Movable = Movable;
+	hemi.makeOctanable(hemi.Movable, 'hemi.Movable', hemi.Movable.prototype._octane);
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Turnable class
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	/**
+	 * @class A Turnable allows a Transform to be turned about an axis by the user clicking and
+	 * dragging with the mouse.
+	 * @extends Manipulator
+	 * 
+	 * @param {hemi.Axis} opt_axis optional axis to rotate about
+	 * @param {number[2]} opt_limits optional minimum and maximum angle limits (in radians)
+	 */
+	var Turnable = function(opt_axis, opt_limits) {	
+		Manipulator.call(this);
+
+		/*
+		 * The current angle of the Turnable on its axis.
+		 * @type number
+		 */
+		this._angle = 0;
+
+		/*
+		 * The angle of the last mouse down that picked one of the Turnable's Transforms.
+		 * @type number
+		 */
+		this._pickAngle = null;
+
+		/**
+		 * The axis that the Turnable's Transforms will turn about.
+		 * @type THREE.Vector3
+		 */
+		this.axis = new THREE.Vector3();
+
+		/**
+		 * The minimum angle for the Turnable on its axis.
+		 * @type number
+		 * @default null
+		 */
+		this.min = null;
+
+		/**
+		 * The maximum angle for the Turnable on its axis.
+		 * @type number
+		 * @default null
+		 */
+		this.max = null;
+
+		/**
+		 * The 2D plane that the Movable's Transforms will move along.
+		 * @type THREE.Vector3[3]
+		 */
+		this.plane = null;
+
+		this.setAxis(opt_axis || hemi.Axis.Y);
+
+		if (opt_limits !== undefined) {
+			this.setLimits(opt_limits);
+		}
+
+		this.enable();
+	};
+
+	Turnable.prototype = new Manipulator();
+	Turnable.constructor = Turnable;
+
+	/*
+	 * Octane properties for Turnable.
+	 * 
+	 * @return {Object[]} array of Octane properties
+	 */
+	Turnable.prototype._octane = function(){
+		var valNames = ['local', 'max', 'min'],
+			props = [],
+			plane = this.plane;
+
+		for (var i = 0, il = valNames.length; i < il; ++i) {
+			var name = valNames[i];
+
+			props.push({
+				name: name,
+				val: this[name]
+			});
+		}
+
+		if (plane === XY_PLANE) {
+			props.push({
+				name: 'setAxis',
+				arg: [hemi.Axis.Z]
+			});
+		} else if (plane === XZ_PLANE) {
+			props.push({
+				name: 'setAxis',
+				arg: [hemi.Axis.Y]
+			});
+		} else if (plane === YZ_PLANE) {
+			props.push({
+				name: 'setAxis',
+				arg: [hemi.Axis.X]
+			});
+		} else {
+			props.push({
+				name: 'axis',
+				oct: this.axis._toOctane()
+			});
+			props.push({
+				name: 'plane',
+				oct: [plane[0]._toOctane(), plane[1]._toOctane(), plane[2]._toOctane()]
+			});
+		}
+
+		return props;
+	};
+
+	/**
+	 * Clear all properties for the Turnable.
+	 */
+	Turnable.prototype.clear = function() {
+		this._activeTransform = null;
+		this._angle = 0;
+		this._client = null;
+		this.local = false;
+
+		this.setAxis(hemi.Axis.Y);
+		this.disable();
+		this.clearTransforms();
+		this.clearLimits();
+	};
+
+	/**
+	 * Remove any previously set limits from the Turnable.
+	 */
+	Turnable.prototype.clearLimits = function() {
+		this.min = null;
+		this.max = null;
+	};
+
+	/**
+	 * Get the string representation of the Turnable's axis.
+	 * 
+	 * @return {hemi.Axis} the current axis for the Turnable
+	 */
+	Turnable.prototype.getAxisString = function() {
+		if (hemi.utils.vector3Equals(this.axis, _vector.set(-1, 0, 0))) {
+			return hemi.Axis.X;
+		} else if (hemi.utils.vector3Equals(this.axis, _vector.set(0, -1, 0))) {
+			return hemi.Axis.Y;
+		} else if (hemi.utils.vector3Equals(this.axis, _vector.set(0, 0, 1))) {
+			return hemi.Axis.Z;
+		} else {
+			return 'UNKNOWN';
+		}
+	};
+
+	/**
+	 * Calculate mouse point intersection with the Turnable's plane and then rotate the turning
+	 * Transforms accordingly.
+	 *
+	 * @param {Object} event the mouse move event
+	 */
+	Turnable.prototype.onMouseMove = function(event) {
+		if (this._activeTransform === null) return;
+
+		var delta = getAngle.call(this, event.x, event.y) - this._pickAngle;
+
+		if (this.max !== null && this._angle + delta >= this.max) {
+			delta = this.max - this._angle;
+		}
+		if (this.min !== null && this._angle + delta <= this.min) {
+			delta = this.min - this._angle;
+		}
+
+		this._angle += delta;
+
+		if (!this.local) {
+			this._pickAngle += delta;
+		}
+
+		for (var i = 0, il = this.transforms.length; i < il; ++i) {
+			var tran = this.transforms[i];
+
+			if (this.local) {
+				hemi.utils.axisRotate(this.axis, delta, tran);
+			} else {
+				hemi.utils.worldRotate(this.axis, delta, tran);
+			}
+		}
+	};
+
+	/**
+	 * Check the picked mesh to see if the Turnable should start turning its Transforms.
+	 *
+	 * @param {hemi.Mesh} pickedMesh the Mesh picked by the mouse click
+	 * @param {Object} mouseEvent the mouse down event
+	 */
+	Turnable.prototype.onPick = function(pickedMesh, event) {
+		var meshId = pickedMesh.id;
+
+		for (var i = 0, il = this.transforms.length; i < il; ++i) {
+			if (this.transforms[i].id === meshId) {
+				this._activeTransform = pickedMesh;
+				this._client = hemi.getClient(pickedMesh);
+				this._pickAngle = getAngle.call(this, event.x, event.y);
+				break;
+			}
+		}
+	};
+
+	/**
+	 * Set the axis to which the Turnable is bound.
+	 * 
+	 * @param {hemi.Axis} axis axis to rotate about
+	 */
+	Turnable.prototype.setAxis = function(axis) {
+		switch(axis) {
+			case hemi.Axis.X:
+				this.axis.copy(X_AXIS);
+				this.axis.x *= -1;
+				this.plane = YZ_PLANE;
+				break;
+			case hemi.Axis.Y:
+				this.axis.copy(Y_AXIS);
+				this.axis.y *= -1;
+				this.plane = XZ_PLANE;
+				break;
+			case hemi.Axis.Z:
+				this.axis.copy(Z_AXIS);
+				this.plane = XY_PLANE;
+				break;
+		}
+	};
+
+	/**
+	 * Set the limits to which the Turnable can rotate.
+	 * 
+	 * @param {number[2]} limits minimum and maximum angle limits (in radians)
+	 */
+	Turnable.prototype.setLimits = function(limits) {
+		this.min = limits[0];
+		this.max = limits[1];
+	};
+
+// Private functions
+
+	/*
+	 * Get the relative angle of a mouse click's interception with the active plane to the origin of
+	 * that plane.
+	 * 
+	 * @param {number} x screen x-position of the mouse click event
+	 * @param {number} y screen y-position of the mouse click event
+	 * @return {number} relative angle of mouse click position on the Turnable's current active
+	 *     plane
+	 */
+	function getAngle(x, y) {
+		var plane = getPlane.call(this),
+			ray = this._client.castRay(x, y),
+			tuv = hemi.utils.intersect(ray, plane);
+
+		return Math.atan2(tuv[2], tuv[1]);
+	}
+
+
+	hemi.Turnable = Turnable;
+	hemi.makeOctanable(hemi.Turnable, 'hemi.Turnable', hemi.Turnable.prototype._octane);
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Resizable class
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	/**
+	 * @class A Resizable allows a Transform to be resized along an axis by the user clicking and
+	 * dragging with the mouse.
+	 * @extends Manipulator
+	 * 
+	 * @param {hemi.Axis} opt_axis optional axis to resize along
+	 */
+	var Resizable = function(opt_axis) {
+		Manipulator.call(this);
+
+		/*
+		 * The screen XY of the origin point in the local space of the Resizable's Transform.
+		 * @type number[2]
+		 */
+		this._originXY = null;
+
+		/*
+		 * The screen XY of the last mouse down that picked one of the Resizable's Transforms.
+		 * @type THREE.Vector2
+		 */
+		this._pickXY = new THREE.Vector2();
+
+		/*
+		 * The current scale of the Resizable on its axis.
+		 * @type number
+		 */
+		this._scale = null;
+
+		/**
+		 * The axis that the Resizable's Transforms will resize along.
+		 * @type THREE.Vector3
+		 */
+		this.axis = null;
+
+		this.setAxis(opt_axis || hemi.Axis.Y);
+
+		this.enable();
+	};
+
+	Resizable.prototype = new Manipulator();
+	Resizable.constructor = Resizable;
+
+	/*
+	 * Octane properties for Resizable.
+	 * 
+	 * @return {Object[]} array of Octane properties
+	 */
+	Resizable.prototype._octane = function(){
+		// TODO
+		return [];
+	};
+
+	/**
+	 * Clear all properties for the Resizable.
+	 */
+	Resizable.prototype.clear = function() {
+		this._activeTransform = null;
+		this._scale = null;
+		this._client = null;
+		this.local = false;
+
+		this.setAxis(hemi.Axis.Y);
+		this.disable();
+		this.clearTransforms();
+	};
+
+	/**
+	 * Calculate mouse point intersection with the Turnable's plane and then rotate the turning
+	 * Transforms accordingly.
+	 *
+	 * @param {Object} event the mouse move event
+	 */
+	Resizable.prototype.onMouseMove = function(event) {
+		if (this._activeTransform === null) return;
+
+		var scale = getScale.call(this, event.x, event.y),
+			f = scale / this._scale,
+			axis = _vector.set(
+				this.axis.x ? f : 1,
+				this.axis.y ? f : 1,
+				this.axis.z ? f : 1
+			);
+
+		for (var i = 0, il = this.transforms.length; i < il; ++i) {
+			var tran = this.transforms[i];
+
+			if (this.local) {
+				tran.scale.multiplySelf(axis);
+				tran.updateMatrix();
+				tran.updateMatrixWorld(true);
+			} else {
+				hemi.utils.worldScale(axis, tran);
+			}
+		}
+
+		this._scale = scale;
+		this.transforms[0].send(hemi.msg.resize, { scale: scale });
+	};
+
+	/**
+	 * Check the picked mesh to see if the Resizable should start resizing its Transforms.
+	 *
+	 * @param {hemi.Mesh} pickedMesh the Mesh picked by the mouse click
+	 * @param {Object} mouseEvent the mouse down event
+	 */
+	Resizable.prototype.onPick = function(pickedMesh, event) {
+		var meshId = pickedMesh.id;
+
+		for (var i = 0, il = this.transforms.length; i < il; ++i) {
+			if (this.transforms[i].id === meshId) {
+				this._activeTransform = pickedMesh;
+				this._client = hemi.getClient(pickedMesh);
+				this._originXY = xyPoint.call(this, _vector.set(0,0,0));
+
+				var axis2d = xyPoint.call(this, _vector.copy(this.axis));
+				this._pickXY.set(axis2d[0] - this._originXY[0], axis2d[1] - this._originXY[1]).normalize();
+				this._scale = getScale.call(this, event.x, event.y);
+				break;
+			}
+		}
+	};
+
+	/**
+	 * Set the axis along which the Resizable will resize.
+	 * 
+	 * @param {hemi.Axis} axis axis to resize along
+	 */
+	Resizable.prototype.setAxis = function(axis) {
+		switch(axis) {
+			case hemi.Axis.X:
+				this.axis = X_AXIS;
+				break;
+			case hemi.Axis.Y:
+				this.axis = Y_AXIS;
+				break;
+			case hemi.Axis.Z:
+				this.axis = Z_AXIS;
+				break;
+		}
+	};
+
+// Private functions
+
+	/*
+	 * Get the relative scale from the given mouse event coordinates.
+	 * 
+	 * @param {number} x screen x-position of the mouse event
+	 * @param {number} y screen y-position of the mouse event
+	 * @return {number} relative scale
+	 */
+	function getScale(x, y) {
+		var offset = _vec2.set(x - this._originXY[0], y - this._originXY[1]),
+			scale = Math.abs(this._pickXY.dot(offset));
+
+		return scale;
+	}
+
+	/*
+	 * Convert the given point in the active transform's local space to screen coordinates.
+	 * 
+	 * @param {THREE.Vector3} point point in local space to convert
+	 * @return {number[2]} array of the x and y screen coordinates
+	 */
+	function xyPoint(point) {
+		if (this.local) {
+			hemi.utils.pointAsWorld(this._activeTransform, point);
+		} else {
+			point.addSelf(this._activeTransform.position);
+		}
+
+		hemi.utils.worldToScreenFloat(this._client, point);
+		return [point.x, point.y];
+	}
+
+	hemi.Resizable = Resizable;
+	hemi.makeOctanable(hemi.Resizable, 'hemi.Resizable', hemi.Resizable.prototype._octane);
+
+})();

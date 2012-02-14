@@ -1,237 +1,175 @@
-/* 
- * Kuda includes a library and editor for authoring interactive 3D content for the web.
- * Copyright (C) 2011 SRI International.
- *
- * This program is free software; you can redistribute it and/or modify it under the terms
- * of the GNU General Public License as published by the Free Software Foundation; either 
- * version 2 of the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
- * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
- * See the GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License along with this program; 
- * if not, write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, 
- * Boston, MA 02110-1301 USA.
+/*
+ * Licensed under the MIT license: http://www.opensource.org/licenses/mit-license.php
+ * The MIT License (MIT)
+ * 
+ * Copyright (c) 2011 SRI International
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+ * associated  documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the  Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-var hemi = (function(hemi) {
+(function() {
+
+	var clientData = [];
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Global functions
+////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	hemi.fx = hemi.fx || {};
 
+	hemi.fx.cleanup = function() {
+		clientData = [];
+	};
+
 	/**
-	 * 	{
-	 *		type      : string ->
-	 *			'texture','phong','lambert','basic','custom'
-	 *		color     : float4
-	 * 		color1    : float4
-	 *      color2    : float4
-	 * 		diffuse   : [float4 | url]
-	 *		ambient   : [float4 | url]
-	 *		emissive  : [float4 | url]
-	 *		shader    : [string | url]
-	 *		opacity   : float
-	 *      light     : boolean (light object?)
-	 *		wireframe : boolean
-	 *		specular  : float4
-	 *		shininess : float
-	 *		texture   : url
-	 *		texture1  : url
-	 *		texture2  : url
-	 *      weight    : float
-	 *		normalmap : url
-	 *      fog       : boolean
-	 *	}
-	 *
-	 */
-	
-	/**
-	 * Add parameters to the given Material that will allow the user to define a
-	 * fog effect for it. The returned object will have these parameters:
-	 * color: array of floats defining fog color in RGBA format
-	 * start: float defining distance from the camera that fog starts
-	 * end: float defining distance from the camera that fog becomes opaque
+	 * Removes the fog for the given client
 	 * 
-	 * @param {o3d.Material} material the Material to create opacity for
-	 * @return {Object} an object containing the ParamObjects listed above
+	 * @param {hemi.Client} client the client view to clear fog for
 	 */
-	hemi.fx.addFog = function(material) {
-		// get the source
-		var gl = material.gl,
-			program = material.effect.program_,
-			shad = hemi.utils.getShaders(material),
-			fragShd = shad.fragShd,
-			fragSrc = shad.fragSrc,
-			vertShd = shad.vertShd,
-			vertSrc = shad.vertSrc;
-		
-		// modify the shaders
-		if (vertSrc.search('fog') < 0) {
-			var vertHdr =
-					'uniform float fogStart;\n' +
-					'uniform float fogEnd;\n' +
-					'varying float fogAlpha;\n',
-				vertSprt =
-					'void setFogAlpha(float z) {\n' +
-					'  fogAlpha = (z - fogStart)/(fogEnd - fogStart);\n' +
-					'  fogAlpha = clamp(fogAlpha,0.0,1.0);\n' +
-					'}\n';
-				vertGlob =
-					'setFogAlpha(gl_Position.z);\n';
-			
-			vertSrc = hemi.utils.combineVertSrc(vertSrc, {
-				postHdr: vertHdr,
-				postSprt: vertSprt,
-				postGlob: vertGlob
-			});
-			gl.detachShader(program, vertShd);
-			material.effect.loadVertexShaderFromString(vertSrc);
+	hemi.fx.clearFog = function(client) {
+		var data = findData(client);
+
+		if (data && data.fog) {
+			client.scene.fog = undefined;
+			client.setBGColor(data.oldBGHex);
+
+			// now change the materials
+			for (var i = 0, il = data.materials.length; i < il; i++) {
+				var matData = data.materials[i];
+
+				client.renderer.initMaterial(matData.mat, client.scene.lights, client.scene.fog, matData.obj);
+			}
 		}
-		if (fragSrc.search('fog') < 0) {
-			var fragHdr =
-					'uniform vec4 fogColor;\n' +
-					'varying float fogAlpha;\n',
-				fragGlob =
-					'gl_FragColor = mix(gl_FragColor, fogColor, fogAlpha);\n';
-			
-			fragSrc = hemi.utils.combineFragSrc(fragSrc, {
-				postHdr: fragHdr,
-				postGlob: fragGlob
-			});
-			gl.detachShader(program, fragShd);
-			material.effect.loadPixelShaderFromString(fragSrc);
-		}
-		
-		material.effect.createUniformParameters(material);
-		return {
-			start: material.getParam('fogStart'),
-			end: material.getParam('fogEnd'),
-			color: material.getParam('fogColor')
-		};
 	};
-	
+
 	/**
-	 * Add an opacity parameter to the given Material that will allow
-	 * transparency to be set for it. Transparency ranges from 0.0 to 1.0.
+	 * Sets the fog for the given client to the following parameters
 	 * 
-	 * @param {o3d.Material} material the Material to create opacity for
-	 * @return {o3d.ParamObject} a ParamObject linked to opacity
+	 * @param {hemi.Client} client the client view to set fog for 
+	 * @param {number} color the hex (begins with 0x) color value
+	 * @param {number} alpha the alpha value of the color between 0 and 1
+	 * @param {number} near the viewing distance where the fog obscuring starts  
+	 * @param {number} far the viewing distance where fog opacity obscures the subject
 	 */
-	hemi.fx.addOpacity = function(material) {
-		// get the source
-		var gl = material.gl,
-			program = material.effect.program_,
-			shad = hemi.utils.getShaders(material),
-			fragShd = shad.fragShd,
-			fragSrc = shad.fragSrc;
-		
-		// modify the pixel shader
-		if (fragSrc.search('opacity') < 0) {
-			var fragHdr = 'uniform float opacity;\n',
-				fragGlob = 'gl_FragColor.a *= opacity;\n';
-			
-			fragSrc = hemi.utils.combineFragSrc(fragSrc, {
-				postHdr: fragHdr,
-				postGlob: fragGlob
-			});
-			gl.detachShader(program, fragShd);
-			material.effect.loadPixelShaderFromString(fragSrc);
-			
-			material.effect.createUniformParameters(material);
-			material.getParam('o3d.drawList').value = hemi.view.viewInfo.zOrderedDrawList;
+	hemi.fx.setFog = function(client, color, near, far) {
+		var data = findData(client),
+			objs = client.scene.__webglObjects.concat(client.scene.__webglObjectsImmediate),
+			mats = [],
+			refresh = false;
+
+		if (!data) {
+			data = {
+				client: client
+			};
+			clientData.push(data);
 		}
-		
-		
-		var opacity = material.getParam('opacity');
-		opacity.value = 1.0;		
-		
-		return opacity;
+
+		if (!data.fog) {
+			data.fog = new THREE.Fog();
+
+			// save the old background color
+			data.oldBGHex = client.renderer.getClearColor().getHex();
+			refresh = true;
+		}
+
+		data.fog.color.setHex(color);
+		data.fog.near = near;
+		data.fog.far = far;
+
+		client.scene.fog = data.fog;
+		client.setBGColor(color);
+
+		if (refresh) {
+			// go through all the materials and update
+			// first get the materials
+			for (var i = 0, il = objs.length; i < il; i++) {
+				var webglObject = objs[i], 
+					object = webglObject.object, 
+					opaque = webglObject.opaque, 
+					transparent = webglObject.transparent;
+
+				if (opaque) {
+					mats.push({
+						mat: opaque,
+						obj: object
+					});
+				}
+				if (transparent) {
+					mats.push({
+						mat: transparent,
+						obj: object
+					});
+				}
+			}
+
+			// save the materials for later
+			data.materials = mats;
+		}
+
+		// now change the materials
+		for (var i = 0, il = data.materials.length; i < il; i++) {
+			var matData = data.materials[i],
+				material = matData.mat,
+				object = matData.obj,
+				fog = client.scene.fog;
+
+			if (refresh) {
+				client.renderer.initMaterial(material, client.scene.lights, 
+					fog, object);
+			}
+			else {
+				var uniforms = material.uniforms;
+				
+				uniforms.fogColor.value = fog.color;		
+				uniforms.fogNear.value = fog.near;
+				uniforms.fogFar.value = fog.far;
+			}
+		}
 	};
-	
-	/*
-	 * The following functions may be out-dated and need some work before using.
+
+	/**
+	 * Sets the opacity for the given object.
+	 * 
+	 * @param {THREE.Mesh} object the object whose material's opacity we're changing
+	 * @param {number} opacity the opacity value between 0 and 1
 	 */
-	
-	hemi.fx.create = function(spec,callback) {
-		switch (spec.type) {
-			case 'constant':
-				if (spec.texture) {
-					return hemi.fx.createConstantTexture(spec.texture, callback);
-				} else {
-					callback(hemi.core.material.createConstantMaterial(
-						hemi.core.mainPack,
-						hemi.view.viewInfo,
-						spec.color,
-						spec.color[3] < 1));
-					return;
-				}
-				break;
-			case 'basic':
-				if (spec.texture) {
-					return hemi.fx.createBasicTexture(spec.texture, callback);
-				} else {
-					callback(hemi.core.material.createBasicMaterial(
-						hemi.core.mainPack,
-						hemi.view.viewInfo,
-						spec.color,
-						spec.color[3] < 1));
-					return;
-				}
-				break;
+	hemi.fx.setOpacity = function(mesh, opacity) {
+		var material = mesh.material;
+
+		if (mesh._opacity === null) {
+			// Assume that the material is shared and therefore the Mesh should have its own copy.
+			material = mesh.material = hemi.utils.cloneMaterial(material);
 		}
+
+		mesh._opacity = material.opacity = opacity;
+		material.transparent = opacity < 1.0;
 	};
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Utility functions
+////////////////////////////////////////////////////////////////////////////////////////////////////
 	
-	hemi.fx.modify = function(material, spec) {
-		switch (spec.type) {
-			case 'constant':
-				material.effect = null;
-				var diffuseParam = material.getParam('diffuseSampler');
-				if (diffuseParam) {
-					var paramSampler = material.createParam('emissiveSampler', 'ParamSampler');
-					paramSampler.value = diffuseParam.value;
-					material.removeParam(diffuseParam);
-				}
-				o3djs.material.attachStandardEffect(
-					hemi.core.mainPack,
-					material,
-					hemi.view.viewInfo,
-					'constant');
-				return material;
-				break;
+	function findData(client) {
+		var retVal = null;
+		for (var i = 0, il = clientData.length; i < il && retVal === null; i++) {
+			if (clientData[i].client === client) {
+				retVal = clientData[i];
+			}
 		}
-	};
+		return retVal;
+	}
 	
-	hemi.fx.createConstantTexture = function(path, callback) {
-		var url = o3djs.util.getCurrentURI() + path;
-		var material;
-		hemi.core.io.loadTexture(hemi.core.mainPack,url,function(texture, e) {
-			if (e) {
-				alert(e);
-			} else {
-				material = hemi.core.material.createConstantMaterial(
-					hemi.core.mainPack,
-					hemi.view.viewInfo,
-					texture);
-				callback(material);
-			}
-		});
-	};
-	
-	hemi.fx.createBasicTexture = function(path, callback) {
-		var url = o3djs.util.getCurrentURI() + path;
-		var material;
-		hemi.core.io.loadTexture(hemi.core.mainPack,url,function(texture, e) {
-			if (e) {
-				alert(e);
-			} else {
-				material = hemi.core.material.createBasicMaterial(
-					hemi.core.mainPack,
-					hemi.view.viewInfo,
-					texture);
-				callback(material);
-			}
-		});
-	};
-	
-	return hemi;
-})(hemi || {});
+})();
