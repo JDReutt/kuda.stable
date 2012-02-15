@@ -1,0 +1,765 @@
+<?xml version="1.0" encoding="utf-8"?>
+<COLLADA xmlns="http://www.collada.org/2005/11/COLLADASchema" version="1.4.1">
+  <asset>
+    <contributor>
+      <author>Terrain</author>
+      <authoring_tool>OpenCOLLADA2011 Hotfix 3 x64</authoring_tool>
+      <comments>
+			ColladaMaya export options: 
+			bakeTransforms=0;relativePaths=0;copyTextures=0;exportTriangles=0;exportCgfxFileReferences=1;
+			isSampling=0;curveConstrainSampling=0;removeStaticCurves=0;exportPolygonMeshes=1;exportLights=1;
+			exportCameras=1;exportJointsAndSkin=1;exportAnimations=1;exportInvisibleNodes=1;exportDefaultCameras=0;
+			exportTexCoords=1;exportNormals=1;exportNormalsPerVertex=0;exportVertexColors=0;exportVertexColorsPerVertex=0;
+			exportTexTangents=0;exportTangents=0;exportReferencedMaterials=0;exportMaterialsOnly=0;
+			exportXRefs=0;dereferenceXRefs=1;exportCameraAsLookat=0;cameraXFov=0;cameraYFov=1;doublePrecision=0
+		</comments>
+      <source_data>file:///S:/WorldEditorTraining/scenes/Story/page1/SecurityPost_16.ma</source_data>
+    </contributor>
+    <created>2011-07-18T16:05:04</created>
+    <modified>2011-07-18T16:05:04</modified>
+    <unit name="meter" meter="1"/>
+    <up_axis>Y_UP</up_axis>
+  </asset>
+  <library_materials>
+    <material id="phong5" name="phong5">
+      <instance_effect url="#phong5-fx"/>
+    </material>
+  </library_materials>
+  <library_effects>
+    <effect id="phong5-fx">
+      <profile_COMMON>
+        <technique sid="common">
+          <phong>
+            <emission>
+              <color>0 0 0 1</color>
+            </emission>
+            <ambient>
+              <color>0 0 0 1</color>
+            </ambient>
+            <diffuse>
+              <color>0.1075822 0.1075822 0.1075822 1</color>
+            </diffuse>
+            <specular>
+              <color>0.5 0.5 0.5 1</color>
+            </specular>
+            <shininess>
+              <float>10.44828</float>
+            </shininess>
+            <reflective>
+              <color>0 0 0 1</color>
+            </reflective>
+            <reflectivity>
+              <float>0.5</float>
+            </reflectivity>
+            <transparent opaque="RGB_ZERO">
+              <color>0 0 0 1</color>
+            </transparent>
+            <transparency>
+              <float>1</float>
+            </transparency>
+          </phong>
+        </technique>
+      </profile_COMMON>
+    </effect>
+  </library_effects>
+  <library_controllers>
+    <controller id="cable-skin" name="cable-skin">
+      <skin source="#cable">
+        <bind_shape_matrix>0.9866085 0 0.1631064 0.2063463 0 1 0 1.708177 -0.1631064 0 0.9866085 -4.040343 0 0 0 1</bind_shape_matrix>
+        <source id="cable-skin-joints" name="cable-skin-joints">
+          <Name_array id="cable-skin-joints-array" count="5">joint5 joint1 joint2 joint3 joint4</Name_array>
+          <technique_common>
+            <accessor source="#cable-skin-joints-array" count="5" stride="1">
+              <param name="JOINT" type="name"/>
+            </accessor>
+          </technique_common>
+        </source>
+        <source id="cable-skin-bind_poses" name="cable-skin-bind_poses">
+          <float_array id="cable-skin-bind_poses-array" count="80">1 0 0 -0.167739 0 1 0 -1.68479 0 0 1 4.036817 0 0 0 1 -0.2022536 0 -0.9793332 -3.927278 0 1 0 -1.68479 0.9793332 0 -0.2022536 -0.9846607 0 0 0 1 -0.4103647 0 -0.9119215 -3.636449 0 1 0 -1.68479 0.9119215 0 -0.4103647 -1.818908 0 0 0 1 -0.3538921 0 -0.9352863 -3.757296 0 1 0 -1.68479 0.9352863 0 -0.3538921 -1.592901 0 0 0 1 0.9224994 0 -0.3859985 -1.721514 0 1 0 -1.68479 0.3859985 0 0.9224994 3.715213 0 0 0 1</float_array>
+          <technique_common>
+            <accessor source="#cable-skin-bind_poses-array" count="5" stride="16">
+              <param name="TRANSFORM" type="float4x4"/>
+            </accessor>
+          </technique_common>
+        </source>
+        <source id="cable-skin-weights" name="cable-skin-weights">
+          <float_array id="cable-skin-weights-array" count="48">1 0.301872 0.9804421 0.3158355 0.9882267 0.3004643 0.9559083 0.2666189 0.8655706 0.2346501 0.7699269 0.2227246 0.7490343 0.2359153 0.8191298 0.2685185 0.9223085 0.9996852 0.9911449 0.8438696 0.6331272 0.5639387 0.6868501 0.904129 0.8060911 0.6457719 0.7292597 0.6456229 0.7561332 0.6427367 0.8639294 0.6376602 0.9610487 0.6338657 0.9923965 0.6332793 0.9839879 0.6369044 0.9209541 0.6419685 0.9382052 0.9355152 0.9331852 0.9330855 0.9356046 0.9389511 0.9406922 0.9403645 </float_array>
+          <technique_common>
+            <accessor source="#cable-skin-weights-array" count="48" stride="1">
+              <param name="WEIGHT" type="float"/>
+            </accessor>
+          </technique_common>
+        </source>
+        <joints>
+          <input semantic="JOINT" source="#cable-skin-joints"/>
+          <input semantic="INV_BIND_MATRIX" source="#cable-skin-bind_poses"/>
+        </joints>
+        <vertex_weights count="130">
+          <input semantic="JOINT" source="#cable-skin-joints" offset="0"/>
+          <input semantic="WEIGHT" source="#cable-skin-weights" offset="1"/>
+          <vcount>1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 2 2 2 2 2 2 2 2 1 1 1 1 1 1 1 1 2 2 2 2 2 2 2 2 1 1 1 1 1 1 1 1 2 2 2 2 2 2 2 2 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 </vcount>
+          <v>0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 1 0 0 0 1 0 0 0 1 0 0 0 1 0 0 0 1 0 0 0 1 0 0 0 1 0 1 0 1 0 1 0 1 0 1 0 1 0 1 0 1 0 1 1 2 2 1 3 2 4 1 5 2 6 1 7 2 8 1 9 2 10 1 11 2 12 1 13 2 14 1 15 2 16 2 17 2 0 2 18 2 19 2 20 2 21 2 22 2 23 2 24 3 25 2 26 3 27 2 28 3 29 2 30 3 31 2 32 3 33 2 34 3 35 2 36 3 37 2 38 3 39 3 0 3 0 3 0 3 0 3 0 3 0 3 0 3 0 0 0 3 0 3 0 3 0 3 0 3 0 3 0 3 0 3 0 3 40 3 41 3 42 3 43 3 44 3 45 3 46 3 47 3 0 3 0 3 0 3 0 3 0 3 0 3 0 3 0 3 0 </v>
+        </vertex_weights>
+        <extra>
+          <technique profile="OpenCOLLADAMaya">
+            <originalMayaNodeId>cable-skin</originalMayaNodeId>
+          </technique>
+        </extra>
+      </skin>
+    </controller>
+  </library_controllers>
+  <library_geometries>
+    <geometry id="cable" name="cable">
+      <mesh>
+        <source id="cable-positions" name="cable-positions">
+          <float_array id="cable-positions-array" count="390">-0.065 -7.07092e-4 -7.07092e-4 -0.065 0 -0.001000061 -0.065 7.07092e-4 -7.07092e-4 -0.065 0.001000061 0 -0.065 7.07092e-4 7.07092e-4 -0.065 0 0.001000061 -0.065 -7.07092e-4 7.07092e-4 -0.065 -0.001000061 0 -0.0598027 -7.03888e-4 -7.1991e-4 -0.05973541 0 -0.001011963 -0.05966797 7.03888e-4 -7.1991e-4 -0.05964012 9.95483e-4 -1.28174e-5 -0.05966805 7.03888e-4 6.94275e-4 -0.05973534 0 9.87244e-4 -0.0598027 -7.03888e-4 6.94275e-4 -0.0598307 -9.95483e-4 -1.19019e-5 -0.05589645 -0.003183441 -7.3822e-4 -0.05550316 -0.002595825 -0.001030273 -0.05510979 -0.002008209 -7.3761e-4 -0.0549469 -0.001764832 -3.05176e-5 -0.05510986 -0.002008209 6.7688e-4 -0.05550308 -0.002595825 9.68933e-4 -0.05589645 -0.003183441 6.75964e-4 -0.05605957 -0.003426819 -3.11279e-5 -0.0536132 -0.009659119 -7.29065e-4 -0.05310104 -0.009171753 -0.001021118 -0.05258842 -0.00868454 -7.29065e-4 -0.0523764 -0.008482666 -2.19727e-5 -0.05258858 -0.00868454 6.86035e-4 -0.05310097 -0.009171753 9.78699e-4 -0.0536132 -0.009659119 6.8512e-4 -0.05382561 -0.00986084 -2.10571e-5 -0.05072266 -0.02128616 -7.26929e-4 -0.05024345 -0.02076629 -0.001018982 -0.04976418 -0.02024643 -7.26318e-4 -0.04956581 -0.02003098 -2.01416e-5 -0.0497641 -0.02024643 6.86951e-4 -0.05024338 -0.02076629 9.79919e-4 -0.05072266 -0.02128616 6.87561e-4 -0.05092133 -0.02150162 -1.92261e-5 -0.0469136 -0.02404404 -7.8125e-4 -0.04672661 -0.02336212 -0.001074219 -0.04653961 -0.02268021 -7.8125e-4 -0.04646225 -0.02239761 -7.35474e-5 -0.04653969 -0.02268021 6.3385e-4 -0.04672676 -0.02336212 9.26819e-4 -0.0469136 -0.02404404 6.32935e-4 -0.04699127 -0.02432648 -7.41577e-5 -0.03882187 -0.02406921 -0.003513489 -0.03891457 -0.02336212 -0.003791504 -0.03882187 -0.02265503 -0.003513489 -0.03859818 -0.02236206 -0.002843628 -0.03837433 -0.02265503 -0.002171936 -0.03828156 -0.02336212 -0.001894836 -0.03837433 -0.02406921 -0.002171936 -0.03859818 -0.02436203 -0.002843628 -0.03565239 -0.02406921 -0.01120117 -0.03592461 -0.02336212 -0.01130859 -0.03565239 -0.02265503 -0.01120117 -0.03499466 -0.02236206 -0.01094116 -0.03433701 -0.02265503 -0.01068115 -0.03406456 -0.02336212 -0.01057403 -0.03433701 -0.02406921 -0.01068115 -0.03499466 -0.02436203 -0.01094116 -0.03571846 -0.02406921 -0.02074402 -0.03600868 -0.02336212 -0.02070435 -0.03571846 -0.02265503 -0.02074402 -0.03501778 -0.02236206 -0.02083984 -0.03431717 -0.02265503 -0.02093445 -0.03402695 -0.02336212 -0.02097382 -0.03431717 -0.02406921 -0.02093445 -0.03501778 -0.02436203 -0.02083984 -0.03637161 -0.02406921 -0.02846039 -0.03665947 -0.02336212 -0.02840515 -0.03637161 -0.02265503 -0.02846039 -0.03567703 -0.02236206 -0.02859161 -0.0349823 -0.02265503 -0.02872437 -0.0346946 -0.02336212 -0.02877838 -0.0349823 -0.02406921 -0.02872437 -0.03567703 -0.02436203 -0.02859161 -0.03791679 -0.02406921 -0.03563293 -0.03820503 -0.02336212 -0.03558075 -0.03791679 -0.02265503 -0.03563293 -0.03722092 -0.02236206 -0.03575928 -0.03652496 -0.02265503 -0.03588562 -0.0362368 -0.02336212 -0.0359375 -0.03652496 -0.02406921 -0.03588562 -0.03722092 -0.02436203 -0.03575928 -0.03971253 -0.02406921 -0.04192963 -0.03999962 -0.02336212 -0.04187103 -0.03971253 -0.02265503 -0.04192963 -0.03901901 -0.02236206 -0.04206848 -0.03832573 -0.02265503 -0.04220734 -0.03803871 -0.02336212 -0.0422641 -0.03832573 -0.02406921 -0.04220734 -0.03901901 -0.02436203 -0.04206848 -0.04173477 -0.02406921 -0.05029297 -0.04202065 -0.02336212 -0.05022919 -0.04173477 -0.02265503 -0.05029297 -0.04104477 -0.02236206 -0.05044708 -0.04035469 -0.02265503 -0.0506012 -0.04006889 -0.02336212 -0.05066498 -0.04035469 -0.02406921 -0.0506012 -0.04104477 -0.02436203 -0.05044708 -0.065 0 0 -0.04264229 -0.02467254 -0.05119293 -0.04317177 -0.02336212 -0.05107452 -0.04264229 -0.02205185 -0.05119293 -0.04136337 -0.02150894 -0.05147858 -0.04008461 -0.02205185 -0.05176422 -0.0395549 -0.02336212 -0.05188232 -0.04008461 -0.02467254 -0.05176422 -0.04136337 -0.02521515 -0.05147858 -0.04550589 -0.02763165 -0.05061986 -0.04723158 -0.02336235 -0.05023472 -0.04550619 -0.01909344 -0.05061986 -0.0413403 -0.01732473 -0.05155135 -0.03717311 -0.01909344 -0.05248124 -0.03544762 -0.02336235 -0.05286557 -0.03717311 -0.02763165 -0.05248124 -0.04134 -0.02939936 -0.05155135 -0.0472952 -0.02763226 -0.05862378 -0.04902069 -0.02336255 -0.05823864 -0.04312761 -0.02336235 -0.05955527 -0.0472955 -0.01909304 -0.05862378 -0.04312811 -0.01732473 -0.05955487 -0.03895931 -0.01909364 -0.06048515 -0.03723311 -0.02336235 -0.06087029 -0.0389586 -0.02763145 -0.06048555 -0.04312761 -0.02939936 -0.05955527</float_array>
+          <technique_common>
+            <accessor source="#cable-positions-array" count="130" stride="3">
+              <param name="X" type="float"/>
+              <param name="Y" type="float"/>
+              <param name="Z" type="float"/>
+            </accessor>
+          </technique_common>
+        </source>
+        <source id="cable-normals" name="cable-normals">
+          <float_array id="cable-normals-array" count="654">-0.001235197 -0.7075348 -0.7066774 -0.002221585 0 -0.9999976 -0.004267517 0.001378965 -0.9999899 -0.1989366 -0.6708863 -0.7143779 -0.00123519 0.7075212 -0.706691 0.1855913 0.6754813 -0.7136393 7.27884e-4 0.9999996 0 0.2651403 0.9642098 0 0.00213162 0.7076353 0.7065746 0.1895803 0.6746351 0.7133911 0.002561089 -1.04248e-4 0.9999968 0.001455221 -2.61755e-4 0.9999989 0.002156637 -0.7076488 0.706561 -0.1947221 -0.6721432 0.7143577 7.51183e-4 -0.9999997 2.11562e-4 -0.281413 -0.9595867 2.90591e-4 -0.003656975 0.001898663 -0.9999914 -0.5610749 -0.4402987 -0.7009507 0.5466128 0.4537026 -0.703824 0.7661527 0.6426586 0 0.547913 0.4531318 0.7031806 -0.001658572 0.001233936 0.9999979 -0.5599219 -0.4412626 0.7012666 -0.7856355 -0.6186896 2.40956e-4 -1.61304e-4 2.77085e-4 -1 -0.7128287 -0.2142631 -0.6678074 0.7104008 0.21932 -0.6687521 0.9549981 0.2966117 0 0.7100735 0.220192 0.6688133 -0.001771847 0.001286605 0.9999976 -0.7136735 -0.2134766 0.6671566 -0.95815 -0.2862663 2.02515e-4 -0.004237746 0.002470292 -0.999988 -0.5938104 -0.3897313 -0.7039167 0.5935111 0.3892757 -0.704421 0.8376727 0.5461726 -2.69238e-4 0.6001619 0.3834947 0.7019526 0.006362375 -0.003890187 0.9999722 -0.5881268 -0.3950898 0.7056988 -0.8297284 -0.5581673 3.1557e-4 -0.1713024 0.02184415 -0.9849763 -0.3335243 -0.6358228 -0.6960539 0.1005753 0.6887597 -0.7179796 0.3187654 0.9478272 0.00347159 0.3385679 0.6324601 0.6966821 0.1672807 -0.0224973 0.9856526 -0.1031606 -0.689249 0.7171427 -0.3113587 -0.9502887 -0.002673266 -0.6926855 0.02039327 -0.7209513 -0.4896039 -0.7073027 -0.5099125 -0.4852434 0.7218439 -0.4934372 -0.003553218 0.9999759 0.005954285 0.475351 0.7060508 0.5249132 0.6646629 -0.019883 0.7468787 0.4652196 -0.7222394 0.5118017 -0.005518694 -0.9999848 -3.13775e-4 -0.9819499 0 -0.1891414 -0.7142254 -0.6852168 -0.1426891 -0.7142913 0.6851451 -0.1427036 -0.002355028 0.9999929 0.002920856 0.7059759 0.6891823 0.1631737 0.9743441 0 0.2250635 0.7059091 -0.6892542 0.1631591 -0.002354064 -0.9999929 0.002919573 -0.9989401 0 0.04603152 -0.7116032 -0.7018363 0.03235433 -0.7116687 0.7017696 0.03235709 0 0.9999999 4.38789e-4 0.711613 0.7019541 -0.02944889 0.9991545 0 -0.04111293 0.7115474 -0.7020208 -0.02944604 0 -0.9999999 4.38606e-4 -0.9890299 0 0.1477155 -0.6990234 -0.7074345 0.1044166 -0.6990879 0.7073691 0.1044265 0 1 0 0.6991103 0.7073079 -0.104692 0.9889638 0 -0.1481577 0.6990458 -0.707373 -0.1046821 0 -0.9999999 0 -0.9701315 0 0.2425796 -0.6862499 -0.7068369 0.1715887 -0.686313 0.7067716 0.1716048 0 1 0 0.6864531 0.7066538 -0.1715297 0.970176 0 -0.2424015 0.68639 -0.7067192 -0.1715135 0 -1 0 -0.9670146 0 0.2547215 -0.6841677 -0.7067109 0.1802055 -0.6842307 0.7066458 0.1802222 0 1 0 0.6844109 0.7064959 -0.1801255 0.9670755 0 -0.2544898 0.6843479 -0.7065613 -0.1801084 0 -0.9999999 0 -0.9719887 0 0.2350277 -0.6873395 -0.7070665 0.1661965 -0.6874028 0.7070013 0.1662122 0 1 0 0.6875478 0.7068666 -0.1661858 0.9720132 0 -0.2349267 0.6874845 -0.7069318 -0.16617 0 -1 0 -1 0 0 -1 0 0 -1 0 0 -1 0 0 -1 0 0 -1 0 0 -1 0 0 -1 0 0 -1 0 0 -0.2180847 0 -0.9759299 -0.2180448 0 -0.9759388 -0.2179158 0 -0.9759676 -0.2180551 0 -0.9759365 -0.2179208 0 -0.9759665 -0.2177592 0 -0.9760025 -0.2177425 0 -0.9760063 -0.2177642 0 -0.9760014 -0.2179551 0 -0.9759589 -0.565034 -0.2978357 0.7694352 -0.565034 -0.2978357 0.7694352 -0.565034 -0.2978357 0.7694352 -0.565034 -0.2978357 0.7694352 -0.5650407 0.297858 0.7694216 -0.5650407 0.297858 0.7694216 -0.5650407 0.297858 0.7694216 -0.5650407 0.297858 0.7694216 -0.1647556 0.7344517 0.6583589 -0.1647556 0.7344517 0.6583589 -0.1647556 0.7344517 0.6583589 -0.1647556 0.7344517 0.6583589 0.4310137 0.7562183 0.4923019 0.4310137 0.7562183 0.4923019 0.4310137 0.7562183 0.4923019 0.4310137 0.7562183 0.4923019 0.8729306 0.3196487 0.3685336 0.8729306 0.3196487 0.3685336 0.8729306 0.3196487 0.3685336 0.8729306 0.3196487 0.3685336 0.8729325 -0.3196253 0.3685493 0.8729325 -0.3196253 0.3685493 0.8729325 -0.3196253 0.3685493 0.8729325 -0.3196253 0.3685493 0.4308722 -0.7562484 0.4923794 0.4308722 -0.7562484 0.4923794 0.4308722 -0.7562484 0.4923794 0.4308722 -0.7562484 0.4923794 -0.1646056 -0.7344933 0.6583499 -0.1646056 -0.7344933 0.6583499 -0.1646056 -0.7344933 0.6583499 -0.1646056 -0.7344933 0.6583499 0.2026067 -0.00648416 0.9792387 0.2026067 -0.00648416 0.9792387 0.2026067 -0.00648416 0.9792387 0.2026067 -0.00648416 0.9792387 0.2026026 0.006497601 0.9792395 0.2026026 0.006497601 0.9792395 0.2026026 0.006497601 0.9792395 0.2026026 0.006497601 0.9792395 0.2117497 0.01577139 0.9771967 0.2117497 0.01577139 0.9771967 0.2117497 0.01577139 0.9771967 0.2117497 0.01577139 0.9771967 0.2241391 0.01565894 0.9744314 0.2241391 0.01565894 0.9744314 0.2241391 0.01565894 0.9744314 0.2241391 0.01565894 0.9744314 0.2328288 0.006534358 0.9724958 0.2328288 0.006534358 0.9724958 0.2328288 0.006534358 0.9724958 0.2328288 0.006534358 0.9724958 0.2328289 -0.006533437 0.9724957 0.2328289 -0.006533437 0.9724957 0.2328289 -0.006533437 0.9724957 0.2328289 -0.006533437 0.9724957 0.2241399 -0.01564676 0.9744314 0.2241399 -0.01564676 0.9744314 0.2241399 -0.01564676 0.9744314 0.2241399 -0.01564676 0.9744314 0.2117573 -0.01575638 0.9771953 0.2117573 -0.01575638 0.9771953 0.2117573 -0.01575638 0.9771953 0.2117573 -0.01575638 0.9771953 -0.9016553 -0.3826022 0.2015775 -0.9016553 -0.3826022 0.2015775 -0.9016553 -0.3826022 0.2015775 -0.9016553 -0.3826022 0.2015775 -0.9016708 0.3825715 0.2015662 -0.9016708 0.3825715 0.2015662 -0.9016708 0.3825715 0.2015662 -0.9016708 0.3825715 0.2015662 -0.3734753 0.923876 0.08348219 -0.3734753 0.923876 0.08348219 -0.3734753 0.923876 0.08348219 -0.3734753 0.923876 0.08348219 0.373468 0.9238868 -0.08339632 0.373468 0.9238868 -0.08339632 0.373468 0.9238868 -0.08339632 0.373468 0.9238868 -0.08339632 0.9017071 0.3826863 -0.2011851 0.9017071 0.3826863 -0.2011851 0.9017071 0.3826863 -0.2011851 0.9017071 0.3826863 -0.2011851 0.901758 -0.3825841 -0.2011517 0.901758 -0.3825841 -0.2011517 0.901758 -0.3825841 -0.2011517 0.901758 -0.3825841 -0.2011517 0.3732958 -0.9239622 -0.08333239 0.3732958 -0.9239622 -0.08333239 0.3732958 -0.9239622 -0.08333239 0.3732958 -0.9239622 -0.08333239 -0.3732646 -0.923965 0.08344012 -0.3732646 -0.923965 0.08344012 -0.3732646 -0.923965 0.08344012 -0.3732646 -0.923965 0.08344012</float_array>
+          <technique_common>
+            <accessor source="#cable-normals-array" count="218" stride="3">
+              <param name="X" type="float"/>
+              <param name="Y" type="float"/>
+              <param name="Z" type="float"/>
+            </accessor>
+          </technique_common>
+        </source>
+        <source id="cable-map1" name="cable-map1">
+          <float_array id="cable-map1-array" count="318">0.6104854 0.04576458 0.5 0 0.3895146 0.04576458 0.34375 0.15625 0.3895146 0.2667354 0.5 0.3125 0.6104854 0.2667354 0.65625 0.15625 0.375 0.3125 0.40625 0.3125 0.4375 0.3125 0.46875 0.3125 0.5 0.3125 0.53125 0.3125 0.5625 0.3125 0.59375 0.3125 0.625 0.3125 0.375 0.3438283 0.40625 0.3438283 0.4375 0.3438283 0.46875 0.3438283 0.5 0.3438283 0.53125 0.3438283 0.5625 0.3438283 0.59375 0.3438283 0.625 0.3438283 0.375 0.3751566 0.40625 0.3751566 0.4375 0.3751566 0.46875 0.3751566 0.5 0.3751566 0.53125 0.3751566 0.5625 0.3751566 0.59375 0.3751566 0.625 0.3751566 0.375 0.406485 0.40625 0.406485 0.4375 0.406485 0.46875 0.406485 0.5 0.406485 0.53125 0.406485 0.5625 0.406485 0.59375 0.406485 0.625 0.406485 0.375 0.4378133 0.40625 0.4378133 0.4375 0.4378133 0.46875 0.4378133 0.5 0.4378133 0.53125 0.4378133 0.5625 0.4378133 0.59375 0.4378133 0.625 0.4378133 0.375 0.4691416 0.40625 0.4691416 0.4375 0.4691416 0.46875 0.4691416 0.5 0.4691416 0.53125 0.4691416 0.5625 0.4691416 0.59375 0.4691416 0.625 0.4691416 0.375 0.5004699 0.40625 0.5004699 0.4375 0.5004699 0.46875 0.5004699 0.5 0.5004699 0.53125 0.5004699 0.5625 0.5004699 0.59375 0.5004699 0.625 0.5004699 0.375 0.5317982 0.40625 0.5317982 0.4375 0.5317982 0.46875 0.5317982 0.5 0.5317982 0.53125 0.5317982 0.5625 0.5317982 0.59375 0.5317982 0.625 0.5317982 0.375 0.5631266 0.40625 0.5631266 0.4375 0.5631266 0.46875 0.5631266 0.5 0.5631266 0.53125 0.5631266 0.5625 0.5631266 0.59375 0.5631266 0.625 0.5631266 0.375 0.5944549 0.40625 0.5944549 0.4375 0.5944549 0.46875 0.5944549 0.5 0.5944549 0.53125 0.5944549 0.5625 0.5944549 0.59375 0.5944549 0.625 0.5944549 0.375 0.6257832 0.40625 0.6257832 0.4375 0.6257832 0.46875 0.6257832 0.5 0.6257832 0.53125 0.6257832 0.5625 0.6257832 0.59375 0.6257832 0.625 0.6257832 0.375 0.6571115 0.40625 0.6571115 0.4375 0.6571115 0.46875 0.6571115 0.5 0.6571115 0.53125 0.6571115 0.5625 0.6571115 0.59375 0.6571115 0.625 0.6571115 0.375 0.6884398 0.40625 0.6884398 0.4375 0.6884398 0.46875 0.6884398 0.5 0.6884398 0.53125 0.6884398 0.5625 0.6884398 0.59375 0.6884398 0.625 0.6884398 0.6104854 0.7332646 0.5 0.6875 0.3895146 0.7332646 0.34375 0.84375 0.3895146 0.9542354 0.5 1 0.6104854 0.9542354 0.65625 0.84375 0.5 0.15 0.5 0.8375 0.6104854 0.9542354 0.5 1 0.3895146 0.9542354 0.34375 0.84375 0.3895146 0.7332646 0.5 0.6875 0.6104854 0.7332646 0.65625 0.84375 0.6104854 0.9542354 0.5 1 0.3895146 0.9542354 0.34375 0.84375 0.3895146 0.7332646 0.5 0.6875 0.6104854 0.7332646 0.65625 0.84375 0.6104854 0.9542354 0.5 1 0.3895146 0.9542354 0.34375 0.84375 0.3895146 0.7332646 0.5 0.6875 0.6104854 0.7332646 0.65625 0.84375</float_array>
+          <technique_common>
+            <accessor source="#cable-map1-array" count="159" stride="2">
+              <param name="S" type="float"/>
+              <param name="T" type="float"/>
+            </accessor>
+          </technique_common>
+        </source>
+        <vertices id="cable-vertices" name="cable-vertices">
+          <input semantic="POSITION" source="#cable-positions"/>
+        </vertices>
+        <polylist material="lambert6SG" count="136">
+          <input semantic="VERTEX" source="#cable-vertices" offset="0"/>
+          <input semantic="NORMAL" source="#cable-normals" offset="1"/>
+          <input semantic="TEXCOORD" source="#cable-map1" offset="2" set="0"/>
+          <vcount>4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4</vcount>
+          <p>0 0 8 1 1 9 9 2 18 8 3 17 1 1 9 2 4 10 10 5 19 9 2 18 2 4 10 3 6 11 11 7 20 10 5 19 3 6 11 4 8 12 12 9 21 11 7 20 4 8 12 5 10 13 13 11 22 12 9 21 5 10 13 6 12 14 14 13 23 13 11 22 6 12 14 7 14 15 15 15 24 14 13 23 7 14 15 0 0 16 8 3 25 15 15 24 8 3 17 9 2 18 17 16 27 16 17 26 9 2 18 10 5 19 18 18 28 17 16 27 10 5 19 11 7 20 19 19 29 18 18 28 11 7 20 12 9 21 20 20 30 19 19 29 12 9 21 13 11 22 21 21 31 20 20 30 13 11 22 14 13 23 22 22 32 21 21 31 14 13 23 15 15 24 23 23 33 22 22 32 15 15 24 8 3 25 16 17 34 23 23 33 16 17 26 17 16 27 25 24 36 24 25 35 17 16 27 18 18 28 26 26 37 25 24 36 18 18 28 19 19 29 27 27 38 26 26 37 19 19 29 20 20 30 28 28 39 27 27 38 20 20 30 21 21 31 29 29 40 28 28 39 21 21 31 22 22 32 30 30 41 29 29 40 22 22 32 23 23 33 31 31 42 30 30 41 23 23 33 16 17 34 24 25 43 31 31 42 24 25 35 25 24 36 33 32 45 32 33 44 25 24 36 26 26 37 34 34 46 33 32 45 26 26 37 27 27 38 35 35 47 34 34 46 27 27 38 28 28 39 36 36 48 35 35 47 28 28 39 29 29 40 37 37 49 36 36 48 29 29 40 30 30 41 38 38 50 37 37 49 30 30 41 31 31 42 39 39 51 38 38 50 31 31 42 24 25 43 32 33 52 39 39 51 32 33 44 33 32 45 41 40 54 40 41 53 33 32 45 34 34 46 42 42 55 41 40 54 34 34 46 35 35 47 43 43 56 42 42 55 35 35 47 36 36 48 44 44 57 43 43 56 36 36 48 37 37 49 45 45 58 44 44 57 37 37 49 38 38 50 46 46 59 45 45 58 38 38 50 39 39 51 47 47 60 46 46 59 39 39 51 32 33 52 40 41 61 47 47 60 40 41 53 41 40 54 49 48 63 48 49 62 41 40 54 42 42 55 50 50 64 49 48 63 42 42 55 43 43 56 51 51 65 50 50 64 43 43 56 44 44 57 52 52 66 51 51 65 44 44 57 45 45 58 53 53 67 52 52 66 45 45 58 46 46 59 54 54 68 53 53 67 46 46 59 47 47 60 55 55 69 54 54 68 47 47 60 40 41 61 48 49 70 55 55 69 48 49 62 49 48 63 57 56 72 56 57 71 49 48 63 50 50 64 58 58 73 57 56 72 50 50 64 51 51 65 59 59 74 58 58 73 51 51 65 52 52 66 60 60 75 59 59 74 52 52 66 53 53 67 61 61 76 60 60 75 53 53 67 54 54 68 62 62 77 61 61 76 54 54 68 55 55 69 63 63 78 62 62 77 55 55 69 48 49 70 56 57 79 63 63 78 56 57 71 57 56 72 65 64 81 64 65 80 57 56 72 58 58 73 66 66 82 65 64 81 58 58 73 59 59 74 67 67 83 66 66 82 59 59 74 60 60 75 68 68 84 67 67 83 60 60 75 61 61 76 69 69 85 68 68 84 61 61 76 62 62 77 70 70 86 69 69 85 62 62 77 63 63 78 71 71 87 70 70 86 63 63 78 56 57 79 64 65 88 71 71 87 64 65 80 65 64 81 73 72 90 72 73 89 65 64 81 66 66 82 74 74 91 73 72 90 66 66 82 67 67 83 75 75 92 74 74 91 67 67 83 68 68 84 76 76 93 75 75 92 68 68 84 69 69 85 77 77 94 76 76 93 69 69 85 70 70 86 78 78 95 77 77 94 70 70 86 71 71 87 79 79 96 78 78 95 71 71 87 64 65 88 72 73 97 79 79 96 72 73 89 73 72 90 81 80 99 80 81 98 73 72 90 74 74 91 82 82 100 81 80 99 74 74 91 75 75 92 83 83 101 82 82 100 75 75 92 76 76 93 84 84 102 83 83 101 76 76 93 77 77 94 85 85 103 84 84 102 77 77 94 78 78 95 86 86 104 85 85 103 78 78 95 79 79 96 87 87 105 86 86 104 79 79 96 72 73 97 80 81 106 87 87 105 80 81 98 81 80 99 89 88 108 88 89 107 81 80 99 82 82 100 90 90 109 89 88 108 82 82 100 83 83 101 91 91 110 90 90 109 83 83 101 84 84 102 92 92 111 91 91 110 84 84 102 85 85 103 93 93 112 92 92 111 85 85 103 86 86 104 94 94 113 93 93 112 86 86 104 87 87 105 95 95 114 94 94 113 87 87 105 80 81 106 88 89 115 95 95 114 88 89 107 89 88 108 97 96 117 96 97 116 89 88 108 90 90 109 98 98 118 97 96 117 90 90 109 91 91 110 99 99 119 98 98 118 91 91 110 92 92 111 100 100 120 99 99 119 92 92 111 93 93 112 101 101 121 100 100 120 93 93 112 94 94 113 102 102 122 101 101 121 94 94 113 95 95 114 103 103 123 102 102 122 95 95 114 88 89 115 96 97 124 103 103 123 1 104 1 0 105 0 104 106 133 2 107 2 1 104 1 104 106 133 3 108 3 2 107 2 104 106 133 4 109 4 3 108 3 104 106 133 5 110 5 4 109 4 104 106 133 6 111 6 5 110 5 104 106 133 7 112 7 6 111 6 104 106 133 0 105 0 7 112 7 104 106 133 121 113 151 122 114 152 123 115 134 122 114 152 124 116 153 123 115 134 124 116 153 125 117 154 123 115 134 125 117 154 126 118 155 123 115 134 126 118 155 127 119 156 123 115 134 127 119 156 128 120 157 123 115 134 128 120 157 129 121 158 123 115 134 129 121 158 121 113 151 123 115 134 96 122 131 97 123 130 106 124 136 105 125 135 97 126 130 98 127 129 107 128 137 106 129 136 98 130 129 99 131 128 108 132 138 107 133 137 99 134 128 100 135 127 109 136 139 108 137 138 100 138 127 101 139 126 110 140 140 109 141 139 101 142 126 102 143 125 111 144 141 110 145 140 102 146 125 103 147 132 112 148 142 111 149 141 103 150 132 96 151 131 105 152 135 112 153 142 105 154 135 106 155 136 114 156 144 113 157 143 106 158 136 107 159 137 115 160 145 114 161 144 107 162 137 108 163 138 116 164 146 115 165 145 108 166 138 109 167 139 117 168 147 116 169 146 109 170 139 110 171 140 118 172 148 117 173 147 110 174 140 111 175 141 119 176 149 118 177 148 111 178 141 112 179 142 120 180 150 119 181 149 112 182 142 105 183 135 113 184 143 120 185 150 113 186 143 114 187 144 122 188 152 121 189 151 114 190 144 115 191 145 124 192 153 122 193 152 115 194 145 116 195 146 125 196 154 124 197 153 116 198 146 117 199 147 126 200 155 125 201 154 117 202 147 118 203 148 127 204 156 126 205 155 118 206 148 119 207 149 128 208 157 127 209 156 119 210 149 120 211 150 129 212 158 128 213 157 120 214 150 113 215 143 121 216 151 129 217 158</p>
+        </polylist>
+      </mesh>
+      <extra>
+        <technique profile="OpenCOLLADAMaya">
+          <originalMayaNodeId>cable</originalMayaNodeId>
+          <double_sided>1</double_sided>
+        </technique>
+      </extra>
+    </geometry>
+  </library_geometries>
+  <library_visual_scenes>
+    <visual_scene id="VisualSceneNode" name="SecurityPost_16">
+      <node id="cable" name="cable" type="NODE">
+        <translate sid="translate">0 0 0</translate>
+        <instance_controller url="#cable-skin">
+          <skeleton>#joint1</skeleton>
+          <skeleton>#joint2</skeleton>
+          <skeleton>#joint3</skeleton>
+          <skeleton>#joint4</skeleton>
+          <skeleton>#joint5</skeleton>
+          <bind_material>
+            <technique_common>
+              <instance_material symbol="lambert6SG" target="#phong5"/>
+            </technique_common>
+          </bind_material>
+        </instance_controller>
+        <extra>
+          <technique profile="OpenCOLLADAMaya">
+            <originalMayaNodeId>cable</originalMayaNodeId>
+          </technique>
+        </extra>
+      </node>
+      <node id="joint5" name="joint5" sid="joint5" type="JOINT">
+        <translate sid="translate">0.167739 1.68479 -4.036817</translate>
+        <rotate sid="jointOrientZ">0 0 1 0</rotate>
+        <rotate sid="jointOrientY">0 1 0 0</rotate>
+        <rotate sid="jointOrientX">1 0 0 0</rotate>
+        <scale sid="scale">1 1 1</scale>
+        <node id="joint1" name="joint1" sid="joint1" type="JOINT">
+          <translate sid="translate">0.002265887 0 -0.0084478</translate>
+          <rotate sid="jointOrientZ">0 0 1 0</rotate>
+          <rotate sid="jointOrientY">0 1 0 101.6688</rotate>
+          <rotate sid="jointOrientX">1 0 0 0</rotate>
+          <rotate sid="rotateZ">0 0 1 0</rotate>
+          <rotate sid="rotateY">0 1 0 0</rotate>
+          <rotate sid="rotateX">1 0 0 0</rotate>
+          <scale sid="scale">1 1 1</scale>
+          <node id="joint2" name="joint2" sid="joint2" type="JOINT">
+            <translate sid="translate">0.01767243 0 0</translate>
+            <rotate sid="jointOrientZ">0 0 1 0</rotate>
+            <rotate sid="jointOrientY">0 1 0 12.55897</rotate>
+            <rotate sid="jointOrientX">1 0 0 0</rotate>
+            <rotate sid="rotateZ">0 0 1 16.68043</rotate>
+            <rotate sid="rotateY">0 1 0 0</rotate>
+            <rotate sid="rotateX">1 0 0 0</rotate>
+            <scale sid="scale">1 1 1</scale>
+            <node id="joint3" name="joint3" sid="joint3" type="JOINT">
+              <translate sid="translate">0.01652534 0 5.39271e-4</translate>
+              <rotate sid="jointOrientZ">0 0 1 0</rotate>
+              <rotate sid="jointOrientY">0 1 0 -3.502186</rotate>
+              <rotate sid="jointOrientX">1 0 0 0</rotate>
+              <rotate sid="rotateZ">0 0 1 -15.79999</rotate>
+              <rotate sid="rotateY">0 1 0 0</rotate>
+              <rotate sid="rotateX">1 0 0 0</rotate>
+              <scale sid="scale">1 1 1</scale>
+              <node id="joint4" name="joint4" sid="joint4" type="JOINT">
+                <translate sid="translate">0.01518319 0 -7.90125e-4</translate>
+                <rotate sid="jointOrientZ">0 0 1 0</rotate>
+                <rotate sid="jointOrientY">0 1 0 249.2744</rotate>
+                <rotate sid="jointOrientX">1 0 0 0</rotate>
+                <rotate sid="rotateY">0 1 0 22.70574</rotate>
+                <scale sid="scale">1 1 1</scale>
+                <extra>
+                  <technique profile="OpenCOLLADAMaya">
+                    <originalMayaNodeId>joint4</originalMayaNodeId>
+                  </technique>
+                </extra>
+              </node>
+              <extra>
+                <technique profile="OpenCOLLADAMaya">
+                  <originalMayaNodeId>joint3</originalMayaNodeId>
+                </technique>
+              </extra>
+            </node>
+            <extra>
+              <technique profile="OpenCOLLADAMaya">
+                <originalMayaNodeId>joint2</originalMayaNodeId>
+              </technique>
+            </extra>
+          </node>
+          <extra>
+            <technique profile="OpenCOLLADAMaya">
+              <originalMayaNodeId>joint1</originalMayaNodeId>
+            </technique>
+          </extra>
+        </node>
+        <extra>
+          <technique profile="OpenCOLLADAMaya">
+            <originalMayaNodeId>joint5</originalMayaNodeId>
+          </technique>
+        </extra>
+      </node>
+    </visual_scene>
+  </library_visual_scenes>
+  <library_animations>
+    <animation id="joint1.rotateZ_joint1">
+      <source id="joint1.rotateZ_joint1_joint1.rotateZ_joint1-input" name="joint1.rotateZ_joint1_joint1.rotateZ_joint1-input">
+        <float_array id="joint1.rotateZ_joint1_joint1.rotateZ_joint1-input-array" count="4">0.04166662 1.25 1.75 2 </float_array>
+        <technique_common>
+          <accessor source="#joint1.rotateZ_joint1_joint1.rotateZ_joint1-input-array" count="4" stride="1">
+            <param name="TIME" type="float"/>
+          </accessor>
+        </technique_common>
+        <technique profile="OpenCOLLADAMaya">
+          <pre_infinity>CONSTANT</pre_infinity>
+          <post_infinity>CONSTANT</post_infinity>
+        </technique>
+      </source>
+      <source id="joint1.rotateZ_joint1_joint1.rotateZ_joint1-output" name="joint1.rotateZ_joint1_joint1.rotateZ_joint1-output">
+        <float_array id="joint1.rotateZ_joint1_joint1.rotateZ_joint1-output-array" count="4">0 -0.07678407 -0.1320549 -0.1498638 </float_array>
+        <technique_common>
+          <accessor source="#joint1.rotateZ_joint1_joint1.rotateZ_joint1-output-array" count="4" stride="1">
+            <param name="ANGLE" type="float"/>
+          </accessor>
+        </technique_common>
+      </source>
+      <source id="joint1.rotateZ_joint1_joint1.rotateZ_joint1-interpolation" name="joint1.rotateZ_joint1_joint1.rotateZ_joint1-interpolation">
+        <Name_array id="joint1.rotateZ_joint1_joint1.rotateZ_joint1-interpolation-array" count="4">BEZIER BEZIER BEZIER BEZIER </Name_array>
+        <technique_common>
+          <accessor source="#joint1.rotateZ_joint1_joint1.rotateZ_joint1-interpolation-array" count="4" stride="1">
+            <param name="INTERPOLATION" type="name"/>
+          </accessor>
+        </technique_common>
+      </source>
+      <source id="joint1.rotateZ_joint1_joint1.rotateZ_joint1-intangent" name="joint1.rotateZ_joint1_joint1.rotateZ_joint1-intangent">
+        <float_array id="joint1.rotateZ_joint1_joint1.rotateZ_joint1-intangent-array" count="8">-0.2916667 0 0.8472222 -0.07678407 1.583333 -0.1320549 1.916667 -0.1498638 </float_array>
+        <technique_common>
+          <accessor source="#joint1.rotateZ_joint1_joint1.rotateZ_joint1-intangent-array" count="4" stride="2">
+            <param name="X" type="float"/>
+            <param name="Y" type="float"/>
+          </accessor>
+        </technique_common>
+      </source>
+      <source id="joint1.rotateZ_joint1_joint1.rotateZ_joint1-outtangent" name="joint1.rotateZ_joint1_joint1.rotateZ_joint1-outtangent">
+        <float_array id="joint1.rotateZ_joint1_joint1.rotateZ_joint1-outtangent-array" count="8">0.4444444 0 1.416667 -0.07678407 1.833333 -0.1320549 2.333333 -0.1498638 </float_array>
+        <technique_common>
+          <accessor source="#joint1.rotateZ_joint1_joint1.rotateZ_joint1-outtangent-array" count="4" stride="2">
+            <param name="X" type="float"/>
+            <param name="Y" type="float"/>
+          </accessor>
+        </technique_common>
+      </source>
+      <sampler id="joint1.rotateZ_joint1_joint1.rotateZ_joint1-sampler">
+        <input semantic="INPUT" source="#joint1.rotateZ_joint1_joint1.rotateZ_joint1-input"/>
+        <input semantic="OUTPUT" source="#joint1.rotateZ_joint1_joint1.rotateZ_joint1-output"/>
+        <input semantic="INTERPOLATION" source="#joint1.rotateZ_joint1_joint1.rotateZ_joint1-interpolation"/>
+        <input semantic="IN_TANGENT" source="#joint1.rotateZ_joint1_joint1.rotateZ_joint1-intangent"/>
+        <input semantic="OUT_TANGENT" source="#joint1.rotateZ_joint1_joint1.rotateZ_joint1-outtangent"/>
+      </sampler>
+      <channel source="#joint1.rotateZ_joint1_joint1.rotateZ_joint1-sampler" target="joint1/rotateZ.ANGLE"/>
+    </animation>
+    <animation id="joint1.rotateY_joint1">
+      <source id="joint1.rotateY_joint1_joint1.rotateY_joint1-input" name="joint1.rotateY_joint1_joint1.rotateY_joint1-input">
+        <float_array id="joint1.rotateY_joint1_joint1.rotateY_joint1-input-array" count="4">0.04166662 1.25 1.75 2 </float_array>
+        <technique_common>
+          <accessor source="#joint1.rotateY_joint1_joint1.rotateY_joint1-input-array" count="4" stride="1">
+            <param name="TIME" type="float"/>
+          </accessor>
+        </technique_common>
+        <technique profile="OpenCOLLADAMaya">
+          <pre_infinity>CONSTANT</pre_infinity>
+          <post_infinity>CONSTANT</post_infinity>
+        </technique>
+      </source>
+      <source id="joint1.rotateY_joint1_joint1.rotateY_joint1-output" name="joint1.rotateY_joint1_joint1.rotateY_joint1-output">
+        <float_array id="joint1.rotateY_joint1_joint1.rotateY_joint1-output-array" count="4">0 6.411371 -18.26496 -32.24383 </float_array>
+        <technique_common>
+          <accessor source="#joint1.rotateY_joint1_joint1.rotateY_joint1-output-array" count="4" stride="1">
+            <param name="ANGLE" type="float"/>
+          </accessor>
+        </technique_common>
+      </source>
+      <source id="joint1.rotateY_joint1_joint1.rotateY_joint1-interpolation" name="joint1.rotateY_joint1_joint1.rotateY_joint1-interpolation">
+        <Name_array id="joint1.rotateY_joint1_joint1.rotateY_joint1-interpolation-array" count="4">BEZIER BEZIER BEZIER BEZIER </Name_array>
+        <technique_common>
+          <accessor source="#joint1.rotateY_joint1_joint1.rotateY_joint1-interpolation-array" count="4" stride="1">
+            <param name="INTERPOLATION" type="name"/>
+          </accessor>
+        </technique_common>
+      </source>
+      <source id="joint1.rotateY_joint1_joint1.rotateY_joint1-intangent" name="joint1.rotateY_joint1_joint1.rotateY_joint1-intangent">
+        <float_array id="joint1.rotateY_joint1_joint1.rotateY_joint1-intangent-array" count="8">-0.2916667 -1.768654 0.8472222 10.71774 1.583333 -9.674915 1.916667 -27.58421 </float_array>
+        <technique_common>
+          <accessor source="#joint1.rotateY_joint1_joint1.rotateY_joint1-intangent-array" count="4" stride="2">
+            <param name="X" type="float"/>
+            <param name="Y" type="float"/>
+          </accessor>
+        </technique_common>
+      </source>
+      <source id="joint1.rotateY_joint1_joint1.rotateY_joint1-outtangent" name="joint1.rotateY_joint1_joint1.rotateY_joint1-outtangent">
+        <float_array id="joint1.rotateY_joint1_joint1.rotateY_joint1-outtangent-array" count="8">0.4444444 2.137124 1.416667 4.629424 1.833333 -22.55998 2.333333 -50.88234 </float_array>
+        <technique_common>
+          <accessor source="#joint1.rotateY_joint1_joint1.rotateY_joint1-outtangent-array" count="4" stride="2">
+            <param name="X" type="float"/>
+            <param name="Y" type="float"/>
+          </accessor>
+        </technique_common>
+      </source>
+      <sampler id="joint1.rotateY_joint1_joint1.rotateY_joint1-sampler">
+        <input semantic="INPUT" source="#joint1.rotateY_joint1_joint1.rotateY_joint1-input"/>
+        <input semantic="OUTPUT" source="#joint1.rotateY_joint1_joint1.rotateY_joint1-output"/>
+        <input semantic="INTERPOLATION" source="#joint1.rotateY_joint1_joint1.rotateY_joint1-interpolation"/>
+        <input semantic="IN_TANGENT" source="#joint1.rotateY_joint1_joint1.rotateY_joint1-intangent"/>
+        <input semantic="OUT_TANGENT" source="#joint1.rotateY_joint1_joint1.rotateY_joint1-outtangent"/>
+      </sampler>
+      <channel source="#joint1.rotateY_joint1_joint1.rotateY_joint1-sampler" target="joint1/rotateY.ANGLE"/>
+    </animation>
+    <animation id="joint1.rotateX_joint1">
+      <source id="joint1.rotateX_joint1_joint1.rotateX_joint1-input" name="joint1.rotateX_joint1_joint1.rotateX_joint1-input">
+        <float_array id="joint1.rotateX_joint1_joint1.rotateX_joint1-input-array" count="4">0.04166662 1.25 1.75 2 </float_array>
+        <technique_common>
+          <accessor source="#joint1.rotateX_joint1_joint1.rotateX_joint1-input-array" count="4" stride="1">
+            <param name="TIME" type="float"/>
+          </accessor>
+        </technique_common>
+        <technique profile="OpenCOLLADAMaya">
+          <pre_infinity>CONSTANT</pre_infinity>
+          <post_infinity>CONSTANT</post_infinity>
+        </technique>
+      </source>
+      <source id="joint1.rotateX_joint1_joint1.rotateX_joint1-output" name="joint1.rotateX_joint1_joint1.rotateX_joint1-output">
+        <float_array id="joint1.rotateX_joint1_joint1.rotateX_joint1-output-array" count="4">0 0.0508663 0.07276272 0.07995599 </float_array>
+        <technique_common>
+          <accessor source="#joint1.rotateX_joint1_joint1.rotateX_joint1-output-array" count="4" stride="1">
+            <param name="ANGLE" type="float"/>
+          </accessor>
+        </technique_common>
+      </source>
+      <source id="joint1.rotateX_joint1_joint1.rotateX_joint1-interpolation" name="joint1.rotateX_joint1_joint1.rotateX_joint1-interpolation">
+        <Name_array id="joint1.rotateX_joint1_joint1.rotateX_joint1-interpolation-array" count="4">BEZIER BEZIER BEZIER BEZIER </Name_array>
+        <technique_common>
+          <accessor source="#joint1.rotateX_joint1_joint1.rotateX_joint1-interpolation-array" count="4" stride="1">
+            <param name="INTERPOLATION" type="name"/>
+          </accessor>
+        </technique_common>
+      </source>
+      <source id="joint1.rotateX_joint1_joint1.rotateX_joint1-intangent" name="joint1.rotateX_joint1_joint1.rotateX_joint1-intangent">
+        <float_array id="joint1.rotateX_joint1_joint1.rotateX_joint1-intangent-array" count="8">-0.2916667 0 0.8472222 0.0508663 1.583333 0.07276272 1.916667 0.07995599 </float_array>
+        <technique_common>
+          <accessor source="#joint1.rotateX_joint1_joint1.rotateX_joint1-intangent-array" count="4" stride="2">
+            <param name="X" type="float"/>
+            <param name="Y" type="float"/>
+          </accessor>
+        </technique_common>
+      </source>
+      <source id="joint1.rotateX_joint1_joint1.rotateX_joint1-outtangent" name="joint1.rotateX_joint1_joint1.rotateX_joint1-outtangent">
+        <float_array id="joint1.rotateX_joint1_joint1.rotateX_joint1-outtangent-array" count="8">0.4444444 0 1.416667 0.0508663 1.833333 0.07276272 2.333333 0.07995599 </float_array>
+        <technique_common>
+          <accessor source="#joint1.rotateX_joint1_joint1.rotateX_joint1-outtangent-array" count="4" stride="2">
+            <param name="X" type="float"/>
+            <param name="Y" type="float"/>
+          </accessor>
+        </technique_common>
+      </source>
+      <sampler id="joint1.rotateX_joint1_joint1.rotateX_joint1-sampler">
+        <input semantic="INPUT" source="#joint1.rotateX_joint1_joint1.rotateX_joint1-input"/>
+        <input semantic="OUTPUT" source="#joint1.rotateX_joint1_joint1.rotateX_joint1-output"/>
+        <input semantic="INTERPOLATION" source="#joint1.rotateX_joint1_joint1.rotateX_joint1-interpolation"/>
+        <input semantic="IN_TANGENT" source="#joint1.rotateX_joint1_joint1.rotateX_joint1-intangent"/>
+        <input semantic="OUT_TANGENT" source="#joint1.rotateX_joint1_joint1.rotateX_joint1-outtangent"/>
+      </sampler>
+      <channel source="#joint1.rotateX_joint1_joint1.rotateX_joint1-sampler" target="joint1/rotateX.ANGLE"/>
+    </animation>
+    <animation id="joint2.rotateZ_joint2">
+      <source id="joint2.rotateZ_joint2_joint2.rotateZ_joint2-input" name="joint2.rotateZ_joint2_joint2.rotateZ_joint2-input">
+        <float_array id="joint2.rotateZ_joint2_joint2.rotateZ_joint2-input-array" count="3">0.04166662 1.25 2 </float_array>
+        <technique_common>
+          <accessor source="#joint2.rotateZ_joint2_joint2.rotateZ_joint2-input-array" count="3" stride="1">
+            <param name="TIME" type="float"/>
+          </accessor>
+        </technique_common>
+        <technique profile="OpenCOLLADAMaya">
+          <pre_infinity>CONSTANT</pre_infinity>
+          <post_infinity>CONSTANT</post_infinity>
+        </technique>
+      </source>
+      <source id="joint2.rotateZ_joint2_joint2.rotateZ_joint2-output" name="joint2.rotateZ_joint2_joint2.rotateZ_joint2-output">
+        <float_array id="joint2.rotateZ_joint2_joint2.rotateZ_joint2-output-array" count="3">16.68043 91.48502 54.7752 </float_array>
+        <technique_common>
+          <accessor source="#joint2.rotateZ_joint2_joint2.rotateZ_joint2-output-array" count="3" stride="1">
+            <param name="ANGLE" type="float"/>
+          </accessor>
+        </technique_common>
+      </source>
+      <source id="joint2.rotateZ_joint2_joint2.rotateZ_joint2-interpolation" name="joint2.rotateZ_joint2_joint2.rotateZ_joint2-interpolation">
+        <Name_array id="joint2.rotateZ_joint2_joint2.rotateZ_joint2-interpolation-array" count="3">BEZIER BEZIER BEZIER </Name_array>
+        <technique_common>
+          <accessor source="#joint2.rotateZ_joint2_joint2.rotateZ_joint2-interpolation-array" count="3" stride="1">
+            <param name="INTERPOLATION" type="name"/>
+          </accessor>
+        </technique_common>
+      </source>
+      <source id="joint2.rotateZ_joint2_joint2.rotateZ_joint2-intangent" name="joint2.rotateZ_joint2_joint2.rotateZ_joint2-intangent">
+        <float_array id="joint2.rotateZ_joint2_joint2.rotateZ_joint2-intangent-array" count="6">-0.2916667 -3.955315 0.8472222 83.64993 1.75 67.01181 </float_array>
+        <technique_common>
+          <accessor source="#joint2.rotateZ_joint2_joint2.rotateZ_joint2-intangent-array" count="3" stride="2">
+            <param name="X" type="float"/>
+            <param name="Y" type="float"/>
+          </accessor>
+        </technique_common>
+      </source>
+      <source id="joint2.rotateZ_joint2_joint2.rotateZ_joint2-outtangent" name="joint2.rotateZ_joint2_joint2.rotateZ_joint2-outtangent">
+        <float_array id="joint2.rotateZ_joint2_joint2.rotateZ_joint2-outtangent-array" count="6">0.4444444 41.61529 1.5 96.34819 2.333333 38.45973 </float_array>
+        <technique_common>
+          <accessor source="#joint2.rotateZ_joint2_joint2.rotateZ_joint2-outtangent-array" count="3" stride="2">
+            <param name="X" type="float"/>
+            <param name="Y" type="float"/>
+          </accessor>
+        </technique_common>
+      </source>
+      <sampler id="joint2.rotateZ_joint2_joint2.rotateZ_joint2-sampler">
+        <input semantic="INPUT" source="#joint2.rotateZ_joint2_joint2.rotateZ_joint2-input"/>
+        <input semantic="OUTPUT" source="#joint2.rotateZ_joint2_joint2.rotateZ_joint2-output"/>
+        <input semantic="INTERPOLATION" source="#joint2.rotateZ_joint2_joint2.rotateZ_joint2-interpolation"/>
+        <input semantic="IN_TANGENT" source="#joint2.rotateZ_joint2_joint2.rotateZ_joint2-intangent"/>
+        <input semantic="OUT_TANGENT" source="#joint2.rotateZ_joint2_joint2.rotateZ_joint2-outtangent"/>
+      </sampler>
+      <channel source="#joint2.rotateZ_joint2_joint2.rotateZ_joint2-sampler" target="joint2/rotateZ.ANGLE"/>
+    </animation>
+    <animation id="joint2.rotateY_joint2">
+      <source id="joint2.rotateY_joint2_joint2.rotateY_joint2-input" name="joint2.rotateY_joint2_joint2.rotateY_joint2-input">
+        <float_array id="joint2.rotateY_joint2_joint2.rotateY_joint2-input-array" count="3">0.04166662 1.25 2 </float_array>
+        <technique_common>
+          <accessor source="#joint2.rotateY_joint2_joint2.rotateY_joint2-input-array" count="3" stride="1">
+            <param name="TIME" type="float"/>
+          </accessor>
+        </technique_common>
+        <technique profile="OpenCOLLADAMaya">
+          <pre_infinity>CONSTANT</pre_infinity>
+          <post_infinity>CONSTANT</post_infinity>
+        </technique>
+      </source>
+      <source id="joint2.rotateY_joint2_joint2.rotateY_joint2-output" name="joint2.rotateY_joint2_joint2.rotateY_joint2-output">
+        <float_array id="joint2.rotateY_joint2_joint2.rotateY_joint2-output-array" count="3">0 -50.9318 -20.06527 </float_array>
+        <technique_common>
+          <accessor source="#joint2.rotateY_joint2_joint2.rotateY_joint2-output-array" count="3" stride="1">
+            <param name="ANGLE" type="float"/>
+          </accessor>
+        </technique_common>
+      </source>
+      <source id="joint2.rotateY_joint2_joint2.rotateY_joint2-interpolation" name="joint2.rotateY_joint2_joint2.rotateY_joint2-interpolation">
+        <Name_array id="joint2.rotateY_joint2_joint2.rotateY_joint2-interpolation-array" count="3">BEZIER BEZIER BEZIER </Name_array>
+        <technique_common>
+          <accessor source="#joint2.rotateY_joint2_joint2.rotateY_joint2-interpolation-array" count="3" stride="1">
+            <param name="INTERPOLATION" type="name"/>
+          </accessor>
+        </technique_common>
+      </source>
+      <source id="joint2.rotateY_joint2_joint2.rotateY_joint2-intangent" name="joint2.rotateY_joint2_joint2.rotateY_joint2-intangent">
+        <float_array id="joint2.rotateY_joint2_joint2.rotateY_joint2-intangent-array" count="6">-0.2916667 14.05015 0.8472222 -46.80491 1.75 -30.35412 </float_array>
+        <technique_common>
+          <accessor source="#joint2.rotateY_joint2_joint2.rotateY_joint2-intangent-array" count="3" stride="2">
+            <param name="X" type="float"/>
+            <param name="Y" type="float"/>
+          </accessor>
+        </technique_common>
+      </source>
+      <source id="joint2.rotateY_joint2_joint2.rotateY_joint2-outtangent" name="joint2.rotateY_joint2_joint2.rotateY_joint2-outtangent">
+        <float_array id="joint2.rotateY_joint2_joint2.rotateY_joint2-outtangent-array" count="6">0.4444444 -16.97727 1.5 -53.49333 2.333333 -6.346811 </float_array>
+        <technique_common>
+          <accessor source="#joint2.rotateY_joint2_joint2.rotateY_joint2-outtangent-array" count="3" stride="2">
+            <param name="X" type="float"/>
+            <param name="Y" type="float"/>
+          </accessor>
+        </technique_common>
+      </source>
+      <sampler id="joint2.rotateY_joint2_joint2.rotateY_joint2-sampler">
+        <input semantic="INPUT" source="#joint2.rotateY_joint2_joint2.rotateY_joint2-input"/>
+        <input semantic="OUTPUT" source="#joint2.rotateY_joint2_joint2.rotateY_joint2-output"/>
+        <input semantic="INTERPOLATION" source="#joint2.rotateY_joint2_joint2.rotateY_joint2-interpolation"/>
+        <input semantic="IN_TANGENT" source="#joint2.rotateY_joint2_joint2.rotateY_joint2-intangent"/>
+        <input semantic="OUT_TANGENT" source="#joint2.rotateY_joint2_joint2.rotateY_joint2-outtangent"/>
+      </sampler>
+      <channel source="#joint2.rotateY_joint2_joint2.rotateY_joint2-sampler" target="joint2/rotateY.ANGLE"/>
+    </animation>
+    <animation id="joint2.rotateX_joint2">
+      <source id="joint2.rotateX_joint2_joint2.rotateX_joint2-input" name="joint2.rotateX_joint2_joint2.rotateX_joint2-input">
+        <float_array id="joint2.rotateX_joint2_joint2.rotateX_joint2-input-array" count="3">0.04166662 1.25 2 </float_array>
+        <technique_common>
+          <accessor source="#joint2.rotateX_joint2_joint2.rotateX_joint2-input-array" count="3" stride="1">
+            <param name="TIME" type="float"/>
+          </accessor>
+        </technique_common>
+        <technique profile="OpenCOLLADAMaya">
+          <pre_infinity>CONSTANT</pre_infinity>
+          <post_infinity>CONSTANT</post_infinity>
+        </technique>
+      </source>
+      <source id="joint2.rotateX_joint2_joint2.rotateX_joint2-output" name="joint2.rotateX_joint2_joint2.rotateX_joint2-output">
+        <float_array id="joint2.rotateX_joint2_joint2.rotateX_joint2-output-array" count="3">0 -91.04411 -15.47954 </float_array>
+        <technique_common>
+          <accessor source="#joint2.rotateX_joint2_joint2.rotateX_joint2-output-array" count="3" stride="1">
+            <param name="ANGLE" type="float"/>
+          </accessor>
+        </technique_common>
+      </source>
+      <source id="joint2.rotateX_joint2_joint2.rotateX_joint2-interpolation" name="joint2.rotateX_joint2_joint2.rotateX_joint2-interpolation">
+        <Name_array id="joint2.rotateX_joint2_joint2.rotateX_joint2-interpolation-array" count="3">BEZIER BEZIER BEZIER </Name_array>
+        <technique_common>
+          <accessor source="#joint2.rotateX_joint2_joint2.rotateX_joint2-interpolation-array" count="3" stride="1">
+            <param name="INTERPOLATION" type="name"/>
+          </accessor>
+        </technique_common>
+      </source>
+      <source id="joint2.rotateX_joint2_joint2.rotateX_joint2-intangent" name="joint2.rotateX_joint2_joint2.rotateX_joint2-intangent">
+        <float_array id="joint2.rotateX_joint2_joint2.rotateX_joint2-intangent-array" count="6">-0.2916667 25.11562 0.8472222 -87.86038 1.75 -40.66773 </float_array>
+        <technique_common>
+          <accessor source="#joint2.rotateX_joint2_joint2.rotateX_joint2-intangent-array" count="3" stride="2">
+            <param name="X" type="float"/>
+            <param name="Y" type="float"/>
+          </accessor>
+        </technique_common>
+      </source>
+      <source id="joint2.rotateX_joint2_joint2.rotateX_joint2-outtangent" name="joint2.rotateX_joint2_joint2.rotateX_joint2-outtangent">
+        <float_array id="joint2.rotateX_joint2_joint2.rotateX_joint2-outtangent-array" count="6">0.4444444 -30.34804 1.5 -93.02022 2.333333 18.10471 </float_array>
+        <technique_common>
+          <accessor source="#joint2.rotateX_joint2_joint2.rotateX_joint2-outtangent-array" count="3" stride="2">
+            <param name="X" type="float"/>
+            <param name="Y" type="float"/>
+          </accessor>
+        </technique_common>
+      </source>
+      <sampler id="joint2.rotateX_joint2_joint2.rotateX_joint2-sampler">
+        <input semantic="INPUT" source="#joint2.rotateX_joint2_joint2.rotateX_joint2-input"/>
+        <input semantic="OUTPUT" source="#joint2.rotateX_joint2_joint2.rotateX_joint2-output"/>
+        <input semantic="INTERPOLATION" source="#joint2.rotateX_joint2_joint2.rotateX_joint2-interpolation"/>
+        <input semantic="IN_TANGENT" source="#joint2.rotateX_joint2_joint2.rotateX_joint2-intangent"/>
+        <input semantic="OUT_TANGENT" source="#joint2.rotateX_joint2_joint2.rotateX_joint2-outtangent"/>
+      </sampler>
+      <channel source="#joint2.rotateX_joint2_joint2.rotateX_joint2-sampler" target="joint2/rotateX.ANGLE"/>
+    </animation>
+    <animation id="joint3.rotateZ_joint3">
+      <source id="joint3.rotateZ_joint3_joint3.rotateZ_joint3-input" name="joint3.rotateZ_joint3_joint3.rotateZ_joint3-input">
+        <float_array id="joint3.rotateZ_joint3_joint3.rotateZ_joint3-input-array" count="5">0.04166662 1.25 1.583333 1.75 2 </float_array>
+        <technique_common>
+          <accessor source="#joint3.rotateZ_joint3_joint3.rotateZ_joint3-input-array" count="5" stride="1">
+            <param name="TIME" type="float"/>
+          </accessor>
+        </technique_common>
+        <technique profile="OpenCOLLADAMaya">
+          <pre_infinity>CONSTANT</pre_infinity>
+          <post_infinity>CONSTANT</post_infinity>
+        </technique>
+      </source>
+      <source id="joint3.rotateZ_joint3_joint3.rotateZ_joint3-output" name="joint3.rotateZ_joint3_joint3.rotateZ_joint3-output">
+        <float_array id="joint3.rotateZ_joint3_joint3.rotateZ_joint3-output-array" count="5">-15.79999 -37.6219 -44.64348 -54.57626 -50.28416 </float_array>
+        <technique_common>
+          <accessor source="#joint3.rotateZ_joint3_joint3.rotateZ_joint3-output-array" count="5" stride="1">
+            <param name="ANGLE" type="float"/>
+          </accessor>
+        </technique_common>
+      </source>
+      <source id="joint3.rotateZ_joint3_joint3.rotateZ_joint3-interpolation" name="joint3.rotateZ_joint3_joint3.rotateZ_joint3-interpolation">
+        <Name_array id="joint3.rotateZ_joint3_joint3.rotateZ_joint3-interpolation-array" count="5">BEZIER BEZIER BEZIER BEZIER BEZIER </Name_array>
+        <technique_common>
+          <accessor source="#joint3.rotateZ_joint3_joint3.rotateZ_joint3-interpolation-array" count="5" stride="1">
+            <param name="INTERPOLATION" type="name"/>
+          </accessor>
+        </technique_common>
+      </source>
+      <source id="joint3.rotateZ_joint3_joint3.rotateZ_joint3-intangent" name="joint3.rotateZ_joint3_joint3.rotateZ_joint3-intangent">
+        <float_array id="joint3.rotateZ_joint3_joint3.rotateZ_joint3-intangent-array" count="10">-0.2916667 -9.780154 0.8472222 -30.08622 1.472222 -40.87585 1.694444 -53.82418 1.916667 -51.71486 </float_array>
+        <technique_common>
+          <accessor source="#joint3.rotateZ_joint3_joint3.rotateZ_joint3-intangent-array" count="5" stride="2">
+            <param name="X" type="float"/>
+            <param name="Y" type="float"/>
+          </accessor>
+        </technique_common>
+      </source>
+      <source id="joint3.rotateZ_joint3_joint3.rotateZ_joint3-outtangent" name="joint3.rotateZ_joint3_joint3.rotateZ_joint3-outtangent">
+        <float_array id="joint3.rotateZ_joint3_joint3.rotateZ_joint3-outtangent-array" count="10">0.4444444 -23.07396 1.361111 -39.70071 1.638889 -46.5273 1.833333 -55.7044 2.333333 -44.56135 </float_array>
+        <technique_common>
+          <accessor source="#joint3.rotateZ_joint3_joint3.rotateZ_joint3-outtangent-array" count="5" stride="2">
+            <param name="X" type="float"/>
+            <param name="Y" type="float"/>
+          </accessor>
+        </technique_common>
+      </source>
+      <sampler id="joint3.rotateZ_joint3_joint3.rotateZ_joint3-sampler">
+        <input semantic="INPUT" source="#joint3.rotateZ_joint3_joint3.rotateZ_joint3-input"/>
+        <input semantic="OUTPUT" source="#joint3.rotateZ_joint3_joint3.rotateZ_joint3-output"/>
+        <input semantic="INTERPOLATION" source="#joint3.rotateZ_joint3_joint3.rotateZ_joint3-interpolation"/>
+        <input semantic="IN_TANGENT" source="#joint3.rotateZ_joint3_joint3.rotateZ_joint3-intangent"/>
+        <input semantic="OUT_TANGENT" source="#joint3.rotateZ_joint3_joint3.rotateZ_joint3-outtangent"/>
+      </sampler>
+      <channel source="#joint3.rotateZ_joint3_joint3.rotateZ_joint3-sampler" target="joint3/rotateZ.ANGLE"/>
+    </animation>
+    <animation id="joint3.rotateY_joint3">
+      <source id="joint3.rotateY_joint3_joint3.rotateY_joint3-input" name="joint3.rotateY_joint3_joint3.rotateY_joint3-input">
+        <float_array id="joint3.rotateY_joint3_joint3.rotateY_joint3-input-array" count="5">0.04166662 1.25 1.583333 1.75 2 </float_array>
+        <technique_common>
+          <accessor source="#joint3.rotateY_joint3_joint3.rotateY_joint3-input-array" count="5" stride="1">
+            <param name="TIME" type="float"/>
+          </accessor>
+        </technique_common>
+        <technique profile="OpenCOLLADAMaya">
+          <pre_infinity>CONSTANT</pre_infinity>
+          <post_infinity>CONSTANT</post_infinity>
+        </technique>
+      </source>
+      <source id="joint3.rotateY_joint3_joint3.rotateY_joint3-output" name="joint3.rotateY_joint3_joint3.rotateY_joint3-output">
+        <float_array id="joint3.rotateY_joint3_joint3.rotateY_joint3-output-array" count="5">0 11.69558 16.78438 11.50938 0 </float_array>
+        <technique_common>
+          <accessor source="#joint3.rotateY_joint3_joint3.rotateY_joint3-output-array" count="5" stride="1">
+            <param name="ANGLE" type="float"/>
+          </accessor>
+        </technique_common>
+      </source>
+      <source id="joint3.rotateY_joint3_joint3.rotateY_joint3-interpolation" name="joint3.rotateY_joint3_joint3.rotateY_joint3-interpolation">
+        <Name_array id="joint3.rotateY_joint3_joint3.rotateY_joint3-interpolation-array" count="5">BEZIER BEZIER BEZIER BEZIER BEZIER </Name_array>
+        <technique_common>
+          <accessor source="#joint3.rotateY_joint3_joint3.rotateY_joint3-interpolation-array" count="5" stride="1">
+            <param name="INTERPOLATION" type="name"/>
+          </accessor>
+        </technique_common>
+      </source>
+      <source id="joint3.rotateY_joint3_joint3.rotateY_joint3-intangent" name="joint3.rotateY_joint3_joint3.rotateY_joint3-intangent">
+        <float_array id="joint3.rotateY_joint3_joint3.rotateY_joint3-intangent-array" count="10">-0.2916667 -3.226367 0.8472222 7.310472 1.472222 16.82576 1.694444 13.7473 1.916667 3.836459 </float_array>
+        <technique_common>
+          <accessor source="#joint3.rotateY_joint3_joint3.rotateY_joint3-intangent-array" count="5" stride="2">
+            <param name="X" type="float"/>
+            <param name="Y" type="float"/>
+          </accessor>
+        </technique_common>
+      </source>
+      <source id="joint3.rotateY_joint3_joint3.rotateY_joint3-outtangent" name="joint3.rotateY_joint3_joint3.rotateY_joint3-outtangent">
+        <float_array id="joint3.rotateY_joint3_joint3.rotateY_joint3-outtangent-array" count="10">0.4444444 3.898527 1.361111 12.90527 1.638889 16.7637 1.833333 8.152501 2.333333 -15.34584 </float_array>
+        <technique_common>
+          <accessor source="#joint3.rotateY_joint3_joint3.rotateY_joint3-outtangent-array" count="5" stride="2">
+            <param name="X" type="float"/>
+            <param name="Y" type="float"/>
+          </accessor>
+        </technique_common>
+      </source>
+      <sampler id="joint3.rotateY_joint3_joint3.rotateY_joint3-sampler">
+        <input semantic="INPUT" source="#joint3.rotateY_joint3_joint3.rotateY_joint3-input"/>
+        <input semantic="OUTPUT" source="#joint3.rotateY_joint3_joint3.rotateY_joint3-output"/>
+        <input semantic="INTERPOLATION" source="#joint3.rotateY_joint3_joint3.rotateY_joint3-interpolation"/>
+        <input semantic="IN_TANGENT" source="#joint3.rotateY_joint3_joint3.rotateY_joint3-intangent"/>
+        <input semantic="OUT_TANGENT" source="#joint3.rotateY_joint3_joint3.rotateY_joint3-outtangent"/>
+      </sampler>
+      <channel source="#joint3.rotateY_joint3_joint3.rotateY_joint3-sampler" target="joint3/rotateY.ANGLE"/>
+    </animation>
+    <animation id="joint3.rotateX_joint3">
+      <source id="joint3.rotateX_joint3_joint3.rotateX_joint3-input" name="joint3.rotateX_joint3_joint3.rotateX_joint3-input">
+        <float_array id="joint3.rotateX_joint3_joint3.rotateX_joint3-input-array" count="5">0.04166662 1.25 1.583333 1.75 2 </float_array>
+        <technique_common>
+          <accessor source="#joint3.rotateX_joint3_joint3.rotateX_joint3-input-array" count="5" stride="1">
+            <param name="TIME" type="float"/>
+          </accessor>
+        </technique_common>
+        <technique profile="OpenCOLLADAMaya">
+          <pre_infinity>CONSTANT</pre_infinity>
+          <post_infinity>CONSTANT</post_infinity>
+        </technique>
+      </source>
+      <source id="joint3.rotateX_joint3_joint3.rotateX_joint3-output" name="joint3.rotateX_joint3_joint3.rotateX_joint3-output">
+        <float_array id="joint3.rotateX_joint3_joint3.rotateX_joint3-output-array" count="5">0 0.317726 0.6416258 -1.080617 0 </float_array>
+        <technique_common>
+          <accessor source="#joint3.rotateX_joint3_joint3.rotateX_joint3-output-array" count="5" stride="1">
+            <param name="ANGLE" type="float"/>
+          </accessor>
+        </technique_common>
+      </source>
+      <source id="joint3.rotateX_joint3_joint3.rotateX_joint3-interpolation" name="joint3.rotateX_joint3_joint3.rotateX_joint3-interpolation">
+        <Name_array id="joint3.rotateX_joint3_joint3.rotateX_joint3-interpolation-array" count="5">BEZIER BEZIER BEZIER BEZIER BEZIER </Name_array>
+        <technique_common>
+          <accessor source="#joint3.rotateX_joint3_joint3.rotateX_joint3-interpolation-array" count="5" stride="1">
+            <param name="INTERPOLATION" type="name"/>
+          </accessor>
+        </technique_common>
+      </source>
+      <source id="joint3.rotateX_joint3_joint3.rotateX_joint3-intangent" name="joint3.rotateX_joint3_joint3.rotateX_joint3-intangent">
+        <float_array id="joint3.rotateX_joint3_joint3.rotateX_joint3-intangent-array" count="10">-0.2916667 0 0.8472222 0.317726 1.472222 0.6416258 1.694444 -1.080617 1.916667 0 </float_array>
+        <technique_common>
+          <accessor source="#joint3.rotateX_joint3_joint3.rotateX_joint3-intangent-array" count="5" stride="2">
+            <param name="X" type="float"/>
+            <param name="Y" type="float"/>
+          </accessor>
+        </technique_common>
+      </source>
+      <source id="joint3.rotateX_joint3_joint3.rotateX_joint3-outtangent" name="joint3.rotateX_joint3_joint3.rotateX_joint3-outtangent">
+        <float_array id="joint3.rotateX_joint3_joint3.rotateX_joint3-outtangent-array" count="10">0.4444444 0 1.361111 0.317726 1.638889 0.6416258 1.833333 -1.080617 2.333333 0 </float_array>
+        <technique_common>
+          <accessor source="#joint3.rotateX_joint3_joint3.rotateX_joint3-outtangent-array" count="5" stride="2">
+            <param name="X" type="float"/>
+            <param name="Y" type="float"/>
+          </accessor>
+        </technique_common>
+      </source>
+      <sampler id="joint3.rotateX_joint3_joint3.rotateX_joint3-sampler">
+        <input semantic="INPUT" source="#joint3.rotateX_joint3_joint3.rotateX_joint3-input"/>
+        <input semantic="OUTPUT" source="#joint3.rotateX_joint3_joint3.rotateX_joint3-output"/>
+        <input semantic="INTERPOLATION" source="#joint3.rotateX_joint3_joint3.rotateX_joint3-interpolation"/>
+        <input semantic="IN_TANGENT" source="#joint3.rotateX_joint3_joint3.rotateX_joint3-intangent"/>
+        <input semantic="OUT_TANGENT" source="#joint3.rotateX_joint3_joint3.rotateX_joint3-outtangent"/>
+      </sampler>
+      <channel source="#joint3.rotateX_joint3_joint3.rotateX_joint3-sampler" target="joint3/rotateX.ANGLE"/>
+    </animation>
+  </library_animations>
+  <scene>
+    <instance_visual_scene url="#VisualSceneNode"/>
+  </scene>
+</COLLADA>

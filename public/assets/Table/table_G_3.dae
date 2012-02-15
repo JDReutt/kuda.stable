@@ -1,0 +1,459 @@
+<?xml version="1.0" encoding="utf-8"?>
+<COLLADA xmlns="http://www.collada.org/2005/11/COLLADASchema" version="1.4.1">
+  <asset>
+    <contributor>
+      <author>Terrain</author>
+      <authoring_tool>OpenCOLLADA2011 Hotfix 3 x64</authoring_tool>
+      <comments>
+			ColladaMaya export options: 
+			bakeTransforms=0;relativePaths=1;copyTextures=1;exportTriangles=0;exportCgfxFileReferences=1;
+			isSampling=0;curveConstrainSampling=0;removeStaticCurves=0;exportPolygonMeshes=1;exportLights=0;
+			exportCameras=0;exportJointsAndSkin=0;exportAnimations=1;exportInvisibleNodes=1;exportDefaultCameras=0;
+			exportTexCoords=1;exportNormals=1;exportNormalsPerVertex=0;exportVertexColors=0;exportVertexColorsPerVertex=0;
+			exportTexTangents=0;exportTangents=0;exportReferencedMaterials=0;exportMaterialsOnly=0;
+			exportXRefs=0;dereferenceXRefs=1;exportCameraAsLookat=0;cameraXFov=0;cameraYFov=1;doublePrecision=0
+		</comments>
+      <source_data>file:///S:/WorldEditorTraining/scenes/Story/page1/SecurityPost_49.ma</source_data>
+    </contributor>
+    <created>2011-10-25T09:04:55</created>
+    <modified>2011-10-25T09:04:55</modified>
+    <unit name="meter" meter="1"/>
+    <up_axis>Y_UP</up_axis>
+  </asset>
+  <library_materials>
+    <material id="DeskTable_S" name="DeskTable_S">
+      <instance_effect url="#DeskTable_S-fx"/>
+    </material>
+  </library_materials>
+  <library_effects>
+    <effect id="DeskTable_S-fx">
+      <profile_COMMON>
+        <newparam sid="file6-surface">
+          <surface type="2D">
+            <init_from>file6</init_from>
+          </surface>
+        </newparam>
+        <newparam sid="file6-sampler">
+          <sampler2D>
+            <source>file6-surface</source>
+          </sampler2D>
+        </newparam>
+        <technique sid="common">
+          <lambert>
+            <emission>
+              <color>0 0 0 1</color>
+            </emission>
+            <ambient>
+              <color>0 0 0 1</color>
+            </ambient>
+            <diffuse>
+              <texture texture="file6-sampler" texcoord="TEX0">
+                <extra>
+                  <technique profile="OpenCOLLADAMaya">
+                    <blend_mode>NONE</blend_mode>
+                    <coverageU>1</coverageU>
+                    <coverageV>1</coverageV>
+                    <fast>0</fast>
+                    <mirrorU>0</mirrorU>
+                    <mirrorV>0</mirrorV>
+                    <noiseU>0</noiseU>
+                    <noiseV>0</noiseV>
+                    <offsetU>0</offsetU>
+                    <offsetV>0</offsetV>
+                    <repeatU>1</repeatU>
+                    <repeatV>1</repeatV>
+                    <rotateFrame>0</rotateFrame>
+                    <rotateUV>0</rotateUV>
+                    <stagger>0</stagger>
+                    <translateFrameU>0</translateFrameU>
+                    <translateFrameV>0</translateFrameV>
+                    <wrapU>1</wrapU>
+                    <wrapV>1</wrapV>
+                  </technique>
+                </extra>
+              </texture>
+            </diffuse>
+            <transparent opaque="RGB_ZERO">
+              <color>0 0 0 1</color>
+            </transparent>
+            <transparency>
+              <float>1</float>
+            </transparency>
+          </lambert>
+        </technique>
+      </profile_COMMON>
+    </effect>
+  </library_effects>
+  <library_images>
+    <image id="file6" name="file6">
+      <init_from>./DeskTable.jpg</init_from>
+      <extra>
+        <technique profile="OpenCOLLADAMaya">
+          <dgnode_type>kFile</dgnode_type>
+          <image_sequence>0</image_sequence>
+          <originalMayaNodeId>file6</originalMayaNodeId>
+        </technique>
+      </extra>
+    </image>
+  </library_images>
+  <library_geometries>
+    <geometry id="pCubeShape9" name="pCubeShape9">
+      <mesh>
+        <source id="pCubeShape9-positions" name="pCubeShape9-positions">
+          <float_array id="pCubeShape9-positions-array" count="24">-0.02290329 -0.4512538 0.02433502 0.02290375 -0.4512538 0.02433502 -0.02290283 0.3343019 0.0243338 0.02290421 0.3343019 0.0243338 -0.02290298 0.3343019 -0.02433594 0.02290421 0.3343019 -0.02433563 -0.02290359 -0.4512539 -0.02433472 0.02290344 -0.4512538 -0.02433441</float_array>
+          <technique_common>
+            <accessor source="#pCubeShape9-positions-array" count="8" stride="3">
+              <param name="X" type="float"/>
+              <param name="Y" type="float"/>
+              <param name="Z" type="float"/>
+            </accessor>
+          </technique_common>
+        </source>
+        <source id="pCubeShape9-normals" name="pCubeShape9-normals">
+          <float_array id="pCubeShape9-normals-array" count="48">0 0 1 0 0 1 0 0 1 0 0 1 0 0 -1 0 0 -1 0 0 -1 0 0 -1 1 0 0 1 0 0 1 0 0 1 0 0 -1 0 0 -1 0 0 -1 0 0 -1 0 0</float_array>
+          <technique_common>
+            <accessor source="#pCubeShape9-normals-array" count="16" stride="3">
+              <param name="X" type="float"/>
+              <param name="Y" type="float"/>
+              <param name="Z" type="float"/>
+            </accessor>
+          </technique_common>
+        </source>
+        <source id="pCubeShape9-map1" name="pCubeShape9-map1">
+          <float_array id="pCubeShape9-map1-array" count="24">0.2858337 6.74263e-4 0.3074076 0.2030424 0.3076938 6.74263e-4 0.3292678 0.2030424 0.3292678 6.74263e-4 0.3074076 6.74263e-4 0.3511283 6.74263e-4 0.3511283 0.2030424 0.2639733 0.2030423 0.2639733 6.74263e-4 0.3076938 0.2030423 0.2858337 0.2030423</float_array>
+          <technique_common>
+            <accessor source="#pCubeShape9-map1-array" count="12" stride="2">
+              <param name="S" type="float"/>
+              <param name="T" type="float"/>
+            </accessor>
+          </technique_common>
+        </source>
+        <vertices id="pCubeShape9-vertices" name="pCubeShape9-vertices">
+          <input semantic="POSITION" source="#pCubeShape9-positions"/>
+        </vertices>
+        <polylist material="lambert20SG" count="4">
+          <input semantic="VERTEX" source="#pCubeShape9-vertices" offset="0"/>
+          <input semantic="NORMAL" source="#pCubeShape9-normals" offset="1"/>
+          <input semantic="TEXCOORD" source="#pCubeShape9-map1" offset="2" set="0"/>
+          <vcount>4 4 4 4</vcount>
+          <p>0 0 0 1 1 2 3 2 10 2 3 11 4 4 1 5 5 3 7 6 4 6 7 5 1 8 6 7 9 4 5 10 3 3 11 7 6 12 9 0 13 0 2 14 11 4 15 8</p>
+        </polylist>
+      </mesh>
+      <extra>
+        <technique profile="OpenCOLLADAMaya">
+          <originalMayaNodeId>pCubeShape9</originalMayaNodeId>
+          <double_sided>1</double_sided>
+        </technique>
+      </extra>
+    </geometry>
+    <geometry id="pCubeShape10" name="pCubeShape10">
+      <mesh>
+        <source id="pCubeShape10-positions" name="pCubeShape10-positions">
+          <float_array id="pCubeShape10-positions-array" count="24">-0.02290344 -0.4512539 0.02433502 0.02290359 -0.4512539 0.02433472 -0.02290344 0.3343017 0.02433502 0.02290359 0.3343017 0.02433472 -0.02290329 0.3343017 -0.02433472 0.02290359 0.3343017 -0.02433472 -0.02290329 -0.4512539 -0.02433472 0.02290359 -0.4512539 -0.02433472</float_array>
+          <technique_common>
+            <accessor source="#pCubeShape10-positions-array" count="8" stride="3">
+              <param name="X" type="float"/>
+              <param name="Y" type="float"/>
+              <param name="Z" type="float"/>
+            </accessor>
+          </technique_common>
+        </source>
+        <source id="pCubeShape10-normals" name="pCubeShape10-normals">
+          <float_array id="pCubeShape10-normals-array" count="48">0 0 1 0 0 1 0 0 1 0 0 1 0 0 -1 0 0 -1 0 0 -1 0 0 -1 1 0 0 1 0 0 1 0 0 1 0 0 -1 0 0 -1 0 0 -1 0 0 -1 0 0</float_array>
+          <technique_common>
+            <accessor source="#pCubeShape10-normals-array" count="16" stride="3">
+              <param name="X" type="float"/>
+              <param name="Y" type="float"/>
+              <param name="Z" type="float"/>
+            </accessor>
+          </technique_common>
+        </source>
+        <source id="pCubeShape10-map1" name="pCubeShape10-map1">
+          <float_array id="pCubeShape10-map1-array" count="24">0.1120966 6.74292e-4 0.1336707 0.2030423 0.1339569 6.74292e-4 0.1561065 0.2030423 0.1561065 6.74263e-4 0.1336707 6.74263e-4 0.1773912 6.74263e-4 0.1773912 0.2030423 0.1339569 0.2030423 0.1120966 0.2030423 0.09023625 6.74292e-4 0.09023625 0.2030423</float_array>
+          <technique_common>
+            <accessor source="#pCubeShape10-map1-array" count="12" stride="2">
+              <param name="S" type="float"/>
+              <param name="T" type="float"/>
+            </accessor>
+          </technique_common>
+        </source>
+        <vertices id="pCubeShape10-vertices" name="pCubeShape10-vertices">
+          <input semantic="POSITION" source="#pCubeShape10-positions"/>
+        </vertices>
+        <polylist material="lambert20SG" count="4">
+          <input semantic="VERTEX" source="#pCubeShape10-vertices" offset="0"/>
+          <input semantic="NORMAL" source="#pCubeShape10-normals" offset="1"/>
+          <input semantic="TEXCOORD" source="#pCubeShape10-map1" offset="2" set="0"/>
+          <vcount>4 4 4 4</vcount>
+          <p>0 0 0 1 1 2 3 2 8 2 3 9 4 4 1 5 5 3 7 6 4 6 7 5 1 8 6 7 9 4 5 10 3 3 11 7 6 12 10 0 13 0 2 14 9 4 15 11</p>
+        </polylist>
+      </mesh>
+      <extra>
+        <technique profile="OpenCOLLADAMaya">
+          <originalMayaNodeId>pCubeShape10</originalMayaNodeId>
+          <double_sided>1</double_sided>
+        </technique>
+      </extra>
+    </geometry>
+    <geometry id="pCubeShape7" name="pCubeShape7">
+      <mesh>
+        <source id="pCubeShape7-positions" name="pCubeShape7-positions">
+          <float_array id="pCubeShape7-positions-array" count="60">-0.5 0.015 0.5 0.2756302 0.015 0.5 -0.5 0.015 -0.3210083 0.2756302 0.015 -0.3210083 -0.5 -0.02108398 0.5 0.2756302 -0.02108398 0.5 0.2756302 0.02108398 0.5 -0.5 0.02108398 0.5 -0.5 0.02108398 -0.3210083 0.2756302 0.02108398 -0.3210083 0.2756302 -0.02108398 -0.3210083 -0.5 -0.02108398 -0.3210083 -0.5097972 -0.02108398 0.5097972 0.2854274 -0.02108398 0.5097972 0.2854274 0.02108398 0.5097972 -0.5097972 0.02108398 0.5097972 -0.5097972 0.02108398 -0.3308055 0.2854274 0.02108398 -0.3308055 0.2854274 -0.02108398 -0.3308055 -0.5097972 -0.02108398 -0.3308055</float_array>
+          <technique_common>
+            <accessor source="#pCubeShape7-positions-array" count="20" stride="3">
+              <param name="X" type="float"/>
+              <param name="Y" type="float"/>
+              <param name="Z" type="float"/>
+            </accessor>
+          </technique_common>
+        </source>
+        <source id="pCubeShape7-normals" name="pCubeShape7-normals">
+          <float_array id="pCubeShape7-normals-array" count="156">0 0 1 0 0 1 0 0 1 0 0 1 0 1 0 0 1 0 0 1 0 0 1 0 0 0 -1 0 0 -1 0 0 -1 0 0 -1 1 0 0 1 0 0 1 0 0 1 0 0 -1 0 0 -1 0 0 -1 0 0 -1 0 0 0 0 -1 0 0 -1 0 0 -1 0 0 -1 0 0 1 0 0 1 0 0 1 0 0 1 -1 0 0 -1 0 0 -1 0 0 -1 0 0 1 0 0 1 0 0 1 0 0 1 0 0 0 -1 0 0 -1 0 0 -1 0 0 -1 0 0 1 0 0 1 0 0 1 0 0 1 0 0 1 0 0 1 0 0 1 0 0 1 0 0 -1 0 0 -1 0 0 -1 0 0 -1 0</float_array>
+          <technique_common>
+            <accessor source="#pCubeShape7-normals-array" count="52" stride="3">
+              <param name="X" type="float"/>
+              <param name="Y" type="float"/>
+              <param name="Z" type="float"/>
+            </accessor>
+          </technique_common>
+        </source>
+        <source id="pCubeShape7-map1" name="pCubeShape7-map1">
+          <float_array id="pCubeShape7-map1-array" count="60">0.4689814 0.124384 0.5856574 0.124384 0.4689814 0.2410601 0.5856574 0.2410601 0.7023332 0.124384 0.3523057 0.124384 0.4689814 0.001547202 0.5856574 0.001547202 0.5856574 0.124384 0.4689814 0.124384 0.4689814 0.2410601 0.5856574 0.2410601 0.5856574 0.3633608 0.4689814 0.3633608 0.7023332 0.001547202 0.7023332 0.124384 0.3523057 0.001547202 0.3523057 0.124384 0.4689814 0.001547202 0.5856574 0.001547202 0.5856574 0.1182231 0.4689814 0.1182231 0.4689814 0.246685 0.5856574 0.246685 0.5856574 0.3633608 0.4689814 0.3633608 0.7023332 0.001547202 0.7023332 0.1182231 0.3523057 0.001547202 0.3523057 0.1182231</float_array>
+          <technique_common>
+            <accessor source="#pCubeShape7-map1-array" count="30" stride="2">
+              <param name="S" type="float"/>
+              <param name="T" type="float"/>
+            </accessor>
+          </technique_common>
+        </source>
+        <vertices id="pCubeShape7-vertices" name="pCubeShape7-vertices">
+          <input semantic="POSITION" source="#pCubeShape7-positions"/>
+        </vertices>
+        <polylist material="lambert20SG" count="17">
+          <input semantic="VERTEX" source="#pCubeShape7-vertices" offset="0"/>
+          <input semantic="NORMAL" source="#pCubeShape7-normals" offset="1"/>
+          <input semantic="TEXCOORD" source="#pCubeShape7-map1" offset="2" set="0"/>
+          <vcount>4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4</vcount>
+          <p>12 0 18 13 1 19 14 2 20 15 3 21 0 4 0 1 5 1 3 6 3 2 7 2 16 8 22 17 9 23 18 10 24 19 11 25 13 12 19 18 13 26 17 14 27 14 15 20 19 16 28 12 17 18 15 18 21 16 19 29 1 20 1 0 21 0 7 22 9 6 23 8 2 24 2 3 25 3 9 26 11 8 27 10 3 28 4 1 29 1 6 30 8 9 31 15 0 32 0 2 33 5 8 34 17 7 35 9 4 36 6 5 37 7 13 38 19 12 39 18 6 40 8 7 41 9 15 42 21 14 43 20 8 44 10 9 45 11 17 46 23 16 47 22 10 48 12 11 49 13 19 50 25 18 51 24 5 37 7 10 48 14 18 51 26 13 38 19 9 45 15 6 40 8 14 43 20 17 46 27 11 49 16 4 36 6 12 39 18 19 50 28 7 41 9 8 44 17 16 47 29 15 42 21</p>
+        </polylist>
+      </mesh>
+      <extra>
+        <technique profile="OpenCOLLADAMaya">
+          <originalMayaNodeId>pCubeShape7</originalMayaNodeId>
+          <double_sided>1</double_sided>
+        </technique>
+      </extra>
+    </geometry>
+    <geometry id="pCubeShape8" name="pCubeShape8">
+      <mesh>
+        <source id="pCubeShape8-positions" name="pCubeShape8-positions">
+          <float_array id="pCubeShape8-positions-array" count="24">-0.02290314 -0.4512537 0.02433472 0.02290359 -0.4512537 0.02433472 -0.02290314 0.3343018 0.02433472 0.02290359 0.3343018 0.02433472 -0.02290359 0.3343018 -0.02433533 0.02290344 0.3343018 -0.02433502 -0.02290359 -0.4512537 -0.02433533 0.02290344 -0.4512537 -0.02433502</float_array>
+          <technique_common>
+            <accessor source="#pCubeShape8-positions-array" count="8" stride="3">
+              <param name="X" type="float"/>
+              <param name="Y" type="float"/>
+              <param name="Z" type="float"/>
+            </accessor>
+          </technique_common>
+        </source>
+        <source id="pCubeShape8-normals" name="pCubeShape8-normals">
+          <float_array id="pCubeShape8-normals-array" count="48">0 0 1 0 0 1 0 0 1 0 0 1 0 0 -1 0 0 -1 0 0 -1 0 0 -1 1 0 0 1 0 0 1 0 0 1 0 0 -1 0 0 -1 0 0 -1 0 0 -1 0 0</float_array>
+          <technique_common>
+            <accessor source="#pCubeShape8-normals-array" count="16" stride="3">
+              <param name="X" type="float"/>
+              <param name="Y" type="float"/>
+              <param name="Z" type="float"/>
+            </accessor>
+          </technique_common>
+        </source>
+        <source id="pCubeShape8-map1" name="pCubeShape8-map1">
+          <float_array id="pCubeShape8-map1-array" count="24">0.1989651 6.74292e-4 0.220539 0.2030423 0.2208254 6.74292e-4 0.2423993 0.2030423 0.2423993 6.74292e-4 0.220539 6.74292e-4 0.2642597 6.74292e-4 0.2642597 0.2030423 0.1771048 0.2030423 0.1771048 6.74292e-4 0.2208254 0.2030423 0.1989651 0.2030423</float_array>
+          <technique_common>
+            <accessor source="#pCubeShape8-map1-array" count="12" stride="2">
+              <param name="S" type="float"/>
+              <param name="T" type="float"/>
+            </accessor>
+          </technique_common>
+        </source>
+        <vertices id="pCubeShape8-vertices" name="pCubeShape8-vertices">
+          <input semantic="POSITION" source="#pCubeShape8-positions"/>
+        </vertices>
+        <polylist material="lambert20SG" count="4">
+          <input semantic="VERTEX" source="#pCubeShape8-vertices" offset="0"/>
+          <input semantic="NORMAL" source="#pCubeShape8-normals" offset="1"/>
+          <input semantic="TEXCOORD" source="#pCubeShape8-map1" offset="2" set="0"/>
+          <vcount>4 4 4 4</vcount>
+          <p>0 0 0 1 1 2 3 2 10 2 3 11 4 4 1 5 5 3 7 6 4 6 7 5 1 8 6 7 9 4 5 10 3 3 11 7 6 12 9 0 13 0 2 14 11 4 15 8</p>
+        </polylist>
+      </mesh>
+      <extra>
+        <technique profile="OpenCOLLADAMaya">
+          <originalMayaNodeId>pCubeShape8</originalMayaNodeId>
+          <double_sided>1</double_sided>
+        </technique>
+      </extra>
+    </geometry>
+    <geometry id="pCubeShape11" name="pCubeShape11">
+      <mesh>
+        <source id="pCubeShape11-positions" name="pCubeShape11-positions">
+          <float_array id="pCubeShape11-positions-array" count="24">-0.02290344 -0.4512537 0.02433502 0.02290344 -0.4512537 0.02433472 -0.02290344 0.3343018 0.02433502 0.02290344 0.3343018 0.02433472 -0.02290329 0.3343018 -0.02433502 0.02290359 0.3343018 -0.02433502 -0.02290329 -0.4512537 -0.02433502 0.02290359 -0.4512537 -0.02433502</float_array>
+          <technique_common>
+            <accessor source="#pCubeShape11-positions-array" count="8" stride="3">
+              <param name="X" type="float"/>
+              <param name="Y" type="float"/>
+              <param name="Z" type="float"/>
+            </accessor>
+          </technique_common>
+        </source>
+        <source id="pCubeShape11-normals" name="pCubeShape11-normals">
+          <float_array id="pCubeShape11-normals-array" count="48">0 0 1 0 0 1 0 0 1 0 0 1 0 0 -1 0 0 -1 0 0 -1 0 0 -1 1 0 0 1 0 0 1 0 0 1 0 0 -1 0 0 -1 0 0 -1 0 0 -1 0 0</float_array>
+          <technique_common>
+            <accessor source="#pCubeShape11-normals-array" count="16" stride="3">
+              <param name="X" type="float"/>
+              <param name="Y" type="float"/>
+              <param name="Z" type="float"/>
+            </accessor>
+          </technique_common>
+        </source>
+        <source id="pCubeShape11-map1" name="pCubeShape11-map1">
+          <float_array id="pCubeShape11-map1-array" count="24">0.02563959 6.74263e-4 0.04708838 0.2030423 0.04708838 6.74263e-4 0.06825081 0.2030423 0.06825081 6.74292e-4 0.04708838 6.74292e-4 0.09052262 6.74292e-4 0.09052262 0.2030423 0.04708838 0.2030423 0.02563959 0.2030423 0.003367752 6.74263e-4 0.003367752 0.2030423</float_array>
+          <technique_common>
+            <accessor source="#pCubeShape11-map1-array" count="12" stride="2">
+              <param name="S" type="float"/>
+              <param name="T" type="float"/>
+            </accessor>
+          </technique_common>
+        </source>
+        <vertices id="pCubeShape11-vertices" name="pCubeShape11-vertices">
+          <input semantic="POSITION" source="#pCubeShape11-positions"/>
+        </vertices>
+        <polylist material="lambert20SG" count="4">
+          <input semantic="VERTEX" source="#pCubeShape11-vertices" offset="0"/>
+          <input semantic="NORMAL" source="#pCubeShape11-normals" offset="1"/>
+          <input semantic="TEXCOORD" source="#pCubeShape11-map1" offset="2" set="0"/>
+          <vcount>4 4 4 4</vcount>
+          <p>0 0 0 1 1 2 3 2 8 2 3 9 4 4 1 5 5 3 7 6 4 6 7 5 1 8 6 7 9 4 5 10 3 3 11 7 6 12 10 0 13 0 2 14 9 4 15 11</p>
+        </polylist>
+      </mesh>
+      <extra>
+        <technique profile="OpenCOLLADAMaya">
+          <originalMayaNodeId>pCubeShape11</originalMayaNodeId>
+          <double_sided>1</double_sided>
+        </technique>
+      </extra>
+    </geometry>
+  </library_geometries>
+  <library_visual_scenes>
+    <visual_scene id="VisualSceneNode" name="SecurityPost_49">
+      <node id="table_G" name="table_G" type="NODE">
+        <translate sid="translate">0 0 0</translate>
+        <translate sid="rotatePivot">0.015024 0.005626792 -4.198219</translate>
+        <rotate sid="rotateZ">0 0 1 0</rotate>
+        <rotate sid="rotateY">0 1 0 27.01397</rotate>
+        <rotate sid="rotateX">1 0 0 0</rotate>
+        <translate sid="rotatePivotInverse">-0.015024 -0.005626792 4.198219</translate>
+        <translate sid="scalePivot">0.015024 0.005626792 -4.198219</translate>
+        <scale sid="scale">1 1 1</scale>
+        <translate sid="scalePivotInverse">-0.015024 -0.005626792 4.198219</translate>
+        <node id="pCube9" name="pCube9" type="NODE">
+          <translate sid="translate">0.3693363 0.4512538 -4.576645</translate>
+          <scale sid="scale">1 1 1</scale>
+          <instance_geometry url="#pCubeShape9">
+            <bind_material>
+              <technique_common>
+                <instance_material symbol="lambert20SG" target="#DeskTable_S">
+                  <bind_vertex_input semantic="TEX0" input_semantic="TEXCOORD" input_set="0"/>
+                </instance_material>
+              </technique_common>
+            </bind_material>
+          </instance_geometry>
+          <extra>
+            <technique profile="OpenCOLLADAMaya">
+              <originalMayaNodeId>pCube9</originalMayaNodeId>
+            </technique>
+          </extra>
+        </node>
+        <node id="pCube10" name="pCube10" type="NODE">
+          <translate sid="translate">0.3693363 0.4512538 -3.819703</translate>
+          <scale sid="scale">1 1 1</scale>
+          <instance_geometry url="#pCubeShape10">
+            <bind_material>
+              <technique_common>
+                <instance_material symbol="lambert20SG" target="#DeskTable_S">
+                  <bind_vertex_input semantic="TEX0" input_semantic="TEXCOORD" input_set="0"/>
+                </instance_material>
+              </technique_common>
+            </bind_material>
+          </instance_geometry>
+          <extra>
+            <technique profile="OpenCOLLADAMaya">
+              <originalMayaNodeId>pCube10</originalMayaNodeId>
+            </technique>
+          </extra>
+        </node>
+        <node id="pCube7" name="pCube7" type="NODE">
+          <translate sid="translate">0.1272089 0.8 -4.287715</translate>
+          <scale sid="scale">1 1 1</scale>
+          <instance_geometry url="#pCubeShape7">
+            <bind_material>
+              <technique_common>
+                <instance_material symbol="lambert20SG" target="#DeskTable_S">
+                  <bind_vertex_input semantic="TEX0" input_semantic="TEXCOORD" input_set="0"/>
+                </instance_material>
+              </technique_common>
+            </bind_material>
+          </instance_geometry>
+          <extra>
+            <technique profile="OpenCOLLADAMaya">
+              <originalMayaNodeId>pCube7</originalMayaNodeId>
+            </technique>
+          </extra>
+        </node>
+        <node id="pCube8" name="pCube8" type="NODE">
+          <translate sid="translate">-0.3442792 0.4512538 -4.576645</translate>
+          <scale sid="scale">1 1 1</scale>
+          <instance_geometry url="#pCubeShape8">
+            <bind_material>
+              <technique_common>
+                <instance_material symbol="lambert20SG" target="#DeskTable_S">
+                  <bind_vertex_input semantic="TEX0" input_semantic="TEXCOORD" input_set="0"/>
+                </instance_material>
+              </technique_common>
+            </bind_material>
+          </instance_geometry>
+          <extra>
+            <technique profile="OpenCOLLADAMaya">
+              <originalMayaNodeId>pCube8</originalMayaNodeId>
+            </technique>
+          </extra>
+        </node>
+        <node id="pCube11" name="pCube11" type="NODE">
+          <translate sid="translate">-0.3442792 0.4512538 -3.819703</translate>
+          <scale sid="scale">1 1 1</scale>
+          <instance_geometry url="#pCubeShape11">
+            <bind_material>
+              <technique_common>
+                <instance_material symbol="lambert20SG" target="#DeskTable_S">
+                  <bind_vertex_input semantic="TEX0" input_semantic="TEXCOORD" input_set="0"/>
+                </instance_material>
+              </technique_common>
+            </bind_material>
+          </instance_geometry>
+          <extra>
+            <technique profile="OpenCOLLADAMaya">
+              <originalMayaNodeId>pCube11</originalMayaNodeId>
+            </technique>
+          </extra>
+        </node>
+        <extra>
+          <technique profile="OpenCOLLADAMaya">
+            <originalMayaNodeId>table_G</originalMayaNodeId>
+          </technique>
+        </extra>
+      </node>
+    </visual_scene>
+  </library_visual_scenes>
+  <scene>
+    <instance_visual_scene url="#VisualSceneNode"/>
+  </scene>
+</COLLADA>
