@@ -1,10 +1,8 @@
-public/js/editor/data/hemi.json
-glob:public/assets/
+
 glob:public/projects
+
 syntax: regexp
 ^\.project$
 public/js/editor/data/hemi\.json
 public/js/lib/jquery\.dataTables\.js
-
-syntax: regexp
-^public/js/threejs$
+public/js/lib/jshashtable\.js
