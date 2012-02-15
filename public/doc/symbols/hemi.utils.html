@@ -1,0 +1,4404 @@
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+	<head>
+		<meta charset="utf-8"></meta>
+		<meta name="generator" content="JsDoc Toolkit"></meta>
+		<title>hemi.utils | JsDoc Reference</title>
+
+		<meta name="viewport" content="width=device-width; initial-scale=1.0; maximum-scale=1.0;"></meta>
+		<meta name="mobileoptimized" content="0"></meta>
+	
+		<link rel="stylesheet" href="../css/all.css" media="all"></link>
+		<link rel="stylesheet" href="../css/handheld.css" media="only screen and (max-width: 660px)"></link>
+		<link rel="stylesheet" href="../css/handheld.css" media="handheld"></link>
+		<link rel="stylesheet" href="../css/screen.css" media="screen and (min-width: 661px)"></link>
+
+		<script src="../javascript/all.js"></script>
+		<!--[if lt IE 9]>
+			<script src="../javascript/html5.js"></script>
+		<![endif]-->
+	</head>
+
+	<body>
+
+<div class="index">
+	<div class="menu">
+		<div class="indexLinks">
+			<a href="../index.html">Classes</a>
+			<a href="../files.html">Files</a>
+		</div>
+	
+		<h2 class="heading1">Classes</h2>
+		
+		<input type="text" name="classFilter" class="classFilter" id="ClassFilter" placeholder="Filter"></input>
+		
+		<nav>
+			<ul class="classList" id="ClassList">
+				
+					<li><a href="../symbols/_global_.html">_global_</a></li>
+				
+					<li><a href="../symbols/hemi.html">hemi</a></li>
+				
+					<li><a href="../symbols/hemi.BoundingBox.html">hemi<span class='break'> </span>.<span class='break'> </span>BoundingBox</a></li>
+				
+					<li><a href="../symbols/hemi.dispatch.html">hemi<span class='break'> </span>.<span class='break'> </span>dispatch</a></li>
+				
+					<li><a href="../symbols/hemi.input.html">hemi<span class='break'> </span>.<span class='break'> </span>input</a></li>
+				
+					<li><a href="../symbols/hemi.msg.html">hemi<span class='break'> </span>.<span class='break'> </span>msg</a></li>
+				
+					<li><a href="../symbols/hemi.particles.html">hemi<span class='break'> </span>.<span class='break'> </span>particles</a></li>
+				
+					<li><a href="../symbols/hemi.particles.Emitter.html">hemi<span class='break'> </span>.<span class='break'> </span>particles<span class='break'> </span>.<span class='break'> </span>Emitter</a></li>
+				
+					<li><a href="../symbols/hemi.particles.OneShot.html">hemi<span class='break'> </span>.<span class='break'> </span>particles<span class='break'> </span>.<span class='break'> </span>OneShot</a></li>
+				
+					<li><a href="../symbols/hemi.particles.Spec.html">hemi<span class='break'> </span>.<span class='break'> </span>particles<span class='break'> </span>.<span class='break'> </span>Spec</a></li>
+				
+					<li><a href="../symbols/hemi.particles.Trail.html">hemi<span class='break'> </span>.<span class='break'> </span>particles<span class='break'> </span>.<span class='break'> </span>Trail</a></li>
+				
+					<li><a href="../symbols/hemi.Picker.html">hemi<span class='break'> </span>.<span class='break'> </span>Picker</a></li>
+				
+					<li><a href="../symbols/hemi.utils.html">hemi<span class='break'> </span>.<span class='break'> </span>utils</a></li>
+				
+					<li><a href="../symbols/hemi.ViewData.html">hemi<span class='break'> </span>.<span class='break'> </span>ViewData</a></li>
+				
+					<li><a href="../symbols/hemi.world.html">hemi<span class='break'> </span>.<span class='break'> </span>world</a></li>
+				
+					<li><a href="../symbols/hext-BaseController.html">hext-BaseController</a></li>
+				
+					<li><a href="../symbols/hext-BaseTool.html">hext-BaseTool</a></li>
+				
+					<li><a href="../symbols/hext-BlowerDoor.html">hext-BlowerDoor</a></li>
+				
+					<li><a href="../symbols/hext-BlowerDoorController.html">hext-BlowerDoorController</a></li>
+				
+					<li><a href="../symbols/hext-BlowerDoorToolbarView.html">hext-BlowerDoorToolbarView</a></li>
+				
+					<li><a href="../symbols/hext-BlowerDoorView.html">hext-BlowerDoorView</a></li>
+				
+					<li><a href="../symbols/hext-HtmlView.html">hext-HtmlView</a></li>
+				
+					<li><a href="../symbols/hext-Location.html">hext-Location</a></li>
+				
+					<li><a href="../symbols/hext-Manometer.html">hext-Manometer</a></li>
+				
+					<li><a href="../symbols/hext-ManometerToolbarView.html">hext-ManometerToolbarView</a></li>
+				
+					<li><a href="../symbols/hext-ManometerTube.html">hext-ManometerTube</a></li>
+				
+					<li><a href="../symbols/hext-ManometerTubeManager.html">hext-ManometerTubeManager</a></li>
+				
+					<li><a href="../symbols/hext-ManometerView.html">hext-ManometerView</a></li>
+				
+					<li><a href="../symbols/hext-Navigation.html">hext-Navigation</a></li>
+				
+					<li><a href="../symbols/hext-NavigationController.html">hext-NavigationController</a></li>
+				
+					<li><a href="../symbols/hext-NavigationToolbarView.html">hext-NavigationToolbarView</a></li>
+				
+					<li><a href="../symbols/hext-PagingInfo.html">hext-PagingInfo</a></li>
+				
+					<li><a href="../symbols/hext-Portal.html">hext-Portal</a></li>
+				
+					<li><a href="../symbols/hext-PressureEngine.html">hext-PressureEngine</a></li>
+				
+					<li><a href="../symbols/hext-ShapeView.html">hext-ShapeView</a></li>
+				
+					<li><a href="../symbols/hext-SmokePuffer.html">hext-SmokePuffer</a></li>
+				
+					<li><a href="../symbols/hext-SmokePufferController.html">hext-SmokePufferController</a></li>
+				
+					<li><a href="../symbols/hext-SmokePufferToolbarView.html">hext-SmokePufferToolbarView</a></li>
+				
+					<li><a href="../symbols/hext-ToolbarView.html">hext-ToolbarView</a></li>
+				
+					<li><a href="../symbols/hext.engines.html">hext<span class='break'> </span>.<span class='break'> </span>engines</a></li>
+				
+					<li><a href="../symbols/hext.house.html">hext<span class='break'> </span>.<span class='break'> </span>house</a></li>
+				
+					<li><a href="../symbols/hext.house.Door.html">hext<span class='break'> </span>.<span class='break'> </span>house<span class='break'> </span>.<span class='break'> </span>Door</a></li>
+				
+					<li><a href="../symbols/hext.house.Window.html">hext<span class='break'> </span>.<span class='break'> </span>house<span class='break'> </span>.<span class='break'> </span>Window</a></li>
+				
+					<li><a href="../symbols/hext.html.toolbar.html">hext<span class='break'> </span>.<span class='break'> </span>html<span class='break'> </span>.<span class='break'> </span>toolbar</a></li>
+				
+					<li><a href="../symbols/hext.html.toolViews.html">hext<span class='break'> </span>.<span class='break'> </span>html<span class='break'> </span>.<span class='break'> </span>toolViews</a></li>
+				
+					<li><a href="../symbols/hext.hud.html">hext<span class='break'> </span>.<span class='break'> </span>hud</a></li>
+				
+					<li><a href="../symbols/hext.msg.html">hext<span class='break'> </span>.<span class='break'> </span>msg</a></li>
+				
+					<li><a href="../symbols/hext.tools.html">hext<span class='break'> </span>.<span class='break'> </span>tools</a></li>
+				
+					<li><a href="../symbols/hext.tools.SmokePuffConfig.html">hext<span class='break'> </span>.<span class='break'> </span>tools<span class='break'> </span>.<span class='break'> </span>SmokePuffConfig</a></li>
+				
+					<li><a href="../symbols/ManometerController.html">ManometerController</a></li>
+				
+			</ul>
+		</nav>
+	</div>
+	<div class="fineprint" style="clear:both">
+		
+		Documentation generator: <a href="http://code.google.com/p/jsdoc-toolkit/" target="_blank">JsDoc Toolkit</a> 2.4.0<br />
+		Template: <a href="http://www.thebrightlines.com/2010/05/06/new-template-for-jsdoctoolkit-codeview/" target="_blank">Codeview</a> 1.2<br />
+		Generated on: 2012-1-15 14:07
+	</div>
+</div>
+
+<div class="index indexStatic"></div>
+
+<div class="content">
+	<div class="innerContent">
+		<h1 class="classTitle">
+			
+			Namespace <span>hemi.utils</span>
+		</h1>
+		
+		<div class="intro">
+			<p class="description summary">
+				A module to provide various utilities for Hemi.
+			</p>
+				
+			
+				<ul class="summary">
+					
+					
+					
+						<li>Defined in: &lt;js/hemi/utils/hashtable.js&gt;</li>
+					
+						
+				</ul>
+			
+		</div>
+		
+		
+			<div class="props">
+				<table class="summaryTable" cellspacing="0" summary="A summary of the constructor documented in the class hemi.utils.">
+					<caption class="sectionTitle">Namespace Summary</caption>
+					<thead>
+						<tr>
+							<th scope="col">Constructor Attributes</th>
+							<th scope="col">Constructor Name and Description</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td class="attributes">&nbsp;</td>
+							<td class="nameDescription" >
+								<div class="fixedFont">
+									<b><a href="../symbols/hemi.utils.html#constructor">hemi.utils</a></b>
+								</div>
+								<div class="description"></div>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		
+		
+		
+			
+			
+				<div class="props">
+					<table class="summaryTable" cellspacing="0" summary="A summary of the fields documented in the class hemi.utils.">
+						<caption class="sectionTitle">Field Summary</caption>
+						
+						<thead>
+							<tr>
+								<th scope="col">Field Attributes</th>
+								<th scope="col">Field Name and Description</th>
+							</tr>
+						</thead>
+						
+						<tbody>
+							
+								<tr>
+									<td class="attributes">&lt;static&gt; &nbsp;</td>
+									<td class="nameDescription">
+										<div class="fixedFont">
+										hemi.utils.<b><a href="../symbols/hemi.utils.html#.isArray">isArray</a></b>
+										</div>
+										<div class="description">The "best" way to test if a value is an array or not.</div>
+									</td>
+								</tr>
+							
+								<tr>
+									<td class="attributes">&lt;static&gt; &nbsp;</td>
+									<td class="nameDescription">
+										<div class="fixedFont">
+										hemi.utils.<b><a href="../symbols/hemi.utils.html#.penner">penner</a></b>
+										</div>
+										<div class="description">A container for all the common penner easing equations:linearquadratic cubicquarticquinticexponentialsinusoidalcircular</div>
+									</td>
+								</tr>
+							
+						</tbody>
+					</table>
+				</div>
+			
+			
+			
+		
+<!--
+#### METHODS SUMMARY
+-->
+		
+			
+			
+			<div class="props">
+				<h2 class="sectionTitle">Method Summary</h2>
+				
+				
+					<table class="summaryTable" id="MethodsList" cellspacing="0" summary="A summary of the methods documented in the class hemi.utils.">
+						<thead>
+							<tr>
+								<th scope="col">Method Attributes</th>
+								<th scope="col">Method Name and Description</th>
+							</tr>
+						</thead>
+						
+						<tbody>
+							
+							
+								<tr
+									 class='item0'
+								>
+									<td class="attributes">&lt;static&gt; &nbsp;</td>
+									<td class="nameDescription">
+										<div class="fixedFont">hemi.utils.<b><a href="../symbols/hemi.utils.html#.axisRotate">axisRotate</a></b>(axis, angle, transform)
+										</div>
+										<div class="description">Rotate the given Transform about the given axis by the given amount.</div>
+									</td>
+								</tr>
+							
+								<tr
+									 class='item1'
+								>
+									<td class="attributes">&lt;static&gt; &nbsp;</td>
+									<td class="nameDescription">
+										<div class="fixedFont">hemi.utils.<b><a href="../symbols/hemi.utils.html#.buildSrc">buildSrc</a></b>(parsed)
+										</div>
+										<div class="description">Build a shader source string from the given parsed source structure.</div>
+									</td>
+								</tr>
+							
+								<tr
+									 class='item2'
+								>
+									<td class="attributes">&lt;static&gt; &nbsp;</td>
+									<td class="nameDescription">
+										<div class="fixedFont">hemi.utils.<b><a href="../symbols/hemi.utils.html#.capitalize">capitalize</a></b>(str)
+										</div>
+										<div class="description">Capitalize the first letter of the given string.</div>
+									</td>
+								</tr>
+							
+								<tr
+									 class='item3'
+								>
+									<td class="attributes">&lt;static&gt; &nbsp;</td>
+									<td class="nameDescription">
+										<div class="fixedFont">hemi.utils.<b><a href="../symbols/hemi.utils.html#.cartesianToSpherical">cartesianToSpherical</a></b>(coords)
+										</div>
+										<div class="description">Convert from cartesian to spherical coordinates.</div>
+									</td>
+								</tr>
+							
+								<tr
+									 class='item4'
+								>
+									<td class="attributes">&lt;static&gt; &nbsp;</td>
+									<td class="nameDescription">
+										<div class="fixedFont">hemi.utils.<b><a href="../symbols/hemi.utils.html#.centerGeometry">centerGeometry</a></b>(mesh)
+										</div>
+										<div class="description">Center the given Mesh's geometry about its local origin and update the Mesh so that the
+geometry stays in the same world position.</div>
+									</td>
+								</tr>
+							
+								<tr
+									 class='item5'
+								>
+									<td class="attributes">&lt;static&gt; &nbsp;</td>
+									<td class="nameDescription">
+										<div class="fixedFont">hemi.utils.<b><a href="../symbols/hemi.utils.html#.choose">choose</a></b>(n, m)
+										</div>
+										<div class="description">A choose function (also called the binomial coefficient).</div>
+									</td>
+								</tr>
+							
+								<tr
+									 class='item6'
+								>
+									<td class="attributes">&lt;static&gt; &nbsp;</td>
+									<td class="nameDescription">
+										<div class="fixedFont">hemi.utils.<b><a href="../symbols/hemi.utils.html#.clamp">clamp</a></b>(val, min, max)
+										</div>
+										<div class="description">Clamp the given value between the given min and max.</div>
+									</td>
+								</tr>
+							
+								<tr
+									 class='item7'
+								>
+									<td class="attributes">&lt;static&gt; &nbsp;</td>
+									<td class="nameDescription">
+										<div class="fixedFont">hemi.utils.<b><a href="../symbols/hemi.utils.html#.clone">clone</a></b>(src, opt_deep)
+										</div>
+										<div class="description">Create a copy of the given Object (or array).</div>
+									</td>
+								</tr>
+							
+								<tr
+									 class='item8'
+								>
+									<td class="attributes">&lt;static&gt; &nbsp;</td>
+									<td class="nameDescription">
+										<div class="fixedFont">hemi.utils.<b><a href="../symbols/hemi.utils.html#.cloneMaterial">cloneMaterial</a></b>(material)
+										</div>
+										<div class="description">Clones the given material and returns the clone.</div>
+									</td>
+								</tr>
+							
+								<tr
+									 class='item9'
+								>
+									<td class="attributes">&lt;static&gt; &nbsp;</td>
+									<td class="nameDescription">
+										<div class="fixedFont">hemi.utils.<b><a href="../symbols/hemi.utils.html#.combineFragSrc">combineFragSrc</a></b>(src, cfg)
+										</div>
+										<div class="description">Combine the given strings into one cohesive fragment shader source string.</div>
+									</td>
+								</tr>
+							
+								<tr
+									 class='item10'
+								>
+									<td class="attributes">&lt;static&gt; &nbsp;</td>
+									<td class="nameDescription">
+										<div class="fixedFont">hemi.utils.<b><a href="../symbols/hemi.utils.html#.combineVertSrc">combineVertSrc</a></b>(src, cfg)
+										</div>
+										<div class="description">Combine the given strings into one cohesive vertex shader source string.</div>
+									</td>
+								</tr>
+							
+								<tr
+									 class='item11'
+								>
+									<td class="attributes">&lt;static&gt; &nbsp;</td>
+									<td class="nameDescription">
+										<div class="fixedFont">hemi.utils.<b><a href="../symbols/hemi.utils.html#.compareArrays">compareArrays</a></b>(a, b)
+										</div>
+										<div class="description">Compare the two given arrays of numbers.</div>
+									</td>
+								</tr>
+							
+								<tr
+									 class='item12'
+								>
+									<td class="attributes">&lt;static&gt; &nbsp;</td>
+									<td class="nameDescription">
+										<div class="fixedFont">hemi.utils.<b><a href="../symbols/hemi.utils.html#.computeNormal">computeNormal</a></b>(a, b, c)
+										</div>
+										<div class="description">Compute the normal of the three given vertices that form a triangle.</div>
+									</td>
+								</tr>
+							
+								<tr
+									 class='item13'
+								>
+									<td class="attributes">&lt;static&gt; &nbsp;</td>
+									<td class="nameDescription">
+										<div class="fixedFont">hemi.utils.<b><a href="../symbols/hemi.utils.html#.cubicHermite">cubicHermite</a></b>(t, p0, m0, p1, m1)
+										</div>
+										<div class="description">Calculate the cubic hermite interpolation between two points with associated tangents.</div>
+									</td>
+								</tr>
+							
+								<tr
+									 class='item14'
+								>
+									<td class="attributes">&lt;static&gt; &nbsp;</td>
+									<td class="nameDescription">
+										<div class="fixedFont">hemi.utils.<b><a href="../symbols/hemi.utils.html#.factorial">factorial</a></b>(num, opt_stop)
+										</div>
+										<div class="description">Calculate the factorial of the given number.</div>
+									</td>
+								</tr>
+							
+								<tr
+									 class='item15'
+								>
+									<td class="attributes">&lt;static&gt; &nbsp;</td>
+									<td class="nameDescription">
+										<div class="fixedFont">hemi.utils.<b><a href="../symbols/hemi.utils.html#.get">get</a></b>(url, callback, opt_overrideMimeType)
+										</div>
+										<div class="description">Perform an asynchronous AJAX GET for the resource at the given URL.</div>
+									</td>
+								</tr>
+							
+								<tr
+									 class='item16'
+								>
+									<td class="attributes">&lt;static&gt; &nbsp;</td>
+									<td class="nameDescription">
+										<div class="fixedFont">hemi.utils.<b><a href="../symbols/hemi.utils.html#.getShaders">getShaders</a></b>(client, material)
+										</div>
+										<div class="description">Get the vertex and pixel shaders (as well as their source) for the given Material.</div>
+									</td>
+								</tr>
+							
+								<tr
+									 class='item17'
+								>
+									<td class="attributes">&lt;static&gt; &nbsp;</td>
+									<td class="nameDescription">
+										<div class="fixedFont">hemi.utils.<b><a href="../symbols/hemi.utils.html#.intersect">intersect</a></b>(ray, plane)
+										</div>
+										<div class="description">Calculate the intersection between a ray and a plane.</div>
+									</td>
+								</tr>
+							
+								<tr
+									 class='item18'
+								>
+									<td class="attributes">&lt;static&gt; &nbsp;</td>
+									<td class="nameDescription">
+										<div class="fixedFont">hemi.utils.<b><a href="../symbols/hemi.utils.html#.invertMat3">invertMat3</a></b>(m)
+										</div>
+										<div class="description">Compute the inverse of a 3-by-3 matrix.</div>
+									</td>
+								</tr>
+							
+								<tr
+									 class='item19'
+								>
+									<td class="attributes">&lt;static&gt; &nbsp;</td>
+									<td class="nameDescription">
+										<div class="fixedFont">hemi.utils.<b><a href="../symbols/hemi.utils.html#.isFunction">isFunction</a></b>(val)
+										</div>
+										<div class="description">The "best" way to test if a value is a function or not.</div>
+									</td>
+								</tr>
+							
+								<tr
+									 class='item20'
+								>
+									<td class="attributes">&lt;static&gt; &nbsp;</td>
+									<td class="nameDescription">
+										<div class="fixedFont">hemi.utils.<b><a href="../symbols/hemi.utils.html#.isNumeric">isNumeric</a></b>(str)
+										</div>
+										<div class="description">Test if the given string is numeric.</div>
+									</td>
+								</tr>
+							
+								<tr
+									 class='item21'
+								>
+									<td class="attributes">&lt;static&gt; &nbsp;</td>
+									<td class="nameDescription">
+										<div class="fixedFont">hemi.utils.<b><a href="../symbols/hemi.utils.html#.join">join</a></b>(obj1, objN, opt_deep)
+										</div>
+										<div class="description">Merge all of the properties of the given objects into the first object.</div>
+									</td>
+								</tr>
+							
+								<tr
+									 class='item22'
+								>
+									<td class="attributes">&lt;static&gt; &nbsp;</td>
+									<td class="nameDescription">
+										<div class="fixedFont">hemi.utils.<b><a href="../symbols/hemi.utils.html#.lerp">lerp</a></b>(start, stop, t)
+										</div>
+										<div class="description">Perform linear interpolation on the given values.</div>
+									</td>
+								</tr>
+							
+								<tr
+									 class='item23'
+								>
+									<td class="attributes">&lt;static&gt; &nbsp;</td>
+									<td class="nameDescription">
+										<div class="fixedFont">hemi.utils.<b><a href="../symbols/hemi.utils.html#.lerpVec3">lerpVec3</a></b>(start, stop, t, opt_vec)
+										</div>
+										<div class="description">Perform linear interpolation on the given vectors.</div>
+									</td>
+								</tr>
+							
+								<tr
+									 class='item24'
+								>
+									<td class="attributes">&lt;static&gt; &nbsp;</td>
+									<td class="nameDescription">
+										<div class="fixedFont">hemi.utils.<b><a href="../symbols/hemi.utils.html#.linearToExponential">linearToExponential</a></b>(val, x)
+										</div>
+										<div class="description">Convert the given linear interpolated value to an exponential interpolated value.</div>
+									</td>
+								</tr>
+							
+								<tr
+									 class='item25'
+								>
+									<td class="attributes">&lt;static&gt; &nbsp;</td>
+									<td class="nameDescription">
+										<div class="fixedFont">hemi.utils.<b><a href="../symbols/hemi.utils.html#.linearToExponentialInverse">linearToExponentialInverse</a></b>(val, x)
+										</div>
+										<div class="description">Convert the given linear interpolated value to an inverse exponential interpolated value.</div>
+									</td>
+								</tr>
+							
+								<tr
+									 class='item26'
+								>
+									<td class="attributes">&lt;static&gt; &nbsp;</td>
+									<td class="nameDescription">
+										<div class="fixedFont">hemi.utils.<b><a href="../symbols/hemi.utils.html#.linearToParabolic">linearToParabolic</a></b>(val)
+										</div>
+										<div class="description">Convert the given linear interpolated value to a parabolic interpolated value.</div>
+									</td>
+								</tr>
+							
+								<tr
+									 class='item27'
+								>
+									<td class="attributes">&lt;static&gt; &nbsp;</td>
+									<td class="nameDescription">
+										<div class="fixedFont">hemi.utils.<b><a href="../symbols/hemi.utils.html#.linearToParabolicInverse">linearToParabolicInverse</a></b>(val)
+										</div>
+										<div class="description">Convert the given linear interpolated value to a inverse parabolic interpolated value.</div>
+									</td>
+								</tr>
+							
+								<tr
+									 class='item28'
+								>
+									<td class="attributes">&lt;static&gt; &nbsp;</td>
+									<td class="nameDescription">
+										<div class="fixedFont">hemi.utils.<b><a href="../symbols/hemi.utils.html#.linearToSine">linearToSine</a></b>(val)
+										</div>
+										<div class="description">Convert the given linear interpolated value to a sinusoidal interpolated value.</div>
+									</td>
+								</tr>
+							
+								<tr
+									 class='item29'
+								>
+									<td class="attributes">&lt;static&gt; &nbsp;</td>
+									<td class="nameDescription">
+										<div class="fixedFont">hemi.utils.<b><a href="../symbols/hemi.utils.html#.noop">noop</a></b>()
+										</div>
+										<div class="description">A no-operation function for utility use.</div>
+									</td>
+								</tr>
+							
+								<tr
+									 class='item30'
+								>
+									<td class="attributes">&lt;static&gt; &nbsp;</td>
+									<td class="nameDescription">
+										<div class="fixedFont">hemi.utils.<b><a href="../symbols/hemi.utils.html#.parseSrc">parseSrc</a></b>(src, global)
+										</div>
+										<div class="description">Parse the given shader source into logical groupings as follows:
+  Header - uniform, attribute, and varying parameters
+  Support - support/utility functions
+  Body - all of the main function except Global
+  Global - where the shader's global variable is assigned
+
+Example:
+(HEADER_START)
+#ifdef MYVAR
+#endif
+uniform mat4 worldViewProjection;
+attribute vec4 position;
+(HEADER_END)
+(SUPPORT_START)
+float getOne() {
+  return 1.0;
+}
+(SUPPORT_END)
+void main() {
+  (BODY_START)
+  float one = getOne();
+  vec4 realPos = worldViewProjection*position;
+  (BODY_END)
+  (GLOBAL_START)
+  gl_Position = realPos;
+  (GLOBAL_END)
+}</div>
+									</td>
+								</tr>
+							
+								<tr
+									 class='item31'
+								>
+									<td class="attributes">&lt;static&gt; &nbsp;</td>
+									<td class="nameDescription">
+										<div class="fixedFont">hemi.utils.<b><a href="../symbols/hemi.utils.html#.pointAsLocal">pointAsLocal</a></b>(transform, point)
+										</div>
+										<div class="description">Interpret the given point from world space to local space.</div>
+									</td>
+								</tr>
+							
+								<tr
+									 class='item32'
+								>
+									<td class="attributes">&lt;static&gt; &nbsp;</td>
+									<td class="nameDescription">
+										<div class="fixedFont">hemi.utils.<b><a href="../symbols/hemi.utils.html#.pointAsWorld">pointAsWorld</a></b>(transform, point)
+										</div>
+										<div class="description">Interpret the given point from local space to world space.</div>
+									</td>
+								</tr>
+							
+								<tr
+									 class='item33'
+								>
+									<td class="attributes">&lt;static&gt; &nbsp;</td>
+									<td class="nameDescription">
+										<div class="fixedFont">hemi.utils.<b><a href="../symbols/hemi.utils.html#.pointYAt">pointYAt</a></b>(tran, eye, target)
+										</div>
+										<div class="description">Point the y axis of the given Transform toward the given point.</div>
+									</td>
+								</tr>
+							
+								<tr
+									 class='item34'
+								>
+									<td class="attributes">&lt;static&gt; &nbsp;</td>
+									<td class="nameDescription">
+										<div class="fixedFont">hemi.utils.<b><a href="../symbols/hemi.utils.html#.pointZAt">pointZAt</a></b>(tran, eye, target)
+										</div>
+										<div class="description">Point the z axis of the given Transform toward the given point.</div>
+									</td>
+								</tr>
+							
+								<tr
+									 class='item35'
+								>
+									<td class="attributes">&lt;static&gt; &nbsp;</td>
+									<td class="nameDescription">
+										<div class="fixedFont">hemi.utils.<b><a href="../symbols/hemi.utils.html#.rotateUVs">rotateUVs</a></b>(geometry, theta)
+										</div>
+										<div class="description">Rotate the texture UV coordinates of the given Geometry.</div>
+									</td>
+								</tr>
+							
+								<tr
+									 class='item36'
+								>
+									<td class="attributes">&lt;static&gt; &nbsp;</td>
+									<td class="nameDescription">
+										<div class="fixedFont">hemi.utils.<b><a href="../symbols/hemi.utils.html#.scaleUVs">scaleUVs</a></b>(geometry, uScale, vScale)
+										</div>
+										<div class="description">Scale the texture UV coordinates of the given Geometry.</div>
+									</td>
+								</tr>
+							
+								<tr
+									 class='item37'
+								>
+									<td class="attributes">&lt;static&gt; &nbsp;</td>
+									<td class="nameDescription">
+										<div class="fixedFont">hemi.utils.<b><a href="../symbols/hemi.utils.html#.scrubTriangles">scrubTriangles</a></b>(transform, opt_precision)
+										</div>
+										<div class="description">Check for degenerate triangles (all three points are collinear) in the faces of the geometry
+of the given Transform and its children and remove those triangles.</div>
+									</td>
+								</tr>
+							
+								<tr
+									 class='item38'
+								>
+									<td class="attributes">&lt;static&gt; &nbsp;</td>
+									<td class="nameDescription">
+										<div class="fixedFont">hemi.utils.<b><a href="../symbols/hemi.utils.html#.sphericalToCartesian">sphericalToCartesian</a></b>(rtp)
+										</div>
+										<div class="description">Convert from spherical to cartesian coordinates.</div>
+									</td>
+								</tr>
+							
+								<tr
+									 class='item39'
+								>
+									<td class="attributes">&lt;static&gt; &nbsp;</td>
+									<td class="nameDescription">
+										<div class="fixedFont">hemi.utils.<b><a href="../symbols/hemi.utils.html#.translateGeometry">translateGeometry</a></b>(mesh, delta)
+										</div>
+										<div class="description">Translate the vertices of the given Mesh's geometry by the given amount and update the Mesh
+Mesh so that the geometry stays in the same world position.</div>
+									</td>
+								</tr>
+							
+								<tr
+									 class='item40'
+								>
+									<td class="attributes">&lt;static&gt; &nbsp;</td>
+									<td class="nameDescription">
+										<div class="fixedFont">hemi.utils.<b><a href="../symbols/hemi.utils.html#.translateUVs">translateUVs</a></b>(geometry, uDelta, vDelta)
+										</div>
+										<div class="description">Translate the texture UV coordinates of the given Geometry.</div>
+									</td>
+								</tr>
+							
+								<tr
+									 class='item41'
+								>
+									<td class="attributes">&lt;static&gt; &nbsp;</td>
+									<td class="nameDescription">
+										<div class="fixedFont">hemi.utils.<b><a href="../symbols/hemi.utils.html#.trim">trim</a></b>(str)
+										</div>
+										<div class="description">Remove any whitespace from the beginning and end of the given string.</div>
+									</td>
+								</tr>
+							
+								<tr
+									 class='item42'
+								>
+									<td class="attributes">&lt;static&gt; &nbsp;</td>
+									<td class="nameDescription">
+										<div class="fixedFont">hemi.utils.<b><a href="../symbols/hemi.utils.html#.useEuler">useEuler</a></b>(transform)
+										</div>
+										<div class="description">Convert the transform from using quaternions to manage its rotation to using Euler angles.</div>
+									</td>
+								</tr>
+							
+								<tr
+									 class='item43'
+								>
+									<td class="attributes">&lt;static&gt; &nbsp;</td>
+									<td class="nameDescription">
+										<div class="fixedFont">hemi.utils.<b><a href="../symbols/hemi.utils.html#.uvToXYZ">uvToXYZ</a></b>(uv, plane)
+										</div>
+										<div class="description">Convert the given UV coordinates for the given plane into XYZ coordinates in 3D space.</div>
+									</td>
+								</tr>
+							
+								<tr
+									 class='item44'
+								>
+									<td class="attributes">&lt;static&gt; &nbsp;</td>
+									<td class="nameDescription">
+										<div class="fixedFont">hemi.utils.<b><a href="../symbols/hemi.utils.html#.validateTriangles">validateTriangles</a></b>(transform)
+										</div>
+										<div class="description">Check for degenerate triangles (all three points are collinear) in the faces of the geometry
+of the given Transform and its children.</div>
+									</td>
+								</tr>
+							
+								<tr
+									 class='item45'
+								>
+									<td class="attributes">&lt;static&gt; &nbsp;</td>
+									<td class="nameDescription">
+										<div class="fixedFont">hemi.utils.<b><a href="../symbols/hemi.utils.html#.worldRotate">worldRotate</a></b>(axis, angle, transform)
+										</div>
+										<div class="description">Rotate the Transform by the given angle along the given world space axis.</div>
+									</td>
+								</tr>
+							
+								<tr
+									 class='item46'
+								>
+									<td class="attributes">&lt;static&gt; &nbsp;</td>
+									<td class="nameDescription">
+										<div class="fixedFont">hemi.utils.<b><a href="../symbols/hemi.utils.html#.worldScale">worldScale</a></b>(scale, transform)
+										</div>
+										<div class="description">Scale the Transform by the given scale amounts in world space.</div>
+									</td>
+								</tr>
+							
+								<tr
+									 class='item47'
+								>
+									<td class="attributes">&lt;static&gt; &nbsp;</td>
+									<td class="nameDescription">
+										<div class="fixedFont">hemi.utils.<b><a href="../symbols/hemi.utils.html#.worldToScreen">worldToScreen</a></b>(the, point)
+										</div>
+										<div class="description">Convert the given XYZ point in world space to screen coordinates.</div>
+									</td>
+								</tr>
+							
+								<tr
+									 class='item48'
+								>
+									<td class="attributes">&lt;static&gt; &nbsp;</td>
+									<td class="nameDescription">
+										<div class="fixedFont">hemi.utils.<b><a href="../symbols/hemi.utils.html#.worldToScreenFloat">worldToScreenFloat</a></b>(the, point)
+										</div>
+										<div class="description">Convert the given XYZ point in world space to screen coordinates.</div>
+									</td>
+								</tr>
+							
+								<tr
+									 class='item49'
+								>
+									<td class="attributes">&lt;static&gt; &nbsp;</td>
+									<td class="nameDescription">
+										<div class="fixedFont">hemi.utils.<b><a href="../symbols/hemi.utils.html#.worldTranslate">worldTranslate</a></b>(delta, transform)
+										</div>
+										<div class="description">Translate the Transform by the given world space vector.</div>
+									</td>
+								</tr>
+							
+								<tr
+									 class='item50'
+								>
+									<td class="attributes">&lt;static&gt; &nbsp;</td>
+									<td class="nameDescription">
+										<div class="fixedFont">hemi.utils.<b><a href="../symbols/hemi.utils.html#.wrapText">wrapText</a></b>(text, targetWidth, charWidth)
+										</div>
+										<div class="description">Perform loose text wrapping on the given text.</div>
+									</td>
+								</tr>
+							
+								<tr
+									 class='item51'
+								>
+									<td class="attributes">&lt;static&gt; &nbsp;</td>
+									<td class="nameDescription">
+										<div class="fixedFont">hemi.utils.<b><a href="../symbols/hemi.utils.html#.wrapTextStrict">wrapTextStrict</a></b>(text, targetWidth, canvas)
+										</div>
+										<div class="description">Perform strict text wrapping on the given text.</div>
+									</td>
+								</tr>
+							
+						</tbody>
+					</table>
+				
+			
+				
+			</div>
+		
+		
+<!--
+#### EVENTS SUMMARY
+-->
+		
+<!--
+#### CONSTRUCTOR DETAILS
+-->
+		
+			<div class="details props">
+				<div class="innerProps">
+					<h2 class="sectionTitle" id="constructor">
+						Namespace Detail
+					</h2>
+					
+					<div class="fixedFont">
+						<b>hemi.utils</b>
+					</div>
+					
+					<div class="description">
+						
+						
+					</div>
+					
+					
+				
+					
+					
+					
+				</div>
+			</div>
+		
+<!--
+#### FIELD DETAILS
+-->
+		
+			<div class="details props">
+				<div class="innerProps">
+					<h2 class="sectionTitle">
+						Field Detail
+					</h2>
+					
+					
+						<div class="fixedFont heading" id=".isArray">
+							<span class='lighter'>
+							&lt;static&gt; 
+							</span>
+							
+							<span class="light">{boolean}</span>
+							
+							<span class="light">hemi.utils.</span><b>isArray</b>							
+						</div>
+						
+						<div class="description">
+							The "best" way to test if a value is an array or not.
+							
+								<br />
+								<i>Defined in: </i> &lt;js/hemi/utils/jsUtils.js&gt;.
+							
+							
+							
+						</div>
+						
+						
+							
+						
+						<div class="hr"></div>
+					
+						<div class="fixedFont heading" id=".penner">
+							<span class='lighter'>
+							&lt;static&gt; 
+							</span>
+							
+							
+							
+							<span class="light">hemi.utils.</span><b>penner</b>							
+						</div>
+						
+						<div class="description">
+							A container for all the common penner easing equations:linearquadratic cubicquarticquinticexponentialsinusoidalcircular
+							
+								<br />
+								<i>Defined in: </i> &lt;js/hemi/utils/mathUtils.js&gt;.
+							
+							
+							
+						</div>
+						
+						
+							
+						
+						
+					
+				</div>
+			</div>
+		
+<!--
+#### METHOD DETAILS
+-->		
+		
+			<div class="details props">
+				<div class="innerProps">
+					<h2 class="sectionTitle">
+						Method Detail
+					</h2>
+					
+					<ul class="methodDetail" id="MethodDetail">
+						
+						
+							<li 
+								 class='item0'
+							>
+								<div class="fixedFont heading" id=".axisRotate">
+									<span class='lighter'>
+									&lt;static&gt; 
+									</span>
+									
+									
+									
+									<span class="light">hemi.utils.</span><b>axisRotate</b>(axis, angle, transform)
+								</div>
+								
+								<div class="description">
+									Rotate the given Transform about the given axis by the given amount.
+									
+									
+										<br />
+										<i>Defined in: </i> &lt;js/hemi/utils/transformUtils.js&gt;.
+									
+									
+									
+								</div>
+								
+								
+								
+								
+									<dl class="detailList params">
+										<dt class="heading">Parameters:</dt>
+										
+											<dt>
+												<span class="light fixedFont">{THREE.Vector3}</span> <b>axis</b>
+												
+											</dt>
+											<dd>rotation axis defined as an XYZ vector</dd>
+										
+											<dt>
+												<span class="light fixedFont">{number}</span> <b>angle</b>
+												
+											</dt>
+											<dd>amount to rotate by in radians</dd>
+										
+											<dt>
+												<span class="light fixedFont">{hemi.Transform}</span> <b>transform</b>
+												
+											</dt>
+											<dd>the transform to rotate</dd>
+										
+									</dl>
+								
+								
+								
+								<div class="hr"></div>
+							</li>
+						
+							<li 
+								 class='item1'
+							>
+								<div class="fixedFont heading" id=".buildSrc">
+									<span class='lighter'>
+									&lt;static&gt; 
+									</span>
+									
+									<span class="light">{string}</span>
+									
+									<span class="light">hemi.utils.</span><b>buildSrc</b>(parsed)
+								</div>
+								
+								<div class="description">
+									Build a shader source string from the given parsed source structure.
+									
+									
+										<br />
+										<i>Defined in: </i> &lt;js/hemi/utils/shaderUtils.js&gt;.
+									
+									
+									
+								</div>
+								
+								
+								
+								
+									<dl class="detailList params">
+										<dt class="heading">Parameters:</dt>
+										
+											<dt>
+												<span class="light fixedFont">{Object}</span> <b>parsed</b>
+												
+											</dt>
+											<dd>structure populated with parsed shader source:
+    (all fields are optional)
+    preHdr: source positioned before the header
+    hdr: header source
+    postHdr: source positioned after the header
+    preSprt: source positioned before the support
+    sprt: support source
+    postSprt: source positioned after the support
+    preBody: source positioned before the body
+    body: body source
+    postBody: source positioned after the body
+    preGlob: source positioned before the global
+    glob: global variable assignment source
+    postGlob: source positioned after the global</dd>
+										
+									</dl>
+								
+								
+								
+									<dl class="detailList nomargin">
+									
+										
+										
+										
+										
+										
+										
+										
+											<dt class="heading">Returns:</dt>
+											
+												<dd><span class="light fixedFont">{string}</span> the new shader source string</dd>
+											
+										
+										
+										
+										
+										
+									
+									</dl>
+								
+								<div class="hr"></div>
+							</li>
+						
+							<li 
+								 class='item2'
+							>
+								<div class="fixedFont heading" id=".capitalize">
+									<span class='lighter'>
+									&lt;static&gt; 
+									</span>
+									
+									<span class="light">{string}</span>
+									
+									<span class="light">hemi.utils.</span><b>capitalize</b>(str)
+								</div>
+								
+								<div class="description">
+									Capitalize the first letter of the given string.
+									
+									
+										<br />
+										<i>Defined in: </i> &lt;js/hemi/utils/stringUtils.js&gt;.
+									
+									
+									
+								</div>
+								
+								
+								
+								
+									<dl class="detailList params">
+										<dt class="heading">Parameters:</dt>
+										
+											<dt>
+												<span class="light fixedFont">{string}</span> <b>str</b>
+												
+											</dt>
+											<dd>the string to capitalize</dd>
+										
+									</dl>
+								
+								
+								
+									<dl class="detailList nomargin">
+									
+										
+										
+										
+										
+										
+										
+										
+											<dt class="heading">Returns:</dt>
+											
+												<dd><span class="light fixedFont">{string}</span> the capitalized string</dd>
+											
+										
+										
+										
+										
+										
+									
+									</dl>
+								
+								<div class="hr"></div>
+							</li>
+						
+							<li 
+								 class='item3'
+							>
+								<div class="fixedFont heading" id=".cartesianToSpherical">
+									<span class='lighter'>
+									&lt;static&gt; 
+									</span>
+									
+									<span class="light">{number[3]}</span>
+									
+									<span class="light">hemi.utils.</span><b>cartesianToSpherical</b>(coords)
+								</div>
+								
+								<div class="description">
+									Convert from cartesian to spherical coordinates.
+									
+									
+										<br />
+										<i>Defined in: </i> &lt;js/hemi/utils/mathUtils.js&gt;.
+									
+									
+									
+								</div>
+								
+								
+								
+								
+									<dl class="detailList params">
+										<dt class="heading">Parameters:</dt>
+										
+											<dt>
+												<span class="light fixedFont">{number[3]}</span> <b>coords</b>
+												
+											</dt>
+											<dd>XYZ cartesian coordinates</dd>
+										
+									</dl>
+								
+								
+								
+									<dl class="detailList nomargin">
+									
+										
+										
+										
+										
+										
+										
+										
+											<dt class="heading">Returns:</dt>
+											
+												<dd><span class="light fixedFont">{number[3]}</span> array of radius, theta, phi</dd>
+											
+										
+										
+										
+										
+										
+									
+									</dl>
+								
+								<div class="hr"></div>
+							</li>
+						
+							<li 
+								 class='item4'
+							>
+								<div class="fixedFont heading" id=".centerGeometry">
+									<span class='lighter'>
+									&lt;static&gt; 
+									</span>
+									
+									
+									
+									<span class="light">hemi.utils.</span><b>centerGeometry</b>(mesh)
+								</div>
+								
+								<div class="description">
+									Center the given Mesh's geometry about its local origin and update the Mesh so that the
+geometry stays in the same world position.
+									
+									
+										<br />
+										<i>Defined in: </i> &lt;js/hemi/utils/transformUtils.js&gt;.
+									
+									
+									
+								</div>
+								
+								
+								
+								
+									<dl class="detailList params">
+										<dt class="heading">Parameters:</dt>
+										
+											<dt>
+												<span class="light fixedFont">{hemi.Mesh}</span> <b>mesh</b>
+												
+											</dt>
+											<dd>the Mesh to center geometry for</dd>
+										
+									</dl>
+								
+								
+								
+								<div class="hr"></div>
+							</li>
+						
+							<li 
+								 class='item5'
+							>
+								<div class="fixedFont heading" id=".choose">
+									<span class='lighter'>
+									&lt;static&gt; 
+									</span>
+									
+									<span class="light">{number}</span>
+									
+									<span class="light">hemi.utils.</span><b>choose</b>(n, m)
+								</div>
+								
+								<div class="description">
+									A choose function (also called the binomial coefficient).
+									
+									
+										<br />
+										<i>Defined in: </i> &lt;js/hemi/utils/mathUtils.js&gt;.
+									
+									
+									
+								</div>
+								
+								
+								
+								
+									<dl class="detailList params">
+										<dt class="heading">Parameters:</dt>
+										
+											<dt>
+												<span class="light fixedFont">{number}</span> <b>n</b>
+												
+											</dt>
+											<dd>top input of choose</dd>
+										
+											<dt>
+												<span class="light fixedFont">{number}</span> <b>m</b>
+												
+											</dt>
+											<dd>bottom input of choose</dd>
+										
+									</dl>
+								
+								
+								
+									<dl class="detailList nomargin">
+									
+										
+										
+										
+										
+										
+										
+										
+											<dt class="heading">Returns:</dt>
+											
+												<dd><span class="light fixedFont">{number}</span> choose output, (n!)/(m!*(n-m)!)</dd>
+											
+										
+										
+										
+										
+										
+									
+									</dl>
+								
+								<div class="hr"></div>
+							</li>
+						
+							<li 
+								 class='item6'
+							>
+								<div class="fixedFont heading" id=".clamp">
+									<span class='lighter'>
+									&lt;static&gt; 
+									</span>
+									
+									<span class="light">{number}</span>
+									
+									<span class="light">hemi.utils.</span><b>clamp</b>(val, min, max)
+								</div>
+								
+								<div class="description">
+									Clamp the given value between the given min and max.
+									
+									
+										<br />
+										<i>Defined in: </i> &lt;js/hemi/utils/mathUtils.js&gt;.
+									
+									
+									
+								</div>
+								
+								
+								
+								
+									<dl class="detailList params">
+										<dt class="heading">Parameters:</dt>
+										
+											<dt>
+												<span class="light fixedFont">{number}</span> <b>val</b>
+												
+											</dt>
+											<dd>value to clamp</dd>
+										
+											<dt>
+												<span class="light fixedFont">{number}</span> <b>min</b>
+												
+											</dt>
+											<dd>minimum for value</dd>
+										
+											<dt>
+												<span class="light fixedFont">{number}</span> <b>max</b>
+												
+											</dt>
+											<dd>maximum for value</dd>
+										
+									</dl>
+								
+								
+								
+									<dl class="detailList nomargin">
+									
+										
+										
+										
+										
+										
+										
+										
+											<dt class="heading">Returns:</dt>
+											
+												<dd><span class="light fixedFont">{number}</span> the clamped value</dd>
+											
+										
+										
+										
+										
+										
+									
+									</dl>
+								
+								<div class="hr"></div>
+							</li>
+						
+							<li 
+								 class='item7'
+							>
+								<div class="fixedFont heading" id=".clone">
+									<span class='lighter'>
+									&lt;static&gt; 
+									</span>
+									
+									<span class="light">{Object}</span>
+									
+									<span class="light">hemi.utils.</span><b>clone</b>(src, opt_deep)
+								</div>
+								
+								<div class="description">
+									Create a copy of the given Object (or array).
+									
+									
+										<br />
+										<i>Defined in: </i> &lt;js/hemi/utils/jsUtils.js&gt;.
+									
+									
+									
+								</div>
+								
+								
+								
+								
+									<dl class="detailList params">
+										<dt class="heading">Parameters:</dt>
+										
+											<dt>
+												<span class="light fixedFont">{Object}</span> <b>src</b>
+												
+											</dt>
+											<dd>an Object (or array) to clone</dd>
+										
+											<dt>
+												<span class="light fixedFont">{boolean}</span> <b>opt_deep</b>
+												
+											</dt>
+											<dd>optional flag to indicate if deep copying should be performed
+    (default is deep copying)</dd>
+										
+									</dl>
+								
+								
+								
+									<dl class="detailList nomargin">
+									
+										
+										
+										
+										
+										
+										
+										
+											<dt class="heading">Returns:</dt>
+											
+												<dd><span class="light fixedFont">{Object}</span> the created Object (or array)</dd>
+											
+										
+										
+										
+										
+										
+									
+									</dl>
+								
+								<div class="hr"></div>
+							</li>
+						
+							<li 
+								 class='item8'
+							>
+								<div class="fixedFont heading" id=".cloneMaterial">
+									<span class='lighter'>
+									&lt;static&gt; 
+									</span>
+									
+									
+									
+									<span class="light">hemi.utils.</span><b>cloneMaterial</b>(material)
+								</div>
+								
+								<div class="description">
+									Clones the given material and returns the clone. Every prop is copied by reference.
+									
+									
+										<br />
+										<i>Defined in: </i> &lt;js/hemi/utils/transformUtils.js&gt;.
+									
+									
+									
+								</div>
+								
+								
+								
+								
+									<dl class="detailList params">
+										<dt class="heading">Parameters:</dt>
+										
+											<dt>
+												<span class="light fixedFont">{THREE.Material}</span> <b>material</b>
+												
+											</dt>
+											<dd>the material to clone</dd>
+										
+									</dl>
+								
+								
+								
+								<div class="hr"></div>
+							</li>
+						
+							<li 
+								 class='item9'
+							>
+								<div class="fixedFont heading" id=".combineFragSrc">
+									<span class='lighter'>
+									&lt;static&gt; 
+									</span>
+									
+									<span class="light">{string}</span>
+									
+									<span class="light">hemi.utils.</span><b>combineFragSrc</b>(src, cfg)
+								</div>
+								
+								<div class="description">
+									Combine the given strings into one cohesive fragment shader source string.
+									
+									
+										<br />
+										<i>Defined in: </i> &lt;js/hemi/utils/shaderUtils.js&gt;.
+									
+									
+									
+								</div>
+								
+								
+								
+								
+									<dl class="detailList params">
+										<dt class="heading">Parameters:</dt>
+										
+											<dt>
+												<span class="light fixedFont">{string}</span> <b>src</b>
+												
+											</dt>
+											<dd>the original shader source string</dd>
+										
+											<dt>
+												<span class="light fixedFont">{Object}</span> <b>cfg</b>
+												
+											</dt>
+											<dd>configuration object for how to build the new shader:
+    (all fields are optional)
+    preHdr: source to prepend to the existing header
+    hdr: source to replace the existing header
+    postHdr: source to append to the existing header
+    preSprt: source to prepend to the existing support
+    sprt: source to replace the existing support
+    postSprt: source to append to the existing support
+    preBody: source to prepend to the existing body
+    body: source to replace the existing body
+    postBody: source to append to the existing body
+    preGlob: source to prepend to the existing global
+    glob: source to replace the existing global variable assignment
+    postGlob: source to append to the existing global</dd>
+										
+									</dl>
+								
+								
+								
+									<dl class="detailList nomargin">
+									
+										
+										
+										
+										
+										
+										
+										
+											<dt class="heading">Returns:</dt>
+											
+												<dd><span class="light fixedFont">{string}</span> the new shader source string</dd>
+											
+										
+										
+										
+										
+										
+									
+									</dl>
+								
+								<div class="hr"></div>
+							</li>
+						
+							<li 
+								 class='item10'
+							>
+								<div class="fixedFont heading" id=".combineVertSrc">
+									<span class='lighter'>
+									&lt;static&gt; 
+									</span>
+									
+									<span class="light">{string}</span>
+									
+									<span class="light">hemi.utils.</span><b>combineVertSrc</b>(src, cfg)
+								</div>
+								
+								<div class="description">
+									Combine the given strings into one cohesive vertex shader source string.
+									
+									
+										<br />
+										<i>Defined in: </i> &lt;js/hemi/utils/shaderUtils.js&gt;.
+									
+									
+									
+								</div>
+								
+								
+								
+								
+									<dl class="detailList params">
+										<dt class="heading">Parameters:</dt>
+										
+											<dt>
+												<span class="light fixedFont">{string}</span> <b>src</b>
+												
+											</dt>
+											<dd>the original shader source string</dd>
+										
+											<dt>
+												<span class="light fixedFont">{Object}</span> <b>cfg</b>
+												
+											</dt>
+											<dd>configuration object for how to build the new shader:
+    (all fields are optional)
+    preHdr: source to prepend to the existing header
+    hdr: source to replace the existing header
+    postHdr: source to append to the existing header
+    preSprt: source to prepend to the existing support
+    sprt: source to replace the existing support
+    postSprt: source to append to the existing support
+    preBody: source to prepend to the existing body
+    body: source to replace the existing body
+    postBody: source to append to the existing body
+    preGlob: source to prepend to the existing global
+    glob: source to replace the existing global variable assignment
+    postGlob: source to append to the existing global</dd>
+										
+									</dl>
+								
+								
+								
+									<dl class="detailList nomargin">
+									
+										
+										
+										
+										
+										
+										
+										
+											<dt class="heading">Returns:</dt>
+											
+												<dd><span class="light fixedFont">{string}</span> the new shader source string</dd>
+											
+										
+										
+										
+										
+										
+									
+									</dl>
+								
+								<div class="hr"></div>
+							</li>
+						
+							<li 
+								 class='item11'
+							>
+								<div class="fixedFont heading" id=".compareArrays">
+									<span class='lighter'>
+									&lt;static&gt; 
+									</span>
+									
+									<span class="light">{boolean}</span>
+									
+									<span class="light">hemi.utils.</span><b>compareArrays</b>(a, b)
+								</div>
+								
+								<div class="description">
+									Compare the two given arrays of numbers. The arrays should be the same length.
+									
+									
+										<br />
+										<i>Defined in: </i> &lt;js/hemi/utils/jsUtils.js&gt;.
+									
+									
+									
+								</div>
+								
+								
+								
+								
+									<dl class="detailList params">
+										<dt class="heading">Parameters:</dt>
+										
+											<dt>
+												<span class="light fixedFont">{number[]}</span> <b>a</b>
+												
+											</dt>
+											<dd>the first array</dd>
+										
+											<dt>
+												<span class="light fixedFont">{number[]}</span> <b>b</b>
+												
+											</dt>
+											<dd>the second array</dd>
+										
+									</dl>
+								
+								
+								
+									<dl class="detailList nomargin">
+									
+										
+										
+										
+										
+										
+										
+										
+											<dt class="heading">Returns:</dt>
+											
+												<dd><span class="light fixedFont">{boolean}</span> true if the arrays are equal</dd>
+											
+										
+										
+										
+										
+										
+									
+									</dl>
+								
+								<div class="hr"></div>
+							</li>
+						
+							<li 
+								 class='item12'
+							>
+								<div class="fixedFont heading" id=".computeNormal">
+									<span class='lighter'>
+									&lt;static&gt; 
+									</span>
+									
+									<span class="light">{THREE.Vector3}</span>
+									
+									<span class="light">hemi.utils.</span><b>computeNormal</b>(a, b, c)
+								</div>
+								
+								<div class="description">
+									Compute the normal of the three given vertices that form a triangle.
+									
+									
+										<br />
+										<i>Defined in: </i> &lt;js/hemi/utils/mathUtils.js&gt;.
+									
+									
+									
+								</div>
+								
+								
+								
+								
+									<dl class="detailList params">
+										<dt class="heading">Parameters:</dt>
+										
+											<dt>
+												<span class="light fixedFont">{THREE.Vertex}</span> <b>a</b>
+												
+											</dt>
+											<dd>vertex a</dd>
+										
+											<dt>
+												<span class="light fixedFont">{THREE.Vertex}</span> <b>b</b>
+												
+											</dt>
+											<dd>vertex b</dd>
+										
+											<dt>
+												<span class="light fixedFont">{THREE.Vertex}</span> <b>c</b>
+												
+											</dt>
+											<dd>vertex c</dd>
+										
+									</dl>
+								
+								
+								
+									<dl class="detailList nomargin">
+									
+										
+										
+										
+										
+										
+										
+										
+											<dt class="heading">Returns:</dt>
+											
+												<dd><span class="light fixedFont">{THREE.Vector3}</span> the normal vector</dd>
+											
+										
+										
+										
+										
+										
+									
+									</dl>
+								
+								<div class="hr"></div>
+							</li>
+						
+							<li 
+								 class='item13'
+							>
+								<div class="fixedFont heading" id=".cubicHermite">
+									<span class='lighter'>
+									&lt;static&gt; 
+									</span>
+									
+									<span class="light">{number[3]}</span>
+									
+									<span class="light">hemi.utils.</span><b>cubicHermite</b>(t, p0, m0, p1, m1)
+								</div>
+								
+								<div class="description">
+									Calculate the cubic hermite interpolation between two points with associated tangents.
+									
+									
+										<br />
+										<i>Defined in: </i> &lt;js/hemi/utils/mathUtils.js&gt;.
+									
+									
+									
+								</div>
+								
+								
+								
+								
+									<dl class="detailList params">
+										<dt class="heading">Parameters:</dt>
+										
+											<dt>
+												<span class="light fixedFont">{number}</span> <b>t</b>
+												
+											</dt>
+											<dd>time (between 0 and 1)</dd>
+										
+											<dt>
+												<span class="light fixedFont">{number[3]}</span> <b>p0</b>
+												
+											</dt>
+											<dd>the first waypoint</dd>
+										
+											<dt>
+												<span class="light fixedFont">{number[3]}</span> <b>m0</b>
+												
+											</dt>
+											<dd>the tangent through the first waypoint</dd>
+										
+											<dt>
+												<span class="light fixedFont">{number[3]}</span> <b>p1</b>
+												
+											</dt>
+											<dd>the second waypoint</dd>
+										
+											<dt>
+												<span class="light fixedFont">{number[3]}</span> <b>m1</b>
+												
+											</dt>
+											<dd>the tangent through the second waypoint</dd>
+										
+									</dl>
+								
+								
+								
+									<dl class="detailList nomargin">
+									
+										
+										
+										
+										
+										
+										
+										
+											<dt class="heading">Returns:</dt>
+											
+												<dd><span class="light fixedFont">{number[3]}</span> the interpolated point</dd>
+											
+										
+										
+										
+										
+										
+									
+									</dl>
+								
+								<div class="hr"></div>
+							</li>
+						
+							<li 
+								 class='item14'
+							>
+								<div class="fixedFont heading" id=".factorial">
+									<span class='lighter'>
+									&lt;static&gt; 
+									</span>
+									
+									<span class="light">{number}</span>
+									
+									<span class="light">hemi.utils.</span><b>factorial</b>(num, opt_stop)
+								</div>
+								
+								<div class="description">
+									Calculate the factorial of the given number.
+									
+									
+										<br />
+										<i>Defined in: </i> &lt;js/hemi/utils/mathUtils.js&gt;.
+									
+									
+									
+								</div>
+								
+								
+								
+								
+									<dl class="detailList params">
+										<dt class="heading">Parameters:</dt>
+										
+											<dt>
+												<span class="light fixedFont">{number}</span> <b>num</b>
+												
+											</dt>
+											<dd>number to factorialize</dd>
+										
+											<dt>
+												<span class="light fixedFont">{number}</span> <b>opt_stop</b>
+												
+											</dt>
+											<dd>optional number to stop the factorial at (if it should be stopped    before 1</dd>
+										
+									</dl>
+								
+								
+								
+									<dl class="detailList nomargin">
+									
+										
+										
+										
+										
+										
+										
+										
+											<dt class="heading">Returns:</dt>
+											
+												<dd><span class="light fixedFont">{number}</span> (num!) or (num! - opt_stop!)</dd>
+											
+										
+										
+										
+										
+										
+									
+									</dl>
+								
+								<div class="hr"></div>
+							</li>
+						
+							<li 
+								 class='item15'
+							>
+								<div class="fixedFont heading" id=".get">
+									<span class='lighter'>
+									&lt;static&gt; 
+									</span>
+									
+									
+									
+									<span class="light">hemi.utils.</span><b>get</b>(url, callback, opt_overrideMimeType)
+								</div>
+								
+								<div class="description">
+									Perform an asynchronous AJAX GET for the resource at the given URL.
+									
+									
+										<br />
+										<i>Defined in: </i> &lt;js/hemi/utils/jsUtils.js&gt;.
+									
+									
+									
+								</div>
+								
+								
+								
+								
+									<dl class="detailList params">
+										<dt class="heading">Parameters:</dt>
+										
+											<dt>
+												<span class="light fixedFont">{string}</span> <b>url</b>
+												
+											</dt>
+											<dd>url of the resource to get</dd>
+										
+											<dt>
+												<span class="light fixedFont">{function(string|string):void)}</span> <b>callback</b>
+												
+											</dt>
+											<dd>function to pass the data retrieved from the
+    URL as well as the status text of the request</dd>
+										
+											<dt>
+												<span class="light fixedFont">{boolean}</span> <b>opt_overrideMimeType</b>
+												
+											</dt>
+											<dd>optional flag indicating the XHR's mime type should be
+    forced to "text/xml"</dd>
+										
+									</dl>
+								
+								
+								
+								<div class="hr"></div>
+							</li>
+						
+							<li 
+								 class='item16'
+							>
+								<div class="fixedFont heading" id=".getShaders">
+									<span class='lighter'>
+									&lt;static&gt; 
+									</span>
+									
+									<span class="light">{Object}</span>
+									
+									<span class="light">hemi.utils.</span><b>getShaders</b>(client, material)
+								</div>
+								
+								<div class="description">
+									Get the vertex and pixel shaders (as well as their source) for the given Material.
+									
+									
+										<br />
+										<i>Defined in: </i> &lt;js/hemi/utils/shaderUtils.js&gt;.
+									
+									
+									
+								</div>
+								
+								
+								
+								
+									<dl class="detailList params">
+										<dt class="heading">Parameters:</dt>
+										
+											<dt>
+												<span class="light fixedFont">{hemi.Client}</span> <b>client</b>
+												
+											</dt>
+											<dd>the Client that is rendering the Material</dd>
+										
+											<dt>
+												<span class="light fixedFont">{THREE.Material}</span> <b>material</b>
+												
+											</dt>
+											<dd>the material to get shaders for</dd>
+										
+									</dl>
+								
+								
+								
+									<dl class="detailList nomargin">
+									
+										
+										
+										
+										
+										
+										
+										
+											<dt class="heading">Returns:</dt>
+											
+												<dd><span class="light fixedFont">{Object}</span> object containing shaders and source strings</dd>
+											
+										
+										
+										
+										
+										
+									
+									</dl>
+								
+								<div class="hr"></div>
+							</li>
+						
+							<li 
+								 class='item17'
+							>
+								<div class="fixedFont heading" id=".intersect">
+									<span class='lighter'>
+									&lt;static&gt; 
+									</span>
+									
+									<span class="light">{number[3]}</span>
+									
+									<span class="light">hemi.utils.</span><b>intersect</b>(ray, plane)
+								</div>
+								
+								<div class="description">
+									Calculate the intersection between a ray and a plane.
+									
+									
+										<br />
+										<i>Defined in: </i> &lt;js/hemi/utils/mathUtils.js&gt;.
+									
+									
+									
+								</div>
+								
+								
+								
+								
+									<dl class="detailList params">
+										<dt class="heading">Parameters:</dt>
+										
+											<dt>
+												<span class="light fixedFont">{THREE.Ray}</span> <b>ray</b>
+												
+											</dt>
+											<dd>Ray described by a near xyz point and a far xyz point</dd>
+										
+											<dt>
+												<span class="light fixedFont">{THREE.Vector3[3]}</span> <b>plane</b>
+												
+											</dt>
+											<dd>Array of 3 xyz coordinates defining a plane</dd>
+										
+									</dl>
+								
+								
+								
+									<dl class="detailList nomargin">
+									
+										
+										
+										
+										
+										
+										
+										
+											<dt class="heading">Returns:</dt>
+											
+												<dd><span class="light fixedFont">{number[3]}</span> the array [    t: time value on ray,    u: u-coordinate on plane,    v: v-coordinate on plane</dd>
+											
+										
+										
+										
+										
+										
+									
+									</dl>
+								
+								<div class="hr"></div>
+							</li>
+						
+							<li 
+								 class='item18'
+							>
+								<div class="fixedFont heading" id=".invertMat3">
+									<span class='lighter'>
+									&lt;static&gt; 
+									</span>
+									
+									<span class="light">{number[3][3]}</span>
+									
+									<span class="light">hemi.utils.</span><b>invertMat3</b>(m)
+								</div>
+								
+								<div class="description">
+									Compute the inverse of a 3-by-3 matrix.
+									
+									
+										<br />
+										<i>Defined in: </i> &lt;js/hemi/utils/mathUtils.js&gt;.
+									
+									
+									
+								</div>
+								
+								
+								
+								
+									<dl class="detailList params">
+										<dt class="heading">Parameters:</dt>
+										
+											<dt>
+												<span class="light fixedFont">{number[3][3]}</span> <b>m</b>
+												
+											</dt>
+											<dd>the matrix to invert</dd>
+										
+									</dl>
+								
+								
+								
+									<dl class="detailList nomargin">
+									
+										
+										
+										
+										
+										
+										
+										
+											<dt class="heading">Returns:</dt>
+											
+												<dd><span class="light fixedFont">{number[3][3]}</span> the inverse of m</dd>
+											
+										
+										
+										
+										
+										
+									
+									</dl>
+								
+								<div class="hr"></div>
+							</li>
+						
+							<li 
+								 class='item19'
+							>
+								<div class="fixedFont heading" id=".isFunction">
+									<span class='lighter'>
+									&lt;static&gt; 
+									</span>
+									
+									<span class="light">{boolean}</span>
+									
+									<span class="light">hemi.utils.</span><b>isFunction</b>(val)
+								</div>
+								
+								<div class="description">
+									The "best" way to test if a value is a function or not.
+									
+									
+										<br />
+										<i>Defined in: </i> &lt;js/hemi/utils/jsUtils.js&gt;.
+									
+									
+									
+								</div>
+								
+								
+								
+								
+									<dl class="detailList params">
+										<dt class="heading">Parameters:</dt>
+										
+											<dt>
+												<span class="light fixedFont">{Object}</span> <b>val</b>
+												
+											</dt>
+											<dd>value to test</dd>
+										
+									</dl>
+								
+								
+								
+									<dl class="detailList nomargin">
+									
+										
+										
+										
+										
+										
+										
+										
+											<dt class="heading">Returns:</dt>
+											
+												<dd><span class="light fixedFont">{boolean}</span> true if the value is a function</dd>
+											
+										
+										
+										
+										
+										
+									
+									</dl>
+								
+								<div class="hr"></div>
+							</li>
+						
+							<li 
+								 class='item20'
+							>
+								<div class="fixedFont heading" id=".isNumeric">
+									<span class='lighter'>
+									&lt;static&gt; 
+									</span>
+									
+									<span class="light">{boolean}</span>
+									
+									<span class="light">hemi.utils.</span><b>isNumeric</b>(str)
+								</div>
+								
+								<div class="description">
+									Test if the given string is numeric.
+									
+									
+										<br />
+										<i>Defined in: </i> &lt;js/hemi/utils/stringUtils.js&gt;.
+									
+									
+									
+								</div>
+								
+								
+								
+								
+									<dl class="detailList params">
+										<dt class="heading">Parameters:</dt>
+										
+											<dt>
+												<span class="light fixedFont">{string}</span> <b>str</b>
+												
+											</dt>
+											<dd>the string to test</dd>
+										
+									</dl>
+								
+								
+								
+									<dl class="detailList nomargin">
+									
+										
+										
+										
+										
+										
+										
+										
+											<dt class="heading">Returns:</dt>
+											
+												<dd><span class="light fixedFont">{boolean}</span> true if the string can be converted directly to a number</dd>
+											
+										
+										
+										
+										
+										
+									
+									</dl>
+								
+								<div class="hr"></div>
+							</li>
+						
+							<li 
+								 class='item21'
+							>
+								<div class="fixedFont heading" id=".join">
+									<span class='lighter'>
+									&lt;static&gt; 
+									</span>
+									
+									<span class="light">{Object}</span>
+									
+									<span class="light">hemi.utils.</span><b>join</b>(obj1, objN, opt_deep)
+								</div>
+								
+								<div class="description">
+									Merge all of the properties of the given objects into the first object. If any of the objects
+have properties with the same name, the later properties will overwrite earlier ones. The
+exception to this is if both properties are objects or arrays and the merge is doing a deep
+copy. In that case, the properties will be merged recursively.
+									
+									
+										<br />
+										<i>Defined in: </i> &lt;js/hemi/utils/jsUtils.js&gt;.
+									
+									
+									
+								</div>
+								
+								
+								
+								
+									<dl class="detailList params">
+										<dt class="heading">Parameters:</dt>
+										
+											<dt>
+												<span class="light fixedFont">{Object}</span> <b>obj1</b>
+												
+											</dt>
+											<dd>the first object which will receive all properties</dd>
+										
+											<dt>
+												<span class="light fixedFont">{Object}</span> <b>objN</b>
+												
+											</dt>
+											<dd>any number of objects to copy properties from</dd>
+										
+											<dt>
+												<span class="light fixedFont">{boolean}</span> <b>opt_deep</b>
+												
+											</dt>
+											<dd>optional flag to indicate if deep copying should be performed
+    (default is deep copying)</dd>
+										
+									</dl>
+								
+								
+								
+									<dl class="detailList nomargin">
+									
+										
+										
+										
+										
+										
+										
+										
+											<dt class="heading">Returns:</dt>
+											
+												<dd><span class="light fixedFont">{Object}</span> the first object now merged with all other objects</dd>
+											
+										
+										
+										
+										
+										
+									
+									</dl>
+								
+								<div class="hr"></div>
+							</li>
+						
+							<li 
+								 class='item22'
+							>
+								<div class="fixedFont heading" id=".lerp">
+									<span class='lighter'>
+									&lt;static&gt; 
+									</span>
+									
+									<span class="light">{number}</span>
+									
+									<span class="light">hemi.utils.</span><b>lerp</b>(start, stop, t)
+								</div>
+								
+								<div class="description">
+									Perform linear interpolation on the given values. Values can be numbers or arrays or evennested arrays (as long as their lengths match).
+									
+									
+										<br />
+										<i>Defined in: </i> &lt;js/hemi/utils/mathUtils.js&gt;.
+									
+									
+									
+								</div>
+								
+								
+								
+								
+									<dl class="detailList params">
+										<dt class="heading">Parameters:</dt>
+										
+											<dt>
+												<span class="light fixedFont">{number}</span> <b>start</b>
+												
+											</dt>
+											<dd>start number (or array of numbers) for interpolation</dd>
+										
+											<dt>
+												<span class="light fixedFont">{number}</span> <b>stop</b>
+												
+											</dt>
+											<dd>stop number (or array of numbers) for interpolation</dd>
+										
+											<dt>
+												<span class="light fixedFont">{number}</span> <b>t</b>
+												
+											</dt>
+											<dd>coefficient for interpolation (usually time)</dd>
+										
+									</dl>
+								
+								
+								
+									<dl class="detailList nomargin">
+									
+										
+										
+										
+										
+										
+										
+										
+											<dt class="heading">Returns:</dt>
+											
+												<dd><span class="light fixedFont">{number}</span> the interpolated number (or array of numbers)</dd>
+											
+										
+										
+										
+										
+										
+									
+									</dl>
+								
+								<div class="hr"></div>
+							</li>
+						
+							<li 
+								 class='item23'
+							>
+								<div class="fixedFont heading" id=".lerpVec3">
+									<span class='lighter'>
+									&lt;static&gt; 
+									</span>
+									
+									<span class="light">{THREE.Vector3}</span>
+									
+									<span class="light">hemi.utils.</span><b>lerpVec3</b>(start, stop, t, opt_vec)
+								</div>
+								
+								<div class="description">
+									Perform linear interpolation on the given vectors.
+									
+									
+										<br />
+										<i>Defined in: </i> &lt;js/hemi/utils/mathUtils.js&gt;.
+									
+									
+									
+								</div>
+								
+								
+								
+								
+									<dl class="detailList params">
+										<dt class="heading">Parameters:</dt>
+										
+											<dt>
+												<span class="light fixedFont">{THREE.Vector3}</span> <b>start</b>
+												
+											</dt>
+											<dd>start vector for interpolation</dd>
+										
+											<dt>
+												<span class="light fixedFont">{THREE.Vector3}</span> <b>stop</b>
+												
+											</dt>
+											<dd>stop vector for interpolation</dd>
+										
+											<dt>
+												<span class="light fixedFont">{number}</span> <b>t</b>
+												
+											</dt>
+											<dd>coefficient for interpolation (usually time)</dd>
+										
+											<dt>
+												<span class="light fixedFont">{THREE.Vector3}</span> <b>opt_vec</b>
+												
+											</dt>
+											<dd>optional vector to receive interpolated value</dd>
+										
+									</dl>
+								
+								
+								
+									<dl class="detailList nomargin">
+									
+										
+										
+										
+										
+										
+										
+										
+											<dt class="heading">Returns:</dt>
+											
+												<dd><span class="light fixedFont">{THREE.Vector3}</span> the interpolated vector</dd>
+											
+										
+										
+										
+										
+										
+									
+									</dl>
+								
+								<div class="hr"></div>
+							</li>
+						
+							<li 
+								 class='item24'
+							>
+								<div class="fixedFont heading" id=".linearToExponential">
+									<span class='lighter'>
+									&lt;static&gt; 
+									</span>
+									
+									<span class="light">{number}</span>
+									
+									<span class="light">hemi.utils.</span><b>linearToExponential</b>(val, x)
+								</div>
+								
+								<div class="description">
+									Convert the given linear interpolated value to an exponential interpolated value.
+									
+									
+										<br />
+										<i>Defined in: </i> &lt;js/hemi/utils/mathUtils.js&gt;.
+									
+									
+									
+								</div>
+								
+								
+								
+								
+									<dl class="detailList params">
+										<dt class="heading">Parameters:</dt>
+										
+											<dt>
+												<span class="light fixedFont">{number}</span> <b>val</b>
+												
+											</dt>
+											<dd>the linear value</dd>
+										
+											<dt>
+												<span class="light fixedFont">{number}</span> <b>x</b>
+												
+											</dt>
+											<dd>the exponent to use</dd>
+										
+									</dl>
+								
+								
+								
+									<dl class="detailList nomargin">
+									
+										
+										
+										
+										
+										
+										
+										
+											<dt class="heading">Returns:</dt>
+											
+												<dd><span class="light fixedFont">{number}</span> the exponential value</dd>
+											
+										
+										
+										
+										
+										
+									
+									</dl>
+								
+								<div class="hr"></div>
+							</li>
+						
+							<li 
+								 class='item25'
+							>
+								<div class="fixedFont heading" id=".linearToExponentialInverse">
+									<span class='lighter'>
+									&lt;static&gt; 
+									</span>
+									
+									<span class="light">{number}</span>
+									
+									<span class="light">hemi.utils.</span><b>linearToExponentialInverse</b>(val, x)
+								</div>
+								
+								<div class="description">
+									Convert the given linear interpolated value to an inverse exponential interpolated value.
+									
+									
+										<br />
+										<i>Defined in: </i> &lt;js/hemi/utils/mathUtils.js&gt;.
+									
+									
+									
+								</div>
+								
+								
+								
+								
+									<dl class="detailList params">
+										<dt class="heading">Parameters:</dt>
+										
+											<dt>
+												<span class="light fixedFont">{number}</span> <b>val</b>
+												
+											</dt>
+											<dd>the linear value</dd>
+										
+											<dt>
+												<span class="light fixedFont">{number}</span> <b>x</b>
+												
+											</dt>
+											<dd>the exponent to use</dd>
+										
+									</dl>
+								
+								
+								
+									<dl class="detailList nomargin">
+									
+										
+										
+										
+										
+										
+										
+										
+											<dt class="heading">Returns:</dt>
+											
+												<dd><span class="light fixedFont">{number}</span> the inverse exponential value</dd>
+											
+										
+										
+										
+										
+										
+									
+									</dl>
+								
+								<div class="hr"></div>
+							</li>
+						
+							<li 
+								 class='item26'
+							>
+								<div class="fixedFont heading" id=".linearToParabolic">
+									<span class='lighter'>
+									&lt;static&gt; 
+									</span>
+									
+									<span class="light">{number}</span>
+									
+									<span class="light">hemi.utils.</span><b>linearToParabolic</b>(val)
+								</div>
+								
+								<div class="description">
+									Convert the given linear interpolated value to a parabolic interpolated value.
+									
+									
+										<br />
+										<i>Defined in: </i> &lt;js/hemi/utils/mathUtils.js&gt;.
+									
+									
+									
+								</div>
+								
+								
+								
+								
+									<dl class="detailList params">
+										<dt class="heading">Parameters:</dt>
+										
+											<dt>
+												<span class="light fixedFont">{number}</span> <b>val</b>
+												
+											</dt>
+											<dd>the linear value</dd>
+										
+									</dl>
+								
+								
+								
+									<dl class="detailList nomargin">
+									
+										
+										
+										
+										
+										
+										
+										
+											<dt class="heading">Returns:</dt>
+											
+												<dd><span class="light fixedFont">{number}</span> the parabolic value</dd>
+											
+										
+										
+										
+										
+										
+									
+									</dl>
+								
+								<div class="hr"></div>
+							</li>
+						
+							<li 
+								 class='item27'
+							>
+								<div class="fixedFont heading" id=".linearToParabolicInverse">
+									<span class='lighter'>
+									&lt;static&gt; 
+									</span>
+									
+									<span class="light">{number}</span>
+									
+									<span class="light">hemi.utils.</span><b>linearToParabolicInverse</b>(val)
+								</div>
+								
+								<div class="description">
+									Convert the given linear interpolated value to a inverse parabolic interpolated value.
+									
+									
+										<br />
+										<i>Defined in: </i> &lt;js/hemi/utils/mathUtils.js&gt;.
+									
+									
+									
+								</div>
+								
+								
+								
+								
+									<dl class="detailList params">
+										<dt class="heading">Parameters:</dt>
+										
+											<dt>
+												<span class="light fixedFont">{number}</span> <b>val</b>
+												
+											</dt>
+											<dd>the linear value</dd>
+										
+									</dl>
+								
+								
+								
+									<dl class="detailList nomargin">
+									
+										
+										
+										
+										
+										
+										
+										
+											<dt class="heading">Returns:</dt>
+											
+												<dd><span class="light fixedFont">{number}</span> the inverse parabolic value</dd>
+											
+										
+										
+										
+										
+										
+									
+									</dl>
+								
+								<div class="hr"></div>
+							</li>
+						
+							<li 
+								 class='item28'
+							>
+								<div class="fixedFont heading" id=".linearToSine">
+									<span class='lighter'>
+									&lt;static&gt; 
+									</span>
+									
+									<span class="light">{number}</span>
+									
+									<span class="light">hemi.utils.</span><b>linearToSine</b>(val)
+								</div>
+								
+								<div class="description">
+									Convert the given linear interpolated value to a sinusoidal interpolated value.
+									
+									
+										<br />
+										<i>Defined in: </i> &lt;js/hemi/utils/mathUtils.js&gt;.
+									
+									
+									
+								</div>
+								
+								
+								
+								
+									<dl class="detailList params">
+										<dt class="heading">Parameters:</dt>
+										
+											<dt>
+												<span class="light fixedFont">{number}</span> <b>val</b>
+												
+											</dt>
+											<dd>the linear value</dd>
+										
+									</dl>
+								
+								
+								
+									<dl class="detailList nomargin">
+									
+										
+										
+										
+										
+										
+										
+										
+											<dt class="heading">Returns:</dt>
+											
+												<dd><span class="light fixedFont">{number}</span> the sinusoidal value</dd>
+											
+										
+										
+										
+										
+										
+									
+									</dl>
+								
+								<div class="hr"></div>
+							</li>
+						
+							<li 
+								 class='item29'
+							>
+								<div class="fixedFont heading" id=".noop">
+									<span class='lighter'>
+									&lt;static&gt; 
+									</span>
+									
+									
+									
+									<span class="light">hemi.utils.</span><b>noop</b>()
+								</div>
+								
+								<div class="description">
+									A no-operation function for utility use.
+									
+									
+										<br />
+										<i>Defined in: </i> &lt;js/hemi/utils/jsUtils.js&gt;.
+									
+									
+									
+								</div>
+								
+								
+								
+								
+								
+								
+								<div class="hr"></div>
+							</li>
+						
+							<li 
+								 class='item30'
+							>
+								<div class="fixedFont heading" id=".parseSrc">
+									<span class='lighter'>
+									&lt;static&gt; 
+									</span>
+									
+									<span class="light">{Object}</span>
+									
+									<span class="light">hemi.utils.</span><b>parseSrc</b>(src, global)
+								</div>
+								
+								<div class="description">
+									Parse the given shader source into logical groupings as follows:
+  Header - uniform, attribute, and varying parameters
+  Support - support/utility functions
+  Body - all of the main function except Global
+  Global - where the shader's global variable is assigned
+
+Example:
+(HEADER_START)
+#ifdef MYVAR
+#endif
+uniform mat4 worldViewProjection;
+attribute vec4 position;
+(HEADER_END)
+(SUPPORT_START)
+float getOne() {
+  return 1.0;
+}
+(SUPPORT_END)
+void main() {
+  (BODY_START)
+  float one = getOne();
+  vec4 realPos = worldViewProjection*position;
+  (BODY_END)
+  (GLOBAL_START)
+  gl_Position = realPos;
+  (GLOBAL_END)
+}
+									
+									
+										<br />
+										<i>Defined in: </i> &lt;js/hemi/utils/shaderUtils.js&gt;.
+									
+									
+									
+								</div>
+								
+								
+								
+								
+									<dl class="detailList params">
+										<dt class="heading">Parameters:</dt>
+										
+											<dt>
+												<span class="light fixedFont">{string}</span> <b>src</b>
+												
+											</dt>
+											<dd>full shader source</dd>
+										
+											<dt>
+												<span class="light fixedFont">{string}</span> <b>global</b>
+												
+											</dt>
+											<dd>global variable assigned by shader</dd>
+										
+									</dl>
+								
+								
+								
+									<dl class="detailList nomargin">
+									
+										
+										
+										
+										
+										
+										
+										
+											<dt class="heading">Returns:</dt>
+											
+												<dd><span class="light fixedFont">{Object}</span> structure populated with parsed shader source</dd>
+											
+										
+										
+										
+										
+										
+									
+									</dl>
+								
+								<div class="hr"></div>
+							</li>
+						
+							<li 
+								 class='item31'
+							>
+								<div class="fixedFont heading" id=".pointAsLocal">
+									<span class='lighter'>
+									&lt;static&gt; 
+									</span>
+									
+									<span class="light">{THREE.Vector3}</span>
+									
+									<span class="light">hemi.utils.</span><b>pointAsLocal</b>(transform, point)
+								</div>
+								
+								<div class="description">
+									Interpret the given point from world space to local space. Note that this function converts
+the actual point passed in, not a clone of it.
+									
+									
+										<br />
+										<i>Defined in: </i> &lt;js/hemi/utils/transformUtils.js&gt;.
+									
+									
+									
+								</div>
+								
+								
+								
+								
+									<dl class="detailList params">
+										<dt class="heading">Parameters:</dt>
+										
+											<dt>
+												<span class="light fixedFont">{hemi.Transform}</span> <b>transform</b>
+												
+											</dt>
+											<dd>the Transform whose local space the point will be in</dd>
+										
+											<dt>
+												<span class="light fixedFont">{THREE.Vector3}</span> <b>point</b>
+												
+											</dt>
+											<dd>the point to convert to local space</dd>
+										
+									</dl>
+								
+								
+								
+									<dl class="detailList nomargin">
+									
+										
+										
+										
+										
+										
+										
+										
+											<dt class="heading">Returns:</dt>
+											
+												<dd><span class="light fixedFont">{THREE.Vector3}</span> the given point, now in local space</dd>
+											
+										
+										
+										
+										
+										
+									
+									</dl>
+								
+								<div class="hr"></div>
+							</li>
+						
+							<li 
+								 class='item32'
+							>
+								<div class="fixedFont heading" id=".pointAsWorld">
+									<span class='lighter'>
+									&lt;static&gt; 
+									</span>
+									
+									<span class="light">{THREE.Vector3}</span>
+									
+									<span class="light">hemi.utils.</span><b>pointAsWorld</b>(transform, point)
+								</div>
+								
+								<div class="description">
+									Interpret the given point from local space to world space. Note that this function converts
+the actual point passed in, not a clone of it.
+									
+									
+										<br />
+										<i>Defined in: </i> &lt;js/hemi/utils/transformUtils.js&gt;.
+									
+									
+									
+								</div>
+								
+								
+								
+								
+									<dl class="detailList params">
+										<dt class="heading">Parameters:</dt>
+										
+											<dt>
+												<span class="light fixedFont">{hemi.Transform}</span> <b>transform</b>
+												
+											</dt>
+											<dd>the Transform whose local space the point is in</dd>
+										
+											<dt>
+												<span class="light fixedFont">{THREE.Vector3}</span> <b>point</b>
+												
+											</dt>
+											<dd>the point to convert to world space</dd>
+										
+									</dl>
+								
+								
+								
+									<dl class="detailList nomargin">
+									
+										
+										
+										
+										
+										
+										
+										
+											<dt class="heading">Returns:</dt>
+											
+												<dd><span class="light fixedFont">{THREE.Vector3}</span> the given point, now in world space</dd>
+											
+										
+										
+										
+										
+										
+									
+									</dl>
+								
+								<div class="hr"></div>
+							</li>
+						
+							<li 
+								 class='item33'
+							>
+								<div class="fixedFont heading" id=".pointYAt">
+									<span class='lighter'>
+									&lt;static&gt; 
+									</span>
+									
+									<span class="light">{hemi.Transform}</span>
+									
+									<span class="light">hemi.utils.</span><b>pointYAt</b>(tran, eye, target)
+								</div>
+								
+								<div class="description">
+									Point the y axis of the given Transform toward the given point.
+									
+									
+										<br />
+										<i>Defined in: </i> &lt;js/hemi/utils/transformUtils.js&gt;.
+									
+									
+									
+								</div>
+								
+								
+								
+								
+									<dl class="detailList params">
+										<dt class="heading">Parameters:</dt>
+										
+											<dt>
+												<span class="light fixedFont">{hemi.Transform}</span> <b>tran</b>
+												
+											</dt>
+											<dd>the Transform to rotate</dd>
+										
+											<dt>
+												<span class="light fixedFont">{THREE.Vector3}</span> <b>eye</b>
+												
+											</dt>
+											<dd>XYZ point from which to look (may be the origin)</dd>
+										
+											<dt>
+												<span class="light fixedFont">{THREE.Vector3}</span> <b>target</b>
+												
+											</dt>
+											<dd>XYZ point at which to aim the y axis</dd>
+										
+									</dl>
+								
+								
+								
+									<dl class="detailList nomargin">
+									
+										
+										
+										
+										
+										
+										
+										
+											<dt class="heading">Returns:</dt>
+											
+												<dd><span class="light fixedFont">{hemi.Transform}</span> the rotated Transform</dd>
+											
+										
+										
+										
+										
+										
+									
+									</dl>
+								
+								<div class="hr"></div>
+							</li>
+						
+							<li 
+								 class='item34'
+							>
+								<div class="fixedFont heading" id=".pointZAt">
+									<span class='lighter'>
+									&lt;static&gt; 
+									</span>
+									
+									<span class="light">{hemi.Transform}</span>
+									
+									<span class="light">hemi.utils.</span><b>pointZAt</b>(tran, eye, target)
+								</div>
+								
+								<div class="description">
+									Point the z axis of the given Transform toward the given point.
+									
+									
+										<br />
+										<i>Defined in: </i> &lt;js/hemi/utils/transformUtils.js&gt;.
+									
+									
+									
+								</div>
+								
+								
+								
+								
+									<dl class="detailList params">
+										<dt class="heading">Parameters:</dt>
+										
+											<dt>
+												<span class="light fixedFont">{hemi.Transform}</span> <b>tran</b>
+												
+											</dt>
+											<dd>the Transform to rotate</dd>
+										
+											<dt>
+												<span class="light fixedFont">{THREE.Vector3}</span> <b>eye</b>
+												
+											</dt>
+											<dd>XYZ point from which to look (may be the origin)</dd>
+										
+											<dt>
+												<span class="light fixedFont">{THREE.Vector3}</span> <b>target</b>
+												
+											</dt>
+											<dd>XYZ point at which to aim the z axis</dd>
+										
+									</dl>
+								
+								
+								
+									<dl class="detailList nomargin">
+									
+										
+										
+										
+										
+										
+										
+										
+											<dt class="heading">Returns:</dt>
+											
+												<dd><span class="light fixedFont">{hemi.Transform}</span> the rotated Transform</dd>
+											
+										
+										
+										
+										
+										
+									
+									</dl>
+								
+								<div class="hr"></div>
+							</li>
+						
+							<li 
+								 class='item35'
+							>
+								<div class="fixedFont heading" id=".rotateUVs">
+									<span class='lighter'>
+									&lt;static&gt; 
+									</span>
+									
+									
+									
+									<span class="light">hemi.utils.</span><b>rotateUVs</b>(geometry, theta)
+								</div>
+								
+								<div class="description">
+									Rotate the texture UV coordinates of the given Geometry.
+									
+									
+										<br />
+										<i>Defined in: </i> &lt;js/hemi/utils/transformUtils.js&gt;.
+									
+									
+									
+								</div>
+								
+								
+								
+								
+									<dl class="detailList params">
+										<dt class="heading">Parameters:</dt>
+										
+											<dt>
+												<span class="light fixedFont">{THREE.Geometry}</span> <b>geometry</b>
+												
+											</dt>
+											<dd>the Geometry to translate the texture for</dd>
+										
+											<dt>
+												<span class="light fixedFont">{number}</span> <b>theta</b>
+												
+											</dt>
+											<dd>amount to rotate the UV coordinates (in radians)</dd>
+										
+									</dl>
+								
+								
+								
+								<div class="hr"></div>
+							</li>
+						
+							<li 
+								 class='item36'
+							>
+								<div class="fixedFont heading" id=".scaleUVs">
+									<span class='lighter'>
+									&lt;static&gt; 
+									</span>
+									
+									
+									
+									<span class="light">hemi.utils.</span><b>scaleUVs</b>(geometry, uScale, vScale)
+								</div>
+								
+								<div class="description">
+									Scale the texture UV coordinates of the given Geometry.
+									
+									
+										<br />
+										<i>Defined in: </i> &lt;js/hemi/utils/transformUtils.js&gt;.
+									
+									
+									
+								</div>
+								
+								
+								
+								
+									<dl class="detailList params">
+										<dt class="heading">Parameters:</dt>
+										
+											<dt>
+												<span class="light fixedFont">{THREE.Geometry}</span> <b>geometry</b>
+												
+											</dt>
+											<dd>the Geometry to translate the texture for</dd>
+										
+											<dt>
+												<span class="light fixedFont">{number}</span> <b>uScale</b>
+												
+											</dt>
+											<dd>amount to scale the U coordinate</dd>
+										
+											<dt>
+												<span class="light fixedFont">{number}</span> <b>vScale</b>
+												
+											</dt>
+											<dd>amount to scale the V coordinate</dd>
+										
+									</dl>
+								
+								
+								
+								<div class="hr"></div>
+							</li>
+						
+							<li 
+								 class='item37'
+							>
+								<div class="fixedFont heading" id=".scrubTriangles">
+									<span class='lighter'>
+									&lt;static&gt; 
+									</span>
+									
+									
+									
+									<span class="light">hemi.utils.</span><b>scrubTriangles</b>(transform, opt_precision)
+								</div>
+								
+								<div class="description">
+									Check for degenerate triangles (all three points are collinear) in the faces of the geometry
+of the given Transform and its children and remove those triangles.
+									
+									
+										<br />
+										<i>Defined in: </i> &lt;js/hemi/utils/transformUtils.js&gt;.
+									
+									
+									
+								</div>
+								
+								
+								
+								
+									<dl class="detailList params">
+										<dt class="heading">Parameters:</dt>
+										
+											<dt>
+												<span class="light fixedFont">{hemi.Transform}</span> <b>transform</b>
+												
+											</dt>
+											<dd>Transform to begin scrubbing faces at</dd>
+										
+											<dt>
+												<span class="light fixedFont">{number}</span> <b>opt_precision</b>
+												
+											</dt>
+											<dd>the precision to use for floating point numbers</dd>
+										
+									</dl>
+								
+								
+								
+								<div class="hr"></div>
+							</li>
+						
+							<li 
+								 class='item38'
+							>
+								<div class="fixedFont heading" id=".sphericalToCartesian">
+									<span class='lighter'>
+									&lt;static&gt; 
+									</span>
+									
+									<span class="light">{number[3]}</span>
+									
+									<span class="light">hemi.utils.</span><b>sphericalToCartesian</b>(rtp)
+								</div>
+								
+								<div class="description">
+									Convert from spherical to cartesian coordinates.
+									
+									
+										<br />
+										<i>Defined in: </i> &lt;js/hemi/utils/mathUtils.js&gt;.
+									
+									
+									
+								</div>
+								
+								
+								
+								
+									<dl class="detailList params">
+										<dt class="heading">Parameters:</dt>
+										
+											<dt>
+												<span class="light fixedFont">{number[3]}</span> <b>rtp</b>
+												
+											</dt>
+											<dd>array of radius, theta, phi</dd>
+										
+									</dl>
+								
+								
+								
+									<dl class="detailList nomargin">
+									
+										
+										
+										
+										
+										
+										
+										
+											<dt class="heading">Returns:</dt>
+											
+												<dd><span class="light fixedFont">{number[3]}</span> XYZ cartesian coordinates</dd>
+											
+										
+										
+										
+										
+										
+									
+									</dl>
+								
+								<div class="hr"></div>
+							</li>
+						
+							<li 
+								 class='item39'
+							>
+								<div class="fixedFont heading" id=".translateGeometry">
+									<span class='lighter'>
+									&lt;static&gt; 
+									</span>
+									
+									
+									
+									<span class="light">hemi.utils.</span><b>translateGeometry</b>(mesh, delta)
+								</div>
+								
+								<div class="description">
+									Translate the vertices of the given Mesh's geometry by the given amount and update the Mesh
+Mesh so that the geometry stays in the same world position.
+									
+									
+										<br />
+										<i>Defined in: </i> &lt;js/hemi/utils/transformUtils.js&gt;.
+									
+									
+									
+								</div>
+								
+								
+								
+								
+									<dl class="detailList params">
+										<dt class="heading">Parameters:</dt>
+										
+											<dt>
+												<span class="light fixedFont">{hemi.Mesh}</span> <b>mesh</b>
+												
+											</dt>
+											<dd>the Mesh to shift geometry for</dd>
+										
+											<dt>
+												<span class="light fixedFont">{THREE.Vector3}</span> <b>delta</b>
+												
+											</dt>
+											<dd>the XYZ amount to shift the geometry by</dd>
+										
+									</dl>
+								
+								
+								
+								<div class="hr"></div>
+							</li>
+						
+							<li 
+								 class='item40'
+							>
+								<div class="fixedFont heading" id=".translateUVs">
+									<span class='lighter'>
+									&lt;static&gt; 
+									</span>
+									
+									
+									
+									<span class="light">hemi.utils.</span><b>translateUVs</b>(geometry, uDelta, vDelta)
+								</div>
+								
+								<div class="description">
+									Translate the texture UV coordinates of the given Geometry.
+									
+									
+										<br />
+										<i>Defined in: </i> &lt;js/hemi/utils/transformUtils.js&gt;.
+									
+									
+									
+								</div>
+								
+								
+								
+								
+									<dl class="detailList params">
+										<dt class="heading">Parameters:</dt>
+										
+											<dt>
+												<span class="light fixedFont">{THREE.Geometry}</span> <b>geometry</b>
+												
+											</dt>
+											<dd>the Geometry to translate the texture for</dd>
+										
+											<dt>
+												<span class="light fixedFont">{number}</span> <b>uDelta</b>
+												
+											</dt>
+											<dd>amount to translate the U coordinate</dd>
+										
+											<dt>
+												<span class="light fixedFont">{number}</span> <b>vDelta</b>
+												
+											</dt>
+											<dd>amount to translate the V coordinate</dd>
+										
+									</dl>
+								
+								
+								
+								<div class="hr"></div>
+							</li>
+						
+							<li 
+								 class='item41'
+							>
+								<div class="fixedFont heading" id=".trim">
+									<span class='lighter'>
+									&lt;static&gt; 
+									</span>
+									
+									<span class="light">{string}</span>
+									
+									<span class="light">hemi.utils.</span><b>trim</b>(str)
+								</div>
+								
+								<div class="description">
+									Remove any whitespace from the beginning and end of the given string.
+									
+									
+										<br />
+										<i>Defined in: </i> &lt;js/hemi/utils/stringUtils.js&gt;.
+									
+									
+									
+								</div>
+								
+								
+								
+								
+									<dl class="detailList params">
+										<dt class="heading">Parameters:</dt>
+										
+											<dt>
+												<span class="light fixedFont">{string}</span> <b>str</b>
+												
+											</dt>
+											<dd>the string to trim</dd>
+										
+									</dl>
+								
+								
+								
+									<dl class="detailList nomargin">
+									
+										
+										
+										
+										
+										
+										
+										
+											<dt class="heading">Returns:</dt>
+											
+												<dd><span class="light fixedFont">{string}</span> the trimmed string</dd>
+											
+										
+										
+										
+										
+										
+									
+									</dl>
+								
+								<div class="hr"></div>
+							</li>
+						
+							<li 
+								 class='item42'
+							>
+								<div class="fixedFont heading" id=".useEuler">
+									<span class='lighter'>
+									&lt;static&gt; 
+									</span>
+									
+									
+									
+									<span class="light">hemi.utils.</span><b>useEuler</b>(transform)
+								</div>
+								
+								<div class="description">
+									Convert the transform from using quaternions to manage its rotation to using Euler angles.
+									
+									
+										<br />
+										<i>Defined in: </i> &lt;js/hemi/utils/transformUtils.js&gt;.
+									
+									
+									
+								</div>
+								
+								
+								
+								
+									<dl class="detailList params">
+										<dt class="heading">Parameters:</dt>
+										
+											<dt>
+												<span class="light fixedFont">{hemi.Transform}</span> <b>transform</b>
+												
+											</dt>
+											<dd>the Transform to convert</dd>
+										
+									</dl>
+								
+								
+								
+								<div class="hr"></div>
+							</li>
+						
+							<li 
+								 class='item43'
+							>
+								<div class="fixedFont heading" id=".uvToXYZ">
+									<span class='lighter'>
+									&lt;static&gt; 
+									</span>
+									
+									<span class="light">{THREE.Vector3}</span>
+									
+									<span class="light">hemi.utils.</span><b>uvToXYZ</b>(uv, plane)
+								</div>
+								
+								<div class="description">
+									Convert the given UV coordinates for the given plane into XYZ coordinates in 3D space.
+									
+									
+										<br />
+										<i>Defined in: </i> &lt;js/hemi/utils/mathUtils.js&gt;.
+									
+									
+									
+								</div>
+								
+								
+								
+								
+									<dl class="detailList params">
+										<dt class="heading">Parameters:</dt>
+										
+											<dt>
+												<span class="light fixedFont">{number[2]}</span> <b>uv</b>
+												
+											</dt>
+											<dd>uv coordinates on a plane</dd>
+										
+											<dt>
+												<span class="light fixedFont">{THREE.Vector3[3]}</span> <b>plane</b>
+												
+											</dt>
+											<dd>array of 3 xyz coordinates defining the plane</dd>
+										
+									</dl>
+								
+								
+								
+									<dl class="detailList nomargin">
+									
+										
+										
+										
+										
+										
+										
+										
+											<dt class="heading">Returns:</dt>
+											
+												<dd><span class="light fixedFont">{THREE.Vector3}</span> xyz coordinates of the uv location on the plane</dd>
+											
+										
+										
+										
+										
+										
+									
+									</dl>
+								
+								<div class="hr"></div>
+							</li>
+						
+							<li 
+								 class='item44'
+							>
+								<div class="fixedFont heading" id=".validateTriangles">
+									<span class='lighter'>
+									&lt;static&gt; 
+									</span>
+									
+									
+									
+									<span class="light">hemi.utils.</span><b>validateTriangles</b>(transform)
+								</div>
+								
+								<div class="description">
+									Check for degenerate triangles (all three points are collinear) in the faces of the geometry
+of the given Transform and its children.
+									
+									
+										<br />
+										<i>Defined in: </i> &lt;js/hemi/utils/transformUtils.js&gt;.
+									
+									
+									
+								</div>
+								
+								
+								
+								
+									<dl class="detailList params">
+										<dt class="heading">Parameters:</dt>
+										
+											<dt>
+												<span class="light fixedFont">{hemi.Transform}</span> <b>transform</b>
+												
+											</dt>
+											<dd>Transform to begin checking faces at</dd>
+										
+									</dl>
+								
+								
+								
+								<div class="hr"></div>
+							</li>
+						
+							<li 
+								 class='item45'
+							>
+								<div class="fixedFont heading" id=".worldRotate">
+									<span class='lighter'>
+									&lt;static&gt; 
+									</span>
+									
+									
+									
+									<span class="light">hemi.utils.</span><b>worldRotate</b>(axis, angle, transform)
+								</div>
+								
+								<div class="description">
+									Rotate the Transform by the given angle along the given world space axis.
+									
+									
+										<br />
+										<i>Defined in: </i> &lt;js/hemi/utils/transformUtils.js&gt;.
+									
+									
+									
+								</div>
+								
+								
+								
+								
+									<dl class="detailList params">
+										<dt class="heading">Parameters:</dt>
+										
+											<dt>
+												<span class="light fixedFont">{THREE.Vector3}</span> <b>axis</b>
+												
+											</dt>
+											<dd>rotation axis defined as an XYZ vector</dd>
+										
+											<dt>
+												<span class="light fixedFont">{number}</span> <b>angle</b>
+												
+											</dt>
+											<dd>amount to rotate by in radians</dd>
+										
+											<dt>
+												<span class="light fixedFont">{hemi.Transform}</span> <b>transform</b>
+												
+											</dt>
+											<dd>the Transform to rotate</dd>
+										
+									</dl>
+								
+								
+								
+								<div class="hr"></div>
+							</li>
+						
+							<li 
+								 class='item46'
+							>
+								<div class="fixedFont heading" id=".worldScale">
+									<span class='lighter'>
+									&lt;static&gt; 
+									</span>
+									
+									
+									
+									<span class="light">hemi.utils.</span><b>worldScale</b>(scale, transform)
+								</div>
+								
+								<div class="description">
+									Scale the Transform by the given scale amounts in world space.
+									
+									
+										<br />
+										<i>Defined in: </i> &lt;js/hemi/utils/transformUtils.js&gt;.
+									
+									
+									
+								</div>
+								
+								
+								
+								
+									<dl class="detailList params">
+										<dt class="heading">Parameters:</dt>
+										
+											<dt>
+												<span class="light fixedFont">{THREE.Vector3}</span> <b>scale</b>
+												
+											</dt>
+											<dd>scale factors defined as an XYZ vector</dd>
+										
+											<dt>
+												<span class="light fixedFont">{hemi.Transform}</span> <b>transform</b>
+												
+											</dt>
+											<dd>the Transform to scale</dd>
+										
+									</dl>
+								
+								
+								
+								<div class="hr"></div>
+							</li>
+						
+							<li 
+								 class='item47'
+							>
+								<div class="fixedFont heading" id=".worldToScreen">
+									<span class='lighter'>
+									&lt;static&gt; 
+									</span>
+									
+									<span class="light">{THREE.Vector2}</span>
+									
+									<span class="light">hemi.utils.</span><b>worldToScreen</b>(the, point)
+								</div>
+								
+								<div class="description">
+									Convert the given XYZ point in world space to screen coordinates. Note that this functionconverts the actual point passed in, not a clone of it.
+									
+									
+										<br />
+										<i>Defined in: </i> &lt;js/hemi/utils/mathUtils.js&gt;.
+									
+									
+									
+								</div>
+								
+								
+								
+								
+									<dl class="detailList params">
+										<dt class="heading">Parameters:</dt>
+										
+											<dt>
+												<span class="light fixedFont">{hemi.Client}</span> <b>the</b>
+												
+											</dt>
+											<dd>Client containing the point</dd>
+										
+											<dt>
+												<span class="light fixedFont">{THREE.Vector3}</span> <b>point</b>
+												
+											</dt>
+											<dd>XYZ point to convert</dd>
+										
+									</dl>
+								
+								
+								
+									<dl class="detailList nomargin">
+									
+										
+										
+										
+										
+										
+										
+										
+											<dt class="heading">Returns:</dt>
+											
+												<dd><span class="light fixedFont">{THREE.Vector2}</span> XY screen position of point</dd>
+											
+										
+										
+										
+										
+										
+									
+									</dl>
+								
+								<div class="hr"></div>
+							</li>
+						
+							<li 
+								 class='item48'
+							>
+								<div class="fixedFont heading" id=".worldToScreenFloat">
+									<span class='lighter'>
+									&lt;static&gt; 
+									</span>
+									
+									<span class="light">{THREE.Vector3}</span>
+									
+									<span class="light">hemi.utils.</span><b>worldToScreenFloat</b>(the, point)
+								</div>
+								
+								<div class="description">
+									Convert the given XYZ point in world space to screen coordinates. Note that this functionconverts the actual point passed in, not a clone of it.
+									
+									
+										<br />
+										<i>Defined in: </i> &lt;js/hemi/utils/mathUtils.js&gt;.
+									
+									
+									
+								</div>
+								
+								
+								
+								
+									<dl class="detailList params">
+										<dt class="heading">Parameters:</dt>
+										
+											<dt>
+												<span class="light fixedFont">{hemi.Client}</span> <b>the</b>
+												
+											</dt>
+											<dd>Client containing the point</dd>
+										
+											<dt>
+												<span class="light fixedFont">{THREE.Vector3}</span> <b>point</b>
+												
+											</dt>
+											<dd>XYZ point to convert</dd>
+										
+									</dl>
+								
+								
+								
+									<dl class="detailList nomargin">
+									
+										
+										
+										
+										
+										
+										
+										
+											<dt class="heading">Returns:</dt>
+											
+												<dd><span class="light fixedFont">{THREE.Vector3}</span> XY screen position of point plus z-distance, where 0.0 = near clip    and 1.0 = flar clip</dd>
+											
+										
+										
+										
+										
+										
+									
+									</dl>
+								
+								<div class="hr"></div>
+							</li>
+						
+							<li 
+								 class='item49'
+							>
+								<div class="fixedFont heading" id=".worldTranslate">
+									<span class='lighter'>
+									&lt;static&gt; 
+									</span>
+									
+									
+									
+									<span class="light">hemi.utils.</span><b>worldTranslate</b>(delta, transform)
+								</div>
+								
+								<div class="description">
+									Translate the Transform by the given world space vector.
+									
+									
+										<br />
+										<i>Defined in: </i> &lt;js/hemi/utils/transformUtils.js&gt;.
+									
+									
+									
+								</div>
+								
+								
+								
+								
+									<dl class="detailList params">
+										<dt class="heading">Parameters:</dt>
+										
+											<dt>
+												<span class="light fixedFont">{THREE.Vector3}</span> <b>delta</b>
+												
+											</dt>
+											<dd>XYZ vector to translate by</dd>
+										
+											<dt>
+												<span class="light fixedFont">{hemi.Transform}</span> <b>transform</b>
+												
+											</dt>
+											<dd>the Transform to translate</dd>
+										
+									</dl>
+								
+								
+								
+								<div class="hr"></div>
+							</li>
+						
+							<li 
+								 class='item50'
+							>
+								<div class="fixedFont heading" id=".wrapText">
+									<span class='lighter'>
+									&lt;static&gt; 
+									</span>
+									
+									<span class="light">{string[]}</span>
+									
+									<span class="light">hemi.utils.</span><b>wrapText</b>(text, targetWidth, charWidth)
+								</div>
+								
+								<div class="description">
+									Perform loose text wrapping on the given text. The returned text will be close to thespecified target width, but may be a little wider.
+									
+									
+										<br />
+										<i>Defined in: </i> &lt;js/hemi/utils/stringUtils.js&gt;.
+									
+									
+									
+								</div>
+								
+								
+								
+								
+									<dl class="detailList params">
+										<dt class="heading">Parameters:</dt>
+										
+											<dt>
+												<span class="light fixedFont">{string}</span> <b>text</b>
+												
+											</dt>
+											<dd>the string to perform text wrapping on</dd>
+										
+											<dt>
+												<span class="light fixedFont">{number}</span> <b>targetWidth</b>
+												
+											</dt>
+											<dd>desired width for text in pixels</dd>
+										
+											<dt>
+												<span class="light fixedFont">{number}</span> <b>charWidth</b>
+												
+											</dt>
+											<dd>average width of a character of the text in pixels</dd>
+										
+									</dl>
+								
+								
+								
+									<dl class="detailList nomargin">
+									
+										
+										
+										
+										
+										
+										
+										
+											<dt class="heading">Returns:</dt>
+											
+												<dd><span class="light fixedFont">{string[]}</span> array of wrapped text</dd>
+											
+										
+										
+										
+										
+										
+									
+									</dl>
+								
+								<div class="hr"></div>
+							</li>
+						
+							<li 
+								 class='item51'
+							>
+								<div class="fixedFont heading" id=".wrapTextStrict">
+									<span class='lighter'>
+									&lt;static&gt; 
+									</span>
+									
+									<span class="light">{string[]}</span>
+									
+									<span class="light">hemi.utils.</span><b>wrapTextStrict</b>(text, targetWidth, canvas)
+								</div>
+								
+								<div class="description">
+									Perform strict text wrapping on the given text. The returned text is guaranteed to be nowider than the specified target width, though it may be farther from that width than withloose text wrapping.
+									
+									
+										<br />
+										<i>Defined in: </i> &lt;js/hemi/utils/stringUtils.js&gt;.
+									
+									
+									
+								</div>
+								
+								
+								
+								
+									<dl class="detailList params">
+										<dt class="heading">Parameters:</dt>
+										
+											<dt>
+												<span class="light fixedFont">{string}</span> <b>text</b>
+												
+											</dt>
+											<dd>the string to perform text wrapping on</dd>
+										
+											<dt>
+												<span class="light fixedFont">{number}</span> <b>targetWidth</b>
+												
+											</dt>
+											<dd>maximum desired width for text in pixels</dd>
+										
+											<dt>
+												<span class="light fixedFont">{CanvasRenderingContext2D}</span> <b>canvas</b>
+												
+											</dt>
+											<dd>object used to measure text's on-screen size</dd>
+										
+									</dl>
+								
+								
+								
+									<dl class="detailList nomargin">
+									
+										
+										
+										
+										
+										
+										
+										
+											<dt class="heading">Returns:</dt>
+											
+												<dd><span class="light fixedFont">{string[]}</span> array of wrapped text</dd>
+											
+										
+										
+										
+										
+										
+									
+									</dl>
+								
+								
+							</li>
+						
+					</ul>
+				</div>
+			</div>
+		
+		
+<!--
+#### EVENT DETAILS
+-->		
+		
+	</div>
+</div>
+		<script type="text/javascript">
+			wbos.CssTools.MediaQueryFallBack.LoadCss('../css/screen.css', '../css/handheld.css', 660)
+			codeview.classFilter.Init()
+		</script>
+	</body>
+</html>
+

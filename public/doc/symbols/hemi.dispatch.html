@@ -1,0 +1,1542 @@
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+	<head>
+		<meta charset="utf-8"></meta>
+		<meta name="generator" content="JsDoc Toolkit"></meta>
+		<title>hemi.dispatch | JsDoc Reference</title>
+
+		<meta name="viewport" content="width=device-width; initial-scale=1.0; maximum-scale=1.0;"></meta>
+		<meta name="mobileoptimized" content="0"></meta>
+	
+		<link rel="stylesheet" href="../css/all.css" media="all"></link>
+		<link rel="stylesheet" href="../css/handheld.css" media="only screen and (max-width: 660px)"></link>
+		<link rel="stylesheet" href="../css/handheld.css" media="handheld"></link>
+		<link rel="stylesheet" href="../css/screen.css" media="screen and (min-width: 661px)"></link>
+
+		<script src="../javascript/all.js"></script>
+		<!--[if lt IE 9]>
+			<script src="../javascript/html5.js"></script>
+		<![endif]-->
+	</head>
+
+	<body>
+
+<div class="index">
+	<div class="menu">
+		<div class="indexLinks">
+			<a href="../index.html">Classes</a>
+			<a href="../files.html">Files</a>
+		</div>
+	
+		<h2 class="heading1">Classes</h2>
+		
+		<input type="text" name="classFilter" class="classFilter" id="ClassFilter" placeholder="Filter"></input>
+		
+		<nav>
+			<ul class="classList" id="ClassList">
+				
+					<li><a href="../symbols/_global_.html">_global_</a></li>
+				
+					<li><a href="../symbols/hemi.html">hemi</a></li>
+				
+					<li><a href="../symbols/hemi.BoundingBox.html">hemi<span class='break'> </span>.<span class='break'> </span>BoundingBox</a></li>
+				
+					<li><a href="../symbols/hemi.dispatch.html">hemi<span class='break'> </span>.<span class='break'> </span>dispatch</a></li>
+				
+					<li><a href="../symbols/hemi.input.html">hemi<span class='break'> </span>.<span class='break'> </span>input</a></li>
+				
+					<li><a href="../symbols/hemi.msg.html">hemi<span class='break'> </span>.<span class='break'> </span>msg</a></li>
+				
+					<li><a href="../symbols/hemi.particles.html">hemi<span class='break'> </span>.<span class='break'> </span>particles</a></li>
+				
+					<li><a href="../symbols/hemi.particles.Emitter.html">hemi<span class='break'> </span>.<span class='break'> </span>particles<span class='break'> </span>.<span class='break'> </span>Emitter</a></li>
+				
+					<li><a href="../symbols/hemi.particles.OneShot.html">hemi<span class='break'> </span>.<span class='break'> </span>particles<span class='break'> </span>.<span class='break'> </span>OneShot</a></li>
+				
+					<li><a href="../symbols/hemi.particles.Spec.html">hemi<span class='break'> </span>.<span class='break'> </span>particles<span class='break'> </span>.<span class='break'> </span>Spec</a></li>
+				
+					<li><a href="../symbols/hemi.particles.Trail.html">hemi<span class='break'> </span>.<span class='break'> </span>particles<span class='break'> </span>.<span class='break'> </span>Trail</a></li>
+				
+					<li><a href="../symbols/hemi.Picker.html">hemi<span class='break'> </span>.<span class='break'> </span>Picker</a></li>
+				
+					<li><a href="../symbols/hemi.utils.html">hemi<span class='break'> </span>.<span class='break'> </span>utils</a></li>
+				
+					<li><a href="../symbols/hemi.ViewData.html">hemi<span class='break'> </span>.<span class='break'> </span>ViewData</a></li>
+				
+					<li><a href="../symbols/hemi.world.html">hemi<span class='break'> </span>.<span class='break'> </span>world</a></li>
+				
+					<li><a href="../symbols/hext-BaseController.html">hext-BaseController</a></li>
+				
+					<li><a href="../symbols/hext-BaseTool.html">hext-BaseTool</a></li>
+				
+					<li><a href="../symbols/hext-BlowerDoor.html">hext-BlowerDoor</a></li>
+				
+					<li><a href="../symbols/hext-BlowerDoorController.html">hext-BlowerDoorController</a></li>
+				
+					<li><a href="../symbols/hext-BlowerDoorToolbarView.html">hext-BlowerDoorToolbarView</a></li>
+				
+					<li><a href="../symbols/hext-BlowerDoorView.html">hext-BlowerDoorView</a></li>
+				
+					<li><a href="../symbols/hext-HtmlView.html">hext-HtmlView</a></li>
+				
+					<li><a href="../symbols/hext-Location.html">hext-Location</a></li>
+				
+					<li><a href="../symbols/hext-Manometer.html">hext-Manometer</a></li>
+				
+					<li><a href="../symbols/hext-ManometerToolbarView.html">hext-ManometerToolbarView</a></li>
+				
+					<li><a href="../symbols/hext-ManometerTube.html">hext-ManometerTube</a></li>
+				
+					<li><a href="../symbols/hext-ManometerTubeManager.html">hext-ManometerTubeManager</a></li>
+				
+					<li><a href="../symbols/hext-ManometerView.html">hext-ManometerView</a></li>
+				
+					<li><a href="../symbols/hext-Navigation.html">hext-Navigation</a></li>
+				
+					<li><a href="../symbols/hext-NavigationController.html">hext-NavigationController</a></li>
+				
+					<li><a href="../symbols/hext-NavigationToolbarView.html">hext-NavigationToolbarView</a></li>
+				
+					<li><a href="../symbols/hext-PagingInfo.html">hext-PagingInfo</a></li>
+				
+					<li><a href="../symbols/hext-Portal.html">hext-Portal</a></li>
+				
+					<li><a href="../symbols/hext-PressureEngine.html">hext-PressureEngine</a></li>
+				
+					<li><a href="../symbols/hext-ShapeView.html">hext-ShapeView</a></li>
+				
+					<li><a href="../symbols/hext-SmokePuffer.html">hext-SmokePuffer</a></li>
+				
+					<li><a href="../symbols/hext-SmokePufferController.html">hext-SmokePufferController</a></li>
+				
+					<li><a href="../symbols/hext-SmokePufferToolbarView.html">hext-SmokePufferToolbarView</a></li>
+				
+					<li><a href="../symbols/hext-ToolbarView.html">hext-ToolbarView</a></li>
+				
+					<li><a href="../symbols/hext.engines.html">hext<span class='break'> </span>.<span class='break'> </span>engines</a></li>
+				
+					<li><a href="../symbols/hext.house.html">hext<span class='break'> </span>.<span class='break'> </span>house</a></li>
+				
+					<li><a href="../symbols/hext.house.Door.html">hext<span class='break'> </span>.<span class='break'> </span>house<span class='break'> </span>.<span class='break'> </span>Door</a></li>
+				
+					<li><a href="../symbols/hext.house.Window.html">hext<span class='break'> </span>.<span class='break'> </span>house<span class='break'> </span>.<span class='break'> </span>Window</a></li>
+				
+					<li><a href="../symbols/hext.html.toolbar.html">hext<span class='break'> </span>.<span class='break'> </span>html<span class='break'> </span>.<span class='break'> </span>toolbar</a></li>
+				
+					<li><a href="../symbols/hext.html.toolViews.html">hext<span class='break'> </span>.<span class='break'> </span>html<span class='break'> </span>.<span class='break'> </span>toolViews</a></li>
+				
+					<li><a href="../symbols/hext.hud.html">hext<span class='break'> </span>.<span class='break'> </span>hud</a></li>
+				
+					<li><a href="../symbols/hext.msg.html">hext<span class='break'> </span>.<span class='break'> </span>msg</a></li>
+				
+					<li><a href="../symbols/hext.tools.html">hext<span class='break'> </span>.<span class='break'> </span>tools</a></li>
+				
+					<li><a href="../symbols/hext.tools.SmokePuffConfig.html">hext<span class='break'> </span>.<span class='break'> </span>tools<span class='break'> </span>.<span class='break'> </span>SmokePuffConfig</a></li>
+				
+					<li><a href="../symbols/ManometerController.html">ManometerController</a></li>
+				
+			</ul>
+		</nav>
+	</div>
+	<div class="fineprint" style="clear:both">
+		
+		Documentation generator: <a href="http://code.google.com/p/jsdoc-toolkit/" target="_blank">JsDoc Toolkit</a> 2.4.0<br />
+		Template: <a href="http://www.thebrightlines.com/2010/05/06/new-template-for-jsdoctoolkit-codeview/" target="_blank">Codeview</a> 1.2<br />
+		Generated on: 2012-1-15 14:07
+	</div>
+</div>
+
+<div class="index indexStatic"></div>
+
+<div class="content">
+	<div class="innerContent">
+		<h1 class="classTitle">
+			
+			Namespace <span>hemi.dispatch</span>
+		</h1>
+		
+		<div class="intro">
+			<p class="description summary">
+				A module for message dispatching and handling. The Dispatch receives Messages andsends them to MessageTargets that are registered with MessageSpecs.
+			</p>
+				
+			
+				<ul class="summary">
+					
+					
+					
+						<li>Defined in: &lt;js/hemi/dispatch.js&gt;</li>
+					
+						
+				</ul>
+			
+		</div>
+		
+		
+			<div class="props">
+				<table class="summaryTable" cellspacing="0" summary="A summary of the constructor documented in the class hemi.dispatch.">
+					<caption class="sectionTitle">Namespace Summary</caption>
+					<thead>
+						<tr>
+							<th scope="col">Constructor Attributes</th>
+							<th scope="col">Constructor Name and Description</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td class="attributes">&nbsp;</td>
+							<td class="nameDescription" >
+								<div class="fixedFont">
+									<b><a href="../symbols/hemi.dispatch.html#constructor">hemi.dispatch</a></b>
+								</div>
+								<div class="description"></div>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		
+		
+		
+			
+			
+				<div class="props">
+					<table class="summaryTable" cellspacing="0" summary="A summary of the fields documented in the class hemi.dispatch.">
+						<caption class="sectionTitle">Field Summary</caption>
+						
+						<thead>
+							<tr>
+								<th scope="col">Field Attributes</th>
+								<th scope="col">Field Name and Description</th>
+							</tr>
+						</thead>
+						
+						<tbody>
+							
+								<tr>
+									<td class="attributes">&lt;static&gt; &lt;constant&gt; &nbsp;</td>
+									<td class="nameDescription">
+										<div class="fixedFont">
+										hemi.dispatch.<b><a href="../symbols/hemi.dispatch.html#.ID_ARG">ID_ARG</a></b>
+										</div>
+										<div class="description">First part of an argument string indicating it is an id for the actual argument desired.</div>
+									</td>
+								</tr>
+							
+								<tr>
+									<td class="attributes">&lt;static&gt; &lt;constant&gt; &nbsp;</td>
+									<td class="nameDescription">
+										<div class="fixedFont">
+										hemi.dispatch.<b><a href="../symbols/hemi.dispatch.html#.MSG_ARG">MSG_ARG</a></b>
+										</div>
+										<div class="description">First part of an argument string indicating it should be used to parse the actual messagestructure passed to the handler.</div>
+									</td>
+								</tr>
+							
+								<tr>
+									<td class="attributes">&lt;static&gt; &lt;constant&gt; &nbsp;</td>
+									<td class="nameDescription">
+										<div class="fixedFont">
+										hemi.dispatch.<b><a href="../symbols/hemi.dispatch.html#.WILDCARD">WILDCARD</a></b>
+										</div>
+										<div class="description">String literal to indicate that all entries for a field are desired.</div>
+									</td>
+								</tr>
+							
+						</tbody>
+					</table>
+				</div>
+			
+			
+			
+		
+<!--
+#### METHODS SUMMARY
+-->
+		
+			
+			
+			<div class="props">
+				<h2 class="sectionTitle">Method Summary</h2>
+				
+				
+					<table class="summaryTable" id="MethodsList" cellspacing="0" summary="A summary of the methods documented in the class hemi.dispatch.">
+						<thead>
+							<tr>
+								<th scope="col">Method Attributes</th>
+								<th scope="col">Method Name and Description</th>
+							</tr>
+						</thead>
+						
+						<tbody>
+							
+							
+								<tr
+									 class='item0'
+								>
+									<td class="attributes">&lt;static&gt; &nbsp;</td>
+									<td class="nameDescription">
+										<div class="fixedFont">hemi.dispatch.<b><a href="../symbols/hemi.dispatch.html#.checkNextId">checkNextId</a></b>()
+										</div>
+										<div class="description">Check to see what the next id to assign will be without incrementing the Dispatch's nextIdtoken.</div>
+									</td>
+								</tr>
+							
+								<tr
+									 class='item1'
+								>
+									<td class="attributes">&lt;static&gt; &nbsp;</td>
+									<td class="nameDescription">
+										<div class="fixedFont">hemi.dispatch.<b><a href="../symbols/hemi.dispatch.html#.cleanup">cleanup</a></b>()
+										</div>
+										<div class="description">Empty the MessageSpec database of all entries.</div>
+									</td>
+								</tr>
+							
+								<tr
+									 class='item2'
+								>
+									<td class="attributes">&lt;static&gt; &nbsp;</td>
+									<td class="nameDescription">
+										<div class="fixedFont">hemi.dispatch.<b><a href="../symbols/hemi.dispatch.html#.getArguments">getArguments</a></b>(message, params)
+										</div>
+										<div class="description">Create an array of arguments from the given array of parameter strings.</div>
+									</td>
+								</tr>
+							
+								<tr
+									 class='item3'
+								>
+									<td class="attributes">&lt;static&gt; &nbsp;</td>
+									<td class="nameDescription">
+										<div class="fixedFont">hemi.dispatch.<b><a href="../symbols/hemi.dispatch.html#.getNextId">getNextId</a></b>()
+										</div>
+										<div class="description">Get the next id to assign and increment the Dispatch's nextId token.</div>
+									</td>
+								</tr>
+							
+								<tr
+									 class='item4'
+								>
+									<td class="attributes">&lt;static&gt; &nbsp;</td>
+									<td class="nameDescription">
+										<div class="fixedFont">hemi.dispatch.<b><a href="../symbols/hemi.dispatch.html#.getSpecs">getSpecs</a></b>(attributes, wildcards)
+										</div>
+										<div class="description">Get any MessageSpecs with the given attributes.</div>
+									</td>
+								</tr>
+							
+								<tr
+									 class='item5'
+								>
+									<td class="attributes">&lt;static&gt; &nbsp;</td>
+									<td class="nameDescription">
+										<div class="fixedFont">hemi.dispatch.<b><a href="../symbols/hemi.dispatch.html#.getSpecsFast">getSpecsFast</a></b>(src, type, wildcards)
+										</div>
+										<div class="description">Get the MessageSpec with the given source id and Message type.</div>
+									</td>
+								</tr>
+							
+								<tr
+									 class='item6'
+								>
+									<td class="attributes">&lt;static&gt; &nbsp;</td>
+									<td class="nameDescription">
+										<div class="fixedFont">hemi.dispatch.<b><a href="../symbols/hemi.dispatch.html#.getTargets">getTargets</a></b>(attributes, wildcards)
+										</div>
+										<div class="description">Get any MessageTargets registered with the given attributes.</div>
+									</td>
+								</tr>
+							
+								<tr
+									 class='item7'
+								>
+									<td class="attributes">&lt;static&gt; &nbsp;</td>
+									<td class="nameDescription">
+										<div class="fixedFont">hemi.dispatch.<b><a href="../symbols/hemi.dispatch.html#.getTargetSpec">getTargetSpec</a></b>(target)
+										</div>
+										<div class="description">Get the MessageSpec that the given MessageTarget is currently registered with.</div>
+									</td>
+								</tr>
+							
+								<tr
+									 class='item8'
+								>
+									<td class="attributes">&lt;static&gt; &nbsp;</td>
+									<td class="nameDescription">
+										<div class="fixedFont">hemi.dispatch.<b><a href="../symbols/hemi.dispatch.html#.loadEntries">loadEntries</a></b>(entries)
+										</div>
+										<div class="description">Load the given MessageSpec entries into the MessageSpec database.</div>
+									</td>
+								</tr>
+							
+								<tr
+									 class='item9'
+								>
+									<td class="attributes">&lt;static&gt; &nbsp;</td>
+									<td class="nameDescription">
+										<div class="fixedFont">hemi.dispatch.<b><a href="../symbols/hemi.dispatch.html#.postMessage">postMessage</a></b>(src, msg, data)
+										</div>
+										<div class="description">Create a Message from the given attributes and send it to all MessageTargets with matchingsource id and message type.</div>
+									</td>
+								</tr>
+							
+								<tr
+									 class='item10'
+								>
+									<td class="attributes">&lt;static&gt; &nbsp;</td>
+									<td class="nameDescription">
+										<div class="fixedFont">hemi.dispatch.<b><a href="../symbols/hemi.dispatch.html#.registerTarget">registerTarget</a></b>(src, msg, handler, opt_func, opt_args)
+										</div>
+										<div class="description">Setup a MessageTarget with the given attributes and register it to receive Messages.</div>
+									</td>
+								</tr>
+							
+								<tr
+									 class='item11'
+								>
+									<td class="attributes">&lt;static&gt; &nbsp;</td>
+									<td class="nameDescription">
+										<div class="fixedFont">hemi.dispatch.<b><a href="../symbols/hemi.dispatch.html#.removeSpecs">removeSpecs</a></b>(attributes, wildcards)
+										</div>
+										<div class="description">Remove any MessageSpecs with the given attributes from the dispatch.</div>
+									</td>
+								</tr>
+							
+								<tr
+									 class='item12'
+								>
+									<td class="attributes">&lt;static&gt; &nbsp;</td>
+									<td class="nameDescription">
+										<div class="fixedFont">hemi.dispatch.<b><a href="../symbols/hemi.dispatch.html#.removeTarget">removeTarget</a></b>(target, opt_attributes)
+										</div>
+										<div class="description">Remove the given MessageTarget from the dispatch.</div>
+									</td>
+								</tr>
+							
+								<tr
+									 class='item13'
+								>
+									<td class="attributes">&lt;static&gt; &nbsp;</td>
+									<td class="nameDescription">
+										<div class="fixedFont">hemi.dispatch.<b><a href="../symbols/hemi.dispatch.html#.removeTargets">removeTargets</a></b>(attributes, wildcards)
+										</div>
+										<div class="description">Remove any MessageTargets registered with the given attributes.</div>
+									</td>
+								</tr>
+							
+								<tr
+									 class='item14'
+								>
+									<td class="attributes">&lt;static&gt; &nbsp;</td>
+									<td class="nameDescription">
+										<div class="fixedFont">hemi.dispatch.<b><a href="../symbols/hemi.dispatch.html#.setNextId">setNextId</a></b>(id)
+										</div>
+										<div class="description">Set the id for the Dispatch to assign to the next MessageTarget.</div>
+									</td>
+								</tr>
+							
+								<tr
+									 class='item15'
+								>
+									<td class="attributes">&lt;static&gt; &nbsp;</td>
+									<td class="nameDescription">
+										<div class="fixedFont">hemi.dispatch.<b><a href="../symbols/hemi.dispatch.html#.setTargetSpec">setTargetSpec</a></b>(target, src, msg)
+										</div>
+										<div class="description">Remove the given MessageTarget from its current MessageSpec and register it with the givenspecifications.</div>
+									</td>
+								</tr>
+							
+						</tbody>
+					</table>
+				
+			
+				
+			</div>
+		
+		
+<!--
+#### EVENTS SUMMARY
+-->
+		
+<!--
+#### CONSTRUCTOR DETAILS
+-->
+		
+			<div class="details props">
+				<div class="innerProps">
+					<h2 class="sectionTitle" id="constructor">
+						Namespace Detail
+					</h2>
+					
+					<div class="fixedFont">
+						<b>hemi.dispatch</b>
+					</div>
+					
+					<div class="description">
+						
+						
+					</div>
+					
+					
+				
+					
+					
+					
+				</div>
+			</div>
+		
+<!--
+#### FIELD DETAILS
+-->
+		
+			<div class="details props">
+				<div class="innerProps">
+					<h2 class="sectionTitle">
+						Field Detail
+					</h2>
+					
+					
+						<div class="fixedFont heading" id=".ID_ARG">
+							<span class='lighter'>
+							&lt;static&gt; &lt;constant&gt; 
+							</span>
+							
+							
+							
+							<span class="light">hemi.dispatch.</span><b>ID_ARG</b>							
+						</div>
+						
+						<div class="description">
+							First part of an argument string indicating it is an id for the actual argument desired.
+							
+							
+							
+						</div>
+						
+						
+							
+								<pre class="code">'id:12' will execute: hemi.world.getCitizenById(12);</pre>
+							
+						
+							
+						
+						<div class="hr"></div>
+					
+						<div class="fixedFont heading" id=".MSG_ARG">
+							<span class='lighter'>
+							&lt;static&gt; &lt;constant&gt; 
+							</span>
+							
+							
+							
+							<span class="light">hemi.dispatch.</span><b>MSG_ARG</b>							
+						</div>
+						
+						<div class="description">
+							First part of an argument string indicating it should be used to parse the actual messagestructure passed to the handler.
+							
+							
+							
+						</div>
+						
+						
+							
+								<pre class="code">'msg:data.shape.name' will parse: message.data.shape.name</pre>
+							
+						
+							
+						
+						<div class="hr"></div>
+					
+						<div class="fixedFont heading" id=".WILDCARD">
+							<span class='lighter'>
+							&lt;static&gt; &lt;constant&gt; 
+							</span>
+							
+							
+							
+							<span class="light">hemi.dispatch.</span><b>WILDCARD</b>							
+						</div>
+						
+						<div class="description">
+							String literal to indicate that all entries for a field are desired.
+							
+							
+							
+						</div>
+						
+						
+							
+						
+						
+					
+				</div>
+			</div>
+		
+<!--
+#### METHOD DETAILS
+-->		
+		
+			<div class="details props">
+				<div class="innerProps">
+					<h2 class="sectionTitle">
+						Method Detail
+					</h2>
+					
+					<ul class="methodDetail" id="MethodDetail">
+						
+						
+							<li 
+								 class='item0'
+							>
+								<div class="fixedFont heading" id=".checkNextId">
+									<span class='lighter'>
+									&lt;static&gt; 
+									</span>
+									
+									<span class="light">{number}</span>
+									
+									<span class="light">hemi.dispatch.</span><b>checkNextId</b>()
+								</div>
+								
+								<div class="description">
+									Check to see what the next id to assign will be without incrementing the Dispatch's nextIdtoken.
+									
+									
+									
+									
+								</div>
+								
+								
+								
+								
+								
+								
+									<dl class="detailList nomargin">
+									
+										
+										
+										
+										
+										
+										
+										
+											<dt class="heading">Returns:</dt>
+											
+												<dd><span class="light fixedFont">{number}</span> the next id that will be assigned to a MessageTarget</dd>
+											
+										
+										
+										
+										
+										
+									
+									</dl>
+								
+								<div class="hr"></div>
+							</li>
+						
+							<li 
+								 class='item1'
+							>
+								<div class="fixedFont heading" id=".cleanup">
+									<span class='lighter'>
+									&lt;static&gt; 
+									</span>
+									
+									
+									
+									<span class="light">hemi.dispatch.</span><b>cleanup</b>()
+								</div>
+								
+								<div class="description">
+									Empty the MessageSpec database of all entries.
+									
+									
+									
+									
+								</div>
+								
+								
+								
+								
+								
+								
+								<div class="hr"></div>
+							</li>
+						
+							<li 
+								 class='item2'
+							>
+								<div class="fixedFont heading" id=".getArguments">
+									<span class='lighter'>
+									&lt;static&gt; 
+									</span>
+									
+									<span class="light">{Object[]}</span>
+									
+									<span class="light">hemi.dispatch.</span><b>getArguments</b>(message, params)
+								</div>
+								
+								<div class="description">
+									Create an array of arguments from the given array of parameter strings. A string startingwith 'id:' indicates the world id for a Citizen to retrieve. A string starting with 'msg:'indicates a period-delimited string of attributes to parse from within message. Otherwise theargument is passed through unmodified.For example:'id:12' will fetch hemi.world.getCitizens({worldId:12})'msg:data.shape.name' will parse message.data.shape.name
+									
+									
+									
+									
+								</div>
+								
+								
+								
+								
+									<dl class="detailList params">
+										<dt class="heading">Parameters:</dt>
+										
+											<dt>
+												<span class="light fixedFont">{hemi.dispatch.Message}</span> <b>message</b>
+												
+											</dt>
+											<dd>the Message to parse data from</dd>
+										
+											<dt>
+												<span class="light fixedFont">{Object[]}</span> <b>params</b>
+												
+											</dt>
+											<dd>the list of parameters to create arguments from</dd>
+										
+									</dl>
+								
+								
+								
+									<dl class="detailList nomargin">
+									
+										
+										
+										
+										
+										
+										
+										
+											<dt class="heading">Returns:</dt>
+											
+												<dd><span class="light fixedFont">{Object[]}</span> array of arguments created</dd>
+											
+										
+										
+										
+										
+										
+									
+									</dl>
+								
+								<div class="hr"></div>
+							</li>
+						
+							<li 
+								 class='item3'
+							>
+								<div class="fixedFont heading" id=".getNextId">
+									<span class='lighter'>
+									&lt;static&gt; 
+									</span>
+									
+									<span class="light">{number}</span>
+									
+									<span class="light">hemi.dispatch.</span><b>getNextId</b>()
+								</div>
+								
+								<div class="description">
+									Get the next id to assign and increment the Dispatch's nextId token.
+									
+									
+									
+									
+								</div>
+								
+								
+								
+								
+								
+								
+									<dl class="detailList nomargin">
+									
+										
+										
+										
+										
+										
+										
+										
+											<dt class="heading">Returns:</dt>
+											
+												<dd><span class="light fixedFont">{number}</span> the next id ready to assign to a MessageTarget</dd>
+											
+										
+										
+										
+										
+										
+									
+									</dl>
+								
+								<div class="hr"></div>
+							</li>
+						
+							<li 
+								 class='item4'
+							>
+								<div class="fixedFont heading" id=".getSpecs">
+									<span class='lighter'>
+									&lt;static&gt; 
+									</span>
+									
+									<span class="light">{hemi.dispatch.MessageSpec[]}</span>
+									
+									<span class="light">hemi.dispatch.</span><b>getSpecs</b>(attributes, wildcards)
+								</div>
+								
+								<div class="description">
+									Get any MessageSpecs with the given attributes. If no attributes are given, all MessageSpecswill be returned. Valid attributes are:- src- msg
+									
+									
+									
+									
+								</div>
+								
+								
+								
+								
+									<dl class="detailList params">
+										<dt class="heading">Parameters:</dt>
+										
+											<dt>
+												<span class="light fixedFont">{Object}</span> <b>attributes</b>
+												
+											</dt>
+											<dd>optional structure with the attributes to search for</dd>
+										
+											<dt>
+												<span class="light fixedFont">{boolean}</span> <b>wildcards</b>
+												
+											</dt>
+											<dd>flag indicating if wildcard values should be included in the    search results (only needed if attributes is set)</dd>
+										
+									</dl>
+								
+								
+								
+									<dl class="detailList nomargin">
+									
+										
+										
+										
+										
+										
+										
+										
+											<dt class="heading">Returns:</dt>
+											
+												<dd><span class="light fixedFont">{hemi.dispatch.MessageSpec[]}</span> an array of MessageSpecs with matching attributes</dd>
+											
+										
+										
+										
+										
+										
+									
+									</dl>
+								
+								<div class="hr"></div>
+							</li>
+						
+							<li 
+								 class='item5'
+							>
+								<div class="fixedFont heading" id=".getSpecsFast">
+									<span class='lighter'>
+									&lt;static&gt; 
+									</span>
+									
+									<span class="light">{hemi.dispatch.MessageSpec[]}</span>
+									
+									<span class="light">hemi.dispatch.</span><b>getSpecsFast</b>(src, type, wildcards)
+								</div>
+								
+								<div class="description">
+									Get the MessageSpec with the given source id and Message type. If wildcards are allowed,search for wildcard sources and types as well. This is much faster than getSpecs.
+									
+									
+									
+									
+								</div>
+								
+								
+								
+								
+									<dl class="detailList params">
+										<dt class="heading">Parameters:</dt>
+										
+											<dt>
+												<span class="light fixedFont">{number}</span> <b>src</b>
+												
+											</dt>
+											<dd>id of the Message originator to search for</dd>
+										
+											<dt>
+												<span class="light fixedFont">{string}</span> <b>type</b>
+												
+											</dt>
+											<dd>type of Message to search for</dd>
+										
+											<dt>
+												<span class="light fixedFont">{boolean}</span> <b>wildcards</b>
+												
+											</dt>
+											<dd>flag indicating if wildcard values should be included in the    search results</dd>
+										
+									</dl>
+								
+								
+								
+									<dl class="detailList nomargin">
+									
+										
+										
+										
+										
+										
+										
+										
+											<dt class="heading">Returns:</dt>
+											
+												<dd><span class="light fixedFont">{hemi.dispatch.MessageSpec[]}</span> an array of found MessageSpecs</dd>
+											
+										
+										
+										
+										
+										
+									
+									</dl>
+								
+								<div class="hr"></div>
+							</li>
+						
+							<li 
+								 class='item6'
+							>
+								<div class="fixedFont heading" id=".getTargets">
+									<span class='lighter'>
+									&lt;static&gt; 
+									</span>
+									
+									<span class="light">{hemi.dispatch.MessageTarget[]}</span>
+									
+									<span class="light">hemi.dispatch.</span><b>getTargets</b>(attributes, wildcards)
+								</div>
+								
+								<div class="description">
+									Get any MessageTargets registered with the given attributes. If no attributes are given, allMessageTargets will be returned. Valid attributes are:- src- msg- dispatchId- name- handler
+									
+									
+									
+									
+								</div>
+								
+								
+								
+								
+									<dl class="detailList params">
+										<dt class="heading">Parameters:</dt>
+										
+											<dt>
+												<span class="light fixedFont">{Object}</span> <b>attributes</b>
+												
+											</dt>
+											<dd>optional structure with the attributes to search for</dd>
+										
+											<dt>
+												<span class="light fixedFont">{boolean}</span> <b>wildcards</b>
+												
+											</dt>
+											<dd>flag indicating if wildcard values should be included in the    search results (only needed if attributes is set)</dd>
+										
+									</dl>
+								
+								
+								
+									<dl class="detailList nomargin">
+									
+										
+										
+										
+										
+										
+										
+										
+											<dt class="heading">Returns:</dt>
+											
+												<dd><span class="light fixedFont">{hemi.dispatch.MessageTarget[]}</span> an array of MessageTargets registered with matching    attributes</dd>
+											
+										
+										
+										
+										
+										
+									
+									</dl>
+								
+								<div class="hr"></div>
+							</li>
+						
+							<li 
+								 class='item7'
+							>
+								<div class="fixedFont heading" id=".getTargetSpec">
+									<span class='lighter'>
+									&lt;static&gt; 
+									</span>
+									
+									<span class="light">{hemi.dispatch.MessageSpec}</span>
+									
+									<span class="light">hemi.dispatch.</span><b>getTargetSpec</b>(target)
+								</div>
+								
+								<div class="description">
+									Get the MessageSpec that the given MessageTarget is currently registered with.
+									
+									
+									
+									
+								</div>
+								
+								
+								
+								
+									<dl class="detailList params">
+										<dt class="heading">Parameters:</dt>
+										
+											<dt>
+												<span class="light fixedFont">{hemi.dispatch.MessageTarget}</span> <b>target</b>
+												
+											</dt>
+											<dd>the MessageTarget to get    the MessageSpec for</dd>
+										
+									</dl>
+								
+								
+								
+									<dl class="detailList nomargin">
+									
+										
+										
+										
+										
+										
+										
+										
+											<dt class="heading">Returns:</dt>
+											
+												<dd><span class="light fixedFont">{hemi.dispatch.MessageSpec}</span> the found MessageSpec or null</dd>
+											
+										
+										
+										
+										
+										
+									
+									</dl>
+								
+								<div class="hr"></div>
+							</li>
+						
+							<li 
+								 class='item8'
+							>
+								<div class="fixedFont heading" id=".loadEntries">
+									<span class='lighter'>
+									&lt;static&gt; 
+									</span>
+									
+									
+									
+									<span class="light">hemi.dispatch.</span><b>loadEntries</b>(entries)
+								</div>
+								
+								<div class="description">
+									Load the given MessageSpec entries into the MessageSpec database.
+									
+									
+									
+									
+								</div>
+								
+								
+								
+								
+									<dl class="detailList params">
+										<dt class="heading">Parameters:</dt>
+										
+											<dt>
+												<span class="light fixedFont">{hemi.dispatch.MessageSpec[]}</span> <b>entries</b>
+												
+											</dt>
+											<dd>MessageSpecs to load into the Dispatch</dd>
+										
+									</dl>
+								
+								
+								
+								<div class="hr"></div>
+							</li>
+						
+							<li 
+								 class='item9'
+							>
+								<div class="fixedFont heading" id=".postMessage">
+									<span class='lighter'>
+									&lt;static&gt; 
+									</span>
+									
+									
+									
+									<span class="light">hemi.dispatch.</span><b>postMessage</b>(src, msg, data)
+								</div>
+								
+								<div class="description">
+									Create a Message from the given attributes and send it to all MessageTargets with matchingsource id and message type.
+									
+									
+									
+									
+								</div>
+								
+								
+								
+								
+									<dl class="detailList params">
+										<dt class="heading">Parameters:</dt>
+										
+											<dt>
+												<span class="light fixedFont">{hemi.world.Citizen}</span> <b>src</b>
+												
+											</dt>
+											<dd>the Message originator</dd>
+										
+											<dt>
+												<span class="light fixedFont">{string}</span> <b>msg</b>
+												
+											</dt>
+											<dd>type of Message to send</dd>
+										
+											<dt>
+												<span class="light fixedFont">{Object}</span> <b>data</b>
+												
+											</dt>
+											<dd>container for any and all information relevant to the Message</dd>
+										
+									</dl>
+								
+								
+								
+								<div class="hr"></div>
+							</li>
+						
+							<li 
+								 class='item10'
+							>
+								<div class="fixedFont heading" id=".registerTarget">
+									<span class='lighter'>
+									&lt;static&gt; 
+									</span>
+									
+									<span class="light">{hemi.dispatch.MessageTarget}</span>
+									
+									<span class="light">hemi.dispatch.</span><b>registerTarget</b>(src, msg, handler, opt_func, opt_args)
+								</div>
+								
+								<div class="description">
+									Setup a MessageTarget with the given attributes and register it to receive Messages.
+									
+									
+									
+									
+								</div>
+								
+								
+								
+								
+									<dl class="detailList params">
+										<dt class="heading">Parameters:</dt>
+										
+											<dt>
+												<span class="light fixedFont">{number}</span> <b>src</b>
+												
+											</dt>
+											<dd>id of the Message originator to handle Messages for</dd>
+										
+											<dt>
+												<span class="light fixedFont">{string}</span> <b>msg</b>
+												
+											</dt>
+											<dd>type of Message to handle</dd>
+										
+											<dt>
+												<span class="light fixedFont">{Object}</span> <b>handler</b>
+												
+											</dt>
+											<dd>either a function that will take the Message as a parameter, or an    object that will receive it</dd>
+										
+											<dt>
+												<span class="light fixedFont">{string}</span> <b>opt_func</b>
+												
+											</dt>
+											<dd>name of the function to call if handler is an object</dd>
+										
+											<dt>
+												<span class="light fixedFont">{string[]}</span> <b>opt_args</b>
+												
+											</dt>
+											<dd>optional array to specify arguments to pass to opt_func. Otherwise    the entire Message is just passed in.</dd>
+										
+									</dl>
+								
+								
+								
+									<dl class="detailList nomargin">
+									
+										
+										
+										
+										
+										
+										
+										
+											<dt class="heading">Returns:</dt>
+											
+												<dd><span class="light fixedFont">{hemi.dispatch.MessageTarget}</span> the created MessageTarget</dd>
+											
+										
+										
+										
+										
+										
+									
+									</dl>
+								
+								<div class="hr"></div>
+							</li>
+						
+							<li 
+								 class='item11'
+							>
+								<div class="fixedFont heading" id=".removeSpecs">
+									<span class='lighter'>
+									&lt;static&gt; 
+									</span>
+									
+									<span class="light">{hemi.dispatch.MessageSpec[]}</span>
+									
+									<span class="light">hemi.dispatch.</span><b>removeSpecs</b>(attributes, wildcards)
+								</div>
+								
+								<div class="description">
+									Remove any MessageSpecs with the given attributes from the dispatch.Valid attributes are:- src- msg
+									
+									
+									
+									
+								</div>
+								
+								
+								
+								
+									<dl class="detailList params">
+										<dt class="heading">Parameters:</dt>
+										
+											<dt>
+												<span class="light fixedFont">{Object}</span> <b>attributes</b>
+												
+											</dt>
+											<dd>optional structure with the attributes to    search for</dd>
+										
+											<dt>
+												<span class="light fixedFont">{boolean}</span> <b>wildcards</b>
+												
+											</dt>
+											<dd>flag indicating if wildcard values should be    included in the search results (only needed if attributes is set)</dd>
+										
+									</dl>
+								
+								
+								
+									<dl class="detailList nomargin">
+									
+										
+										
+										
+										
+										
+										
+										
+											<dt class="heading">Returns:</dt>
+											
+												<dd><span class="light fixedFont">{hemi.dispatch.MessageSpec[]}</span> an array of removed MessageSpecs</dd>
+											
+										
+										
+										
+										
+										
+									
+									</dl>
+								
+								<div class="hr"></div>
+							</li>
+						
+							<li 
+								 class='item12'
+							>
+								<div class="fixedFont heading" id=".removeTarget">
+									<span class='lighter'>
+									&lt;static&gt; 
+									</span>
+									
+									<span class="light">{hemi.dispatch.MessageTarget}</span>
+									
+									<span class="light">hemi.dispatch.</span><b>removeTarget</b>(target, opt_attributes)
+								</div>
+								
+								<div class="description">
+									Remove the given MessageTarget from the dispatch.
+									
+									
+									
+									
+								</div>
+								
+								
+								
+								
+									<dl class="detailList params">
+										<dt class="heading">Parameters:</dt>
+										
+											<dt>
+												<span class="light fixedFont">{hemi.dispatch.MessageTarget}</span> <b>target</b>
+												
+											</dt>
+											<dd>the MessageTarget to remove</dd>
+										
+											<dt>
+												<span class="light fixedFont">{Object}</span> <b>opt_attributes</b>
+												
+											</dt>
+											<dd>optional structure with MessageSpec attributes to search for</dd>
+										
+									</dl>
+								
+								
+								
+									<dl class="detailList nomargin">
+									
+										
+										
+										
+										
+										
+										
+										
+											<dt class="heading">Returns:</dt>
+											
+												<dd><span class="light fixedFont">{hemi.dispatch.MessageTarget}</span> the removed MessageTarget or null</dd>
+											
+										
+										
+										
+										
+										
+									
+									</dl>
+								
+								<div class="hr"></div>
+							</li>
+						
+							<li 
+								 class='item13'
+							>
+								<div class="fixedFont heading" id=".removeTargets">
+									<span class='lighter'>
+									&lt;static&gt; 
+									</span>
+									
+									<span class="light">{hemi.dispatch.MessageTarget[]}</span>
+									
+									<span class="light">hemi.dispatch.</span><b>removeTargets</b>(attributes, wildcards)
+								</div>
+								
+								<div class="description">
+									Remove any MessageTargets registered with the given attributes. If no attributes are given,all MessageTargets will be returned. Valid attributes are:- src- msg- dispatchId- name- handler
+									
+									
+									
+									
+								</div>
+								
+								
+								
+								
+									<dl class="detailList params">
+										<dt class="heading">Parameters:</dt>
+										
+											<dt>
+												<span class="light fixedFont">{Object}</span> <b>attributes</b>
+												
+											</dt>
+											<dd>optional structure with the attributes to search for</dd>
+										
+											<dt>
+												<span class="light fixedFont">{boolean}</span> <b>wildcards</b>
+												
+											</dt>
+											<dd>flag indicating if wildcard values should be included in the    search results (only needed if attributes is set)</dd>
+										
+									</dl>
+								
+								
+								
+									<dl class="detailList nomargin">
+									
+										
+										
+										
+										
+										
+										
+										
+											<dt class="heading">Returns:</dt>
+											
+												<dd><span class="light fixedFont">{hemi.dispatch.MessageTarget[]}</span> array of removed MessageTargets</dd>
+											
+										
+										
+										
+										
+										
+									
+									</dl>
+								
+								<div class="hr"></div>
+							</li>
+						
+							<li 
+								 class='item14'
+							>
+								<div class="fixedFont heading" id=".setNextId">
+									<span class='lighter'>
+									&lt;static&gt; 
+									</span>
+									
+									
+									
+									<span class="light">hemi.dispatch.</span><b>setNextId</b>(id)
+								</div>
+								
+								<div class="description">
+									Set the id for the Dispatch to assign to the next MessageTarget.
+									
+									
+									
+									
+								</div>
+								
+								
+								
+								
+									<dl class="detailList params">
+										<dt class="heading">Parameters:</dt>
+										
+											<dt>
+												<span class="light fixedFont">{number}</span> <b>id</b>
+												
+											</dt>
+											<dd>the next id to assign</dd>
+										
+									</dl>
+								
+								
+								
+								<div class="hr"></div>
+							</li>
+						
+							<li 
+								 class='item15'
+							>
+								<div class="fixedFont heading" id=".setTargetSpec">
+									<span class='lighter'>
+									&lt;static&gt; 
+									</span>
+									
+									
+									
+									<span class="light">hemi.dispatch.</span><b>setTargetSpec</b>(target, src, msg)
+								</div>
+								
+								<div class="description">
+									Remove the given MessageTarget from its current MessageSpec and register it with the givenspecifications.
+									
+									
+									
+									
+								</div>
+								
+								
+								
+								
+									<dl class="detailList params">
+										<dt class="heading">Parameters:</dt>
+										
+											<dt>
+												<span class="light fixedFont">{hemi.dispatch.MessageTarget}</span> <b>target</b>
+												
+											</dt>
+											<dd>the MessageTarget to register</dd>
+										
+											<dt>
+												<span class="light fixedFont">{number}</span> <b>src</b>
+												
+											</dt>
+											<dd>id of the Message originator to handle Messages for</dd>
+										
+											<dt>
+												<span class="light fixedFont">{string}</span> <b>msg</b>
+												
+											</dt>
+											<dd>type of Message to handle</dd>
+										
+									</dl>
+								
+								
+								
+								
+							</li>
+						
+					</ul>
+				</div>
+			</div>
+		
+		
+<!--
+#### EVENT DETAILS
+-->		
+		
+	</div>
+</div>
+		<script type="text/javascript">
+			wbos.CssTools.MediaQueryFallBack.LoadCss('../css/screen.css', '../css/handheld.css', 660)
+			codeview.classFilter.Init()
+		</script>
+	</body>
+</html>
+
