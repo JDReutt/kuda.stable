@@ -1,0 +1,791 @@
+<?xml version="1.0" encoding="utf-8"?>
+<COLLADA xmlns="http://www.collada.org/2005/11/COLLADASchema" version="1.4.1">
+  <asset>
+    <contributor>
+      <author>cgreuel</author>
+      <authoring_tool>3dsMax 7 - Feeling ColladaMax v3.04C.</authoring_tool>
+      <comments>ColladaMax Export Options: ExportNormals=1;ExportEPolyAsTriangles=1;ExportXRefs=1;ExportSelected=0;ExportTangents=0;ExportAnimations=0;SampleAnim=0;ExportAnimClip=0;BakeMatrices=1;ExportRelativePaths=1;AnimStart=0;AnimEnd=16000;</comments>
+      <source_data>file:///C:/Documents%20and%20Settings/cgreuel/My%20Documents/Projects/DOE/DOE_NWTP/Work/DigitalDisplay/DigitalDisplay.max</source_data>
+    </contributor>
+    <created>2010-12-03T19:27:27Z</created>
+    <modified>2010-12-03T19:27:35Z</modified>
+    <unit meter="0.01" name="centimeter"/>
+    <up_axis>Z_UP</up_axis>
+  </asset>
+  <library_images>
+    <image id="Font.png" name="Font_png">
+      <init_from>./Font.png</init_from>
+    </image>
+  </library_images>
+  <library_materials>
+    <material id="FontMaterial" name="FontMaterial">
+      <instance_effect url="#FontMaterial-fx"/>
+    </material>
+    <material id="FrameMaterial" name="FrameMaterial">
+      <instance_effect url="#FrameMaterial-fx"/>
+    </material>
+  </library_materials>
+  <library_effects>
+    <effect id="FontMaterial-fx" name="FontMaterial">
+      <profile_COMMON>
+        <newparam sid="Font_png-surface">
+          <surface type="2D">
+            <init_from>Font.png</init_from>
+            <format>A8R8G8B8</format>
+          </surface>
+        </newparam>
+        <newparam sid="Font_png-sampler">
+          <sampler2D>
+            <source>Font_png-surface</source>
+            <wrap_s>WRAP</wrap_s>
+            <wrap_t>WRAP</wrap_t>
+            <minfilter>NONE</minfilter>
+            <magfilter>NONE</magfilter>
+            <mipfilter>NONE</mipfilter>
+          </sampler2D>
+        </newparam>
+        <technique sid="common">
+          <blinn>
+            <ambient>
+              <color>0.588235 0.588235 0.588235 1</color>
+            </ambient>
+            <diffuse>
+              <texture texture="Font_png-sampler" texcoord="CHANNEL1">
+                <extra>
+                  <technique profile="MAYA">
+                    <mirrorU>0</mirrorU>
+                    <mirrorV>0</mirrorV>
+                    <wrapU>1</wrapU>
+                    <wrapV>1</wrapV>
+                    <repeatU>1</repeatU>
+                    <repeatV>1</repeatV>
+                    <offsetU>0</offsetU>
+                    <offsetV>0</offsetV>
+                  </technique>
+                  <technique profile="MAX3D">
+                    <amount>1</amount>
+                  </technique>
+                </extra>
+              </texture>
+            </diffuse>
+            <specular>
+              <color>0.2 0.2 0.2 1</color>
+            </specular>
+            <shininess>
+              <float>0.415939</float>
+            </shininess>
+            <reflective>
+              <color>0 0 0 1</color>
+            </reflective>
+            <reflectivity>
+              <float>1</float>
+            </reflectivity>
+            <transparent opaque="A_ONE">
+              <color>1 1 1 1</color>
+            </transparent>
+            <transparency>
+              <float>1</float>
+            </transparency>
+            <index_of_refraction>
+              <float>1</float>
+            </index_of_refraction>
+          </blinn>
+          <extra>
+            <technique profile="FCOLLADA">
+              <spec_level>
+                <float>0</float>
+              </spec_level>
+              <emission_level>
+                <float>1</float>
+              </emission_level>
+            </technique>
+          </extra>
+        </technique>
+      </profile_COMMON>
+      <extra>
+        <technique profile="MAX3D">
+          <faceted>0</faceted>
+          <double_sided>0</double_sided>
+          <wireframe>0</wireframe>
+          <face_map>0</face_map>
+        </technique>
+      </extra>
+    </effect>
+    <effect id="FrameMaterial-fx" name="FrameMaterial">
+      <profile_COMMON>
+        <technique sid="common">
+          <blinn>
+            <ambient>
+              <color>0.466667 0.45098 0.54902 1</color>
+            </ambient>
+            <diffuse>
+              <color>0.466667 0.45098 0.54902 1</color>
+            </diffuse>
+            <specular>
+              <color>0.2 0.2 0.2 1</color>
+            </specular>
+            <shininess>
+              <float>0.415939</float>
+            </shininess>
+            <reflective>
+              <color>0 0 0 1</color>
+            </reflective>
+            <reflectivity>
+              <float>1</float>
+            </reflectivity>
+            <transparent opaque="A_ONE">
+              <color>1 1 1 1</color>
+            </transparent>
+            <transparency>
+              <float>1</float>
+            </transparency>
+            <index_of_refraction>
+              <float>1</float>
+            </index_of_refraction>
+          </blinn>
+          <extra>
+            <technique profile="FCOLLADA">
+              <spec_level>
+                <float>0.18</float>
+              </spec_level>
+              <emission_level>
+                <float>0</float>
+              </emission_level>
+            </technique>
+          </extra>
+        </technique>
+      </profile_COMMON>
+      <extra>
+        <technique profile="MAX3D">
+          <faceted>0</faceted>
+          <double_sided>0</double_sided>
+          <wireframe>0</wireframe>
+          <face_map>0</face_map>
+        </technique>
+      </extra>
+    </effect>
+  </library_effects>
+  <library_geometries>
+    <geometry id="num_00-mesh" name="num_00">
+      <mesh>
+        <source id="num_00-mesh-positions">
+          <float_array id="num_00-mesh-positions-array" count="12">-30 -5 0 -24 -5 0 -30 5 0 -24 5 0</float_array>
+          <technique_common>
+            <accessor source="#num_00-mesh-positions-array" count="4" stride="3">
+              <param name="X" type="float"/>
+              <param name="Y" type="float"/>
+              <param name="Z" type="float"/>
+            </accessor>
+          </technique_common>
+        </source>
+        <source id="num_00-mesh-normals">
+          <float_array id="num_00-mesh-normals-array" count="12">0 0 1 0 0 1 0 0 1 0 0 1</float_array>
+          <technique_common>
+            <accessor source="#num_00-mesh-normals-array" count="4" stride="3">
+              <param name="X" type="float"/>
+              <param name="Y" type="float"/>
+              <param name="Z" type="float"/>
+            </accessor>
+          </technique_common>
+        </source>
+        <source id="num_00-mesh-map-channel1">
+          <float_array id="num_00-mesh-map-channel1-array" count="12">0 0.000000 0.5 0.1 0.000000 0.5 0 1 0.5 0.1 1 0.5</float_array>
+          <technique_common>
+            <accessor source="#num_00-mesh-map-channel1-array" count="4" stride="3">
+              <param name="S" type="float"/>
+              <param name="T" type="float"/>
+              <param name="P" type="float"/>
+            </accessor>
+          </technique_common>
+        </source>
+        <vertices id="num_00-mesh-vertices">
+          <input semantic="POSITION" source="#num_00-mesh-positions"/>
+        </vertices>
+        <triangles material="FontMaterial" count="2">
+          <input semantic="VERTEX" source="#num_00-mesh-vertices" offset="0"/>
+          <input semantic="NORMAL" source="#num_00-mesh-normals" offset="1"/>
+          <input semantic="TEXCOORD" source="#num_00-mesh-map-channel1" offset="2" set="1"/>
+          <p>2 0 2 0 1 0 3 2 3 1 3 1 3 2 3 0 1 0</p>
+        </triangles>
+      </mesh>
+    </geometry>
+    <geometry id="num_01-mesh" name="num_01">
+      <mesh>
+        <source id="num_01-mesh-positions">
+          <float_array id="num_01-mesh-positions-array" count="12">-30 -5 0 -24 -5 0 -30 5 0 -24 5 0</float_array>
+          <technique_common>
+            <accessor source="#num_01-mesh-positions-array" count="4" stride="3">
+              <param name="X" type="float"/>
+              <param name="Y" type="float"/>
+              <param name="Z" type="float"/>
+            </accessor>
+          </technique_common>
+        </source>
+        <source id="num_01-mesh-normals">
+          <float_array id="num_01-mesh-normals-array" count="12">0 0 1 0 0 1 0 0 1 0 0 1</float_array>
+          <technique_common>
+            <accessor source="#num_01-mesh-normals-array" count="4" stride="3">
+              <param name="X" type="float"/>
+              <param name="Y" type="float"/>
+              <param name="Z" type="float"/>
+            </accessor>
+          </technique_common>
+        </source>
+        <source id="num_01-mesh-map-channel1">
+          <float_array id="num_01-mesh-map-channel1-array" count="12">0 0.000000 0.5 0.1 0.000000 0.5 0 1 0.5 0.1 1 0.5</float_array>
+          <technique_common>
+            <accessor source="#num_01-mesh-map-channel1-array" count="4" stride="3">
+              <param name="S" type="float"/>
+              <param name="T" type="float"/>
+              <param name="P" type="float"/>
+            </accessor>
+          </technique_common>
+        </source>
+        <vertices id="num_01-mesh-vertices">
+          <input semantic="POSITION" source="#num_01-mesh-positions"/>
+        </vertices>
+        <triangles material="FontMaterial" count="2">
+          <input semantic="VERTEX" source="#num_01-mesh-vertices" offset="0"/>
+          <input semantic="NORMAL" source="#num_01-mesh-normals" offset="1"/>
+          <input semantic="TEXCOORD" source="#num_01-mesh-map-channel1" offset="2" set="1"/>
+          <p>2 0 2 0 1 0 3 2 3 1 3 1 3 2 3 0 1 0</p>
+        </triangles>
+      </mesh>
+    </geometry>
+    <geometry id="num_06-mesh" name="num_06">
+      <mesh>
+        <source id="num_06-mesh-positions">
+          <float_array id="num_06-mesh-positions-array" count="12">-30 -5 0 -24 -5 0 -30 5 0 -24 5 0</float_array>
+          <technique_common>
+            <accessor source="#num_06-mesh-positions-array" count="4" stride="3">
+              <param name="X" type="float"/>
+              <param name="Y" type="float"/>
+              <param name="Z" type="float"/>
+            </accessor>
+          </technique_common>
+        </source>
+        <source id="num_06-mesh-normals">
+          <float_array id="num_06-mesh-normals-array" count="12">0 0 1 0 0 1 0 0 1 0 0 1</float_array>
+          <technique_common>
+            <accessor source="#num_06-mesh-normals-array" count="4" stride="3">
+              <param name="X" type="float"/>
+              <param name="Y" type="float"/>
+              <param name="Z" type="float"/>
+            </accessor>
+          </technique_common>
+        </source>
+        <source id="num_06-mesh-map-channel1">
+          <float_array id="num_06-mesh-map-channel1-array" count="12">0 0.000000 0.5 0.1 0.000000 0.5 0 1 0.5 0.1 1 0.5</float_array>
+          <technique_common>
+            <accessor source="#num_06-mesh-map-channel1-array" count="4" stride="3">
+              <param name="S" type="float"/>
+              <param name="T" type="float"/>
+              <param name="P" type="float"/>
+            </accessor>
+          </technique_common>
+        </source>
+        <vertices id="num_06-mesh-vertices">
+          <input semantic="POSITION" source="#num_06-mesh-positions"/>
+        </vertices>
+        <triangles material="FontMaterial" count="2">
+          <input semantic="VERTEX" source="#num_06-mesh-vertices" offset="0"/>
+          <input semantic="NORMAL" source="#num_06-mesh-normals" offset="1"/>
+          <input semantic="TEXCOORD" source="#num_06-mesh-map-channel1" offset="2" set="1"/>
+          <p>2 0 2 0 1 0 3 2 3 1 3 1 3 2 3 0 1 0</p>
+        </triangles>
+      </mesh>
+    </geometry>
+    <geometry id="num_04-mesh" name="num_04">
+      <mesh>
+        <source id="num_04-mesh-positions">
+          <float_array id="num_04-mesh-positions-array" count="12">-30 -5 0 -24 -5 0 -30 5 0 -24 5 0</float_array>
+          <technique_common>
+            <accessor source="#num_04-mesh-positions-array" count="4" stride="3">
+              <param name="X" type="float"/>
+              <param name="Y" type="float"/>
+              <param name="Z" type="float"/>
+            </accessor>
+          </technique_common>
+        </source>
+        <source id="num_04-mesh-normals">
+          <float_array id="num_04-mesh-normals-array" count="12">0 0 1 0 0 1 0 0 1 0 0 1</float_array>
+          <technique_common>
+            <accessor source="#num_04-mesh-normals-array" count="4" stride="3">
+              <param name="X" type="float"/>
+              <param name="Y" type="float"/>
+              <param name="Z" type="float"/>
+            </accessor>
+          </technique_common>
+        </source>
+        <source id="num_04-mesh-map-channel1">
+          <float_array id="num_04-mesh-map-channel1-array" count="12">0 0.000000 0.5 0.1 0.000000 0.5 0 1 0.5 0.1 1 0.5</float_array>
+          <technique_common>
+            <accessor source="#num_04-mesh-map-channel1-array" count="4" stride="3">
+              <param name="S" type="float"/>
+              <param name="T" type="float"/>
+              <param name="P" type="float"/>
+            </accessor>
+          </technique_common>
+        </source>
+        <vertices id="num_04-mesh-vertices">
+          <input semantic="POSITION" source="#num_04-mesh-positions"/>
+        </vertices>
+        <triangles material="FontMaterial" count="2">
+          <input semantic="VERTEX" source="#num_04-mesh-vertices" offset="0"/>
+          <input semantic="NORMAL" source="#num_04-mesh-normals" offset="1"/>
+          <input semantic="TEXCOORD" source="#num_04-mesh-map-channel1" offset="2" set="1"/>
+          <p>2 0 2 0 1 0 3 2 3 1 3 1 3 2 3 0 1 0</p>
+        </triangles>
+      </mesh>
+    </geometry>
+    <geometry id="num_05-mesh" name="num_05">
+      <mesh>
+        <source id="num_05-mesh-positions">
+          <float_array id="num_05-mesh-positions-array" count="12">-30 -5 0 -24 -5 0 -30 5 0 -24 5 0</float_array>
+          <technique_common>
+            <accessor source="#num_05-mesh-positions-array" count="4" stride="3">
+              <param name="X" type="float"/>
+              <param name="Y" type="float"/>
+              <param name="Z" type="float"/>
+            </accessor>
+          </technique_common>
+        </source>
+        <source id="num_05-mesh-normals">
+          <float_array id="num_05-mesh-normals-array" count="12">0 0 1 0 0 1 0 0 1 0 0 1</float_array>
+          <technique_common>
+            <accessor source="#num_05-mesh-normals-array" count="4" stride="3">
+              <param name="X" type="float"/>
+              <param name="Y" type="float"/>
+              <param name="Z" type="float"/>
+            </accessor>
+          </technique_common>
+        </source>
+        <source id="num_05-mesh-map-channel1">
+          <float_array id="num_05-mesh-map-channel1-array" count="12">0 0.000000 0.5 0.1 0.000000 0.5 0 1 0.5 0.1 1 0.5</float_array>
+          <technique_common>
+            <accessor source="#num_05-mesh-map-channel1-array" count="4" stride="3">
+              <param name="S" type="float"/>
+              <param name="T" type="float"/>
+              <param name="P" type="float"/>
+            </accessor>
+          </technique_common>
+        </source>
+        <vertices id="num_05-mesh-vertices">
+          <input semantic="POSITION" source="#num_05-mesh-positions"/>
+        </vertices>
+        <triangles material="FontMaterial" count="2">
+          <input semantic="VERTEX" source="#num_05-mesh-vertices" offset="0"/>
+          <input semantic="NORMAL" source="#num_05-mesh-normals" offset="1"/>
+          <input semantic="TEXCOORD" source="#num_05-mesh-map-channel1" offset="2" set="1"/>
+          <p>2 0 2 0 1 0 3 2 3 1 3 1 3 2 3 0 1 0</p>
+        </triangles>
+      </mesh>
+    </geometry>
+    <geometry id="num_07-mesh" name="num_07">
+      <mesh>
+        <source id="num_07-mesh-positions">
+          <float_array id="num_07-mesh-positions-array" count="12">-30 -5 0 -24 -5 0 -30 5 0 -24 5 0</float_array>
+          <technique_common>
+            <accessor source="#num_07-mesh-positions-array" count="4" stride="3">
+              <param name="X" type="float"/>
+              <param name="Y" type="float"/>
+              <param name="Z" type="float"/>
+            </accessor>
+          </technique_common>
+        </source>
+        <source id="num_07-mesh-normals">
+          <float_array id="num_07-mesh-normals-array" count="12">0 0 1 0 0 1 0 0 1 0 0 1</float_array>
+          <technique_common>
+            <accessor source="#num_07-mesh-normals-array" count="4" stride="3">
+              <param name="X" type="float"/>
+              <param name="Y" type="float"/>
+              <param name="Z" type="float"/>
+            </accessor>
+          </technique_common>
+        </source>
+        <source id="num_07-mesh-map-channel1">
+          <float_array id="num_07-mesh-map-channel1-array" count="12">0 0.000000 0.5 0.1 0.000000 0.5 0 1 0.5 0.1 1 0.5</float_array>
+          <technique_common>
+            <accessor source="#num_07-mesh-map-channel1-array" count="4" stride="3">
+              <param name="S" type="float"/>
+              <param name="T" type="float"/>
+              <param name="P" type="float"/>
+            </accessor>
+          </technique_common>
+        </source>
+        <vertices id="num_07-mesh-vertices">
+          <input semantic="POSITION" source="#num_07-mesh-positions"/>
+        </vertices>
+        <triangles material="FontMaterial" count="2">
+          <input semantic="VERTEX" source="#num_07-mesh-vertices" offset="0"/>
+          <input semantic="NORMAL" source="#num_07-mesh-normals" offset="1"/>
+          <input semantic="TEXCOORD" source="#num_07-mesh-map-channel1" offset="2" set="1"/>
+          <p>2 0 2 0 1 0 3 2 3 1 3 1 3 2 3 0 1 0</p>
+        </triangles>
+      </mesh>
+    </geometry>
+    <geometry id="num_03-mesh" name="num_03">
+      <mesh>
+        <source id="num_03-mesh-positions">
+          <float_array id="num_03-mesh-positions-array" count="12">-30 -5 0 -24 -5 0 -30 5 0 -24 5 0</float_array>
+          <technique_common>
+            <accessor source="#num_03-mesh-positions-array" count="4" stride="3">
+              <param name="X" type="float"/>
+              <param name="Y" type="float"/>
+              <param name="Z" type="float"/>
+            </accessor>
+          </technique_common>
+        </source>
+        <source id="num_03-mesh-normals">
+          <float_array id="num_03-mesh-normals-array" count="12">0 0 1 0 0 1 0 0 1 0 0 1</float_array>
+          <technique_common>
+            <accessor source="#num_03-mesh-normals-array" count="4" stride="3">
+              <param name="X" type="float"/>
+              <param name="Y" type="float"/>
+              <param name="Z" type="float"/>
+            </accessor>
+          </technique_common>
+        </source>
+        <source id="num_03-mesh-map-channel1">
+          <float_array id="num_03-mesh-map-channel1-array" count="12">0 0.000000 0.5 0.1 0.000000 0.5 0 1 0.5 0.1 1 0.5</float_array>
+          <technique_common>
+            <accessor source="#num_03-mesh-map-channel1-array" count="4" stride="3">
+              <param name="S" type="float"/>
+              <param name="T" type="float"/>
+              <param name="P" type="float"/>
+            </accessor>
+          </technique_common>
+        </source>
+        <vertices id="num_03-mesh-vertices">
+          <input semantic="POSITION" source="#num_03-mesh-positions"/>
+        </vertices>
+        <triangles material="FontMaterial" count="2">
+          <input semantic="VERTEX" source="#num_03-mesh-vertices" offset="0"/>
+          <input semantic="NORMAL" source="#num_03-mesh-normals" offset="1"/>
+          <input semantic="TEXCOORD" source="#num_03-mesh-map-channel1" offset="2" set="1"/>
+          <p>2 0 2 0 1 0 3 2 3 1 3 1 3 2 3 0 1 0</p>
+        </triangles>
+      </mesh>
+    </geometry>
+    <geometry id="num_02-mesh" name="num_02">
+      <mesh>
+        <source id="num_02-mesh-positions">
+          <float_array id="num_02-mesh-positions-array" count="12">-30 -5 0 -24 -5 0 -30 5 0 -24 5 0</float_array>
+          <technique_common>
+            <accessor source="#num_02-mesh-positions-array" count="4" stride="3">
+              <param name="X" type="float"/>
+              <param name="Y" type="float"/>
+              <param name="Z" type="float"/>
+            </accessor>
+          </technique_common>
+        </source>
+        <source id="num_02-mesh-normals">
+          <float_array id="num_02-mesh-normals-array" count="12">0 0 1 0 0 1 0 0 1 0 0 1</float_array>
+          <technique_common>
+            <accessor source="#num_02-mesh-normals-array" count="4" stride="3">
+              <param name="X" type="float"/>
+              <param name="Y" type="float"/>
+              <param name="Z" type="float"/>
+            </accessor>
+          </technique_common>
+        </source>
+        <source id="num_02-mesh-map-channel1">
+          <float_array id="num_02-mesh-map-channel1-array" count="12">0 0.000000 0.5 0.1 0.000000 0.5 0 1 0.5 0.1 1 0.5</float_array>
+          <technique_common>
+            <accessor source="#num_02-mesh-map-channel1-array" count="4" stride="3">
+              <param name="S" type="float"/>
+              <param name="T" type="float"/>
+              <param name="P" type="float"/>
+            </accessor>
+          </technique_common>
+        </source>
+        <vertices id="num_02-mesh-vertices">
+          <input semantic="POSITION" source="#num_02-mesh-positions"/>
+        </vertices>
+        <triangles material="FontMaterial" count="2">
+          <input semantic="VERTEX" source="#num_02-mesh-vertices" offset="0"/>
+          <input semantic="NORMAL" source="#num_02-mesh-normals" offset="1"/>
+          <input semantic="TEXCOORD" source="#num_02-mesh-map-channel1" offset="2" set="1"/>
+          <p>2 0 2 0 1 0 3 2 3 1 3 1 3 2 3 0 1 0</p>
+        </triangles>
+      </mesh>
+    </geometry>
+    <geometry id="num_08-mesh" name="num_08">
+      <mesh>
+        <source id="num_08-mesh-positions">
+          <float_array id="num_08-mesh-positions-array" count="12">-30 -5 0 -24 -5 0 -30 5 0 -24 5 0</float_array>
+          <technique_common>
+            <accessor source="#num_08-mesh-positions-array" count="4" stride="3">
+              <param name="X" type="float"/>
+              <param name="Y" type="float"/>
+              <param name="Z" type="float"/>
+            </accessor>
+          </technique_common>
+        </source>
+        <source id="num_08-mesh-normals">
+          <float_array id="num_08-mesh-normals-array" count="12">0 0 1 0 0 1 0 0 1 0 0 1</float_array>
+          <technique_common>
+            <accessor source="#num_08-mesh-normals-array" count="4" stride="3">
+              <param name="X" type="float"/>
+              <param name="Y" type="float"/>
+              <param name="Z" type="float"/>
+            </accessor>
+          </technique_common>
+        </source>
+        <source id="num_08-mesh-map-channel1">
+          <float_array id="num_08-mesh-map-channel1-array" count="12">0 0.000000 0.5 0.1 0.000000 0.5 0 1 0.5 0.1 1 0.5</float_array>
+          <technique_common>
+            <accessor source="#num_08-mesh-map-channel1-array" count="4" stride="3">
+              <param name="S" type="float"/>
+              <param name="T" type="float"/>
+              <param name="P" type="float"/>
+            </accessor>
+          </technique_common>
+        </source>
+        <vertices id="num_08-mesh-vertices">
+          <input semantic="POSITION" source="#num_08-mesh-positions"/>
+        </vertices>
+        <triangles material="FontMaterial" count="2">
+          <input semantic="VERTEX" source="#num_08-mesh-vertices" offset="0"/>
+          <input semantic="NORMAL" source="#num_08-mesh-normals" offset="1"/>
+          <input semantic="TEXCOORD" source="#num_08-mesh-map-channel1" offset="2" set="1"/>
+          <p>2 0 2 0 1 0 3 2 3 1 3 1 3 2 3 0 1 0</p>
+        </triangles>
+      </mesh>
+    </geometry>
+    <geometry id="num_09-mesh" name="num_09">
+      <mesh>
+        <source id="num_09-mesh-positions">
+          <float_array id="num_09-mesh-positions-array" count="12">-30 -5 0 -24 -5 0 -30 5 0 -24 5 0</float_array>
+          <technique_common>
+            <accessor source="#num_09-mesh-positions-array" count="4" stride="3">
+              <param name="X" type="float"/>
+              <param name="Y" type="float"/>
+              <param name="Z" type="float"/>
+            </accessor>
+          </technique_common>
+        </source>
+        <source id="num_09-mesh-normals">
+          <float_array id="num_09-mesh-normals-array" count="12">0 0 1 0 0 1 0 0 1 0 0 1</float_array>
+          <technique_common>
+            <accessor source="#num_09-mesh-normals-array" count="4" stride="3">
+              <param name="X" type="float"/>
+              <param name="Y" type="float"/>
+              <param name="Z" type="float"/>
+            </accessor>
+          </technique_common>
+        </source>
+        <source id="num_09-mesh-map-channel1">
+          <float_array id="num_09-mesh-map-channel1-array" count="12">0 0.000000 0.5 0.1 0.000000 0.5 0 1 0.5 0.1 1 0.5</float_array>
+          <technique_common>
+            <accessor source="#num_09-mesh-map-channel1-array" count="4" stride="3">
+              <param name="S" type="float"/>
+              <param name="T" type="float"/>
+              <param name="P" type="float"/>
+            </accessor>
+          </technique_common>
+        </source>
+        <vertices id="num_09-mesh-vertices">
+          <input semantic="POSITION" source="#num_09-mesh-positions"/>
+        </vertices>
+        <triangles material="FontMaterial" count="2">
+          <input semantic="VERTEX" source="#num_09-mesh-vertices" offset="0"/>
+          <input semantic="NORMAL" source="#num_09-mesh-normals" offset="1"/>
+          <input semantic="TEXCOORD" source="#num_09-mesh-map-channel1" offset="2" set="1"/>
+          <p>2 0 2 0 1 0 3 2 3 1 3 1 3 2 3 0 1 0</p>
+        </triangles>
+      </mesh>
+    </geometry>
+    <geometry id="Frame-mesh" name="Frame">
+      <mesh>
+        <source id="Frame-mesh-positions">
+          <float_array id="Frame-mesh-positions-array" count="48">-33.0736 -7.91614 -0.983525 32.9593 -7.91614 -0.983525 -33.0736 8.11681 -0.983525 32.9594 8.11681 -0.983525 -32.5736 -7.41614 1.01648 32.4593 -7.41614 1.01648 -32.5736 7.61681 1.01648 32.4594 7.61681 1.01648 -31.0736 -5.91614 1.01648 30.9593 -5.91614 1.01648 -31.0736 6.11681 1.01648 30.9593 6.11681 1.01648 -30.0571 -4.89966 0.000000 29.9429 -4.89966 0 -30.0571 5.10034 0.000000 29.9429 5.10034 0.000000</float_array>
+          <technique_common>
+            <accessor source="#Frame-mesh-positions-array" count="16" stride="3">
+              <param name="X" type="float"/>
+              <param name="Y" type="float"/>
+              <param name="Z" type="float"/>
+            </accessor>
+          </technique_common>
+        </source>
+        <source id="Frame-mesh-normals">
+          <float_array id="Frame-mesh-normals-array" count="234">-0.970142 0 0.242536 -0.970142 0 0.242536 -0.970142 0 0.242536 -0.970142 0 0.242536 -0.970143 0 0.242536 -0.970142 0 0.242536 0 0.970142 0.242536 0 0.970142 0.242536 0 0.970142 0.242536 0 0.970142 0.242536 0 0.970143 0.242536 0 0.970143 0.242536 0.970142 -0.000000 0.242536 0.970143 -0.000000 0.242536 0.970142 -0.000000 0.242536 0.970142 -0.000000 0.242536 0.970142 -0.000000 0.242536 0.970142 -0.000000 0.242536 0 -0.970143 0.242536 0 -0.970142 0.242536 0 -0.970142 0.242536 0 -0.970143 0.242536 0 -0.970143 0.242536 0 -0.970143 0.242536 0 0 1 0 0 1 0 0 1 0 0 1 0 0 1 0 0 1 0 0 1 0 0 1 0 0 1 0 0 1 0 0 1 0 0 1 0 0 1 0 0 1 0 0 1 0 0 1 0 0 1 0 0 1 0 0 1 0 0 1 0 0 1 0 0 1 0 0 1 0 0 1 0.707107 0 0.707107 0.707107 0 0.707107 0.707107 0 0.707107 0.707107 0 0.707107 0.707107 0 0.707107 0.707107 0 0.707107 0 -0.707107 0.707107 0 -0.707107 0.707107 0 -0.707107 0.707107 0 -0.707107 0.707107 0 -0.707107 0.707107 0 -0.707107 0.707107 -0.707107 0 0.707107 -0.707107 0 0.707107 -0.707107 0 0.707107 -0.707107 0.000000 0.707107 -0.707107 0.000000 0.707107 -0.707107 0.000000 0.707107 0 0.707107 0.707107 0 0.707107 0.707107 0 0.707107 0.707107 0 0.707107 0.707107 0 0.707107 0.707107 0 0.707107 0.707107 0 0 -1 0 0 -1 0 0 -1 0 0 -1 0 0 -1 0 0 -1</float_array>
+          <technique_common>
+            <accessor source="#Frame-mesh-normals-array" count="78" stride="3">
+              <param name="X" type="float"/>
+              <param name="Y" type="float"/>
+              <param name="Z" type="float"/>
+            </accessor>
+          </technique_common>
+        </source>
+        <source id="Frame-mesh-map-channel1">
+          <float_array id="Frame-mesh-map-channel1-array" count="60">0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 1 0 1 1 0 0 0 0 0 1 0 1 1 0 1 0 0 0 0 0 0 1 0 1 1 0 1 0 0 0 0 0 0 1 0 1 1 0 1 0 0</float_array>
+          <technique_common>
+            <accessor source="#Frame-mesh-map-channel1-array" count="20" stride="3">
+              <param name="S" type="float"/>
+              <param name="T" type="float"/>
+              <param name="P" type="float"/>
+            </accessor>
+          </technique_common>
+        </source>
+        <vertices id="Frame-mesh-vertices">
+          <input semantic="POSITION" source="#Frame-mesh-positions"/>
+        </vertices>
+        <triangles material="FrameMaterial" count="26">
+          <input semantic="VERTEX" source="#Frame-mesh-vertices" offset="0"/>
+          <input semantic="NORMAL" source="#Frame-mesh-normals" offset="1"/>
+          <input semantic="TEXCOORD" source="#Frame-mesh-map-channel1" offset="2" set="1"/>
+          <p>2 0 6 0 1 4 4 2 8 4 3 8 6 4 9 2 5 6 3 6 7 2 7 6 6 8 9 6 9 9 7 10 10 3 11 7 1 12 5 3 13 7 7 14 10 7 15 10 5 16 11 1 17 5 0 18 4 1 19 5 5 20 11 5 21 11 4 22 8 0 23 4 6 24 9 4 25 8 8 26 12 8 27 12 10 28 13 6 29 9 7 30 10 6 31 9 10 32 13 10 33 13 11 34 14 7 35 10 5 36 11 7 37 10 11 38 14 11 39 14 9 40 15 5 41 11 4 42 8 5 43 11 9 44 15 9 45 15 8 46 12 4 47 8 10 48 13 8 49 12 12 50 16 12 51 16 14 52 17 10 53 13 11 54 14 10 55 13 14 56 17 14 57 17 15 58 18 11 59 14 9 60 15 11 61 14 15 62 18 15 63 18 13 64 19 9 65 15 8 66 12 9 67 15 13 68 19 13 69 19 12 70 16 8 71 12 3 72 7 1 73 5 0 74 4 3 75 7 0 76 4 2 77 6</p>
+        </triangles>
+      </mesh>
+    </geometry>
+  </library_geometries>
+  <library_visual_scenes>
+    <visual_scene id="DigitalDisplay.max" name="DigitalDisplay_max">
+      <node id="num_00-node" name="num_00" type="NODE">
+        <matrix>1 0 0 54 0 1 0 0 0 0 1 0 0 0 0 1</matrix>
+        <instance_geometry url="#num_00-mesh">
+          <bind_material>
+            <technique_common>
+              <instance_material symbol="FontMaterial" target="#FontMaterial">
+                <bind_vertex_input semantic="CHANNEL1" input_semantic="TEXCOORD" input_set="1"/>
+              </instance_material>
+            </technique_common>
+          </bind_material>
+        </instance_geometry>
+      </node>
+      <node id="num_01-node" name="num_01" type="NODE">
+        <matrix>1 0 0 48 0 1 0 0 0 0 1 0 0 0 0 1</matrix>
+        <instance_geometry url="#num_01-mesh">
+          <bind_material>
+            <technique_common>
+              <instance_material symbol="FontMaterial" target="#FontMaterial">
+                <bind_vertex_input semantic="CHANNEL1" input_semantic="TEXCOORD" input_set="1"/>
+              </instance_material>
+            </technique_common>
+          </bind_material>
+        </instance_geometry>
+      </node>
+      <node id="num_06-node" name="num_06" type="NODE">
+        <matrix>1 0 0 18 0 1 0 0 0 0 1 0 0 0 0 1</matrix>
+        <instance_geometry url="#num_06-mesh">
+          <bind_material>
+            <technique_common>
+              <instance_material symbol="FontMaterial" target="#FontMaterial">
+                <bind_vertex_input semantic="CHANNEL1" input_semantic="TEXCOORD" input_set="1"/>
+              </instance_material>
+            </technique_common>
+          </bind_material>
+        </instance_geometry>
+      </node>
+      <node id="num_04-node" name="num_04" type="NODE">
+        <matrix>1 0 0 30 0 1 0 0 0 0 1 0 0 0 0 1</matrix>
+        <instance_geometry url="#num_04-mesh">
+          <bind_material>
+            <technique_common>
+              <instance_material symbol="FontMaterial" target="#FontMaterial">
+                <bind_vertex_input semantic="CHANNEL1" input_semantic="TEXCOORD" input_set="1"/>
+              </instance_material>
+            </technique_common>
+          </bind_material>
+        </instance_geometry>
+      </node>
+      <node id="num_05-node" name="num_05" type="NODE">
+        <matrix>1 0 0 24 0 1 0 0 0 0 1 0 0 0 0 1</matrix>
+        <instance_geometry url="#num_05-mesh">
+          <bind_material>
+            <technique_common>
+              <instance_material symbol="FontMaterial" target="#FontMaterial">
+                <bind_vertex_input semantic="CHANNEL1" input_semantic="TEXCOORD" input_set="1"/>
+              </instance_material>
+            </technique_common>
+          </bind_material>
+        </instance_geometry>
+      </node>
+      <node id="num_07-node" name="num_07" type="NODE">
+        <matrix>1 0 0 12 0 1 0 0 0 0 1 0 0 0 0 1</matrix>
+        <instance_geometry url="#num_07-mesh">
+          <bind_material>
+            <technique_common>
+              <instance_material symbol="FontMaterial" target="#FontMaterial">
+                <bind_vertex_input semantic="CHANNEL1" input_semantic="TEXCOORD" input_set="1"/>
+              </instance_material>
+            </technique_common>
+          </bind_material>
+        </instance_geometry>
+      </node>
+      <node id="num_03-node" name="num_03" type="NODE">
+        <matrix>1 0 0 36 0 1 0 0 0 0 1 0 0 0 0 1</matrix>
+        <instance_geometry url="#num_03-mesh">
+          <bind_material>
+            <technique_common>
+              <instance_material symbol="FontMaterial" target="#FontMaterial">
+                <bind_vertex_input semantic="CHANNEL1" input_semantic="TEXCOORD" input_set="1"/>
+              </instance_material>
+            </technique_common>
+          </bind_material>
+        </instance_geometry>
+      </node>
+      <node id="num_02-node" name="num_02" type="NODE">
+        <matrix>1 0 0 42 0 1 0 0 0 0 1 0 0 0 0 1</matrix>
+        <instance_geometry url="#num_02-mesh">
+          <bind_material>
+            <technique_common>
+              <instance_material symbol="FontMaterial" target="#FontMaterial">
+                <bind_vertex_input semantic="CHANNEL1" input_semantic="TEXCOORD" input_set="1"/>
+              </instance_material>
+            </technique_common>
+          </bind_material>
+        </instance_geometry>
+      </node>
+      <node id="num_08-node" name="num_08" type="NODE">
+        <matrix>1 0 0 6 0 1 0 0 0 0 1 0 0 0 0 1</matrix>
+        <instance_geometry url="#num_08-mesh">
+          <bind_material>
+            <technique_common>
+              <instance_material symbol="FontMaterial" target="#FontMaterial">
+                <bind_vertex_input semantic="CHANNEL1" input_semantic="TEXCOORD" input_set="1"/>
+              </instance_material>
+            </technique_common>
+          </bind_material>
+        </instance_geometry>
+      </node>
+      <node id="num_09-node" name="num_09" type="NODE">
+        <matrix>1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1</matrix>
+        <instance_geometry url="#num_09-mesh">
+          <bind_material>
+            <technique_common>
+              <instance_material symbol="FontMaterial" target="#FontMaterial">
+                <bind_vertex_input semantic="CHANNEL1" input_semantic="TEXCOORD" input_set="1"/>
+              </instance_material>
+            </technique_common>
+          </bind_material>
+        </instance_geometry>
+      </node>
+      <node id="Frame-node" name="Frame" type="NODE">
+        <matrix>1 0 0 0.057127 0 1 0 -0.100337 0 0 1 0 0 0 0 1</matrix>
+        <instance_geometry url="#Frame-mesh">
+          <bind_material>
+            <technique_common>
+              <instance_material symbol="FrameMaterial" target="#FrameMaterial"/>
+            </technique_common>
+          </bind_material>
+        </instance_geometry>
+      </node>
+      <extra>
+        <technique profile="FCOLLADA">
+          <start_time>0</start_time>
+          <end_time>3.33333</end_time>
+        </technique>
+      </extra>
+      <extra>
+        <technique profile="MAX3D">
+          <frame_rate>30</frame_rate>
+        </technique>
+      </extra>
+    </visual_scene>
+  </library_visual_scenes>
+  <scene>
+    <instance_visual_scene url="#DigitalDisplay.max"/>
+  </scene>
+</COLLADA>
